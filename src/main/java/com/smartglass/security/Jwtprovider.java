@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +14,13 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 /**
- * Encargado de generar y validar los tokens JWT usados para
- * autenticar a los usuarios de SmartGlass.
- *
- * Configuracion esperada en application.properties / application.yml:
- *   smartglass.jwt.secret=<clave-base64-de-al-menos-256-bits>
- *   smartglass.jwt.expiration-ms=86400000
+ * VERSION AJUSTADA A JJWT 0.12.x: tu pom.xml quedo con esa version
+ * (no 0.11.5 como asumi originalmente), que renombro/elimino varios
+ * metodos: Jwts.parserBuilder() -> Jwts.parser(); parseClaimsJws()
+ * -> parseSignedClaims(); getBody() -> getPayload(); y signWith(Key)
+ * ya no necesita el SignatureAlgorithm explicito (lo infiere de la
+ * clave). Si prefieres mantener el codigo con la API vieja, fija
+ * jjwt a la version 0.11.5 en el pom.xml en vez de usar esta clase.
  */
 @Component
 public class JwtProvider {
@@ -38,43 +38,34 @@ public class JwtProvider {
         this.expirationMs = expirationMs;
     }
 
-    /**
-     * Genera un token JWT firmado para el username indicado.
-     */
     public String generateToken(String username) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .subject(username)
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(secretKey)
                 .compact();
     }
 
-    /**
-     * Extrae el username (subject) contenido en el token.
-     */
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+        Claims claims = Jwts.parser()
+                .verifyWith(secretKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
 
         return claims.getSubject();
     }
 
-    /**
-     * Valida firma, formato y expiracion del token.
-     */
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
+            Jwts.parser()
+                    .verifyWith(secretKey)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (ExpiredJwtException ex) {
             log.warn("Token JWT expirado: {}", ex.getMessage());

@@ -1,6 +1,6 @@
 package com.smartglass.security;
 
-import com.smartglass.model.Usuario;
+import com.smartglass.model.mysql.Usuario;
 import com.smartglass.service.UserService;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

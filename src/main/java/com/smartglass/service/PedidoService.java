@@ -1,6 +1,6 @@
 package com.smartglass.service;
 
-import com.smartglass.model.ItemCarrito;
+import com.smartglass.model.mongo.ItemCarrito;
 import com.smartglass.model.mysql.DetallePedido;
 import com.smartglass.model.mysql.Pedido;
 import com.smartglass.model.mysql.Usuario;

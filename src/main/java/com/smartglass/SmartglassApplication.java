@@ -1,4 +1,4 @@
-package com.smartglass.smartglass;
+package com.smartglass;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

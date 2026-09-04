@@ -36,7 +36,7 @@ public class VidrioPersonalizadoController {
     @GetMapping("/{id}")
     public ResponseEntity<?> obtener(@PathVariable String id) {
         return vidrioSostenibleService.obtenerPorId(id)
-                .map(vidrio -> ResponseEntity.ok(CotizacionVidrioResponse.from(vidrio)))
+                .<ResponseEntity<?>>map(vidrio -> ResponseEntity.ok(CotizacionVidrioResponse.from(vidrio)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new ErrorResponse("No existe una cotizacion con id " + id)));
     }
@@ -52,7 +52,7 @@ public class VidrioPersonalizadoController {
     @PatchMapping("/{id}/estado")
     public ResponseEntity<?> actualizarEstado(@PathVariable String id, @RequestParam String estado) {
         return vidrioSostenibleService.actualizarEstado(id, estado)
-                .map(vidrio -> ResponseEntity.ok(CotizacionVidrioResponse.from(vidrio)))
+                .<ResponseEntity<?>>map(vidrio -> ResponseEntity.ok(CotizacionVidrioResponse.from(vidrio)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new ErrorResponse("No existe una cotizacion con id " + id)));
     }

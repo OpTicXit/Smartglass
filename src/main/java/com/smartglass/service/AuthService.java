@@ -7,7 +7,6 @@ import com.smartglass.security.JwtProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,36 +14,32 @@ import java.util.Optional;
 /**
  * Estructura base de autenticacion de SmartGlass.
  *
- * Encapsula el registro de usuarios (con password encriptado via
- * BCrypt) y el login, que delega en el AuthenticationManager de
- * Spring Security y devuelve un JWT firmado por JwtProvider.
- *
- * NOTA / TODO: ajustar los campos de RegisterRequest/LoginRequest y
- * la firma de UserService.register(...) a los que ya existen en tu
- * proyecto (ver CustomOAuth2UserService, que llama a
- * userService.register(nombre, email, password, rol, username, token)).
+ * Encapsula el registro de usuarios y el login, que delega en el
+ * AuthenticationManager de Spring Security y devuelve un JWT firmado
+ * por JwtProvider. El encriptado de la contraseña ya NO ocurre aqui:
+ * UserService.register(...) lo hace internamente con BCrypt, asi que
+ * este service solo le pasa la contraseña en texto plano recibida
+ * del DTO.
  */
 @Service
 public class AuthService {
 
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
 
     public AuthService(UserService userService,
-                        PasswordEncoder passwordEncoder,
                         AuthenticationManager authenticationManager,
                         JwtProvider jwtProvider) {
         this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtProvider = jwtProvider;
     }
 
     /**
-     * Registra un nuevo usuario con la contrasena encriptada.
-     * Lanza IllegalStateException si el email ya esta en uso.
+     * Registra un nuevo usuario. Lanza IllegalStateException si el
+     * email ya esta en uso, o si UserService.register(...) devuelve
+     * null (username o email ya existen -- ver su implementacion).
      */
     public Usuario register(RegisterRequest request) {
         Optional<Usuario> existente = userService.findByEmail(request.getEmail());
@@ -52,19 +47,18 @@ public class AuthService {
             throw new IllegalStateException("Ya existe una cuenta con ese email.");
         }
 
-        String passwordEncriptada = passwordEncoder.encode(request.getPassword());
-
+        // Firma real de UserService.register: (nombre, email, telefono, tipoUsuario, username, password)
         Usuario usuario = userService.register(
                 request.getNombre(),
                 request.getEmail(),
-                passwordEncriptada,
+                null, // telefono: RegisterRequest no lo pide todavia
                 "ROLE_USER",
                 request.getUsername(),
-                null
+                request.getPassword() // texto plano: UserService ya lo encripta con BCrypt
         );
 
         if (usuario == null) {
-            throw new IllegalStateException("No se pudo crear el usuario en la base de datos.");
+            throw new IllegalStateException("El username o el email ya estan en uso.");
         }
 
         return usuario;
