@@ -77,12 +77,13 @@
             
             <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
                 <span style="color: var(--text-muted);">Índice de Resistencia:</span>
-                <strong style="color: var(--text-main); font-size: 1.1rem;" th:text="${vidrio.resistenciaEstimada != null ? vidrio.resistenciaEstimada + ' MPa' : 'N/D'}">0.0 MPa</strong>
+                <strong style="color: var(--text-main); font-size: 1.1rem;" id="resistencia-valor" th:text="${vidrio.resistenciaEstimada != null ? vidrio.resistenciaEstimada + ' MPa' : 'N/D'}">0.0 MPa</strong>
             </div>
             
             <div>
                 <span style="display: block; color: var(--text-muted); margin-bottom: 8px;">Diagnóstico Técnico:</span>
-                <p style="margin: 0; color: var(--text-main); font-style: italic; background: var(--bg-tertiary); padding: 15px; border-radius: 8px; line-height: 1.5; border: 1px solid var(--border-color);" 
+                <p style="margin: 0; color: var(--text-main); font-style: italic; background: var(--bg-tertiary); padding: 15px; border-radius: 8px; line-height: 1.5; border: 1px solid var(--border-color);"
+                   id="recomendacion-texto"
                    th:text="${vidrio.recomendacion != null ? vidrio.recomendacion : 'Esperando análisis...'}">
                 </p>
             </div>
@@ -144,5 +145,6 @@
         });
 </script>
 
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

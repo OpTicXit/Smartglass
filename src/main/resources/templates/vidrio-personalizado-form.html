@@ -2,104 +2,284 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Cotizar Vidrio a Medida</title>
+    <title>SmartGlass - Diseño Industrial Avanzado</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
         .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
+        
+        .form-container { max-width: 1250px; margin: 40px auto; display: grid; grid-template-columns: 1fr 400px; gap: 30px; padding: 0 20px; }
+        .card-form { background: var(--bg-secondary); border-radius: 16px; padding: 35px; border: 1px solid var(--border-color); }
+        .card-form h2 { color: var(--color-accent); margin-top: 0; margin-bottom: 10px; }
 
-        .form-container { max-width: 700px; margin: 40px auto; padding: 30px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; }
-        .form-container h1 { color: var(--color-accent); margin-top: 0; }
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .form-group label { display: flex; align-items: center; margin-bottom: 10px; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border-radius: 8px; box-sizing: border-box; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-main); transition: 0.3s; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--color-accent); outline: none; }
+        .form-group optgroup { background: var(--bg-secondary); color: var(--color-accent); font-style: normal; font-weight: bold; }
+        .form-group option { background: var(--bg-tertiary); color: var(--text-main); font-weight: normal; }
 
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; }
-        .form-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .form-row.dos { grid-template-columns: 1fr 1fr; }
+        /* Tooltips de Ayuda Contextual */
+        .tooltip-icon { color: var(--color-info); margin-left: 8px; font-size: 0.9rem; cursor: help; position: relative; }
+        .tooltip-text { visibility: hidden; width: 220px; background-color: var(--bg-primary); color: var(--text-main); text-align: left; border-radius: 8px; padding: 12px; position: absolute; z-index: 10; bottom: 150%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s, transform 0.3s; font-size: 0.75rem; font-weight: normal; text-transform: none; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.5); line-height: 1.4; pointer-events: none; }
+        .tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px; border-width: 6px; border-style: solid; border-color: var(--border-color) transparent transparent transparent; }
+        .tooltip-icon:hover .tooltip-text { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(5px); }
 
-        .checkbox-row { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-        .checkbox-row input { width: auto; }
+        .sustainability-panel { background: rgba(166, 227, 161, 0.05); padding: 25px; border-radius: 15px; border: 1px solid var(--color-success); margin: 25px 0; }
+        
+        .preview-sticky { position: sticky; top: 40px; background: var(--bg-tertiary); border: 1px dashed var(--color-accent); border-radius: 16px; padding: 30px; }
+        .preview-stat { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid var(--border-color); }
+        .price-big { font-size: 2.2rem; font-weight: bold; color: var(--color-success); text-align: center; margin: 25px 0; }
 
-        .btn-submit { width: 100%; padding: 15px; background: var(--color-accent); color: var(--text-on-accent); border-radius: 8px; font-weight: bold; font-size: 1.05rem; margin-top: 10px; }
+        .btn-calc { width: 100%; padding: 18px; background: var(--color-accent); color: var(--bg-primary); border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
+        .btn-calc:hover { background: var(--color-accent-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(137, 180, 250, 0.3); }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
     <a th:href="@{/usuario}" class="logo">◆ SmartGlass</a>
-    <a th:href="@{/vidrio-personalizado/mis-cotizaciones}" style="color:var(--text-main); text-decoration:none;">← Mis cotizaciones</a>
+    <div style="display:flex; gap:15px;">
+        <a th:href="@{/catalogo}" style="color:var(--text-main); text-decoration:none;">Tienda</a>
+        <a th:href="@{/vidrio-personalizado/mis-cotizaciones}" style="color:var(--text-main); text-decoration:none;">Mis Proyectos</a>
+    </div>
 </nav>
 
 <div class="form-container">
-    <h1>Diseña tu vidrio a medida</h1>
-    <p style="color: var(--text-muted);">
-        NOTA: esta es una version minima temporal -- el archivo original
-        "vidrio-personalizado-form.html" no llego con contenido, avisame
-        cuando lo tengas y lo reemplazo manteniendo esta misma logica de envio.
-    </p>
+    <div class="card-form">
+        <h2>🛠️ Especificaciones de Producción</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px;">
+            Diseña tu vidrio a medida con calidad industrial. Pasa el cursor sobre los íconos <i class="fas fa-question-circle" style="color:var(--color-info);"></i> para ayuda técnica.
+        </p>
 
-    <form th:action="@{/vidrio-personalizado/cotizar}" method="post">
-        <div class="form-group">
-            <label>Tipo de vidrio</label>
-            <input type="text" name="tipoVidrio" th:value="${param.tipo}" required>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group"><label>Ancho (cm)</label><input type="number" step="0.1" name="ancho" required></div>
-            <div class="form-group"><label>Alto (cm)</label><input type="number" step="0.1" name="alto" required></div>
-            <div class="form-group"><label>Espesor (mm)</label><input type="number" step="0.1" name="espesor" required></div>
-        </div>
-
-        <div class="form-row dos">
-            <div class="form-group">
-                <label>Tratamiento</label>
-                <select name="tratamiento">
-                    <option value="templado">Templado</option>
-                    <option value="laminado">Laminado</option>
-                    <option value="insulado">Insulado</option>
-                    <option value="">Ninguno</option>
-                </select>
+        <form th:action="@{/vidrio-personalizado/cotizar}" method="post" id="formCotizacion">
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Uso Principal
+                        <div class="tooltip-icon"><i class="fas fa-question-circle"></i>
+                            <span class="tooltip-text">Ayuda a nuestra API a determinar si el espesor seleccionado es seguro según normas de construcción para este propósito.</span>
+                        </div>
+                    </label>
+                    <select name="usoPrincipal" id="usoPrincipal">
+                        <optgroup label="Residencial e Interiores">
+                            <option value="Mobiliario">Cubierta de Mesa / Mueble</option>
+                            <option value="Ducha">División de Baño / Ducha</option>
+                            <option value="Espejo">Espejo Decorativo</option>
+                            <option value="Repisa">Repisa / Estantería</option>
+                        </optgroup>
+                        <optgroup label="Arquitectónico y Exterior">
+                            <option value="Ventana">Ventana (Residencial/Comercial)</option>
+                            <option value="Puerta">Puerta de Vidrio</option>
+                            <option value="Baranda">Baranda / Pasamanos / Balcón</option>
+                            <option value="Fachada">Fachada / Muro Cortina</option>
+                            <option value="Piso">Piso / Escalera de Vidrio</option>
+                            <option value="Techo">Pérgola / Marquesina</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Vidrio Base
+                        <div class="tooltip-icon"><i class="fas fa-question-circle"></i>
+                            <span class="tooltip-text"><b>Templado:</b> 5x más resistente.<br><b>Laminado:</b> No se astilla (seguridad).<br><b>Insulado:</b> Aísla calor y ruido.<br><b>Inteligente:</b> Privacidad controlada.</span>
+                        </div>
+                    </label>
+                    <select name="tipoVidrio" id="tipoVidrio">
+                        <option value="Crudo">Crudo (Estándar)</option>
+                        <option value="Templado" selected>Templado (Seguridad Térmica/Mecánica)</option>
+                        <option value="Laminado">Laminado (Seguridad Antivandalismo)</option>
+                        <option value="TempladoLaminado">Templado + Laminado (Máxima Seguridad)</option>
+                        <option value="Insulado">Insulado / Termoacústico (Cámara Aire)</option>
+                        <option value="Inteligente">Inteligente / PDLC (Privacidad Variable)</option>
+                        <option value="Fotovoltaico">Fotovoltaico (Generador Solar Integrado)</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Forma</label>
-                <input type="text" name="forma" placeholder="Rectangular, curvo...">
+
+            <div class="form-row">
+                <div class="form-group"><label>Ancho (cm)</label><input type="number" name="ancho" id="ancho" value="105" min="10"></div>
+                <div class="form-group"><label>Alto (cm)</label><input type="number" name="alto" id="alto" value="105" min="10"></div>
+                <div class="form-group">
+                    <label>Espesor Total (mm)
+                        <div class="tooltip-icon"><i class="fas fa-question-circle"></i>
+                            <span class="tooltip-text">Recomendaciones: <br>Muebles: 6-8mm<br>Ventanas: 6-10mm<br>Duchas: 8-10mm<br>Barandas/Pisos: 12-25mm</span>
+                        </div>
+                    </label>
+                    <input type="number" name="espesor" id="espesor" value="7" min="4" max="40">
+                </div>
             </div>
-        </div>
 
-        <div class="form-row dos">
-            <div class="form-group"><label>Color</label><input type="text" name="color"></div>
-            <div class="form-group"><label>Cantidad de capas</label><input type="number" name="cantidadCapas" value="1" min="1"></div>
-        </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tratamiento Superficial</label>
+                    <select name="tratamiento" id="tratamiento">
+                        <option value="Ninguno">Incoloro / Extra Claro</option>
+                        <option value="TintadoGris">Tintado en Masa (Gris Humo)</option>
+                        <option value="TintadoBronce">Tintado en Masa (Bronce)</option>
+                        <option value="ControlSolar">Control Solar (Low-E / Baja Emisividad)</option>
+                        <option value="Esmerilado">Esmerilado (Sandblasting Completo)</option>
+                        <option value="Serigrafiado">Serigrafiado (Patrón a Medida)</option>
+                        <option value="Antireflejo">Antirreflejo (Para vitrinas/museos)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Geometría de Corte</label>
+                    <select name="forma" id="forma">
+                        <option value="Rectangular">Rectangular / Cuadrado</option>
+                        <option value="Circular">Circular / Elíptico</option>
+                        <option value="Triangular">Triangular / Trapezoidal</option>
+                        <option value="Irregular">Corte Irregular (Requiere Plano CAD)</option>
+                    </select>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label>Notas adicionales</label>
-            <textarea name="notasAdicionales" rows="3"></textarea>
-        </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Acabado de Bordes
+                        <div class="tooltip-icon"><i class="fas fa-question-circle"></i>
+                            <span class="tooltip-text">Si el borde quedará expuesto (ej. mesa o ducha), selecciona "Pulido Plano" para evitar cortes. Si irá dentro de un marco, elige "Corte Limpio".</span>
+                        </div>
+                    </label>
+                    <select name="acabadoBordes" id="acabadoBordes">
+                        <option value="CorteLimpio">Corte Limpio (Para Enmarcar)</option>
+                        <option value="PulidoPlano">Pulido Plano Brillante (Expuesto)</option>
+                        <option value="Biselado">Biselado Decorativo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Perforaciones / Saques
+                        <div class="tooltip-icon"><i class="fas fa-question-circle"></i>
+                            <span class="tooltip-text">Necesario si vas a instalar bisagras, chapas, conectores o pasamanos a través del vidrio.</span>
+                        </div>
+                    </label>
+                    <select name="perforaciones" id="perforaciones">
+                        <option value="0">Ninguna</option>
+                        <option value="2">1 a 2 perforaciones</option>
+                        <option value="4">3 a 4 perforaciones</option>
+                        <option value="6">Más de 4 (Estructural)</option>
+                    </select>
+                </div>
+            </div>
 
-        <div class="checkbox-row">
-            <input type="checkbox" id="requiereCorteEspecial" name="requiereCorteEspecial" value="true">
-            <label for="requiereCorteEspecial" style="margin:0;">Requiere corte especial</label>
-        </div>
-        <div class="checkbox-row">
-            <input type="checkbox" id="usarVidrioReciclado" name="usarVidrioReciclado" value="true">
-            <label for="usarVidrioReciclado" style="margin:0;">Usar vidrio reciclado</label>
-        </div>
-        <div class="form-group" style="max-width: 200px;">
-            <label>% material reciclado</label>
-            <input type="number" name="porcentajeReciclado" value="0" min="0" max="100">
-        </div>
-        <div class="checkbox-row">
-            <input type="checkbox" id="energiaRenovable" name="energiaRenovable" value="true">
-            <label for="energiaRenovable" style="margin:0;">Fabricar con energía renovable</label>
-        </div>
-        <div class="checkbox-row">
-            <input type="checkbox" id="compensarCarbono" name="compensarCarbono" value="true">
-            <label for="compensarCarbono" style="margin:0;">Compensar huella de carbono</label>
-        </div>
+            <div class="sustainability-panel">
+                <h3 style="color:var(--color-success); margin-top:0; font-size:1rem; display:flex; align-items:center; gap:10px;">
+                    🌱 Configuración de Sostenibilidad
+                </h3>
+                <div style="display:grid; gap:15px; margin-top:15px;">
+                    <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+                        <input type="checkbox" name="usarVidrioReciclado" id="opcionEco" style="width:18px; height:18px;" checked>
+                        <span style="color: var(--text-main);">Integrar <strong>Material Reciclado</strong> (Reduce 15% huella)</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+                        <input type="checkbox" name="energiaRenovable" id="energiaRenovable" style="width:18px; height:18px;" checked>
+                        <span style="color: var(--text-main);">Procesar con <strong>Energía Solar/Eólica</strong></span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+                        <input type="checkbox" name="compensarCarbono" id="compensar" style="width:18px; height:18px;" checked>
+                        <span style="color: var(--text-main);">Activar <strong>Compensación CO₂</strong> (+5,000 COP)</span>
+                    </label>
+                </div>
+            </div>
 
-        <button type="submit" class="btn-submit">Generar cotización</button>
-    </form>
+            <button type="submit" class="btn-calc">Generar Análisis Industrial y CO₂</button>
+        </form>
+    </div>
+
+    <aside>
+        <div class="preview-sticky">
+            <h3 style="margin-top:0; color:var(--color-accent);">Indicadores Técnicos</h3>
+            <div class="preview-stat"><span>Área de Producción:</span> <strong id="areaText" style="color: var(--text-main);">1.10 m²</strong></div>
+            <div class="preview-stat"><span>Peso Estructural:</span> <strong id="pesoText" style="color: var(--text-main);">19.3 kg</strong></div>
+            <div class="preview-stat"><span>Emisiones CO₂e:</span> <strong id="co2Text" style="color:var(--color-warning);">9.8 kg</strong></div>
+            
+            <div class="price-big" id="priceText">$175.959</div>
+            <p style="text-align:center; font-size:0.75rem; color:var(--text-muted);">
+                * Cálculos paramétricos. El precio final puede variar según validación técnica en fábrica.
+            </p>
+        </div>
+    </aside>
 </div>
+
+<script>
+    const inputs = document.querySelectorAll('input, select');
+    
+    function actualizarVista() {
+        const w = parseFloat(document.getElementById('ancho').value) || 0;
+        const h = parseFloat(document.getElementById('alto').value) || 0;
+        const e = parseFloat(document.getElementById('espesor').value) || 0;
+        const area = (w * h) / 10000;
+        
+        // Densidad paramétrica según el tipo de vidrio
+        const tipoVidrio = document.getElementById('tipoVidrio').value;
+        let factorDensidad = 2.5; // Densidad estándar vidrio crudo/templado
+        if (tipoVidrio === 'Insulado') factorDensidad = 2.0; // Menor peso por m2 de espesor total
+        if (tipoVidrio === 'Laminado' || tipoVidrio === 'TempladoLaminado') factorDensidad = 2.6; // Mayor peso por el polímero
+        
+        const peso = area * e * factorDensidad;
+        
+        // Variables de sostenibilidad y extras
+        const isEco = document.getElementById('opcionEco').checked;
+        const isRenovable = document.getElementById('energiaRenovable').checked;
+        const compensar = document.getElementById('compensar').checked;
+        const perforaciones = parseInt(document.getElementById('perforaciones').value) || 0;
+        const acabado = document.getElementById('acabadoBordes').value;
+        const tratamiento = document.getElementById('tratamiento').value;
+
+        // UI Text: Área y Peso
+        document.getElementById('areaText').textContent = area.toFixed(2) + " m²";
+        document.getElementById('pesoText').textContent = peso.toFixed(1) + " kg";
+        
+        // UI Text: Huella de Carbono
+        let factorCO2 = isRenovable ? 0.6 : 1.1;
+        if (tipoVidrio === 'TempladoLaminado') factorCO2 *= 1.4; // Doble proceso de horneado
+        if (tipoVidrio === 'Inteligente' || tipoVidrio === 'Fotovoltaico') factorCO2 *= 1.8; // Alta tecnología
+        if(isEco) factorCO2 *= 0.85; // Descuento por reciclado
+        
+        document.getElementById('co2Text').textContent = (peso * factorCO2).toFixed(1) + " kg";
+        
+        // Cálculo del Precio Base por Metro Cuadrado según material
+        let precioBaseMetroCuadrado = 80000;
+        switch(tipoVidrio) {
+            case 'Templado': precioBaseMetroCuadrado = 120000; break;
+            case 'Laminado': precioBaseMetroCuadrado = 160000; break;
+            case 'TempladoLaminado': precioBaseMetroCuadrado = 280000; break;
+            case 'Insulado': precioBaseMetroCuadrado = 220000; break;
+            case 'Inteligente': precioBaseMetroCuadrado = 850000; break;
+            case 'Fotovoltaico': precioBaseMetroCuadrado = 1200000; break;
+        }
+
+        // Suma de tratamientos por metro cuadrado
+        if (tratamiento === 'ControlSolar' || tratamiento === 'Antireflejo') precioBaseMetroCuadrado += 50000;
+        if (tratamiento === 'Serigrafiado') precioBaseMetroCuadrado += 80000;
+        if (tratamiento === 'TintadoGris' || tratamiento === 'TintadoBronce') precioBaseMetroCuadrado += 25000;
+
+        let precio = area * precioBaseMetroCuadrado * (e / 5); // Normalizado a un espesor base de 5mm
+        
+        // Costos fijos adicionales (Mano de obra y maquinaria)
+        if (acabado === 'PulidoPlano') precio += (((w + h) * 2) / 100) * 8000; // Metro lineal
+        if (acabado === 'Biselado') precio += (((w + h) * 2) / 100) * 15000; // Metro lineal
+        precio += perforaciones * 12000; // Por unidad
+        
+        // Sostenibilidad monetaria
+        if (compensar) precio += 5000;
+        if (isEco) precio *= 0.95; // 5% descuento por elegir reciclado
+
+        // Formato final
+        document.getElementById('priceText').textContent = "$" + Math.round(precio).toLocaleString('es-CO');
+    }
+
+    // eventos en todo el formulario
+    inputs.forEach(i => i.addEventListener('input', actualizarVista));
+    
+    // Ejecutar al cargar la página para reflejar valores por defecto
+    actualizarVista();
+
+
+</script>
+
+<script th:src="@{/js/main.js}"></script>
 
 </body>
 </html>

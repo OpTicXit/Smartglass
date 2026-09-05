@@ -14,6 +14,13 @@ public class CotizacionVidrioRequest {
     private boolean requiereCorteEspecial;
     private String notasAdicionales;
 
+    // Campos del formulario real (vidrio-personalizado-form.html) que
+    // el AnalisisService todavia no usa en el calculo -- se capturan
+    // igual para no perderlos silenciosamente al hacer el bind.
+    private String usoPrincipal;
+    private String acabadoBordes;
+    private int perforaciones;
+
     private boolean usarVidrioReciclado;
     private int porcentajeReciclado;
     private boolean energiaRenovable;
@@ -54,6 +61,15 @@ public class CotizacionVidrioRequest {
 
     public String getNotasAdicionales() { return notasAdicionales; }
     public void setNotasAdicionales(String notasAdicionales) { this.notasAdicionales = notasAdicionales; }
+
+    public String getUsoPrincipal() { return usoPrincipal; }
+    public void setUsoPrincipal(String usoPrincipal) { this.usoPrincipal = usoPrincipal; }
+
+    public String getAcabadoBordes() { return acabadoBordes; }
+    public void setAcabadoBordes(String acabadoBordes) { this.acabadoBordes = acabadoBordes; }
+
+    public int getPerforaciones() { return perforaciones; }
+    public void setPerforaciones(int perforaciones) { this.perforaciones = perforaciones; }
 
     public boolean isUsarVidrioReciclado() { return usarVidrioReciclado; }
     public void setUsarVidrioReciclado(boolean usarVidrioReciclado) { this.usarVidrioReciclado = usarVidrioReciclado; }

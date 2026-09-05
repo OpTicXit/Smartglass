@@ -120,7 +120,6 @@ public class DetallePedido {
         return String.format("$ %,.0f", precioUnitario);
     }
 
-
     public boolean esPersonalizado() {
         return anchoPersonalizado != null || altoPersonalizado != null;
     }

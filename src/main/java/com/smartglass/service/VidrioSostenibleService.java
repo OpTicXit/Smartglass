@@ -40,6 +40,9 @@ public class VidrioSostenibleService {
         vidrio.setCantidadCapas(request.getCantidadCapas());
         vidrio.setRequiereCorteEspecial(request.isRequiereCorteEspecial());
         vidrio.setNotasAdicionales(request.getNotasAdicionales());
+        vidrio.setUsoPrincipal(request.getUsoPrincipal());
+        vidrio.setAcabadoBordes(request.getAcabadoBordes());
+        vidrio.setPerforaciones(request.getPerforaciones());
         vidrio.setUsarVidrioReciclado(request.isUsarVidrioReciclado());
         vidrio.setPorcentajeReciclado(request.getPorcentajeReciclado());
         vidrio.setEnergiaRenovable(request.isEnergiaRenovable());

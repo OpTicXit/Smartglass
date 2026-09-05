@@ -39,6 +39,13 @@ public class VidrioSostenible {
     private double areaTotal;
     private double pesoEstimado;
 
+    // Campos del formulario real que AnalisisService todavia no usa
+    // en el calculo -- se guardan para no perderlos, y quedan listos
+    // para cuando se decida incorporarlos a la formula.
+    private String usoPrincipal;
+    private String acabadoBordes;
+    private int perforaciones;
+
     private String notasAdicionales;
 
     // --- Huella de CO2 y materiales ---
@@ -108,6 +115,15 @@ public class VidrioSostenible {
 
     public String getNotasAdicionales() { return notasAdicionales; }
     public void setNotasAdicionales(String notasAdicionales) { this.notasAdicionales = notasAdicionales; }
+
+    public String getUsoPrincipal() { return usoPrincipal; }
+    public void setUsoPrincipal(String usoPrincipal) { this.usoPrincipal = usoPrincipal; }
+
+    public String getAcabadoBordes() { return acabadoBordes; }
+    public void setAcabadoBordes(String acabadoBordes) { this.acabadoBordes = acabadoBordes; }
+
+    public int getPerforaciones() { return perforaciones; }
+    public void setPerforaciones(int perforaciones) { this.perforaciones = perforaciones; }
 
     public double getAreaTotal() { return areaTotal; }
     public void setAreaTotal(double areaTotal) { this.areaTotal = areaTotal; }
