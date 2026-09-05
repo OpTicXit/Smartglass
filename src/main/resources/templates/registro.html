@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartGlass - Registro</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    
+    <style>
+        .login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-main);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+            border: 1px solid var(--border-color);
+        }
+
+        .login-container h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: var(--color-accent);
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .login-form input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .btn-submit {
+            background: var(--color-accent);
+            color: var(--text-on-accent);
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background: var(--color-accent-hover);
+        }
+
+        .alert-error {
+            color: var(--color-error);
+            background: rgba(243, 139, 168, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        .links-container {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .links-container a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .links-container a:hover {
+            color: var(--color-accent);
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-page">
+    <div class="login-container">
+        <h2>Crear Cuenta</h2>
+
+        <form class="login-form" th:action="@{/registro}" method="POST">
+            <input type="text" name="nombre" placeholder="Nombre completo" required>
+            <input type="email" name="email" placeholder="Correo electrónico" required>
+            <input type="tel" name="telefono" placeholder="Teléfono" required>
+            <input type="text" name="username" placeholder="Usuario (Login)" required>
+            <input type="password" name="password" placeholder="Contraseña" required>
+
+            <button type="submit" class="btn-submit">Registrarse</button>
+
+            <div th:if="${error}" class="alert-error">
+                ❌ <span th:text="${error}">El usuario o correo ya existe</span>
+            </div>
+
+            <div class="links-container">
+                <a href="/login" style="color: var(--color-accent); font-weight: bold;">← Volver al login</a>
+                <a href="/home">← Ir al inicio</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

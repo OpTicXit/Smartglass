@@ -27,7 +27,9 @@ import java.security.Principal;
 @ControllerAdvice(assignableTypes = {
         TiendaController.class,
         CarritoController.class,
-        CheckoutController.class
+        CheckoutController.class,
+        UsuarioDashboardController.class,
+        VidrioPersonalizadoWebController.class
 })
 public class VistaGlobalAttributesAdvice {
 

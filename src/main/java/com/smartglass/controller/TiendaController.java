@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
  * por API). No requiere autenticacion -- SecurityConfig ya deja todo
  * excepto /admin, /usuario, /carrito y /checkout como permitAll.
  *
+ * AJUSTE: rutas renombradas de /Tienda, /TiendaDestacada, /info/{id}
+ * a /catalogo, /destacados, /detalle/{id} para coincidir con las
+ * plantillas reales (catalogo.html, destacados.html, detalle.html).
+ *
  * Los atributos de header (usuarioLogueado, usuario, cantidadCarrito)
  * los agrega VistaGlobalAttributesAdvice; este controller no repite
  * esa logica.
@@ -27,26 +31,26 @@ public class TiendaController {
         this.productoService = productoService;
     }
 
-    @GetMapping("/Tienda")
-    public String verTienda(@RequestParam(required = false) String q, Model model) {
+    @GetMapping("/catalogo")
+    public String verCatalogo(@RequestParam(required = false) String q, Model model) {
         model.addAttribute("productos", productoService.buscarPorNombre(q));
         model.addAttribute("query", q);
-        return "Tienda";
+        return "catalogo";
     }
 
-    @GetMapping("/TiendaDestacada")
-    public String verTiendaDestacada(Model model) {
+    @GetMapping("/destacados")
+    public String verDestacados(Model model) {
         model.addAttribute("destacados", productoService.obtenerDestacados());
-        return "TiendaDestacada";
+        return "destacados";
     }
 
-    @GetMapping("/info/{id}")
+    @GetMapping("/detalle/{id}")
     public String verDetalleProducto(@PathVariable String id, Model model) {
         return productoService.obtenerPorId(id)
                 .map(producto -> {
                     model.addAttribute("producto", producto);
-                    return "info";
+                    return "detalle";
                 })
-                .orElse("redirect:/Tienda");
+                .orElse("redirect:/catalogo");
     }
 }

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartGlass - Detalle del Producto</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    
+    <style>
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
+        
+        .detalle-grid { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 30px; max-width: 1200px; margin: 50px auto; padding: 20px; background: var(--bg-secondary); border-radius: 16px; border: 1px solid var(--border-color); }
+
+        .miniaturas { display: flex; flex-direction: column; gap: 10px; }
+        .miniaturas img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid transparent; cursor: pointer; }
+        .miniaturas img.active { border-color: var(--color-accent); }
+
+        .imagen-principal img { width: 100%; height: 500px; object-fit: cover; border-radius: 12px; }
+
+        .info-producto h1 { font-size: 2.2rem; color: var(--text-main); margin-bottom: 5px; }
+        .info-producto .precio { font-size: 2rem; color: var(--color-accent); font-weight: bold; margin: 20px 0; }
+
+        .selector-cantidad { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .selector-cantidad button { width: 40px; height: 40px; border-radius: 8px; background: var(--bg-tertiary); color: var(--text-main); font-size: 1.2rem; border: 1px solid var(--border-color); }
+        .selector-cantidad input { width: 60px; text-align: center; padding: 8px; font-size: 1.1rem; }
+
+        .btn-agregar { width: 100%; padding: 15px; background: var(--color-accent); color: var(--text-on-accent); border-radius: 8px; font-weight: bold; font-size: 1.1rem; }
+        
+        .especificaciones { margin-top: 30px; padding: 20px; background: var(--bg-tertiary); border-radius: 8px; }
+        .especificaciones ul { list-style: none; padding: 0; }
+        .especificaciones li { padding: 8px 0; border-bottom: 1px solid var(--border-color); color: var(--text-muted); }
+
+        @media (max-width: 850px) { .detalle-grid { grid-template-columns: 1fr; } .miniaturas { flex-direction: row; order: 2; } }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/catalogo" class="logo">◆ SmartGlass</a>
+    <div style="display:flex; gap:15px;">
+        <a href="/catalogo" style="color:var(--text-main); text-decoration:none;">← Volver</a>
+        <a th:if="${usuarioLogueado}" href="/carrito" style="color:var(--color-accent); text-decoration:none;">🛒 Carrito (<span th:text="${cantidadCarrito}">0</span>)</a>
+    </div>
+</nav>
+
+<section class="detalle-grid">
+    <div class="miniaturas">
+        <img th:src="@{/img/{img}(img=${producto.imagen})}" class="active" />
+    </div>
+
+    <div class="imagen-principal">
+        <img th:src="@{/img/{img}(img=${producto.imagen})}" />
+    </div>
+
+    <div class="info-producto">
+        <h1 th:text="${producto.nombre}"></h1>
+        <p style="color:var(--text-muted);" th:text="'Código: ' + ${producto.codigo}"></p>
+        <div class="precio" th:text="'$' + ${producto.precioFormateado}"></div>
+
+        <div th:if="${usuarioLogueado}">
+            <form th:action="@{/carrito/agregar}" method="post">
+                <input type="hidden" name="productoId" th:value="${producto.id}">
+                <div class="selector-cantidad">
+                    <button type="button" onclick="cambiarCantidad(-1)">-</button>
+                    <input type="number" id="cantidad" name="cantidad" value="1" min="1" readonly>
+                    <button type="button" onclick="cambiarCantidad(1)">+</button>
+                </div>
+                <button type="submit" class="btn-agregar">Añadir al Carrito</button>
+            </form>
+        </div>
+        <div th:unless="${usuarioLogueado}" style="margin-bottom:20px;">
+            <a href="/login" class="btn-agregar" style="display:block; text-align:center; text-decoration:none; background:var(--bg-tertiary); color:var(--text-muted); border:1px dashed var(--border-color);">🔒 Inicia sesión para comprar</a>
+        </div>
+
+        <div class="especificaciones">
+            <h3 style="margin-top:0;">Ficha Técnica</h3>
+            <ul>
+                <li th:text="'Tipo: ' + ${producto.tipo}"></li>
+                <li th:text="'Dimensiones: ' + ${producto.ancho} + 'x' + ${producto.alto} + ' cm'"></li>
+                <li th:text="'Espesor: ' + ${producto.espesor} + ' mm'"></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<script>
+    function cambiarCantidad(valor) {
+        const input = document.getElementById('cantidad');
+        let actual = parseInt(input.value);
+        if (actual + valor >= 1) {
+            input.value = actual + valor;
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartGlass - Factura de Venta</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    
+    <style>
+        .factura-container { max-width: 1000px; margin: 40px auto; padding: 40px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; }
+        
+        .factura-header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--color-accent); padding-bottom: 20px; margin-bottom: 30px; }
+        .factura-header h1 { color: var(--color-accent); margin: 0; }
+        
+        .info-seccion { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+        .info-box h3 { color: var(--text-main); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; font-size: 1rem; text-transform: uppercase; }
+        .info-box p { margin: 5px 0; color: var(--text-muted); }
+        .info-box strong { color: var(--text-main); }
+
+        .factura-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .factura-table th { background: var(--bg-tertiary); color: var(--color-accent); text-align: left; padding: 15px; border-bottom: 2px solid var(--border-color); }
+        .factura-table td { padding: 15px; border-bottom: 1px solid var(--border-color); color: var(--text-muted); }
+        .factura-table .item-nombre { color: var(--text-main); font-weight: 600; }
+
+        .totales-container { margin-left: auto; width: 300px; }
+        .total-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        .total-row.final { border: none; background: var(--color-accent-dim); color: var(--color-accent); font-weight: bold; font-size: 1.3rem; padding: 15px; border-radius: 8px; margin-top: 10px; }
+
+        @media print {
+            .no-print { display: none; }
+            body { background: white; color: black; }
+            .factura-container { border: none; padding: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="factura-container">
+    <div class="factura-header">
+        <div>
+            <h1>SmartGlass Industrial</h1>
+            <p style="color: var(--text-muted);">Soluciones Técnicas en Vidrio Sostenible</p>
+        </div>
+        <div style="text-align: right;">
+            <h3 style="margin:0; color: var(--text-main);">FACTURA</h3>
+            <p style="font-weight: bold; color: var(--color-accent);" th:text="${pedido.numeroFactura}"></p>
+            <p th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}"></p>
+        </div>
+    </div>
+
+    <div class="info-seccion">
+        <div class="info-box">
+            <h3>Emisor</h3>
+            <strong>SmartGlass S.A.S</strong>
+            <p>NIT: 900.123.456-1</p>
+            <p>Planta Industrial - Zona Franca</p>
+            <p>Cartagena, Colombia</p>
+        </div>
+        <div class="info-box">
+            <h3>Cliente</h3>
+            <strong th:text="${usuario.nombre}"></strong>
+            <p th:text="'Email: ' + ${usuario.email}"></p>
+            <p th:text="'Dirección: ' + ${pedido.direccionEnvio}"></p>
+            <p th:text="'Método Pago: ' + ${pedido.metodoPago}"></p>
+        </div>
+    </div>
+
+    <table class="factura-table">
+        <thead>
+            <tr>
+                <th>Producto / Servicio</th>
+                <th style="text-align: center;">Cant.</th>
+                <th style="text-align: right;">Precio Unit.</th>
+                <th style="text-align: right;">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="detalle : ${pedido.detalles}">
+                <td class="item-nombre" th:text="${detalle.nombreProducto}"></td>
+                <td style="text-align: center;" th:text="${detalle.cantidad}"></td>
+                <td style="text-align: right;" th:text="${detalle.precioUnitarioFormateado}"></td>
+                <td style="text-align: right; font-weight: bold; color: var(--text-main);" th:text="${detalle.subtotalFormateado}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="totales-container">
+        <div class="total-row">
+            <span>Subtotal:</span>
+            <span th:text="${pedido.totalFormateado}"></span>
+        </div>
+        <div class="total-row">
+            <span>Costo de Envío:</span>
+            <span>$ 0</span>
+        </div>
+        <div class="total-row final">
+            <span>TOTAL:</span>
+            <span th:text="${pedido.totalFormateado}"></span>
+        </div>
+    </div>
+
+    <div style="margin-top: 50px; text-align: center; border-top: 1px dashed var(--border-color); padding-top: 20px;">
+        <p style="font-size: 0.85em; color: var(--text-muted);">Esta factura ha sido generada electrónicamente y compensa 
+           <strong style="color: var(--color-success);" th:text="${pedido.huellaCarbono} + ' kg'"></strong> de CO₂.</p>
+        
+        <div class="no-print" style="margin-top: 20px;">
+            <button onclick="window.print()" class="btn" style="background: var(--bg-tertiary); color: var(--text-main);">🖨️ Imprimir Factura</button>
+            <a th:href="@{/checkout/mis-pedidos}" class="btn" style="background: var(--color-accent); color: var(--bg-primary); text-decoration: none;">Volver a Mis Pedidos</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

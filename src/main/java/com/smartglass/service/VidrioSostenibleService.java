@@ -80,4 +80,8 @@ public class VidrioSostenibleService {
             return vidrioSostenibleRepository.save(vidrio);
         });
     }
+
+    public void eliminarPorId(String id) {
+        vidrioSostenibleRepository.deleteById(id);
+    }
 }

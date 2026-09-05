@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${usuario.nombre} + ' - Admin'">Usuario - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <style>
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
+        .container { max-width: 500px; margin: 40px auto; padding: 0 20px; }
+        .card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; }
+        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .row span:first-child { color: var(--text-muted); }
+        .row span:last-child { color: var(--text-main); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a th:href="@{/admin/dashboard}" class="logo">◆ SmartGlass Admin</a>
+</nav>
+
+<div class="container">
+    <a th:href="@{/admin/usuarios}" style="color: var(--text-muted); font-size: 0.9rem;">&larr; Usuarios</a>
+
+    <div class="card" style="margin-top: 20px;">
+        <h2 style="margin-top:0; color: var(--color-accent);" th:text="${usuario.nombre}"></h2>
+        <div class="row"><span>Username</span><span th:text="${usuario.username}"></span></div>
+        <div class="row"><span>Email</span><span th:text="${usuario.email}"></span></div>
+        <div class="row"><span>Teléfono</span><span th:text="${usuario.telefono}"></span></div>
+        <div class="row"><span>Rol</span><span th:text="${usuario.tipoUsuario}"></span></div>
+    </div>
+</div>
+
+</body>
+</html>

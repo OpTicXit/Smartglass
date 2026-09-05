@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartGlass - Destacados</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    
+    <style>
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
+        
+        .destacados-section { max-width: 1200px; margin: 60px auto; padding: 0 20px; text-align: center; }
+        .destacados-section h2 { font-size: 2.5rem; color: var(--text-main); margin-bottom: 40px; }
+
+        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+
+        .producto-card { background: var(--bg-secondary); border-radius: 20px; overflow: hidden; border: 1px solid var(--border-color); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; }
+        .producto-card:hover { transform: scale(1.03); border-color: var(--color-accent); box-shadow: var(--shadow-main); }
+
+        .producto-img-container { position: relative; width: 100%; height: 250px; overflow: hidden; }
+        .producto-img-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .producto-card:hover img { filter: brightness(0.4); transform: scale(1.1); }
+
+        .ver-mas-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0; transition: 0.3s; z-index: 10; }
+        .producto-card:hover .ver-mas-overlay { opacity: 1; }
+
+        .info-body { padding: 25px; text-align: center; }
+        .info-body h4 { font-size: 1.3rem; color: var(--text-main); margin-bottom: 10px; }
+        .info-body .precio { font-size: 1.5rem; color: var(--color-accent); font-weight: bold; }
+
+        .btn-view { padding: 12px 24px; background: var(--color-accent); color: var(--bg-primary); border-radius: 30px; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/home" class="logo">◆ SmartGlass</a>
+    <div style="display:flex; gap:15px;">
+        <a href="/home" style="color:var(--text-main); text-decoration:none;">Inicio</a>
+        <a href="/catalogo" style="color:var(--color-accent); text-decoration:none;">Catálogo</a>
+    </div>
+</nav>
+
+<section class="destacados-section">
+    <h2>✨ Productos Destacados</h2>
+
+    <div class="productos-grid">
+        <div class="producto-card" th:each="producto : ${destacados}">
+            <div class="producto-img-container">
+                <img th:src="@{/img/{img}(img=${producto.imagen})}" th:alt="${producto.nombre}">
+                <div class="ver-mas-overlay">
+                    <a th:href="@{/detalle/{id}(id=${producto.id})}" class="btn-view">Ver Detalle</a>
+                </div>
+            </div>
+            <div class="info-body">
+                <h4 th:text="${producto.nombre}"></h4>
+                <p style="color:var(--text-muted); font-size: 0.9rem;" th:text="${producto.descripcion}"></p>
+                <p class="precio" th:text="'$' + ${producto.precioFormateado}"></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

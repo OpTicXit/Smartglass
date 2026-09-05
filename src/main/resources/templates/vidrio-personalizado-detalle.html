@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartGlass - Detalle de Cotización</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
+        
+        .cotizacion-header { background: var(--color-accent-dim); padding: 40px; border-radius: 16px; margin: 30px auto; max-width: 1200px; border: 1px solid var(--color-accent); }
+        .cotizacion-header h1 { margin: 0 0 10px 0; color: var(--color-accent); }
+
+        .main-grid { display: grid; grid-template-columns: 1fr 350px; gap: 30px; max-width: 1200px; margin: 0 auto 50px; }
+
+        /* Monitor CO2 Circular */
+        .co2-card { background: var(--bg-secondary); border-radius: 16px; padding: 30px; border: 1px solid var(--border-color); text-align: center; }
+        .co2-circle { width: 180px; height: 180px; border-radius: 50%; border: 8px solid var(--color-success); margin: 0 auto 20px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 0 20px rgba(166, 227, 161, 0.2); }
+        .co2-val { font-size: 2.5rem; font-weight: bold; color: var(--text-main); }
+
+        /* Barras de Materiales */
+        .material-row { margin-bottom: 20px; }
+        .material-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
+        .progress-bar { height: 10px; background: var(--bg-tertiary); border-radius: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--color-accent); border-radius: 5px; }
+
+        /* Detalles Técnicos */
+        .tech-card { background: var(--bg-secondary); border-radius: 16px; padding: 25px; border: 1px solid var(--border-color); }
+        .tech-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        
+        .btn-approve { width: 100%; padding: 15px; background: var(--color-success); color: var(--bg-primary); border-radius: 12px; font-weight: bold; cursor: pointer; border: none; margin-top: 20px; transition: 0.3s; }
+        .btn-approve:hover { filter: brightness(1.1); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a th:href="@{/usuario}" class="logo">◆ SmartGlass</a>
+    <div style="display:flex; gap:15px;">
+        <a th:href="@{/vidrio-personalizado/mis-cotizaciones}" style="color:var(--text-main); text-decoration:none;">← Volver a Mis Proyectos</a>
+    </div>
+</nav>
+
+<div class="cotizacion-header" th:if="${vidrio != null}">
+    <h1>Resumen de Cotización Técnica</h1>
+    <p th:text="'Referencia única: #' + ${vidrio.id}" style="font-family: monospace; color: var(--text-muted);"></p>
+</div>
+
+<div class="main-grid" th:if="${vidrio != null}">
+    <div class="content-left">
+        <!-- Tarjeta de Especificaciones Original -->
+        <div class="tech-card">
+            <h3 style="margin-top:0; color:var(--color-accent);">Especificaciones del Vidrio</h3>
+            <div class="tech-item"><span style="color: var(--text-muted);">Tipo de Vidrio:</span> <strong style="color: var(--text-main);" th:text="${vidrio.tipoVidrio}"></strong></div>
+            <div class="tech-item"><span style="color: var(--text-muted);">Dimensiones:</span> <strong style="color: var(--text-main);" th:text="${vidrio.ancho} + ' x ' + ${vidrio.alto} + ' cm'"></strong></div>
+            <div class="tech-item"><span style="color: var(--text-muted);">Espesor Requerido:</span> <strong style="color: var(--text-main);" th:text="${vidrio.espesor} + ' mm'"></strong></div>
+            <div class="tech-item"><span style="color: var(--text-muted);">Área Total:</span> <strong style="color: var(--text-main);" th:text="${vidrio.areaTotal} + ' m²'"></strong></div>
+            
+            <h3 style="margin-top:30px; color:var(--color-accent);">Composición de Materiales</h3>
+            <div class="material-row">
+                <div class="material-label"><span>Sílice (Arena)</span> <span th:text="${vidrio.cantidadSilice} + ' kg'"></span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 72%;"></div></div>
+            </div>
+            <div class="material-row">
+                <div class="material-label"><span>Sosa y Caliza</span> <span th:text="${vidrio.cantidadSosa + vidrio.cantidadCaliza} + ' kg'"></span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 24%; background: var(--color-warning);"></div></div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Análisis (Python API) -->
+        <div class="tech-card" style="margin-top: 20px; border-left: 4px solid var(--color-info);">
+            <h3 style="color: var(--color-info); display: flex; align-items: center; gap: 10px; margin-top: 0;">
+                <i class="fas fa-robot"></i> Análisis Estructural
+            </h3>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                <span style="color: var(--text-muted);">Índice de Resistencia:</span>
+                <strong style="color: var(--text-main); font-size: 1.1rem;" th:text="${vidrio.resistenciaEstimada != null ? vidrio.resistenciaEstimada + ' MPa' : 'N/D'}">0.0 MPa</strong>
+            </div>
+            
+            <div>
+                <span style="display: block; color: var(--text-muted); margin-bottom: 8px;">Diagnóstico Técnico:</span>
+                <p style="margin: 0; color: var(--text-main); font-style: italic; background: var(--bg-tertiary); padding: 15px; border-radius: 8px; line-height: 1.5; border: 1px solid var(--border-color);" 
+                   th:text="${vidrio.recomendacion != null ? vidrio.recomendacion : 'Esperando análisis...'}">
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <aside class="content-right">
+        <!-- Tarjeta de CO2 -->
+        <div class="co2-card">
+            <h3 style="color: var(--text-main); margin-top: 0;">Impacto Ambiental</h3>
+            <div class="co2-circle">
+                <span class="co2-val" th:text="${vidrio.huellaCarbono != null ? #numbers.formatDecimal(vidrio.huellaCarbono, 1, 1) : '0.0'}">0</span>
+                <span style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">kg CO₂e</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Huella de carbono estimada para este diseño y proceso térmico.</p>
+        </div>
+
+        <!-- Tarjeta de Precio -->
+        <div class="tech-card" style="margin-top:20px; text-align:center;">
+            <span style="color:var(--text-muted); font-size:0.9rem; text-transform: uppercase; font-weight: bold;">Inversión Estimada</span>
+            <div style="font-size: 2.2rem; font-weight: bold; color: var(--color-success); margin: 15px 0;" th:text="${vidrio.precioEstimadoFormateado}">$0</div>
+            
+            <form th:if="${#strings.toString(vidrio.estado) == 'COTIZACION'}" th:action="@{/vidrio-personalizado/aprobar/{id}(id=${vidrio.id})}" method="post">
+                <button type="submit" class="btn-approve"><i class="fas fa-check" style="margin-right: 8px;"></i> Aprobar y Añadir al Carrito</button>
+            </form>
+        </div>
+    </aside>
+</div>
+
+<script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            // Sintaxis segura para evitar errores de editor
+            const payload = {
+            ancho: /*[[${vidrio.ancho}]]*/ 0,
+            alto: /*[[${vidrio.alto}]]*/ 0,
+            espesor: /*[[${vidrio.espesor}]]*/ 0
+        };
+
+            const recTxt = document.getElementById("recomendacion-texto");
+            const resVal = document.getElementById("resistencia-valor");
+
+            // TU URL REAL EN RAILWAY CON HTTPS
+            const URL_API = "https://api-production-d556.up.railway.app/analizar-resistencia";
+
+            fetch(URL_API, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                recTxt.innerText = data.recomendacion;
+                resVal.innerText = data.resistencia + " MPa";
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                recTxt.innerText = "Error: No se pudo obtener el análisis técnico.";
+            });
+        });
+</script>
+
+</body>
+</html>

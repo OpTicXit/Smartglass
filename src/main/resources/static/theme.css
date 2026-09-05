@@ -1,0 +1,85 @@
+/* =========================================================
+   SISTEMA DE TEMA GLOBAL Y VARIABLES (MODO OSCURO)
+   Inspirado en la paleta de la imagen de referencia.
+   Este archivo centraliza el "look and feel" (Colores, Fuentes).
+========================================================= */
+
+:root {
+  /* --- PALETA DE COLORES PRINCIPAL --- */
+  
+  /* Fondos de la Interfaz (Backgrounds) */
+  --bg-primary: #1e1e2e;    /* El fondo más profundo de la imagen */
+  --bg-secondary: #2c2c3e;  /* Fondo de paneles, tarjetas, inputs */
+  --bg-tertiary: #181825;   /* Para barras laterales oscuras o pies de página */
+  
+  /* Texto (Text) */
+  --text-main: #ffffff;      /* Texto principal, blanco puro */
+  --text-muted: #a6adc8;    /* Texto secundario o tenue (labels) */
+  --text-on-accent: #11111b; /* Texto oscuro sobre botones de acento brillantes */
+  
+  /* Acento e Interactividad (Accent - Azul Eléctrico) */
+  --color-accent: #89b4fa;        /* El azul eléctrico brillante de la imagen */
+  --color-accent-hover: #b4befe;  /* Una versión más clara para hover */
+  --color-accent-dim: rgba(137, 180, 250, 0.1); /* Resaltes de fondo suaves */
+
+  /* Bordes y Líneas (Borders) */
+  --border-color: #3f3f5a;  /* Bordes sutiles para inputs y separadores */
+  
+  /* Sombras (Shadows) */
+  --shadow-main: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+
+  /* --- ESTADOS SEMÁNTICOS (Basados en la paleta oscura) --- */
+  --color-error: #f38ba8;    /* Rojo suave */
+  --color-warning: #fab387;  /* Naranja */
+  --color-success: #a6e3a1;  /* Verde */
+  --color-info: #89b4fa;     /* Azul accent */
+
+  /* --- SISTEMA DE MONITOR CO2 (INTEGRADO COMO COLORES GLOBALES) --- */
+  /* He extraído esta lógica y la he adaptado al nuevo tema */
+  --co2-normal: #a6e3a1;  /* Verde */
+  --co2-warning: #fab387; /* Amarillo/Naranja */
+  --co2-danger: #f38ba8;  /* Rojo */
+  --co2-glow-normal: 0 0 15px rgba(166, 227, 161, 0.4);
+  --co2-glow-warning: 0 0 15px rgba(250, 179, 135, 0.4);
+  --co2-glow-danger: 0 0 15px rgba(243, 139, 168, 0.4);
+
+  /* --- TIPOGRAFÍA (Recomendada para este estilo) --- */
+  --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+  --base-font-size: 16px;
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+}
+
+/* =========================================================
+   APLICACIÓN GLOBAL DEL TEMA
+========================================================= */
+
+/* Asegurar que el tema oscuro cubra todo el documento */
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-primary);
+  font-size: var(--base-font-size);
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+}
+
+/* Reglas generales para elementos de formulario que heredan el tema */
+input, textarea, select {
+  background-color: var(--bg-secondary);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-primary);
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--color-accent);
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-primary);
+  border: none;
+}

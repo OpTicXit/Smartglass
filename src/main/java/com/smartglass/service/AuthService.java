@@ -51,7 +51,7 @@ public class AuthService {
         Usuario usuario = userService.register(
                 request.getNombre(),
                 request.getEmail(),
-                null, // telefono: RegisterRequest no lo pide todavia
+                request.getTelefono(),
                 "ROLE_USER",
                 request.getUsername(),
                 request.getPassword() // texto plano: UserService ya lo encripta con BCrypt

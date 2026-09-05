@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartGlass - Catálogo Industrial</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    
+    <style>
+        /* NAVBAR ESTRUCTURA */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
+        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        .nav-links { display: flex; list-style: none; gap: 1.5rem; margin: 0; }
+        .nav-links a { text-decoration: none; color: var(--text-main); font-size: 0.9rem; padding: 8px 16px; border-radius: 8px; transition: 0.3s; }
+        .nav-links a:hover { background: var(--bg-tertiary); color: var(--color-accent); }
+
+        /* HEADER CATÁLOGO */
+        .catalogo-header-info { background: var(--bg-tertiary); padding: 60px 20px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        .catalogo-header-info h1 { font-size: 2.5rem; color: var(--color-accent); margin-bottom: 10px; }
+        .catalogo-header-info p { color: var(--text-muted); font-size: 1.1rem; }
+
+        /* GRID DE PRODUCTOS */
+        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; max-width: 1300px; margin: 50px auto; padding: 0 20px; }
+        
+        .producto-card { background: var(--bg-secondary); border-radius: 16px; overflow: hidden; border: 1px solid var(--border-color); transition: 0.3s; display: flex; flex-direction: column; }
+        .producto-card:hover { transform: translateY(-8px); border-color: var(--color-accent); box-shadow: var(--shadow-main); }
+        
+        .producto-img-wrapper { width: 100%; height: 220px; overflow: hidden; position: relative; }
+        .producto-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
+        .producto-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .producto-body h3 { color: var(--text-main); font-size: 1.2rem; margin-bottom: 10px; }
+        .producto-body p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+        
+        .price-tag { margin-top: auto; padding: 15px 0; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .price-tag strong { color: var(--color-accent); font-size: 1.4rem; }
+
+        .btn-quick-buy { width: 100%; padding: 12px; background: var(--color-accent-dim); color: var(--color-accent); border: 1px solid var(--color-accent); border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-quick-buy:hover { background: var(--color-accent); color: var(--bg-primary); }
+
+        .btn-ficha { text-decoration: none; color: var(--color-info); font-size: 0.85rem; font-weight: bold; }
+        
+        @media (max-width: 768px) { .productos-grid { grid-template-columns: 1fr; } .catalogo-header-info h1 { font-size: 1.8rem; } }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">◆ SmartGlass <span style="font-size: 0.7rem; opacity: 0.6; margin-left: 5px;">CATALOG</span></div>
+    <ul class="nav-links">
+        <li><a href="/home">Inicio</a></li>
+        <li><a href="/destacados">Destacados</a></li>
+        <th:block th:if="${usuarioLogueado}">
+            <li><a href="/carrito">🛒 Carrito (<span th:text="${cantidadCarrito}">0</span>)</a></li>
+            <li><a href="/usuario">Mi Panel</a></li>
+        </th:block>
+        <th:block th:unless="${usuarioLogueado}">
+            <li><a href="/login" style="background:var(--color-accent); color:var(--bg-primary);">Acceder</a></li>
+        </th:block>
+    </ul>
+</nav>
+
+<main>
+    <header class="catalogo-header-info">
+        <h1>Catálogo de Suministros</h1>
+        <p>Gama técnica de vidrios para arquitectura e industria sostenible.</p>
+    </header>
+
+    <section class="productos-grid">
+        <article class="producto-card" th:each="producto : ${productos}">
+            <div class="producto-img-wrapper">
+                <img th:src="${producto.imagen != null ? '/img/' + producto.imagen : '/img/default-glass.jpg'}" th:alt="${producto.nombre}">
+            </div>
+            <div class="producto-body">
+                <h3 th:text="${producto.nombre}"></h3>
+                <p th:text="${producto.descripcionCorta}"></p>
+                
+                <a th:href="@{/detalle/{id}(id=${producto.id})}" class="btn-ficha">Ver Ficha Técnica →</a>
+
+                <div class="price-tag">
+                    <strong th:text="'$' + ${producto.precioFormateado}"></strong>
+                </div>
+
+                <form th:if="${usuarioLogueado}" th:action="@{/carrito/agregar}" method="post">
+                    <input type="hidden" name="productoId" th:value="${producto.id}">
+                    <button type="submit" class="btn-quick-buy">Agregar al Carrito</button>
+                </form>
+            </div>
+        </article>
+    </section>
+</main>
+
+</body>
+</html>

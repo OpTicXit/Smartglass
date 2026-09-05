@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartGlass - Inicio</title>
+    <link rel="stylesheet" href="/css/theme.css">
+    
+    <style>
+        /* === NAVBAR === */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 3rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--color-accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--color-accent); }
+        .login-btn {
+            background: var(--color-accent);
+            color: var(--text-on-accent);
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* === HERO SECTION === */
+        .hero {
+            min-height: calc(100vh - 80px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Decoraciones de fondo */
+        .hero-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--color-accent-dim);
+            filter: blur(80px);
+            z-index: 0;
+        }
+        .shape-1 { width: 400px; height: 400px; top: -100px; right: -100px; }
+        .shape-2 { width: 600px; height: 600px; bottom: -200px; left: -200px; }
+
+        .hero-content {
+            max-width: 800px;
+            z-index: 2;
+        }
+        .hero-title {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--color-accent);
+            letter-spacing: -1px;
+        }
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+        .hero-description {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+        }
+        
+        /* Botones Globales */
+        .btn-group {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: var(--color-accent);
+            color: var(--text-on-accent);
+        }
+        .btn-primary:hover { background: var(--color-accent-hover); transform: translateY(-2px); }
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--border-color);
+        }
+        .btn-secondary:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+        /* === FOOTER === */
+        .footer {
+            background: var(--bg-tertiary);
+            padding: 4rem 2rem 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        .footer-logo { font-size: 1.2rem; font-weight: bold; color: var(--color-accent); margin-bottom: 1rem; }
+        .footer-desc { color: var(--text-muted); line-height: 1.6; }
+        .footer-links ul { list-style: none; padding: 0; }
+        .footer-links li { margin-bottom: 0.8rem; }
+        .footer-links a { color: var(--text-muted); text-decoration: none; }
+        .footer-links a:hover { color: var(--color-accent); }
+        .footer-bottom {
+            text-align: center;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">◆ SmartGlass</div>
+    <ul class="nav-links">
+        <li><a href="/home">Inicio</a></li>
+        <li><a href="/acerca">Conocer Más</a></li>
+        <li><a href="/destacados">Destacados</a></li>
+        <li><a href="/catalogo">Catálogo</a></li>
+    </ul>
+    <a href="/login" class="login-btn">Acceder</a>
+</nav>
+
+<section class="hero" id="inicio">
+    <div class="hero-shape shape-1"></div>
+    <div class="hero-shape shape-2"></div>
+
+    <div class="hero-content">
+        <h1 class="hero-title">SmartGlass</h1>
+        <p class="hero-subtitle">Control de CO₂ y gestión inteligente de producción</p>
+        <p class="hero-description">Optimizando la industria del vidrio con tecnología sostenible y una estética inmersiva.</p>
+
+        <div class="btn-group">
+            <a href="/acerca" class="btn btn-primary">Conocer Más</a>
+            <a href="/destacados" class="btn btn-secondary">Explorar Productos</a>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-brand">
+            <div class="footer-logo">◆ SmartGlass</div>
+            <p class="footer-desc">Tecnología sostenible para una industria del vidrio más limpia y eficiente.</p>
+        </div>
+        <div class="footer-links">
+            <h4>Enlaces</h4>
+            <ul>
+                <li><a href="/index">Inicio</a></li>
+                <li><a href="/acerca">Acerca</a></li>
+            </ul>
+        </div>
+        <div class="footer-contact">
+            <h4 style="color:var(--text-main)">Contacto</h4>
+            <p style="color:var(--text-muted)">📩 soporte@smartglass.com</p>
+            <p style="color:var(--text-muted)">📞 +57 302 443 2590</p>
+            <p style="color:var(--text-muted)">🏢 Cartagena, Colombia</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        © 2025 SmartGlass — Todos los derechos reservados
+    </div>
+</footer>
+
+</body>
+</html>

@@ -4,6 +4,7 @@ public class RegisterRequest {
 
     private String nombre;
     private String email;
+    private String telefono;
     private String username;
     private String password;
 
@@ -24,6 +25,14 @@ public class RegisterRequest {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
     }
 
     public String getUsername() {

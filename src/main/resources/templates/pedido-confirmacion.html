@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartGlass - Confirmación</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    
+    <style>
+        .confirmacion-wrapper { max-width: 900px; margin: 50px auto; padding: 20px; text-align: center; }
+        
+        /* Animación Success */
+        .success-icon { width: 100px; height: 100px; background: var(--color-success); border-radius: 50%; margin: 0 auto 30px; display: flex; align-items: center; justify-content: center; font-size: 3em; box-shadow: 0 0 30px rgba(166, 227, 161, 0.3); }
+
+        .info-card { background: var(--bg-secondary); border-radius: 16px; border: 1px solid var(--border-color); padding: 30px; margin: 30px 0; text-align: left; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .info-group label { display: block; font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; font-weight: bold; }
+        .info-group span { font-size: 1.1em; color: var(--text-main); }
+        
+        .acciones-finales { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+        .btn-nav { padding: 15px 30px; border-radius: 12px; font-weight: bold; text-decoration: none; transition: 0.3s; }
+        .btn-primario { background: var(--color-accent); color: var(--bg-primary); }
+        .btn-secundario { background: var(--bg-tertiary); color: var(--text-main); border: 1px solid var(--border-color); }
+    </style>
+</head>
+<body>
+
+<div class="confirmacion-wrapper">
+    <div class="success-icon">✓</div>
+    <h1 style="color: var(--text-main); font-size: 2.8em; margin-bottom: 10px;">¡Pedido Confirmado!</h1>
+    <p style="color: var(--text-muted);">Tu orden ha sido enviada a nuestra planta de procesamiento térmico.</p>
+
+    <div class="info-card">
+        <div class="info-group">
+            <label>Nro. de Factura</label>
+            <span th:text="${pedido.numeroFactura}" style="color: var(--color-accent); font-weight: bold;"></span>
+        </div>
+        <div class="info-group">
+            <label>Fecha y Hora</label>
+            <span th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}"></span>
+        </div>
+        <div class="info-group">
+            <label>Dirección de Envío</label>
+            <span th:text="${pedido.direccionEnvio}"></span>
+        </div>
+        <div class="info-group">
+            <label>Total Pagado</label>
+            <span th:text="${pedido.totalFormateado}" style="font-size: 1.4em;"></span>
+        </div>
+    </div>
+
+    <div class="acciones-finales">
+        <a th:href="@{/checkout/pedido/{id}(id=${pedido.id})}" class="btn-nav btn-primario">📄 Ver Factura</a>
+        
+        <a th:href="@{/checkout/mis-pedidos}" class="btn-nav btn-secundario">📋 Ver Todos Mis Pedidos</a>
+        
+        <a th:href="@{/usuario}" class="btn-nav btn-secundario">🏠 Inicio</a>
+    </div>
+</div>
+
+</body>
+</html>

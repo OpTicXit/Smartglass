@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartGlass - Pedidos (Admin)</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <style>
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        table { width: 100%; border-collapse: collapse; background: var(--bg-secondary); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
+        th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-tertiary); color: var(--color-accent); font-size: 0.85rem; text-transform: uppercase; }
+        td { color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a th:href="@{/admin/dashboard}" class="logo">◆ SmartGlass Admin</a>
+</nav>
+
+<div class="container">
+    <a th:href="@{/admin/dashboard}" style="color: var(--text-muted); font-size: 0.9rem;">&larr; Dashboard</a>
+    <h1 style="color: var(--text-main);">Pedidos</h1>
+
+    <table>
+        <thead><tr><th>Factura</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Total</th></tr></thead>
+        <tbody>
+            <tr th:each="pedido : ${pedidos}">
+                <td th:text="${pedido.numeroFactura}"></td>
+                <td th:text="${pedido.usuario != null ? pedido.usuario.nombre : '—'}"></td>
+                <td th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy')}"></td>
+                <td th:text="${pedido.estado}"></td>
+                <td th:text="${pedido.totalFormateado}"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
