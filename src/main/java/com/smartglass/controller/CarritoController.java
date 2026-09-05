@@ -13,8 +13,9 @@ import java.security.Principal;
 /**
  * AJUSTES: Producto -> CatalogoProducto; ProductoService.findByIdOrNull(...)
  * -> obtenerPorIdOrNull(...) (se renombro el metodo). Se quito la
- * inyeccion de UsuarioRepository: estaba declarada pero no se usaba
- * en ningun metodo de esta clase.
+ * inyeccion de UsuarioRepository (no se usaba) y el @ModelAttribute
+ * duplicado -- ahora lo resuelve VistaGlobalAttributesAdvice para
+ * todos los controllers de vista.
  */
 @Controller
 @RequestMapping("/carrito")
@@ -26,12 +27,6 @@ public class CarritoController {
     public CarritoController(ProductoService productoService, CarritoService carritoService) {
         this.productoService = productoService;
         this.carritoService = carritoService;
-    }
-
-    @ModelAttribute
-    public void addCommonAttributes(Model model, Principal principal) {
-        model.addAttribute("usuarioLogueado", principal != null);
-        model.addAttribute("cantidadCarrito", carritoService.getCantidadTotal());
     }
 
     @GetMapping
