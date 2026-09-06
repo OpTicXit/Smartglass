@@ -46,6 +46,7 @@
 <div class="cotizacion-header" th:if="${vidrio != null}">
     <h1>Resumen de Cotización Técnica</h1>
     <p th:text="'Referencia única: #' + ${vidrio.id}" style="font-family: monospace; color: var(--text-muted);"></p>
+    <span th:if="${vidrio.urgente}" style="display:inline-block; margin-top:8px; padding:4px 12px; background: var(--color-warning); color: var(--bg-primary); border-radius: 20px; font-size: 0.8rem; font-weight: bold;">⚡ Entrega urgente (+20%)</span>
 </div>
 
 <div class="main-grid" th:if="${vidrio != null}">

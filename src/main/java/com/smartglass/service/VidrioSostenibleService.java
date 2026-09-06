@@ -47,6 +47,7 @@ public class VidrioSostenibleService {
         vidrio.setPorcentajeReciclado(request.getPorcentajeReciclado());
         vidrio.setEnergiaRenovable(request.isEnergiaRenovable());
         vidrio.setCompensarCarbono(request.isCompensarCarbono());
+        vidrio.setUrgente(request.isUrgente());
 
         ResultadoAnalisisVidrio resultado = analisisService.calcularCotizacionVidrio(vidrio);
 

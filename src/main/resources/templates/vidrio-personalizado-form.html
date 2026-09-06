@@ -183,6 +183,13 @@
                 </div>
             </div>
 
+            <div class="form-group" style="margin-top: 20px;">
+                <label style="display:flex; align-items:center; gap:12px; cursor:pointer; text-transform:none;">
+                    <input type="checkbox" name="urgente" id="urgente" style="width:18px; height:18px;">
+                    <span style="color: var(--text-main); font-weight:normal;">Entrega urgente / prioritaria (<strong>+20% sobre el precio</strong>)</span>
+                </label>
+            </div>
+
             <button type="submit" class="btn-calc">Generar Análisis Industrial y CO₂</button>
         </form>
     </div>
@@ -223,6 +230,7 @@
         const isEco = document.getElementById('opcionEco').checked;
         const isRenovable = document.getElementById('energiaRenovable').checked;
         const compensar = document.getElementById('compensar').checked;
+        const urgente = document.getElementById('urgente').checked;
         const perforaciones = parseInt(document.getElementById('perforaciones').value) || 0;
         const acabado = document.getElementById('acabadoBordes').value;
         const tratamiento = document.getElementById('tratamiento').value;
@@ -265,6 +273,7 @@
         // Sostenibilidad monetaria
         if (compensar) precio += 5000;
         if (isEco) precio *= 0.95; // 5% descuento por elegir reciclado
+        if (urgente) precio *= 1.20; // +20% por entrega prioritaria (igual que AnalisisService)
 
         // Formato final
         document.getElementById('priceText').textContent = "$" + Math.round(precio).toLocaleString('es-CO');

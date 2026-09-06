@@ -59,6 +59,7 @@ public class VidrioSostenible {
     private int porcentajeReciclado;
     private boolean energiaRenovable;
     private boolean compensarCarbono;
+    private boolean urgente;
 
     private double precioEstimado;
     private Double resistenciaEstimada;
@@ -163,6 +164,9 @@ public class VidrioSostenible {
 
     public boolean isCompensarCarbono() { return compensarCarbono; }
     public void setCompensarCarbono(boolean v) { this.compensarCarbono = v; }
+
+    public boolean isUrgente() { return urgente; }
+    public void setUrgente(boolean urgente) { this.urgente = urgente; }
 
     public Double getResistenciaEstimada() { return resistenciaEstimada; }
     public void setResistenciaEstimada(Double resistenciaEstimada) { this.resistenciaEstimada = resistenciaEstimada; }

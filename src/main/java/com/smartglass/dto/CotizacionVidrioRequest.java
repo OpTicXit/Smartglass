@@ -25,6 +25,7 @@ public class CotizacionVidrioRequest {
     private int porcentajeReciclado;
     private boolean energiaRenovable;
     private boolean compensarCarbono;
+    private boolean urgente;
 
     public CotizacionVidrioRequest() {
     }
@@ -82,4 +83,7 @@ public class CotizacionVidrioRequest {
 
     public boolean isCompensarCarbono() { return compensarCarbono; }
     public void setCompensarCarbono(boolean compensarCarbono) { this.compensarCarbono = compensarCarbono; }
+
+    public boolean isUrgente() { return urgente; }
+    public void setUrgente(boolean urgente) { this.urgente = urgente; }
 }
