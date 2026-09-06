@@ -75,7 +75,7 @@
 <nav class="navbar">
     <a th:href="@{/usuario}" class="logo">◆ SmartGlass</a>
     <ul class="nav-links">
-        <li><a th:href="@{/Tienda}">Tienda</a></li>
+        <li><a th:href="@{/catalogo}">Tienda</a></li>
         <li><a th:href="@{/carrito}">🛒 Carrito</a></li>
         <li><a th:href="@{/vidrio-personalizado/mis-cotizaciones}">Mis Cotizaciones</a></li>
         <li><a th:href="@{/logout}" style="border:1px dashed var(--border-color); background:transparent;">Salir</a></li>
@@ -107,7 +107,7 @@
 
     <div th:if="${#lists.isEmpty(pedidos)}" style="text-align: center; padding: 80px 20px;">
         <h2 style="color: var(--text-muted);">No has realizado pedidos todavía.</h2>
-        <a th:href="@{/Tienda}" class="btn-factura" style="display: inline-block; margin-top: 20px; background: var(--color-accent); color: var(--bg-primary);">Explorar Catálogo</a>
+        <a th:href="@{/catalogo}" class="btn-factura" style="display: inline-block; margin-top: 20px; background: var(--color-accent); color: var(--bg-primary);">Explorar Catálogo</a>
     </div>
 
     <div th:unless="${#lists.isEmpty(pedidos)}" class="pedidos-lista">

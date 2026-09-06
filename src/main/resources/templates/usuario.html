@@ -66,7 +66,7 @@
 <section class="catalogo-container">
     <div class="catalogo-header">
         <h3>🔥 Novedades y Destacados</h3>
-        <a href="/TiendaDestacada" class="link-ver-mas">Ver todos →</a>
+        <a href="/destacados" class="link-ver-mas">Ver todos →</a>
     </div>
     
     <div class="productos-grid">
@@ -74,7 +74,7 @@
             <div class="producto-img-container">
                 <img th:src="@{/img/{img}(img=${producto.imagen})}" th:alt="${producto.nombre}">
                 <div class="ver-mas-overlay">
-                    <a th:href="@{/info/{id}(id=${producto.id})}" class="btn-view">Detalles</a>
+                    <a th:href="@{/detalle/{id}(id=${producto.id})}" class="btn-view">Detalles</a>
                 </div>
             </div>
             <h4 th:text="${producto.nombre}">Vidrio</h4>

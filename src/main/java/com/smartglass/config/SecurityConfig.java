@@ -4,6 +4,7 @@ import com.smartglass.security.JwtAuthenticationFilter;
 import com.smartglass.service.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,6 +30,16 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
  * CustomSuccessHandler. Si el objetivo final es una API 100% JWT
  * (sin login por formulario ni OAuth2 con sesion), se puede eliminar
  * ese bloque y dejar solo los endpoints /auth/** + el filtro JWT.
+ *
+ * AJUSTE (segundo ciclo de dependencias): JwtAuthenticationFilter se
+ * inyecta aqui solo para registrarlo con addFilterBefore(...) dentro
+ * del bean securityFilterChain -- no hace falta que este resuelto
+ * durante la CONSTRUCCION de SecurityConfig. Sin @Lazy, Spring
+ * arrastraba: securityConfig -> jwtAuthenticationFilter ->
+ * userDetailsServiceImpl -> userService -> (bean PasswordEncoder,
+ * definido aqui mismo) -> securityConfig. @Lazy inyecta un proxy que
+ * se resuelve recien quando securityFilterChain() lo usa, con el
+ * contexto ya arriba.
  */
 @Configuration
 @EnableWebSecurity
@@ -40,7 +51,7 @@ public class SecurityConfig {
 
     public SecurityConfig(CustomSuccessHandler customSuccessHandler,
                            CustomOAuth2UserService customOAuth2UserService,
-                           JwtAuthenticationFilter jwtAuthenticationFilter) {
+                           @Lazy JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.customSuccessHandler = customSuccessHandler;
         this.customOAuth2UserService = customOAuth2UserService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
