@@ -124,7 +124,12 @@ public class AnalisisService {
         resultado.setPesoEstimado(redondear(peso));
 
         // --- Composicion de materiales (proporcional al peso; se reduce con reciclado) ---
-        double proporcionMaterialNuevo = 1 - (isEco ? datos.getPorcentajeReciclado() / 100.0 : 0.0);
+        // AJUSTE: el formulario real solo tiene el checkbox "usar reciclado",
+        // sin porcentaje -- se uso datos.getPorcentajeReciclado() antes, que
+        // siempre llegaba en 0 desde este formulario y anulaba el efecto del
+        // checkbox. Ahora aplica el mismo 15% que la propia UI promete
+        // ("Reduce 15% huella").
+        double proporcionMaterialNuevo = isEco ? 0.85 : 1.0;
         resultado.setCantidadSilice(redondear(peso * PORC_SILICE * proporcionMaterialNuevo));
         resultado.setCantidadSosa(redondear(peso * PORC_SOSA * proporcionMaterialNuevo));
         resultado.setCantidadCaliza(redondear(peso * PORC_CALIZA * proporcionMaterialNuevo));
@@ -137,9 +142,10 @@ public class AnalisisService {
         if ("Inteligente".equalsIgnoreCase(tipoVidrio) || "Fotovoltaico".equalsIgnoreCase(tipoVidrio)) factorCO2 *= 1.8;
         if (isEco) factorCO2 *= 0.85;
         double co2 = peso * factorCO2;
-        if (datos.isCompensarCarbono()) {
-            co2 = 0.0; // se asume compensacion total via creditos de carbono
-        }
+        // AJUSTE: antes esto ponia co2 = 0.0 si compensarCarbono estaba
+        // marcado. Eso contradice la fórmula del JS (que nunca pone el CO2
+        // en cero, solo cobra un cargo fijo por compensacion) y rompia el
+        // objetivo de que lo guardado coincida con la vista previa. Se quito.
         resultado.setHuellaCarbono(redondear(co2));
 
         // --- Precio (formula del JS) ---

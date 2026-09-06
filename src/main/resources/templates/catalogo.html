@@ -47,7 +47,7 @@
 <nav class="navbar">
     <div class="logo">◆ SmartGlass <span style="font-size: 0.7rem; opacity: 0.6; margin-left: 5px;">CATALOG</span></div>
     <ul class="nav-links">
-        <li><a href="/home">Inicio</a></li>
+        <li><a th:href="@{${usuarioLogueado} ? '/usuario' : '/home'}">Inicio</a></li>
         <li><a href="/destacados">Destacados</a></li>
         <th:block th:if="${usuarioLogueado}">
             <li><a href="/carrito">🛒 Carrito (<span th:text="${cantidadCarrito}">0</span>)</a></li>

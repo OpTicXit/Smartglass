@@ -141,7 +141,11 @@
             })
             .catch(err => {
                 console.error("Error:", err);
-                recTxt.innerText = "Error: No se pudo obtener el análisis técnico.";
+                // AJUSTE: antes esto borraba el diagnostico que ya habia
+                // calculado nuestro propio backend (AnalisisService) y lo
+                // reemplazaba por un mensaje de error -- peor que dejar el
+                // valor bueno que ya estaba en pantalla. Ahora solo se
+                // registra el error en consola, sin tocar el texto visible.
             });
         });
 </script>

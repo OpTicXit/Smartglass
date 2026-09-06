@@ -157,7 +157,7 @@
         <li><a href="/destacados">Destacados</a></li>
         <li><a href="/catalogo">Catálogo</a></li>
     </ul>
-    <a href="/login" class="login-btn">Acceder</a>
+    <a th:href="@{${usuarioLogueado} ? '/usuario' : '/login'}" class="login-btn" th:text="${usuarioLogueado} ? 'Mi cuenta' : 'Acceder'">Acceder</a>
 </nav>
 
 <section class="hero" id="inicio">

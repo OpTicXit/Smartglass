@@ -25,6 +25,7 @@ import java.security.Principal;
  * ni necesitan esta consulta en cada request.
  */
 @ControllerAdvice(assignableTypes = {
+        HomeController.class,
         TiendaController.class,
         CarritoController.class,
         CheckoutController.class,

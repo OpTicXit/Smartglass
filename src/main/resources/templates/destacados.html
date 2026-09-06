@@ -34,9 +34,9 @@
 <body>
 
 <nav class="navbar">
-    <a href="/home" class="logo">◆ SmartGlass</a>
+    <a th:href="@{${usuarioLogueado} ? '/usuario' : '/home'}" class="logo">◆ SmartGlass</a>
     <div style="display:flex; gap:15px;">
-        <a href="/home" style="color:var(--text-main); text-decoration:none;">Inicio</a>
+        <a th:href="@{${usuarioLogueado} ? '/usuario' : '/home'}" style="color:var(--text-main); text-decoration:none;">Inicio</a>
         <a href="/catalogo" style="color:var(--color-accent); text-decoration:none;">Catálogo</a>
     </div>
 </nav>
