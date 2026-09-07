@@ -7,28 +7,56 @@
     <style>
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
         .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
+        .nav-links { display: flex; gap: 10px; }
+        .nav-links a { color: var(--text-main); text-decoration: none; padding: 8px 16px; border-radius: 8px; background: var(--bg-tertiary); font-size: 0.9rem; }
+        .btn-volver { display: inline-flex; align-items: center; gap: 6px; color: var(--text-main); text-decoration: none; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.9rem; background: transparent; }
+        .btn-volver:hover { border-color: var(--color-accent); color: var(--color-accent); }
         .container { max-width: 500px; margin: 40px auto; padding: 0 20px; }
         .card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; }
         .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
         .row span:first-child { color: var(--text-muted); }
         .row span:last-child { color: var(--text-main); font-weight: 600; }
+        .field { margin-top: 20px; }
+        .field label { display: block; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 8px; }
+        .field select { width: 100%; padding: 10px; border-radius: 8px; }
+        .btn-guardar { width: 100%; margin-top: 15px; padding: 12px; background: var(--color-accent); color: var(--bg-primary); border-radius: 8px; font-weight: bold; }
+        .flash { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; background: rgba(166, 227, 161, 0.1); border: 1px solid var(--color-success); color: var(--color-success); }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
     <a th:href="@{/admin/dashboard}" class="logo">◆ SmartGlass Admin</a>
+    <div class="nav-links">
+        <a th:href="@{/admin/usuarios}">Usuarios</a>
+        <a th:href="@{/admin/pedidos}">Pedidos</a>
+        <a th:href="@{/admin/productos}">Catálogo</a>
+        <a th:href="@{/logout}" style="border:1px dashed var(--border-color); background:transparent;">Salir</a>
+    </div>
 </nav>
 
 <div class="container">
-    <a th:href="@{/admin/usuarios}" style="color: var(--text-muted); font-size: 0.9rem;">&larr; Usuarios</a>
+    <a th:href="@{/admin/usuarios}" class="btn-volver">&larr; Usuarios</a>
+
+    <div class="flash" th:if="${mensaje}" th:text="${mensaje}" style="margin-top: 20px;"></div>
 
     <div class="card" style="margin-top: 20px;">
         <h2 style="margin-top:0; color: var(--color-accent);" th:text="${usuario.nombre}"></h2>
         <div class="row"><span>Username</span><span th:text="${usuario.username}"></span></div>
         <div class="row"><span>Email</span><span th:text="${usuario.email}"></span></div>
         <div class="row"><span>Teléfono</span><span th:text="${usuario.telefono}"></span></div>
-        <div class="row"><span>Rol</span><span th:text="${usuario.tipoUsuario}"></span></div>
+        <div class="row"><span>Rol actual</span><span th:text="${usuario.tipoUsuario}"></span></div>
+
+        <form th:action="@{/admin/usuarios/{id}/rol(id=${usuario.id})}" method="post">
+            <div class="field">
+                <label for="tipoUsuario">Cambiar rol</label>
+                <select id="tipoUsuario" name="tipoUsuario">
+                    <option value="ROLE_USER" th:selected="${usuario.tipoUsuario == 'ROLE_USER'}">Usuario</option>
+                    <option value="ROLE_ADMIN" th:selected="${usuario.tipoUsuario == 'ROLE_ADMIN'}">Administrador</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-guardar">Guardar rol</button>
+        </form>
     </div>
 </div>
 

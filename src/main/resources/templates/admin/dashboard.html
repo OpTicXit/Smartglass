@@ -10,6 +10,8 @@
         .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
         .nav-links { display: flex; gap: 10px; }
         .nav-links a { color: var(--text-main); text-decoration: none; padding: 8px 16px; border-radius: 8px; background: var(--bg-tertiary); font-size: 0.9rem; }
+        .btn-volver { display: inline-flex; align-items: center; gap: 6px; color: var(--text-main); text-decoration: none; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.9rem; background: transparent; }
+        .btn-volver:hover { border-color: var(--color-accent); color: var(--color-accent); }
 
         .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
 
@@ -31,13 +33,15 @@
     <div class="nav-links">
         <a th:href="@{/admin/usuarios}">Usuarios</a>
         <a th:href="@{/admin/pedidos}">Pedidos</a>
-        <a th:href="@{/catalogo}">Ver tienda</a>
+        <a th:href="@{/admin/productos}">Catálogo</a>
         <a th:href="@{/logout}" style="border:1px dashed var(--border-color); background:transparent;">Salir</a>
     </div>
 </nav>
 
 <div class="container">
-    <h1 style="color: var(--text-main);">Panel de administración</h1>
+    <a th:href="@{/catalogo}" class="btn-volver">&larr; Volver a la tienda</a>
+
+    <h1 style="color: var(--text-main); margin-top: 20px;">Panel de administración</h1>
 
     <div class="stats-grid">
         <div class="stat-box">
@@ -55,6 +59,14 @@
         <div class="stat-box">
             <span class="value" th:text="${stats.totalPedidos}"></span>
             <span class="label">Total pedidos</span>
+        </div>
+        <div class="stat-box">
+            <span class="value" th:text="${totalUsuarios}"></span>
+            <span class="label">Usuarios registrados</span>
+        </div>
+        <div class="stat-box">
+            <span class="value" th:text="${totalProductos}"></span>
+            <span class="label">Productos en catálogo</span>
         </div>
     </div>
 
