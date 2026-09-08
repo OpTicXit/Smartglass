@@ -5,6 +5,7 @@ import com.smartglass.model.mysql.Usuario;
 import com.smartglass.repository.mysql.UsuarioRepository;
 import com.smartglass.service.PedidoService;
 import com.smartglass.service.ProductoService;
+import com.smartglass.service.ReseñaService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +15,12 @@ import java.util.List;
 
 /**
  * Panel de administracion. Ya no es solo lectura: puede cambiar el
- * estado de un pedido, el rol de un usuario, y crear/eliminar
- * productos del catalogo -- todo contra la base de datos real, sin
- * datos de ejemplo ni cache: cada GET vuelve a consultar
- * PedidoService/UsuarioRepository/ProductoService, asi que siempre
- * refleja el estado actual del sistema.
+ * estado de un pedido, el rol de un usuario, crear/eliminar
+ * productos del catalogo, y moderar reseñas -- todo contra la base
+ * de datos real, sin datos de ejemplo ni cache: cada GET vuelve a
+ * consultar PedidoService/UsuarioRepository/ProductoService/
+ * ResenaService, asi que siempre refleja el estado actual del
+ * sistema.
  *
  * SecurityConfig ya protege "/admin/**" con hasRole("ADMIN"), asi
  * que no hace falta repetir esa comprobacion aqui.
@@ -30,12 +32,14 @@ public class AdminController {
     private final UsuarioRepository usuarioRepository;
     private final PedidoService pedidoService;
     private final ProductoService productoService;
+    private final ReseñaService resenaService;
 
     public AdminController(UsuarioRepository usuarioRepository, PedidoService pedidoService,
-                            ProductoService productoService) {
+                            ProductoService productoService, ReseñaService resenaService) {
         this.usuarioRepository = usuarioRepository;
         this.pedidoService = pedidoService;
         this.productoService = productoService;
+        this.resenaService = resenaService;
     }
 
     @GetMapping("/dashboard")
@@ -110,5 +114,20 @@ public class AdminController {
         productoService.eliminarPorId(id);
         ra.addFlashAttribute("mensaje", "Producto eliminado.");
         return "redirect:/admin/productos";
+    }
+
+    // --- Moderacion de resenas ---
+
+    @GetMapping("/resenas")
+    public String listarResenas(Model model) {
+        model.addAttribute("resenas", resenaService.obtenerTodas());
+        return "admin/resenas";
+    }
+
+    @PostMapping("/resenas/{id}/eliminar")
+    public String eliminarResena(@PathVariable String id, RedirectAttributes ra) {
+        resenaService.eliminarPorId(id);
+        ra.addFlashAttribute("mensaje", "Reseña eliminada.");
+        return "redirect:/admin/resenas";
     }
 }

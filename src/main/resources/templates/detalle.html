@@ -83,6 +83,51 @@
     </div>
 </section>
 
+<section class="resenas-section">
+    <div class="resenas-header">
+        <div class="promedio-box">
+            <div class="promedio-valor" th:text="${promedioCalificacion}">0.0</div>
+            <div class="estrellas" th:text="${estrellasPromedio}">☆☆☆☆☆</div>
+        </div>
+        <div>
+            <h3 style="margin:0;">Opiniones de clientes</h3>
+            <p style="margin:4px 0 0; color:var(--text-muted); font-size:0.9rem;"
+               th:text="${#lists.size(resenas)} + ' reseña(s)'">0 reseñas</p>
+        </div>
+    </div>
+
+    <div class="resena-card" th:each="r : ${resenas}">
+        <div class="resena-header">
+            <span class="resena-autor" th:text="${r.nombreUsuario}">Cliente</span>
+            <span class="estrellas" th:text="${r.estrellas}"></span>
+        </div>
+        <p th:text="${r.comentario}"></p>
+    </div>
+
+    <div th:if="${#lists.isEmpty(resenas)}" style="color:var(--text-muted); padding: 10px 0;">
+        Todavía no hay reseñas para este producto. ¡Sé el primero en opinar!
+    </div>
+
+    <div class="form-resena" th:if="${usuarioLogueado}">
+        <h4 style="margin:0 0 5px;" th:text="${miResena != null} ? 'Actualiza tu reseña' : 'Deja tu reseña'"></h4>
+        <form th:action="@{/detalle/{id}/resenas(id=${producto.id})}" method="post">
+            <select name="calificacion">
+                <option value="5" th:selected="${miResena != null and miResena.calificacion == 5}">★★★★★ (5)</option>
+                <option value="4" th:selected="${miResena != null and miResena.calificacion == 4}">★★★★☆ (4)</option>
+                <option value="3" th:selected="${miResena == null or miResena.calificacion == 3}">★★★☆☆ (3)</option>
+                <option value="2" th:selected="${miResena != null and miResena.calificacion == 2}">★★☆☆☆ (2)</option>
+                <option value="1" th:selected="${miResena != null and miResena.calificacion == 1}">★☆☆☆☆ (1)</option>
+            </select>
+            <textarea name="comentario" rows="3" placeholder="¿Qué te pareció este producto?"
+                      th:text="${miResena != null ? miResena.comentario : ''}"></textarea>
+            <button type="submit" th:text="${miResena != null} ? 'Actualizar reseña' : 'Publicar reseña'"></button>
+        </form>
+    </div>
+    <p th:unless="${usuarioLogueado}" style="color:var(--text-muted);">
+        <a href="/login" style="color:var(--color-accent);">Inicia sesión</a> para dejar tu reseña.
+    </p>
+</section>
+
 <script>
     function cambiarCantidad(valor) {
         const input = document.getElementById('cantidad');

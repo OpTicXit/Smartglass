@@ -74,6 +74,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/detalle/*/resenas").authenticated()
                 .requestMatchers("/usuario/**", "/carrito/**", "/checkout/**", "/vidrio-personalizado/**").authenticated()
                 .requestMatchers("/error/**", "/css/**", "/js/**", "/img/**").permitAll()
                 .anyRequest().permitAll()
