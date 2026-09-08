@@ -40,6 +40,18 @@
         .btn-ficha { text-decoration: none; color: var(--color-info); font-size: 0.85rem; font-weight: bold; }
         
         @media (max-width: 768px) { .productos-grid { grid-template-columns: 1fr; } .catalogo-header-info h1 { font-size: 1.8rem; } }
+
+        /* Comparador */
+        .comparar-check { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); }
+        .comparar-check input { width: auto; }
+        .barra-comparador {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 2000;
+            background: var(--bg-secondary); border-top: 1px solid var(--color-accent);
+            padding: 16px 30px; align-items: center; justify-content: space-between;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+        }
+        .barra-comparador span { color: var(--text-main); }
+        .barra-comparador button { padding: 10px 24px; background: var(--color-accent); color: var(--bg-primary); border-radius: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -76,6 +88,11 @@
                 
                 <a th:href="@{/detalle/{id}(id=${producto.id})}" class="btn-ficha">Ver Ficha Técnica →</a>
 
+                <label class="comparar-check">
+                    <input type="checkbox" class="chk-comparar" th:value="${producto.id}">
+                    Comparar
+                </label>
+
                 <div class="price-tag">
                     <strong th:text="'$' + ${producto.precioFormateado}"></strong>
                 </div>
@@ -87,6 +104,11 @@
             </div>
         </article>
     </section>
+
+    <div id="barra-comparador" class="barra-comparador">
+        <span><span id="comparador-count">0</span> producto(s) seleccionados para comparar</span>
+        <button id="btn-comparar" type="button">Comparar</button>
+    </div>
 </main>
 
 <script th:src="@{/js/main.js}"></script>

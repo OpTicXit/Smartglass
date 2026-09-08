@@ -5,7 +5,7 @@ import com.smartglass.model.mysql.Usuario;
 import com.smartglass.repository.mysql.UsuarioRepository;
 import com.smartglass.service.PedidoService;
 import com.smartglass.service.ProductoService;
-import com.smartglass.service.ReseñaService;
+import com.smartglass.service.ResenaService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,10 +32,10 @@ public class AdminController {
     private final UsuarioRepository usuarioRepository;
     private final PedidoService pedidoService;
     private final ProductoService productoService;
-    private final ReseñaService resenaService;
+    private final ResenaService resenaService;
 
     public AdminController(UsuarioRepository usuarioRepository, PedidoService pedidoService,
-                            ProductoService productoService, ReseñaService resenaService) {
+                            ProductoService productoService, ResenaService resenaService) {
         this.usuarioRepository = usuarioRepository;
         this.pedidoService = pedidoService;
         this.productoService = productoService;

@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ReseñaService {
+public class ResenaService {
 
     private final ReseñaRepository resenaRepository;
 
-    public ReseñaService(ReseñaRepository resenaRepository) {
+    public ResenaService(ReseñaRepository resenaRepository) {
         this.resenaRepository = resenaRepository;
     }
 

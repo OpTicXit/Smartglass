@@ -1,12 +1,17 @@
 package com.smartglass.controller;
 
+import com.smartglass.dto.ComparacionItem;
 import com.smartglass.model.mysql.Usuario;
 import com.smartglass.service.ProductoService;
-import com.smartglass.service.ReseñaService;
+import com.smartglass.service.ResenaService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * Paginas publicas de la vitrina (storefront): reemplaza las rutas
@@ -30,9 +35,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class TiendaController {
 
     private final ProductoService productoService;
-    private final ReseñaService resenaService;
+    private final ResenaService resenaService;
 
-    public TiendaController(ProductoService productoService, ReseñaService resenaService) {
+    public TiendaController(ProductoService productoService, ResenaService resenaService) {
         this.productoService = productoService;
         this.resenaService = resenaService;
     }
@@ -87,5 +92,44 @@ public class TiendaController {
             ra.addFlashAttribute("tipoMensaje", "error");
         }
         return "redirect:/detalle/" + id;
+    }
+
+    @GetMapping("/comparar")
+    public String comparar(@RequestParam(required = false) List<String> ids,
+                            Model model, RedirectAttributes ra) {
+        if (ids == null || ids.isEmpty()) {
+            ra.addFlashAttribute("mensaje", "Selecciona al menos 2 productos para comparar.");
+            ra.addFlashAttribute("tipoMensaje", "error");
+            return "redirect:/catalogo";
+        }
+
+        // sin duplicados, maximo 3
+        List<String> idsUnicos = new ArrayList<>(new LinkedHashSet<>(ids));
+        if (idsUnicos.size() > 3) {
+            idsUnicos = idsUnicos.subList(0, 3);
+        }
+        if (idsUnicos.size() < 2) {
+            ra.addFlashAttribute("mensaje", "Selecciona al menos 2 productos para comparar.");
+            ra.addFlashAttribute("tipoMensaje", "error");
+            return "redirect:/catalogo";
+        }
+
+        List<ComparacionItem> items = new ArrayList<>();
+        for (String id : idsUnicos) {
+            productoService.obtenerPorId(id).ifPresent(producto -> {
+                double promedio = resenaService.calcularPromedio(id);
+                int totalResenas = resenaService.obtenerPorProducto(id).size();
+                items.add(new ComparacionItem(producto, promedio, totalResenas));
+            });
+        }
+
+        if (items.size() < 2) {
+            ra.addFlashAttribute("mensaje", "No se encontraron suficientes productos para comparar.");
+            ra.addFlashAttribute("tipoMensaje", "error");
+            return "redirect:/catalogo";
+        }
+
+        model.addAttribute("items", items);
+        return "comparar";
     }
 }

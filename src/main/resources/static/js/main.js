@@ -1,109 +1,113 @@
 /* ============================================================
-   SmartGlass — Experiencia de Usuario Premium y Estética
+   SmartGlass — script global de interaccion/estetica.
+   Defensivo: cada bloque revisa si sus elementos existen antes
+   de hacer nada, asi que es seguro incluirlo en toda pagina.
 ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
-    revelarAlEntrar();
-    rebotarCarritoSiHuboExito();
-    scrollSuaveEnAnclas();
-    efectoIluminacionSmartGlass();
-    efectoMagnetico();
+  revelarAlEntrar();
+  rebotarCarritoSiHuboExito();
+  scrollSuaveEnAnclas();
+  inicializarComparador();
 });
 
-/* --- 1. Scroll-reveal fluido al estilo Apple --- */
+/* --- Scroll-reveal: tarjetas aparecen con fade + slide al entrar --- */
 function revelarAlEntrar() {
-    const selectores = [
-        '.producto-card', '.stat-box', '.stat-card', '.stat-pedido',
-        '.pedido-card', '.cotizacion-card', '.card-panel', '.pilar-box',
-        '.info-box', '.tech-card', '.co2-card'
-    ];
-    const elementos = document.querySelectorAll(selectores.join(','));
-    if (!elementos.length) return;
+  const selectores = [
+    '.producto-card', '.stat-box', '.stat-card', '.stat-pedido',
+    '.pedido-card', '.cotizacion-card', '.card-panel', '.pilar-box',
+    '.info-box', '.tech-card', '.co2-card'
+  ];
+  const elementos = document.querySelectorAll(selectores.join(','));
+  if (!elementos.length) return;
 
-    elementos.forEach(el => el.classList.add('sg-reveal'));
+  elementos.forEach(el => el.classList.add('sg-reveal'));
 
-    if (!('IntersectionObserver' in window)) {
-        elementos.forEach(el => el.classList.add('sg-reveal-visible'));
-        return;
-    }
+  if (!('IntersectionObserver' in window)) {
+    elementos.forEach(el => el.classList.add('sg-reveal-visible'));
+    return;
+  }
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry, index) => {
-            if (entry.isIntersecting) {
-                // Staggering (retraso en cascada) dinámico para que no aparezcan de golpe
-                setTimeout(() => {
-                    entry.target.classList.add('sg-reveal-visible');
-                }, index * 80); 
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
-
-    elementos.forEach(el => observer.observe(el));
-}
-
-/* --- 2. Interacción dinámica de iluminación en el "Cristal" (Efecto Hover) --- */
-function efectoIluminacionSmartGlass() {
-    const tarjetas = document.querySelectorAll('.producto-card, .info-box, .tech-card, .card-panel');
-    
-    tarjetas.forEach(tarjeta => {
-        tarjeta.addEventListener('mousemove', (e) => {
-            const rect = tarjeta.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // Pasamos las coordenadas exactas del ratón al CSS
-            tarjeta.style.setProperty('--mouse-x', `${x}px`);
-            tarjeta.style.setProperty('--mouse-y', `${y}px`);
-        });
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, index) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('sg-reveal-visible'), index * 60);
+        observer.unobserve(entry.target);
+      }
     });
+  }, { threshold: 0.12 });
+
+  elementos.forEach(el => observer.observe(el));
 }
 
-/* --- 3. Efecto Magnético para Iconos (Carrito, Botones) --- */
-function efectoMagnetico() {
-    const magnetos = document.querySelectorAll('.sg-magnetico, a[href="/carrito"]');
-    
-    magnetos.forEach(magneto => {
-        magneto.addEventListener('mousemove', (e) => {
-            const posicion = magneto.getBoundingClientRect();
-            const x = e.clientX - posicion.left - posicion.width / 2;
-            const y = e.clientY - posicion.top - posicion.height / 2;
-            
-            magneto.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px) scale(1.1)`;
-        });
-
-        magneto.addEventListener('mouseleave', () => {
-            magneto.style.transform = 'translate(0px, 0px) scale(1)';
-        });
-    });
-}
-
-/* --- 4. Rebote Orgánico del carrito tras una compra exitosa --- */
+/* --- Rebote del icono del carrito cuando hubo un "agregado" exitoso --- */
 function rebotarCarritoSiHuboExito() {
-    const flashExito = document.querySelector('.alert-success, .flash-success');
-    if (!flashExito) return;
+  const flashExito = document.querySelector('.alert-success, .flash-success');
+  if (!flashExito) return;
 
-    const linkCarrito = document.querySelector('a[href="/carrito"]');
-    if (!linkCarrito) return;
+  const linkCarrito = document.querySelector('a[href="/carrito"]');
+  if (!linkCarrito) return;
 
-    // Añadimos una clase para un rebote elástico
-    setTimeout(() => {
-        linkCarrito.classList.add('sg-cart-bounce-premium');
-    }, 500);
-
-    linkCarrito.addEventListener('animationend', () => {
-        linkCarrito.classList.remove('sg-cart-bounce-premium');
-    }, { once: true });
+  linkCarrito.classList.add('sg-cart-bump');
+  linkCarrito.addEventListener('animationend', () => {
+    linkCarrito.classList.remove('sg-cart-bump');
+  }, { once: true });
 }
 
-/* --- 5. Scroll suave para anclas --- */
+/* --- Scroll suave para anclas internas (href="#seccion") --- */
 function scrollSuaveEnAnclas() {
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
-        link.addEventListener('click', (event) => {
-            const destino = document.querySelector(link.getAttribute('href'));
-            if (!destino) return;
-            event.preventDefault();
-            destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', (event) => {
+      const destino = document.querySelector(link.getAttribute('href'));
+      if (!destino) return;
+      event.preventDefault();
+      destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+  });
+}
+
+/* --- Comparador de productos: checkboxes en el catalogo + barra flotante ---
+   Defensivo: si la pagina no tiene .chk-comparar (ninguna checkbox de
+   comparar) no hace nada, asi que es seguro que este cargado en toda
+   pagina via main.js sin afectar a las que no lo usan. */
+function inicializarComparador() {
+  const checkboxes = document.querySelectorAll('.chk-comparar');
+  const barra = document.getElementById('barra-comparador');
+  const contador = document.getElementById('comparador-count');
+  const btnComparar = document.getElementById('btn-comparar');
+  if (!checkboxes.length || !barra || !contador || !btnComparar) return;
+
+  const MAX_PRODUCTOS = 3;
+
+  function seleccionActual() {
+    return document.querySelectorAll('.chk-comparar:checked');
+  }
+
+  function actualizarBarra() {
+    const seleccionados = seleccionActual();
+    contador.textContent = seleccionados.length;
+    barra.style.display = seleccionados.length > 0 ? 'flex' : 'none';
+  }
+
+  checkboxes.forEach(chk => {
+    chk.addEventListener('change', () => {
+      if (seleccionActual().length > MAX_PRODUCTOS) {
+        chk.checked = false;
+        alert('Puedes comparar hasta ' + MAX_PRODUCTOS + ' productos a la vez.');
+      }
+      actualizarBarra();
+    });
+  });
+
+  btnComparar.addEventListener('click', () => {
+    const ids = Array.from(seleccionActual()).map(chk => chk.value);
+    if (ids.length < 2) {
+      alert('Selecciona al menos 2 productos para comparar.');
+      return;
+    }
+    const query = ids.map(id => 'ids=' + encodeURIComponent(id)).join('&');
+    window.location.href = '/comparar?' + query;
+  });
+
+  actualizarBarra();
 }
