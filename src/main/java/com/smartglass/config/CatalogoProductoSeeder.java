@@ -3,6 +3,7 @@ package com.smartglass.config;
 import com.smartglass.model.mongo.CatalogoProducto;
 import com.smartglass.repository.mongo.CatalogoProductoRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
  * cuando los tengas (por Mongo Compass, un endpoint admin, etc.).
  */
 @Component
+@Order(1)
 public class CatalogoProductoSeeder implements CommandLineRunner {
 
     private final CatalogoProductoRepository catalogoProductoRepository;

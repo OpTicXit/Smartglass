@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * de duplicarla -- ver ResenaService.crearOActualizar).
  */
 @Document(collection = "resenas")
-public class Reseña {
+public class Resena {
 
     @Id
     private String id;
@@ -25,10 +25,10 @@ public class Reseña {
 
     private LocalDateTime fecha;
 
-    public Reseña() {
+    public Resena() {
     }
 
-    public Reseña(String productoId, Long usuarioId, String nombreUsuario, int calificacion, String comentario) {
+    public Resena(String productoId, Long usuarioId, String nombreUsuario, int calificacion, String comentario) {
         this.productoId = productoId;
         this.usuarioId = usuarioId;
         this.nombreUsuario = nombreUsuario;
