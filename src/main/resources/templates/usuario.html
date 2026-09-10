@@ -27,10 +27,12 @@
 
         /* Grid igual a Tienda */
         .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
-        
-        .producto-card { background: var(--bg-secondary); border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden; transition: 0.3s; text-align: center; padding-bottom: 20px; }
-        .producto-card:hover { transform: translateY(-5px); border-color: var(--color-accent); }
-        
+
+        /* .producto-card: fondo, borde, sombra, hover y luz de cursor ya
+           los da theme.css (regla global compartida) -- aqui solo va lo
+           que es propio de ESTA vista: texto centrado y separacion inferior. */
+        .producto-card { text-align: center; padding-bottom: 20px; }
+
         .producto-img-container { position: relative; width: 100%; height: 200px; overflow: hidden; margin-bottom: 15px; }
         .producto-img-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
         .producto-card:hover .producto-img-container img { filter: brightness(0.5); transform: scale(1.05); }

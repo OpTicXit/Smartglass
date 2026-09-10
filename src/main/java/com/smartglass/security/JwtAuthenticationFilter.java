@@ -25,10 +25,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String HEADER_NAME = "Authorization";
     private static final String TOKEN_PREFIX = "Bearer ";
 
-    private final JwtProvider jwtProvider;
+    private final JwtPorvider jwtProvider;
     private final UserDetailsServiceImpl userDetailsService;
 
-    public JwtAuthenticationFilter(JwtProvider jwtProvider, UserDetailsServiceImpl userDetailsService) {
+    public JwtAuthenticationFilter(JwtPorvider jwtProvider, UserDetailsServiceImpl userDetailsService) {
         this.jwtProvider = jwtProvider;
         this.userDetailsService = userDetailsService;
     }

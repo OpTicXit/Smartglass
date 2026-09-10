@@ -21,8 +21,10 @@
         /* GRID DE PRODUCTOS */
         .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; max-width: 1300px; margin: 50px auto; padding: 0 20px; }
         
-        .producto-card { background: var(--bg-secondary); border-radius: 16px; overflow: hidden; border: 1px solid var(--border-color); transition: 0.3s; display: flex; flex-direction: column; }
-        .producto-card:hover { transform: translateY(-8px); border-color: var(--color-accent); box-shadow: var(--shadow-main); }
+        /* .producto-card: fondo, borde, radio, sombra, hover y luz de
+           cursor ya los da theme.css -- aqui solo el layout propio de
+           esta vista (columna: imagen arriba, cuerpo abajo). */
+        .producto-card { display: flex; flex-direction: column; }
         
         .producto-img-wrapper { width: 100%; height: 220px; overflow: hidden; position: relative; }
         .producto-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
@@ -71,7 +73,6 @@
             display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 2000;
             background: var(--bg-secondary); border-top: 1px solid var(--color-accent);
             padding: 16px 30px; align-items: center; justify-content: space-between;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
         }
         .barra-comparador span { color: var(--text-main); }
         .barra-comparador button { padding: 10px 24px; background: var(--color-accent); color: var(--bg-primary); border-radius: 8px; font-weight: bold; }

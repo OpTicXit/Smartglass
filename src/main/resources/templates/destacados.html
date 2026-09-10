@@ -14,8 +14,11 @@
 
         .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
 
-        .producto-card { background: var(--bg-secondary); border-radius: 20px; overflow: hidden; border: 1px solid var(--border-color); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; }
-        .producto-card:hover { transform: scale(1.03); border-color: var(--color-accent); box-shadow: var(--shadow-main); }
+        /* .producto-card ya no se redefine aqui: fondo, borde, radio,
+           sombra y hover los da theme.css (estandar global). Esta vista
+           tenia antes su propio hover con scale() y radio distinto -- se
+           unifica al estandar para que todas las cards se comporten igual
+           en todo el sitio, que es justo el objetivo de centralizarlo. */
 
         .producto-img-container { position: relative; width: 100%; height: 250px; overflow: hidden; }
         .producto-img-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }

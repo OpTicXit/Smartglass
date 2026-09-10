@@ -3,7 +3,7 @@ package com.smartglass.service;
 import com.smartglass.dto.LoginRequest;
 import com.smartglass.dto.RegisterRequest;
 import com.smartglass.model.mysql.Usuario;
-import com.smartglass.security.JwtProvider;
+import com.smartglass.security.JwtPorvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,11 +26,11 @@ public class AuthService {
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtProvider;
+    private final JwtPorvider jwtProvider;
 
     public AuthService(UserService userService,
                         AuthenticationManager authenticationManager,
-                        JwtProvider jwtProvider) {
+                        JwtPorvider jwtProvider) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
         this.jwtProvider = jwtProvider;

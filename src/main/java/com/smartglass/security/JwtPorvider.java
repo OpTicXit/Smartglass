@@ -23,14 +23,14 @@ import java.util.Date;
  * jjwt a la version 0.11.5 en el pom.xml en vez de usar esta clase.
  */
 @Component
-public class JwtProvider {
+public class JwtPorvider {
 
-    private static final Logger log = LoggerFactory.getLogger(JwtProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(JwtPorvider.class);
 
     private final SecretKey secretKey;
     private final long expirationMs;
 
-    public JwtProvider(
+    public JwtPorvider(
             @Value("${smartglass.jwt.secret}") String secret,
             @Value("${smartglass.jwt.expiration-ms:86400000}") long expirationMs
     ) {
