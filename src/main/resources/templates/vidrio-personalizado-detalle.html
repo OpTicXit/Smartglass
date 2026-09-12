@@ -15,9 +15,21 @@
 
         .main-grid { display: grid; grid-template-columns: 1fr 350px; gap: 30px; max-width: 1200px; margin: 0 auto 50px; }
 
-        /* Monitor CO2 Circular */
-        .co2-card { background: var(--bg-secondary); border-radius: 16px; padding: 30px; border: 1px solid var(--border-color); text-align: center; }
-        .co2-circle { width: 180px; height: 180px; border-radius: 50%; border: 8px solid var(--color-success); margin: 0 auto 20px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 0 20px rgba(166, 227, 161, 0.2); }
+        /* .tech-card: fondo/borde/radio ya los da theme.css; aqui solo
+           el padding, que si es propio de esta vista. */
+        .tech-card { padding: 25px; }
+
+        /* .co2-card se le inyecta la clase global "info-box" en el HTML
+           para el fondo/borde/radio/hover -- aqui solo queda lo que le
+           es propio: el text-align y el padding. */
+        .co2-card { padding: 30px; text-align: center; }
+        .co2-circle {
+            width: 180px; height: 180px; border-radius: 50%; border: 8px solid var(--color-success);
+            margin: 0 auto 20px; display: flex; flex-direction: column; justify-content: center;
+            /* antes: rgba(166,227,161,0.2) a mano -- ya existia esta
+               variable exacta en theme.css (pensada para esto) sin uso. */
+            box-shadow: var(--co2-glow-normal);
+        }
         .co2-val { font-size: 2.5rem; font-weight: bold; color: var(--text-main); }
 
         /* Barras de Materiales */
@@ -25,9 +37,6 @@
         .material-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
         .progress-bar { height: 10px; background: var(--bg-tertiary); border-radius: 5px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--color-accent); border-radius: 5px; }
-
-        /* Detalles Técnicos */
-        .tech-card { background: var(--bg-secondary); border-radius: 16px; padding: 25px; border: 1px solid var(--border-color); }
         .tech-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
         
         .btn-approve { width: 100%; padding: 15px; background: var(--color-success); color: var(--bg-primary); border-radius: 12px; font-weight: bold; cursor: pointer; border: none; margin-top: 20px; transition: 0.3s; }
@@ -93,7 +102,7 @@
 
     <aside class="content-right">
         <!-- Tarjeta de CO2 -->
-        <div class="co2-card">
+        <div class="co2-card info-box">
             <h3 style="color: var(--text-main); margin-top: 0;">Impacto Ambiental</h3>
             <div class="co2-circle">
                 <span class="co2-val" th:text="${vidrio.huellaCarbono != null ? #numbers.formatDecimal(vidrio.huellaCarbono, 1, 1) : '0.0'}">0</span>

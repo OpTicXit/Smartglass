@@ -9,6 +9,13 @@
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
         .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
         
+        /* .detalle-grid: fondo/borde propios a proposito, NO se
+           convierte a .card-panel -- ese es un contenedor de pagina
+           completo (foto + info + compra), no una "tarjeta" individual
+           dentro de una coleccion. Aplicarle el hover-lift + luz de
+           cursor de .card-panel se sentiria raro (toda la seccion
+           "flotando" al pasar el mouse sobre un boton). Es una
+           excepcion deliberada, no un duplicado sin revisar. */
         .detalle-grid { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 30px; max-width: 1200px; margin: 50px auto; padding: 20px; background: var(--bg-secondary); border-radius: 16px; border: 1px solid var(--border-color); }
 
         .miniaturas { display: flex; flex-direction: column; gap: 10px; }
@@ -26,7 +33,7 @@
 
         .btn-agregar { width: 100%; padding: 15px; background: var(--color-accent); color: var(--text-on-accent); border-radius: 8px; font-weight: bold; font-size: 1.1rem; }
         
-        .especificaciones { margin-top: 30px; padding: 20px; background: var(--bg-tertiary); border-radius: 8px; }
+        .especificaciones { margin-top: 30px; padding: 20px; }
         .especificaciones ul { list-style: none; padding: 0; }
         .especificaciones li { padding: 8px 0; border-bottom: 1px solid var(--border-color); color: var(--text-muted); }
 
@@ -38,12 +45,16 @@
         .promedio-box { text-align: center; }
         .promedio-valor { font-size: 2.2rem; font-weight: bold; color: var(--color-accent); }
         .estrellas { color: var(--color-warning); font-size: 1.1rem; letter-spacing: 2px; }
-        .resena-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; padding: 18px 20px; margin-bottom: 12px; }
+        /* .resena-card y .form-resena ya no traen fondo/borde/radio local:
+           lo dan .card-panel (theme.css). form-resena solo sobreescribe el
+           borde a punteado, para marcar visualmente que es un formulario
+           de "agregar", no contenido ya publicado. */
+        .resena-card { padding: 18px 20px; margin-bottom: 12px; }
         .resena-card .resena-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
         .resena-card .resena-autor { color: var(--text-main); font-weight: bold; }
         .resena-card .resena-fecha { color: var(--text-muted); font-size: 0.8rem; }
         .resena-card p { margin: 0; color: var(--text-muted); }
-        .form-resena { background: var(--bg-secondary); border: 1px dashed var(--color-accent); border-radius: 10px; padding: 20px; margin-top: 20px; }
+        .form-resena { border-style: dashed !important; border-color: var(--color-accent) !important; padding: 20px; margin-top: 20px; }
         .form-resena select, .form-resena textarea { width: 100%; padding: 10px; border-radius: 8px; margin: 10px 0; box-sizing: border-box; }
         .form-resena button { padding: 10px 24px; background: var(--color-accent); color: var(--bg-primary); border-radius: 8px; font-weight: bold; }
     </style>
@@ -87,7 +98,7 @@
             <a href="/login" class="btn-agregar" style="display:block; text-align:center; text-decoration:none; background:var(--bg-tertiary); color:var(--text-muted); border:1px dashed var(--border-color);">🔒 Inicia sesión para comprar</a>
         </div>
 
-        <div class="especificaciones">
+        <div class="especificaciones info-box">
             <h3 style="margin-top:0;">Ficha Técnica</h3>
             <ul>
                 <li th:text="'Tipo: ' + ${producto.tipo}"></li>
@@ -111,7 +122,7 @@
         </div>
     </div>
 
-    <div class="resena-card" th:each="r : ${resenas}">
+    <div class="resena-card card-panel" th:each="r : ${resenas}">
         <div class="resena-header">
             <span class="resena-autor" th:text="${r.nombreUsuario}">Cliente</span>
             <span class="estrellas" th:text="${r.estrellas}"></span>
@@ -124,7 +135,7 @@
         Todavía no hay reseñas para este producto. ¡Sé el primero en opinar!
     </div>
 
-    <div class="form-resena" th:if="${usuarioLogueado}">
+    <div class="form-resena card-panel" th:if="${usuarioLogueado}">
         <h4 style="margin:0 0 5px;" th:text="${miResena != null} ? 'Actualiza tu reseña' : 'Deja tu reseña'"></h4>
         <form th:action="@{/detalle/{id}/resenas(id=${producto.id})}" method="post">
             <select name="calificacion">

@@ -23,6 +23,16 @@
         /* GRID PRINCIPAL */
         .checkout-grid { display: grid; grid-template-columns: 1fr 380px; gap: 30px; }
 
+        /* NOTA: .checkout-form-section y .resumen-sticky NO se convierten
+           a .card-panel a proposito, aunque los marque como candidatos en
+           el listado inicial. .card-panel trae hover-lift + luz de cursor
+           pensados para tarjetas que se "recorren" (productos, reseñas).
+           Aca el mouse esta constantemente encima mientras el usuario
+           llena el formulario o revisa el resumen -- ese hover constante
+           se sentiria como un temblor molesto, no como un efecto premium.
+           Se quedan con su fondo/borde propios, sin el comportamiento
+           interactivo de las cards de coleccion. */
+
         /* SECCIONES Y FORMULARIOS */
         .checkout-form-section { background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); padding: 30px; margin-bottom: 25px; }
         .checkout-form-section h2 { font-size: 1.3rem; margin-bottom: 20px; color: var(--text-main); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }

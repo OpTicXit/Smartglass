@@ -6,22 +6,6 @@
     <link rel="stylesheet" href="/css/theme.css">
     
     <style>
-        /* === CONFIGURACIÓN BASE PARA ZOOM === */
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            margin: 0;
-            background: radial-gradient(circle at top, var(--bg-secondary) 0%, var(--bg-primary) 100%);
-        }
-        
-        .main-content {
-            flex: 1; /* Absorbe el espacio vacío y empuja el footer abajo */
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-
         /* === NAVBAR SIMPLE === */
         .navbar {
             display: flex;
@@ -38,8 +22,8 @@
 
         /* === CONTENEDOR CARRITO === */
         .carrito-container {
-            width: clamp(90%, 80vw, 1400px); /* Escalado dinámico */
-            margin: 5vh auto 40px auto;
+            max-width: 1200px;
+            margin: 40px auto;
             padding: 20px;
         }
         .carrito-container h1 {
@@ -48,73 +32,81 @@
         }
 
         /* === ESTADO VACÍO === */
+        /* fondo/borde/radio ahora los da .card-panel (inyectada en el HTML) */
         .carrito-vacio {
             text-align: center;
             padding: 80px 20px;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            min-height: 40vh; /* Altura mínima para no verse minúsculo */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
         }
-        .icono-vacio { font-size: 5rem; margin-bottom: 20px; opacity: 0.5; }
-        .carrito-vacio h2 { color: var(--text-main); margin-bottom: 10px; }
+        .carrito-vacio h2 { color: var(--text-main); }
         .carrito-vacio p { color: var(--text-muted); margin-bottom: 20px; }
 
         /* === LISTA DE ITEMS (GRID) === */
-        .items-lista { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
+        .items-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        /* fondo/borde/radio ahora los da .card-panel; aqui solo el grid */
         .item-carrito {
             display: grid;
             grid-template-columns: 100px 1fr auto auto auto;
             gap: 20px;
             align-items: center;
             padding: 20px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
         }
-        .item-imagen img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
+        .item-imagen img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
         .item-info h3 { margin: 0 0 5px 0; color: var(--text-main); }
         .item-info p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
         
         .item-cantidad { display: flex; flex-direction: column; gap: 5px; align-items: center;}
-        .item-cantidad input { width: 60px; text-align: center; padding: 8px; background: var(--bg-tertiary); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 4px;}
-        .btn-actualizar { padding: 6px 12px; background: var(--color-info); color: var(--text-on-accent); border-radius: 6px; font-size: 0.8em; border: none; cursor: pointer;}
+        .item-cantidad input { width: 60px; text-align: center; padding: 8px; }
+        .btn-actualizar { padding: 6px 12px; background: var(--color-info); color: var(--text-on-accent); border-radius: 6px; font-size: 0.8em; }
 
         .item-precio { text-align: right; }
         .item-precio .label { display: block; font-size: 0.85em; color: var(--text-muted); }
         .item-precio .precio-total { font-size: 1.3em; font-weight: bold; color: var(--color-accent); }
 
-        .btn-eliminar { background: var(--color-error); color: var(--bg-primary); padding: 10px 15px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer;}
+        .btn-eliminar { background: var(--color-error); color: var(--bg-primary); padding: 10px 15px; border-radius: 8px; font-weight: bold; }
 
         /* === RESUMEN Y BOTONES === */
-        .carrito-resumen { background: var(--bg-secondary); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); }
+        /* fondo/borde/radio ahora los da .card-panel */
+        .carrito-resumen {
+            padding: 30px;
+        }
         .carrito-total {
-            display: flex; justify-content: space-between; font-size: 1.5em; font-weight: bold; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
         }
         .carrito-total .total-monto { color: var(--color-success); }
 
-        .carrito-acciones { display: flex; justify-content: flex-end; gap: 15px; flex-wrap: wrap; }
-        .btn { padding: 12px 24px; border-radius: 8px; font-weight: bold; text-decoration: none; cursor: pointer; border: none;}
+        .carrito-acciones {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .btn { padding: 12px 24px; border-radius: 8px; font-weight: bold; text-decoration: none; cursor: pointer;}
         .btn-danger { background: transparent; color: var(--color-error); border: 1px solid var(--color-error); }
         .btn-secondary { background: var(--bg-tertiary); color: var(--text-main); border: 1px solid var(--border-color); }
         .btn-primary { background: var(--color-success); color: var(--bg-primary); }
         
-        /* === FOOTER === */
-        .footer {
-            background: var(--bg-secondary);
-            text-align: center;
-            padding: 2rem;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-muted);
-            margin-top: auto;
-        }
-
         /* Alertas */
         .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold;}
+        /* rgba(166,227,161,0.1) = --color-success con 10% de opacidad, mismo
+           patron que --color-accent-dim pero para success -- theme.css no
+           trae un token para eso, se deja como excepcion documentada en vez
+           de inventar una variable nueva por fuera del estandar global. */
         .alert-success { background: rgba(166, 227, 161, 0.1); border: 1px solid var(--color-success); color: var(--color-success); }
     </style>
 </head>
@@ -128,79 +120,72 @@
     </ul>
 </nav>
 
-<main class="main-content">
-    <div class="carrito-container">
-        <h1>🛒 Mi Carrito de Compras</h1>
+<div class="carrito-container">
+    <h1>🛒 Mi Carrito de Compras</h1>
 
-        <div th:if="${mensaje}" th:class="'alert alert-' + ${tipoMensaje}">
-            <span th:text="${mensaje}"></span>
-        </div>
+    <div th:if="${mensaje}" th:class="'alert alert-' + ${tipoMensaje}">
+        <span th:text="${mensaje}"></span>
+    </div>
 
-        <div th:if="${#lists.isEmpty(items)}" class="carrito-vacio">
-            <div class="icono-vacio">📦</div>
-            <h2>Tu carrito está vacío</h2>
-            <p>Explora nuestro catálogo y encuentra los mejores productos.</p>
-            <a href="/catalogo" class="btn btn-primary">Ir a la Tienda</a>
-        </div>
+    <div th:if="${#lists.isEmpty(items)}" class="carrito-vacio card-panel">
+        <h2>Tu carrito está vacío</h2>
+        <p>Explora nuestro catálogo y encuentra los mejores productos.</p>
+        <a href="/catalogo" class="btn btn-primary">Ir a la Tienda</a>
+    </div>
 
-        <div th:unless="${#lists.isEmpty(items)}">
-            <div class="items-lista">
-                <div th:each="item : ${items}" class="item-carrito">
-                    
-                    <div class="item-imagen">
-                        <img th:src="@{/img/{img}(img=${item.producto.imagen})}" th:alt="${item.producto.nombre}">
-                    </div>
+    <div th:unless="${#lists.isEmpty(items)}">
+        <div class="items-lista">
+            <div th:each="item : ${items}" class="item-carrito card-panel">
+                
+                <div class="item-imagen">
+                    <img th:src="@{/img/{img}(img=${item.producto.imagen})}" th:alt="${item.producto.nombre}">
+                </div>
 
-                    <div class="item-info">
-                        <h3 th:text="${item.producto.nombre}"></h3>
-                        <p th:text="'Código: ' + ${item.producto.codigo}"></p>
-                        <p th:text="'Unitario: $' + ${item.producto.precioFormateado}"></p>
-                    </div>
+                <div class="item-info">
+                    <h3 th:text="${item.producto.nombre}"></h3>
+                    <p th:text="'Código: ' + ${item.producto.codigo}"></p>
+                    <p th:text="'Unitario: $' + ${item.producto.precioFormateado}"></p>
+                </div>
 
-                    <div class="item-cantidad">
-                        <form th:action="@{/carrito/actualizar}" method="post">
-                            <input type="hidden" name="productoId" th:value="${item.producto.id}">
-                            <input type="number" name="cantidad" th:value="${item.cantidad}" min="1" max="99">
-                            <button type="submit" class="btn-actualizar">Actualizar</button>
-                        </form>
-                    </div>
+                <div class="item-cantidad">
+                    <form th:action="@{/carrito/actualizar}" method="post">
+                        <input type="hidden" name="productoId" th:value="${item.producto.id}">
+                        <input type="number" name="cantidad" th:value="${item.cantidad}" min="1" max="99">
+                        <button type="submit" class="btn-actualizar">Actualizar</button>
+                    </form>
+                </div>
 
-                    <div class="item-precio">
-                        <span class="label">Subtotal:</span>
-                        <span class="precio-total" th:text="'$' + ${item.subtotalFormateado}"></span>
-                    </div>
+                <div class="item-precio">
+                    <span class="label">Subtotal:</span>
+                    <span class="precio-total" th:text="'$' + ${item.subtotalFormateado}"></span>
+                </div>
 
-                    <div class="item-eliminar">
-                        <form th:action="@{/carrito/eliminar/{id}(id=${item.producto.id})}" method="post" onsubmit="return confirmarEliminacion(event)">
-                            <button type="submit" class="btn-eliminar">🗑️ Eliminar</button>
-                        </form>
-                    </div>
+                <div class="item-eliminar">
+                    <form th:action="@{/carrito/eliminar/{id}(id=${item.producto.id})}" method="post" onsubmit="return confirmarEliminacion(event)">
+                        <button type="submit" class="btn-eliminar">🗑️ Eliminar</button>
+                    </form>
                 </div>
             </div>
+        </div>
 
-            <div class="carrito-resumen">
-                <div class="carrito-total">
-                    <span>Total a pagar:</span>
-                    <span class="total-monto" th:text="'$ ' + ${#numbers.formatDecimal(total, 0, 'POINT', 0, 'COMMA')}"></span>
-                </div>
+        <div class="carrito-resumen card-panel">
+            <div class="carrito-total">
+                <span>Total a pagar:</span>
+                <span class="total-monto" th:text="'$ ' + ${#numbers.formatDecimal(total, 0, 'POINT', 0, 'COMMA')}"></span>
+            </div>
 
-                <div class="carrito-acciones">
-                    <form th:action="@{/carrito/limpiar}" method="post" onsubmit="return confirmarVaciarCarrito(event)">
-                        <button type="submit" class="btn btn-danger">Vaciar Carrito</button>
-                    </form>
-                    <a href="/catalogo" class="btn btn-secondary">Seguir Comprando</a>
-                    <form th:action="@{/carrito/procesar-compra}" method="post">
-                        <button type="submit" class="btn btn-primary">✓ Finalizar Compra</button>
-                    </form>
-                </div>
+            <div class="carrito-acciones">
+                <form th:action="@{/carrito/limpiar}" method="post" onsubmit="return confirmarVaciarCarrito(event)">
+                    <button type="submit" class="btn btn-danger">Vaciar Carrito</button>
+                </form>
+                <a href="/catalogo" class="btn btn-secondary">Seguir Comprando</a>
+                <form th:action="@{/carrito/procesar-compra}" method="post">
+                    <button type="submit" class="btn btn-primary">✓ Finalizar Compra</button>
+                </form>
             </div>
         </div>
     </div>
-</main>
-
-<footer class="footer">
-    <p>&copy; 2026 SmartGlass. Todos los derechos reservados.</p>
-</footer>
+</div>
 
 <script>
     function confirmarEliminacion(event) {
