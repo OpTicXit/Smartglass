@@ -11,29 +11,44 @@
         .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
         
         .form-container { max-width: 1250px; margin: 40px auto; display: grid; grid-template-columns: 1fr 400px; gap: 30px; padding: 0 20px; }
-        .card-form { background: var(--bg-secondary); border-radius: 16px; padding: 35px; border: 1px solid var(--border-color); }
-        .card-form h2 { color: var(--color-accent); margin-top: 0; margin-bottom: 10px; }
+        /* .card-form -> se renombra a card-panel en el HTML (fondo/borde/
+           radio/hover ya los da theme.css); aqui solo el padding, que si
+           es propio de esta vista. */
+        .card-panel-form { padding: 35px; }
+        .card-panel-form h2 { color: var(--color-accent); margin-top: 0; margin-bottom: 10px; }
 
         .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 20px; }
         .form-group label { display: flex; align-items: center; margin-bottom: 10px; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; font-weight: bold; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border-radius: 8px; box-sizing: border-box; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-main); transition: 0.3s; }
-        .form-group input:focus, .form-group select:focus { border-color: var(--color-accent); outline: none; }
+        /* input/select: el reset global (theme.css) ya pone color, borde,
+           radio y transicion de foco -- aqui solo se sobreescribe el fondo
+           (bg-tertiary en vez de bg-secondary, para que se vea "hundido"
+           dentro de la card) y el padding, que si son propios. */
+        .form-group input, .form-group select { width: 100%; box-sizing: border-box; background: var(--bg-tertiary); padding: 12px; }
         .form-group optgroup { background: var(--bg-secondary); color: var(--color-accent); font-style: normal; font-weight: bold; }
         .form-group option { background: var(--bg-tertiary); color: var(--text-main); font-weight: normal; }
 
         /* Tooltips de Ayuda Contextual */
         .tooltip-icon { color: var(--color-info); margin-left: 8px; font-size: 0.9rem; cursor: help; position: relative; }
-        .tooltip-text { visibility: hidden; width: 220px; background-color: var(--bg-primary); color: var(--text-main); text-align: left; border-radius: 8px; padding: 12px; position: absolute; z-index: 10; bottom: 150%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s, transform 0.3s; font-size: 0.75rem; font-weight: normal; text-transform: none; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.5); line-height: 1.4; pointer-events: none; }
+        .tooltip-text { visibility: hidden; width: 220px; background-color: var(--bg-primary); color: var(--text-main); text-align: left; border-radius: 8px; padding: 12px; position: absolute; z-index: 10; bottom: 150%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s, transform 0.3s; font-size: 0.75rem; font-weight: normal; text-transform: none; border: 1px solid var(--border-color); box-shadow: var(--shadow-main); line-height: 1.4; pointer-events: none; }
         .tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -6px; border-width: 6px; border-style: solid; border-color: var(--border-color) transparent transparent transparent; }
         .tooltip-icon:hover .tooltip-text { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(5px); }
 
-        .sustainability-panel { background: rgba(166, 227, 161, 0.05); padding: 25px; border-radius: 15px; border: 1px solid var(--color-success); margin: 25px 0; }
-        
+        .sustainability-panel { background: var(--color-success-dim); padding: 25px; border-radius: 15px; border: 1px solid var(--color-success); margin: 25px 0; }
+
+        /* .preview-sticky NO se convierte a card-panel a proposito: usa
+           bg-tertiary (no bg-secondary) y borde PUNTEADO en acento --
+           misma convencion que ya usabamos para marcar "esto es una vista
+           previa en vivo, no el resultado final" (ver info.html). Si se
+           viera igual a una card-panel normal, perderia esa señal visual. */
         .preview-sticky { position: sticky; top: 40px; background: var(--bg-tertiary); border: 1px dashed var(--color-accent); border-radius: 16px; padding: 30px; }
         .preview-stat { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid var(--border-color); }
         .price-big { font-size: 2.2rem; font-weight: bold; color: var(--color-success); text-align: center; margin: 25px 0; }
 
         .btn-calc { width: 100%; padding: 18px; background: var(--color-accent); color: var(--bg-primary); border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
+        /* rgba(137,180,250,0.3) = --color-accent con 30% de opacidad, mas
+           intenso que --color-accent-dim (10%) -- se necesita ese extra
+           de intensidad para que el glow del boton se note al hover.
+           Excepcion documentada, no un olvido. */
         .btn-calc:hover { background: var(--color-accent-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(137, 180, 250, 0.3); }
     </style>
 </head>
@@ -48,7 +63,7 @@
 </nav>
 
 <div class="form-container">
-    <div class="card-form">
+    <div class="card-panel card-panel-form">
         <h2>🛠️ Especificaciones de Producción</h2>
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px;">
             Diseña tu vidrio a medida con calidad industrial. Pasa el cursor sobre los íconos <i class="fas fa-question-circle" style="color:var(--color-info);"></i> para ayuda técnica.

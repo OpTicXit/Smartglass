@@ -6,6 +6,13 @@
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     
     <style>
+        /* .factura-container: fondo/borde propios a proposito, NO se
+           convierte a .card-panel -- es el marco de pagina completo de un
+           documento formal (factura imprimible), no una tarjeta dentro de
+           una coleccion. El hover-lift + luz de cursor de .card-panel
+           se veria fuera de lugar en un documento que el usuario va a
+           imprimir o guardar como comprobante. Misma logica que
+           .detalle-grid en detalle.html. */
         .factura-container { max-width: 1000px; margin: 40px auto; padding: 40px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; }
         
         .factura-header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--color-accent); padding-bottom: 20px; margin-bottom: 30px; }
@@ -25,6 +32,12 @@
         .total-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
         .total-row.final { border: none; background: var(--color-accent-dim); color: var(--color-accent); font-weight: bold; font-size: 1.3rem; padding: 15px; border-radius: 8px; margin-top: 10px; }
 
+        /* @media print: "white"/"black" aqui SI son correctos y no cuentan
+           como hardcodeados a evitar -- es la excepcion estandar de la
+           industria: una factura impresa debe verse en fondo claro con
+           tinta oscura (gasta menos tinta y es legible en papel), nunca
+           con el tema oscuro del sitio. Usar var(--bg-primary)/var(--text-main)
+           aqui seria el error, no al reves. */
         @media print {
             .no-print { display: none; }
             body { background: white; color: black; }

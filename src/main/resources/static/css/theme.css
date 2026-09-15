@@ -11,6 +11,9 @@
   --color-accent: #89b4fa;
   --color-accent-hover: #b4befe;
   --color-accent-dim: rgba(137, 180, 250, 0.1);
+  --color-success-dim: rgba(166, 227, 161, 0.1);
+  --color-warning-dim: rgba(250, 179, 135, 0.1);
+  --color-error-dim: rgba(243, 139, 168, 0.1);
   --border-color: #3f3f5a;
   --shadow-main: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
   --color-error: #f38ba8;
