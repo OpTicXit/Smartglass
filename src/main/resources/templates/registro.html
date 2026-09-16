@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>SmartGlass - Registro</title>
-    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
     
     <style>
         .login-page {
@@ -14,16 +14,15 @@
             padding: 20px;
         }
         
-        .login-container {
-            background: var(--bg-secondary);
+        /* .login-container -> card-panel (fondo/borde/radio/sombra ya los
+           da theme.css; la animacion fadeIn local se quito por la misma
+           razon que en login.html: main.js ya anima .card-panel al
+           cargar via .sg-reveal, tener las dos era redundante). */
+        .card-panel-registro {
             padding: 40px;
-            border-radius: 16px;
-            box-shadow: var(--shadow-main);
             width: 100%;
             max-width: 450px;
             text-align: center;
-            animation: fadeIn 0.5s ease-out;
-            border: 1px solid var(--border-color);
         }
 
         .login-container h2 {
@@ -62,7 +61,7 @@
 
         .alert-error {
             color: var(--color-error);
-            background: rgba(243, 139, 168, 0.1);
+            background: var(--color-error-dim);
             padding: 10px;
             border-radius: 8px;
             font-weight: bold;
@@ -87,17 +86,12 @@
             color: var(--color-accent);
             text-decoration: underline;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
 
 <div class="login-page">
-    <div class="login-container">
+    <div class="login-container card-panel card-panel-registro">
         <h2>Crear Cuenta</h2>
 
         <form class="login-form" th:action="@{/registro}" method="POST">

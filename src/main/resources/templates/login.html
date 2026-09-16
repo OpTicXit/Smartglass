@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>SmartGlass - Login</title>
-    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
     
     <style>
         .login-page {
@@ -14,16 +14,16 @@
             padding: 20px;
         }
         
-        .login-container {
-            background: var(--bg-secondary);
+        /* .login-container -> card-panel (fondo/borde/radio/sombra ya los
+           da theme.css). La animacion @keyframes fadeIn local se quito:
+           al agregar la clase global "card-panel", el propio main.js
+           (revelarAlEntrar) ya la marca con .sg-reveal y la anima al
+           cargar -- tener las dos animaciones a la vez era redundante. */
+        .card-panel-login {
             padding: 40px;
-            border-radius: 16px;
-            box-shadow: var(--shadow-main);
             width: 100%;
             max-width: 400px;
             text-align: center;
-            animation: fadeIn 0.5s ease-out;
-            border: 1px solid var(--border-color);
         }
 
         .login-container h2 {
@@ -62,23 +62,30 @@
             background: var(--color-accent-hover);
         }
 
-        /* --- NUEVOS ESTILOS PARA GOOGLE --- */
+        /* --- ESTILOS PARA GOOGLE --- */
         .divider {
             display: flex;
             align-items: center;
             text-align: center;
-            color: var(--text-muted, #777);
+            color: var(--text-muted);
             margin: 10px 0;
             font-size: 0.9rem;
         }
         .divider::before, .divider::after {
             content: '';
             flex: 1;
-            border-bottom: 1px solid var(--border-color, #ddd);
+            border-bottom: 1px solid var(--border-color);
         }
         .divider:not(:empty)::before { margin-right: .5em; }
         .divider:not(:empty)::after { margin-left: .5em; }
 
+        /* EXCEPCION DELIBERADA: #ffffff, #444, #ddd, #f8f9fa (y la sombra
+           neutra rgba(0,0,0,0.1) del hover) aca abajo son requisito de
+           marca de Google para su boton "Continuar con Google" -- sus
+           guias de marca piden especificamente un boton blanco con su
+           gris de texto oficial, independiente del tema del sitio que lo
+           integre. Ponerlo en modo oscuro violaria esas guias y lo haria
+           menos reconocible/confiable para el usuario. */
         .btn-google {
             background: #ffffff;
             color: #444;
@@ -134,17 +141,12 @@
             color: var(--color-accent-hover);
             text-decoration: underline;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
 
 <div class="login-page">
-    <div class="login-container">
+    <div class="login-container card-panel card-panel-login">
         <h2>Iniciar Sesión</h2> 
 
         <form class="login-form" th:action="@{/login}" method="POST">

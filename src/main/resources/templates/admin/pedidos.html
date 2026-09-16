@@ -4,13 +4,8 @@
     <meta charset="UTF-8">
     <title>SmartGlass - Pedidos (Admin)</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
     <style>
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
-        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
-        .nav-links { display: flex; gap: 10px; }
-        .nav-links a { color: var(--text-main); text-decoration: none; padding: 8px 16px; border-radius: 8px; background: var(--bg-tertiary); font-size: 0.9rem; }
-        .btn-volver { display: inline-flex; align-items: center; gap: 6px; color: var(--text-main); text-decoration: none; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.9rem; background: transparent; }
-        .btn-volver:hover { border-color: var(--color-accent); color: var(--color-accent); }
         .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
         table { width: 100%; border-collapse: collapse; background: var(--bg-secondary); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
         th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--border-color); }
@@ -19,24 +14,15 @@
         .estado-form { display: flex; gap: 8px; }
         .estado-form select { padding: 6px 8px; border-radius: 6px; font-size: 0.85rem; }
         .estado-form button { padding: 6px 12px; border-radius: 6px; background: var(--color-accent); color: var(--bg-primary); font-weight: bold; font-size: 0.8rem; }
-        .flash { padding: 12px 16px; border-radius: 8px; margin: 20px 0; background: rgba(166, 227, 161, 0.1); border: 1px solid var(--color-success); color: var(--color-success); }
+        .flash { padding: 12px 16px; border-radius: 8px; margin: 20px 0; background: var(--color-success-dim); border: 1px solid var(--color-success); color: var(--color-success); }
     </style>
 </head>
 <body>
 
-<nav class="navbar">
-    <a th:href="@{/admin/dashboard}" class="logo">◆ SmartGlass Admin</a>
-    <div class="nav-links">
-        <a th:href="@{/admin/usuarios}">Usuarios</a>
-        <a th:href="@{/admin/pedidos}">Pedidos</a>
-        <a th:href="@{/admin/productos}">Catálogo</a>
-        <a th:href="@{/admin/resenas}">Reseñas</a>
-        <a th:href="@{/logout}" style="border:1px dashed var(--border-color); background:transparent;">Salir</a>
-    </div>
-</nav>
+<div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
 <div class="container">
-    <a th:href="@{/admin/dashboard}" class="btn-volver">&larr; Dashboard</a>
+    <div th:replace="~{admin/fragments/nav :: volver(destino='/admin/dashboard', texto='Dashboard')}"></div>
 
     <h1 style="color: var(--text-main); margin-top: 20px;">Pedidos</h1>
 
