@@ -2,206 +2,257 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Inicio</title>
+    <title>SmartGlass - Vidrio inteligente y sostenible</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <link rel="icon" type="image/png" th:href="@{/img/logo.png}">
-    
+    <!-- Cambiamos temporalmente a Phosphor Icons (o usarás FontAwesome) para los iconos finos del mockup -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
     <style>
-        /* === NAVBAR === */
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+
+        /* --- NAVBAR --- */
         .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 3rem;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            position: sticky; top: 0; z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 40px;
+            background: rgba(7, 11, 25, 0.7);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .navbar .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--color-accent);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-            margin: 0;
-            padding: 0;
-        }
-        .nav-links a {
-            text-decoration: none;
-            color: var(--text-muted);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        .nav-links a:hover { color: var(--color-accent); }
-        .login-btn {
-            background: var(--color-accent);
-            color: var(--text-on-accent);
-            padding: 0.5rem 1.5rem;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: bold;
+        .navbar .logo { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 700; color: var(--text-main); text-decoration: none; }
+        .navbar .logo img { height: 28px; } /* Aquí va tu icono de logo */
+
+        .nav-links { display: flex; align-items: center; gap: 35px; list-style: none; margin: 0; padding: 0; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: 0.3s; }
+        .nav-links a:hover, .nav-links a.activo { color: var(--color-accent); }
+
+        .nav-acciones { display: flex; align-items: center; gap: 20px; }
+        .nav-icono { color: var(--text-muted); font-size: 1.2rem; transition: 0.3s; }
+        .nav-icono:hover { color: var(--text-main); }
+        .btn-nav-cta {
+            background: var(--color-accent); color: white;
+            padding: 8px 24px; border-radius: 30px; text-decoration: none;
+            font-weight: 600; font-size: 0.9rem;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
         }
 
-        /* === HERO SECTION === */
+        /* --- HERO --- */
         .hero {
-            min-height: calc(100vh - 80px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
+            position: relative; padding: 100px 0 120px;
+            /* Resplandor radial azul en el centro/derecha */
+            background: radial-gradient(circle at 65% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
         }
-        /* Decoraciones de fondo */
-        .hero-shape {
-            position: absolute;
-            border-radius: 50%;
-            background: var(--color-accent-dim);
-            filter: blur(80px);
-            z-index: 0;
-        }
-        .shape-1 { width: 400px; height: 400px; top: -100px; right: -100px; }
-        .shape-2 { width: 600px; height: 600px; bottom: -200px; left: -200px; }
+        .hero .container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; }
 
-        .hero-content {
-            max-width: 800px;
-            z-index: 2;
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: transparent; border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted); font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 0.1em; text-transform: uppercase; padding: 6px 14px; border-radius: 30px; margin-bottom: 20px;
         }
-        .hero-title {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            color: var(--color-accent);
-            letter-spacing: -1px;
-        }
-        .hero-subtitle {
-            font-size: 1.5rem;
-            color: var(--text-main);
-            margin-bottom: 1rem;
-        }
-        .hero-description {
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            margin-bottom: 2.5rem;
-        }
-        
-        /* Botones Globales */
-        .btn-group {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .btn {
-            padding: 12px 28px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .btn-primary {
-            background: var(--color-accent);
-            color: var(--text-on-accent);
-        }
-        .btn-primary:hover { background: var(--color-accent-hover); transform: translateY(-2px); }
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-main);
-            border: 2px solid var(--border-color);
-        }
-        .btn-secondary:hover { border-color: var(--color-accent); color: var(--color-accent); }
+        .hero-texto h1 { font-size: 3.5rem; line-height: 1.1; margin: 0 0 20px; font-weight: 700; }
+        .hero-texto h1 .acento { color: var(--color-accent); }
+        .hero-texto p { font-size: 1rem; line-height: 1.6; color: var(--text-muted); max-width: 480px; margin: 0 0 35px; }
 
-        /* === FOOTER === */
-        .footer {
-            background: var(--bg-tertiary);
-            padding: 4rem 2rem 1rem;
-            border-top: 1px solid var(--border-color);
+        .hero-cta { display: flex; gap: 15px; }
+        .btn-hero-primario {
+            background: var(--color-accent); color: white; padding: 12px 28px;
+            border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.95rem;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
         }
-        .footer-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 3rem;
-            margin-bottom: 3rem;
+        .btn-hero-secundario {
+            background: transparent; color: white; padding: 12px 28px;
+            border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.95rem;
+            border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px;
         }
-        .footer-logo { font-size: 1.2rem; font-weight: bold; color: var(--color-accent); margin-bottom: 1rem; }
-        .footer-desc { color: var(--text-muted); line-height: 1.6; }
-        .footer-links ul { list-style: none; padding: 0; }
-        .footer-links li { margin-bottom: 0.8rem; }
-        .footer-links a { color: var(--text-muted); text-decoration: none; }
-        .footer-links a:hover { color: var(--color-accent); }
-        .footer-bottom {
-            text-align: center;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border-color);
-            padding-top: 1.5rem;
-            font-size: 0.9rem;
+
+        /* --- PANELES DE VIDRIO (LA MAGIA DE LA REFRACCIÓN) --- */
+        .hero-visual { position: relative; height: 500px; display: flex; justify-content: center; align-items: center; }
+        .panel-vidrio {
+            position: absolute; width: 140px; height: 380px;
+            /* La imagen de montañas que debes descargar */
+            background-image: url('/img/hero-mountains.jpg'); 
+            background-size: 800px auto;
+            background-repeat: no-repeat;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 4px;
+            box-shadow: 
+                inset 0 0 20px rgba(255,255,255,0.2),
+                0 25px 40px rgba(0,0,0,0.8),
+                0 0 40px rgba(59, 130, 246, 0.3);
+            /* Reflejo en el piso simulado */
+            -webkit-box-reflect: below 2px linear-gradient(transparent, transparent 70%, rgba(255,255,255,0.2));
         }
+        /* Desfasamos la imagen en cada panel para que parezca cristal refractando */
+        .panel-vidrio.p1 { 
+            transform: perspective(1000px) rotateY(25deg) translateX(-110px) translateY(-20px); 
+            background-position: calc(50% + 110px) center; 
+            z-index: 1; filter: brightness(0.8) contrast(1.2);
+        }
+        .panel-vidrio.p2 { 
+            width: 170px; height: 420px; z-index: 2;
+            background-position: center center;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 60px rgba(59, 130, 246, 0.5);
+        }
+        .panel-vidrio.p3 { 
+            transform: perspective(1000px) rotateY(-25deg) translateX(110px) translateY(10px); 
+            background-position: calc(50% - 110px) center; 
+            z-index: 1; filter: brightness(0.9) contrast(1.1);
+        }
+
+        /* --- FLOTANTES LATERALES --- */
+        .hero-flotantes { position: absolute; right: -50px; top: 15%; display: flex; flex-direction: column; gap: 15px; z-index: 3; }
+        .badge-flotante { 
+            width: 220px; padding: 12px 16px; display: flex; align-items: center; gap: 15px; 
+            background: rgba(13, 20, 42, 0.5); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;
+        }
+        .badge-flotante i { font-size: 1.5rem; color: var(--text-muted); }
+        .badge-flotante h4 { margin: 0 0 2px; font-size: 0.85rem; font-weight: 600; }
+        .badge-flotante p { margin: 0; font-size: 0.7rem; color: var(--text-muted); }
+
+        /* --- BENEFICIOS --- */
+        .beneficios { padding: 40px 0 80px; }
+        .beneficios-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .info-box { padding: 25px; display: flex; flex-direction: column; gap: 15px; }
+        .info-box i { font-size: 1.8rem; color: var(--text-muted); }
+        .info-box h4 { margin: 0; font-size: 0.95rem; }
+        .info-box p { margin: 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+
+        /* --- VITRINA --- */
+        .vitrina { padding: 60px 0 100px; }
+        .vitrina-header { text-align: center; margin-bottom: 40px; }
+        .vitrina-header span { color: var(--color-accent); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+        .vitrina-header h2 { font-size: 2rem; margin: 10px 0; }
+        .vitrina-header p { color: var(--text-muted); font-size: 0.9rem; max-width: 600px; margin: 0 auto; }
+
+        .vitrina-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .categoria-card { height: 280px; border-radius: 12px; overflow: hidden; display: block; position: relative; }
+        .categoria-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: 0.5s; }
+        .categoria-card:hover img { opacity: 1; transform: scale(1.05); }
+        .categoria-overlay { 
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; 
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(to top, rgba(7,11,25,0.9), transparent);
+        }
+        .categoria-overlay span { font-weight: 600; font-size: 0.95rem; color: white; }
+        .categoria-overlay i { color: white; opacity: 0.5; transition: 0.3s; }
+        .categoria-card:hover .categoria-overlay i { opacity: 1; transform: translateX(5px); }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <div class="logo">◆ SmartGlass</div>
+    <a th:href="@{${usuarioLogueado} ? '/usuario' : '/home'}" class="logo">
+        <img src="/img/logo-icono.png" alt="Icono"> SmartGlass
+    </a>
     <ul class="nav-links">
-        <li><a href="/home">Inicio</a></li>
-        <li><a href="/acerca">Conocer Más</a></li>
-        <li><a href="/destacados">Destacados</a></li>
-        <li><a href="/catalogo">Catálogo</a></li>
+        <li><a th:href="@{/home}" class="activo">Inicio</a></li>
+        <li><a th:href="@{/catalogo}">Catálogo</a></li>
+        <li><a th:href="@{/destacados}">Destacados</a></li>
+        <li><a th:href="@{/vidrio-personalizado/cotizar}">Vidrio Personalizado</a></li>
+        <li><a th:href="@{/acerca}">Acerca de</a></li>
     </ul>
-    <a th:href="@{${usuarioLogueado} ? '/usuario' : '/login'}" class="login-btn" th:text="${usuarioLogueado} ? 'Mi cuenta' : 'Acceder'">Acceder</a>
+    <div class="nav-acciones">
+        <a th:href="@{/catalogo}" class="nav-icono"><i class="ph ph-magnifying-glass"></i></a>
+        <a th:href="@{/carrito}" class="nav-icono"><i class="ph ph-shopping-cart"></i></a>
+        <a th:href="@{${usuarioLogueado} ? '/usuario' : '/login'}" class="btn-nav-cta">Iniciar sesión</a>
+    </div>
 </nav>
 
-<section class="hero" id="inicio">
-    <div class="hero-shape shape-1"></div>
-    <div class="hero-shape shape-2"></div>
+<section class="hero">
+    <div class="container">
+        <div class="hero-texto">
+            <span class="hero-badge">Vidrio inteligente &bull; Diseño sostenible</span>
+            <h1>Transparencia que<br><span class="acento">transforma espacios</span></h1>
+            <p>En SmartGlass, combinamos tecnología y diseño para ofrecerte soluciones en vidrio de alta calidad, personalizadas y sostenibles. Dale vida a tus proyectos con la claridad del futuro.</p>
+            <div class="hero-cta">
+                <a th:href="@{/catalogo}" class="btn-hero-primario"><i class="ph ph-shopping-cart"></i> Ver catálogo</a>
+                <a th:href="@{/vidrio-personalizado/cotizar}" class="btn-hero-secundario"><i class="ph ph-pencil-simple"></i> Vidrio personalizado</a>
+            </div>
+        </div>
 
-    <div class="hero-content">
-        <h1 class="hero-title">SmartGlass</h1>
-        <p class="hero-subtitle">Control de CO₂ y gestión inteligente de producción</p>
-        <p class="hero-description">Optimizando la industria del vidrio con tecnología sostenible y una estética inmersiva.</p>
+        <div class="hero-visual">
+            <div class="panel-vidrio p1"></div>
+            <div class="panel-vidrio p2"></div>
+            <div class="panel-vidrio p3"></div>
 
-        <div class="btn-group">
-            <a href="/acerca" class="btn btn-primary">Conocer Más</a>
-            <a href="/destacados" class="btn btn-secondary">Explorar Productos</a>
+            <div class="hero-flotantes">
+                <div class="badge-flotante">
+                    <i class="ph ph-leaf"></i>
+                    <div><h4>Sostenible</h4><p>Menor impacto ambiental</p></div>
+                </div>
+                <div class="badge-flotante">
+                    <i class="ph ph-shield-check"></i>
+                    <div><h4>Resistente</h4><p>Durabilidad garantizada</p></div>
+                </div>
+                <div class="badge-flotante">
+                    <i class="ph ph-sparkle"></i>
+                    <div><h4>Alta claridad</h4><p>Máxima transparencia</p></div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<footer class="footer">
-    <div class="footer-container">
-        <div class="footer-brand">
-            <div class="footer-logo">◆ SmartGlass</div>
-            <p class="footer-desc">Tecnología sostenible para una industria del vidrio más limpia y eficiente.</p>
-        </div>
-        <div class="footer-links">
-            <h4>Enlaces</h4>
-            <ul>
-                <li><a href="/home">Inicio</a></li>
-                <li><a href="/acerca">Acerca</a></li>
-            </ul>
-        </div>
-        <div class="footer-contact">
-            <h4 style="color:var(--text-main)">Contacto</h4>
-            <p style="color:var(--text-muted)">📩 soporte@smartglass.com</p>
-            <p style="color:var(--text-muted)">📞 +57 302 443 2590</p>
-            <p style="color:var(--text-muted)">🏢 Cartagena, Colombia</p>
+<section class="beneficios">
+    <div class="container">
+        <div class="beneficios-grid">
+            <div class="info-box">
+                <i class="ph ph-drop"></i>
+                <h4>Materiales de alta calidad</h4>
+                <p>Vidrio de primera línea con estándares internacionales.</p>
+            </div>
+            <div class="info-box">
+                <i class="ph ph-shield-chevron"></i>
+                <h4>Personalización total</h4>
+                <p>Adaptamos cada pieza a tus necesidades y proyecto.</p>
+            </div>
+            <div class="info-box">
+                <i class="ph ph-truck"></i>
+                <h4>Envíos seguros</h4>
+                <p>Tu pedido llega en perfectas condiciones.</p>
+            </div>
+            <div class="info-box">
+                <i class="ph ph-headphones"></i>
+                <h4>Soporte especializado</h4>
+                <p>Te acompañamos en todo el proceso.</p>
+            </div>
         </div>
     </div>
-    <div class="footer-bottom">
-        © 2025 SmartGlass — Todos los derechos reservados
+</section>
+
+<section class="vitrina">
+    <div class="container">
+        <div class="vitrina-header">
+            <span>Nuestros productos</span>
+            <h2>Soluciones en vidrio para cada proyecto</h2>
+            <p>Descubre nuestra línea de productos diseñados para combinar estética, funcionalidad y sostenibilidad.</p>
+        </div>
+        <div class="vitrina-grid">
+            <a th:href="@{/catalogo}" class="categoria-card">
+                <img src="/img/vidrio19.jpg" alt="Vidrio arquitectónico">
+                <div class="categoria-overlay"><span>Vidrio arquitectónico</span> <i class="ph ph-arrow-right"></i></div>
+            </a>
+            <a th:href="@{/catalogo}" class="categoria-card">
+                <img src="/img/vidrio8.jpg" alt="Vidrio interior">
+                <div class="categoria-overlay"><span>Vidrio interior</span> <i class="ph ph-arrow-right"></i></div>
+            </a>
+            <a th:href="@{/catalogo}" class="categoria-card">
+                <img src="/img/vidrio5.jpg" alt="Vidrio exterior">
+                <div class="categoria-overlay"><span>Vidrio exterior</span> <i class="ph ph-arrow-right"></i></div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<footer class="footer-main">
+    <div class="container">
+        <p>&copy; 2026 SmartGlass — Todos los derechos reservados</p>
     </div>
 </footer>
 
-<script th:src="@{/js/main.js}"></script>
 </body>
 </html>
