@@ -18,7 +18,7 @@ function revelarAlEntrar() {
   const selectores = [
     '.producto-card', '.stat-box', '.stat-card', '.stat-pedido',
     '.pedido-card', '.cotizacion-card', '.card-panel', '.pilar-box',
-    '.info-box', '.tech-card', '.co2-card'
+    '.info-box', '.tech-card', '.co2-card', '.dashboard-widget'
   ];
   const elementos = document.querySelectorAll(selectores.join(','));
   if (!elementos.length) return;
@@ -68,47 +68,45 @@ function scrollSuaveEnAnclas() {
   });
 }
 
-/* --- Comparador de productos: checkboxes en el catalogo + barra flotante ---
-   Defensivo: si la pagina no tiene .chk-comparar (ninguna checkbox de
-   comparar) no hace nada, asi que es seguro que este cargado en toda
-   pagina via main.js sin afectar a las que no lo usan. */
+/* --- Comparador de productos: checkboxes .chk-comparar + barra flotante --- */
 function inicializarComparador() {
-  const checkboxes = document.querySelectorAll('.chk-comparar');
+  const checks = document.querySelectorAll('.chk-comparar');
   const barra = document.getElementById('barra-comparador');
   const contador = document.getElementById('comparador-count');
   const btnComparar = document.getElementById('btn-comparar');
-  if (!checkboxes.length || !barra || !contador || !btnComparar) return;
+  if (!checks.length || !barra || !contador || !btnComparar) return;
 
-  const MAX_PRODUCTOS = 3;
+  const MAX_SELECCION = 3;
 
-  function seleccionActual() {
-    return document.querySelectorAll('.chk-comparar:checked');
+  function seleccionados() {
+    return Array.from(checks).filter(c => c.checked);
   }
 
   function actualizarBarra() {
-    const seleccionados = seleccionActual();
-    contador.textContent = seleccionados.length;
-    barra.style.display = seleccionados.length > 0 ? 'flex' : 'none';
+    const sel = seleccionados();
+    contador.textContent = sel.length;
+    barra.style.display = sel.length >= 2 ? 'flex' : 'none';
+    checks.forEach(c => {
+      if (!c.checked) c.disabled = sel.length >= MAX_SELECCION;
+    });
   }
 
-  checkboxes.forEach(chk => {
+  checks.forEach(chk => {
     chk.addEventListener('change', () => {
-      if (seleccionActual().length > MAX_PRODUCTOS) {
+      const sel = seleccionados();
+      if (sel.length > MAX_SELECCION) {
         chk.checked = false;
-        alert('Puedes comparar hasta ' + MAX_PRODUCTOS + ' productos a la vez.');
+        return;
       }
       actualizarBarra();
     });
   });
 
   btnComparar.addEventListener('click', () => {
-    const ids = Array.from(seleccionActual()).map(chk => chk.value);
-    if (ids.length < 2) {
-      alert('Selecciona al menos 2 productos para comparar.');
-      return;
-    }
-    const query = ids.map(id => 'ids=' + encodeURIComponent(id)).join('&');
-    window.location.href = '/comparar?' + query;
+    const ids = seleccionados().map(c => c.value);
+    if (ids.length < 2) return;
+    const params = ids.map(id => 'ids=' + encodeURIComponent(id)).join('&');
+    window.location.href = '/comparar?' + params;
   });
 
   actualizarBarra();
@@ -121,7 +119,7 @@ function inicializarComparador() {
    de cada card. Un solo listener delegado en document, no uno por
    card, para que no importe cuantas cards haya en la pagina. */
 function inicializarLuzDeCursorEnCards() {
-  const selector = '.producto-card, .info-box, .tech-card, .card-panel';
+  const selector = '.producto-card, .info-box, .tech-card, .card-panel, .dashboard-widget';
   if (!document.querySelector(selector)) return;
 
   document.addEventListener('mousemove', (event) => {
