@@ -3,66 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <title>SmartGlass - Destacados</title>
-    <link rel="stylesheet" href="/css/theme.css">
-    
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
     <style>
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
-        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
-        
-        .destacados-section { max-width: 1200px; margin: 60px auto; padding: 0 20px; text-align: center; }
-        .destacados-section h2 { font-size: 2.5rem; color: var(--text-main); margin-bottom: 40px; }
+        /* Personalidad propia: galeria curada, no un listado funcional
+           como el catalogo -- tarjetas mas grandes, la foto ocupa casi
+           toda la tarjeta, la info aparece como overlay al hacer hover
+           en vez de vivir siempre visible debajo. Menos densidad,
+           mas impacto visual, como una vitrina editorial. */
 
-        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .destacados-header {
+            padding: 60px 0 20px; text-align: center;
+        }
+        .destacados-header .eyebrow {
+            color: var(--color-accent); font-size: 0.75rem; font-weight: 700;
+            letter-spacing: 0.15em; text-transform: uppercase;
+        }
+        .destacados-header h1 { font-size: 2.4rem; margin: 12px 0 14px; }
+        .destacados-header p { color: var(--text-muted); max-width: 560px; margin: 0 auto; font-size: 0.95rem; }
 
-        /* .producto-card ya no se redefine aqui: fondo, borde, radio,
-           sombra y hover los da theme.css (estandar global). Esta vista
-           tenia antes su propio hover con scale() y radio distinto -- se
-           unifica al estandar para que todas las cards se comporten igual
-           en todo el sitio, que es justo el objetivo de centralizarlo. */
+        .galeria-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px; padding: 48px 0 100px;
+        }
 
-        .producto-img-container { position: relative; width: 100%; height: 250px; overflow: hidden; }
-        .producto-img-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .producto-card:hover img { filter: brightness(0.4); transform: scale(1.1); }
+        /* .producto-card ya da fondo/blur/borde/hover/luz de cursor;
+           aqui se le quita el padding base para que la foto llegue
+           hasta el borde de la tarjeta (composicion image-forward). */
+        .producto-card.galeria-card { padding: 0; }
 
-        .ver-mas-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0; transition: 0.3s; z-index: 10; }
-        .producto-card:hover .ver-mas-overlay { opacity: 1; }
+        .galeria-img-wrap { position: relative; width: 100%; height: 360px; overflow: hidden; }
+        .galeria-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease; }
+        .galeria-card:hover .galeria-img-wrap img { transform: scale(1.08); filter: brightness(0.55); }
 
-        .info-body { padding: 25px; text-align: center; }
-        .info-body h4 { font-size: 1.3rem; color: var(--text-main); margin-bottom: 10px; }
-        .info-body .precio { font-size: 1.5rem; color: var(--color-accent); font-weight: bold; }
+        /* rgba(7,11,25,.85) = --bg-primary con alpha, mismo patron de
+           overlay oscuro sobre foto que ya uso index.html en
+           .categoria-overlay (ahi con .9 de alpha). Es la 2a vez que
+           aparece -- si se repite una tercera vez en otra vista, ahi si
+           vale la pena promoverlo a una variable como --overlay-imagen
+           en theme.css en vez de seguir repitiendo el valor a mano. */
+        .galeria-overlay {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            justify-content: flex-end; padding: 24px;
+            background: linear-gradient(to top, rgba(7,11,25,0.85) 0%, transparent 55%);
+        }
+        .galeria-overlay h3 { margin: 0 0 4px; font-size: 1.15rem; }
+        .galeria-overlay .precio { color: var(--color-accent); font-weight: 700; font-size: 1.2rem; margin: 0 0 14px; }
 
-        .btn-view { padding: 12px 24px; background: var(--color-accent); color: var(--bg-primary); border-radius: 30px; text-decoration: none; font-weight: bold; }
+        .galeria-ver {
+            display: inline-flex; align-items: center; gap: 8px; width: fit-content;
+            opacity: 0; transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .galeria-card:hover .galeria-ver { opacity: 1; transform: translateY(0); }
+
+        .empty-state { text-align: center; padding: 80px 20px; color: var(--text-muted); }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <a th:href="@{${usuarioLogueado} ? '/usuario' : '/home'}" class="logo">◆ SmartGlass</a>
-    <div style="display:flex; gap:15px;">
-        <a th:href="@{${usuarioLogueado} ? '/usuario' : '/home'}" style="color:var(--text-main); text-decoration:none;">Inicio</a>
-        <a href="/catalogo" style="color:var(--color-accent); text-decoration:none;">Catálogo</a>
+    <a th:href="@{${usuarioLogueado} ? '/usuario' : '/home'}" class="logo">SmartGlass</a>
+    <ul class="nav-links">
+        <li><a th:href="@{/home}">Inicio</a></li>
+        <li><a th:href="@{/catalogo}">Catálogo</a></li>
+        <li><a th:href="@{/destacados}" class="activo">Destacados</a></li>
+        <li><a th:href="@{/vidrio-personalizado/cotizar}">Vidrio Personalizado</a></li>
+        <li><a th:href="@{/acerca}">Acerca de</a></li>
+    </ul>
+    <div class="nav-acciones">
+        <a th:href="@{/carrito}" class="nav-icono sg-magnetico">
+            <i class="ph ph-shopping-cart"></i>
+        </a>
+        <a th:href="@{${usuarioLogueado} ? '/usuario' : '/login'}" class="btn-nav-cta sg-magnetico"
+           th:text="${usuarioLogueado} ? 'Mi cuenta' : 'Iniciar sesión'">Iniciar sesión</a>
     </div>
 </nav>
 
-<section class="destacados-section">
-    <h2>✨ Productos Destacados</h2>
+<main class="container">
+    <header class="destacados-header">
+        <span class="eyebrow">Colección destacada</span>
+        <h1>Piezas que definen un espacio</h1>
+        <p>Una selección de nuestros productos más recientes, elegidos por su diseño, calidad y desempeño sostenible.</p>
+    </header>
 
-    <div class="productos-grid">
-        <div class="producto-card" th:each="producto : ${destacados}">
-            <div class="producto-img-container">
-                <img th:src="@{/img/{img}(img=${producto.imagen})}" th:alt="${producto.nombre}">
-                <div class="ver-mas-overlay">
-                    <a th:href="@{/detalle/{id}(id=${producto.id})}" class="btn-view">Ver Detalle</a>
+    <section class="galeria-grid" th:if="${not #lists.isEmpty(destacados)}">
+        <article class="producto-card galeria-card" th:each="producto : ${destacados}">
+            <div class="galeria-img-wrap">
+                <img th:src="${producto.imagen != null ? '/img/' + producto.imagen : '/img/default-glass.jpg'}" th:alt="${producto.nombre}">
+                <div class="galeria-overlay">
+                    <h3 th:text="${producto.nombre}"></h3>
+                    <span class="precio" th:text="'$' + ${producto.precioFormateado}"></span>
+                    <a th:href="@{/detalle/{id}(id=${producto.id})}" class="btn btn-primary galeria-ver">
+                        Ver ficha <i class="ph ph-arrow-right"></i>
+                    </a>
                 </div>
             </div>
-            <div class="info-body">
-                <h4 th:text="${producto.nombre}"></h4>
-                <p style="color:var(--text-muted); font-size: 0.9rem;" th:text="${producto.descripcion}"></p>
-                <p class="precio" th:text="'$' + ${producto.precioFormateado}"></p>
-            </div>
-        </div>
+        </article>
+    </section>
+
+    <div class="empty-state" th:if="${#lists.isEmpty(destacados)}">
+        <i class="ph ph-sparkle" style="font-size:3rem; color: var(--border-color); display:block; margin-bottom:16px;"></i>
+        <p>Todavía no hay productos destacados.</p>
     </div>
-</section>
+</main>
 
 <script th:src="@{/js/main.js}"></script>
 </body>
