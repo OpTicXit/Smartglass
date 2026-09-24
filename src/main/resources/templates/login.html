@@ -6,6 +6,7 @@
     <title>SmartGlass - Iniciar Sesión</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
 
     <style>
         .login-page {
@@ -252,13 +253,12 @@
     <div class="login-container card-panel card-panel-login">
         
         <!-- Header con el logo oficial SmartGlass -->
-        <div class="login-brand">
-            <a th:href="@{/home}" class="brand-logo-link" title="Volver al inicio">
-                <img th:src="@{/img/logo-icono.png}" src="/img/logo-icono.png" alt="SmartGlass Logo" class="login-logo">
-                <span class="brand-title">SmartGlass</span>
-            </a>
-            <p class="login-subtitle">Ingresa a tu cuenta para continuar</p>
-        </div>
+<div class="login-brand">
+    <a th:href="@{/home}" class="brand-logo-link" title="Volver al inicio">
+        <img th:src="@{/img/logo-full.png}" src="/img/logo-full.png" alt="SmartGlass" class="login-logo-full">
+    </a>
+    <p class="login-subtitle">Ingresa a tu cuenta para continuar</p>
+</div>
 
         <form class="login-form" th:action="@{/login}" method="POST">
             <div class="input-group">
