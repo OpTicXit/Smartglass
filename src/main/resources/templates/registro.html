@@ -1,107 +1,393 @@
+```html
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>SmartGlass - Registro</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
-    
+
     <style>
+        /* =========================================================
+           SMARTGLASS — REGISTRO
+           Diseño contextual: creación de cuenta
+           ========================================================= */
+
         .login-page {
+            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 32px 20px;
+            box-sizing: border-box;
+            overflow: hidden;
         }
-        
-        /* .login-container -> card-panel (fondo/borde/radio/sombra ya los
-           da theme.css; la animacion fadeIn local se quito por la misma
-           razon que en login.html: main.js ya anima .card-panel al
-           cargar via .sg-reveal, tener las dos era redundante). */
-        .card-panel-registro {
-            padding: 40px;
+
+        /* Decoración ambiental */
+        .login-page::before,
+        .login-page::after {
+            content: "";
+            position: fixed;
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.08;
+            filter: blur(4px);
+        }
+
+        .login-page::before {
+            top: -150px;
+            left: -120px;
+            border: 1px solid var(--color-accent);
+            box-shadow:
+                0 0 0 45px var(--color-accent),
+                0 0 0 90px transparent;
+        }
+
+        .login-page::after {
+            right: -150px;
+            bottom: -170px;
+            background: var(--color-accent);
+        }
+
+        /* Panel principal.
+           .card-panel se conserva porque theme.css/main.js
+           dependen de esta clase. */
+        .login-container.card-panel-registro {
+            position: relative;
+            z-index: 1;
             width: 100%;
-            max-width: 450px;
-            text-align: center;
+            max-width: 470px;
+            padding: 42px;
+            box-sizing: border-box;
+            text-align: left;
+            overflow: hidden;
+        }
+
+        /* Línea superior de identidad */
+        .login-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--color-accent);
+        }
+
+        /* Cabecera */
+        .register-header {
+            margin-bottom: 30px;
+        }
+
+        .register-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 15px;
+            padding: 6px 11px;
+            border: 1px solid var(--color-accent);
+            border-radius: 999px;
+            color: var(--color-accent);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .register-badge::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            box-shadow: 0 0 8px var(--color-accent);
         }
 
         .login-container h2 {
-            margin-top: 0;
-            margin-bottom: 25px;
+            margin: 0 0 8px;
             color: var(--color-accent);
+            font-size: clamp(1.8rem, 4vw, 2.2rem);
+            line-height: 1.15;
+            letter-spacing: -0.03em;
         }
 
+        .register-description {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        /* Formulario */
         .login-form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 17px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-field label {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
         .login-form input {
             width: 100%;
+            min-height: 48px;
             box-sizing: border-box;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 12px 14px;
+            border: 1px solid var(--text-muted);
+            border-radius: 10px;
+            outline: none;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            transition:
+                border-color 0.25s ease,
+                box-shadow 0.25s ease,
+                transform 0.25s ease;
+        }
+
+        .login-form input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.75;
+        }
+
+        .login-form input:hover {
+            border-color: var(--color-accent);
+        }
+
+        .login-form input:focus {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px var(--color-accent);
+            transform: translateY(-1px);
+        }
+
+        /* Separador visual antes de la acción */
+        .form-action {
+            position: relative;
+            margin-top: 8px;
+            padding-top: 8px;
+        }
+
+        .form-action::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 48px;
+            height: 1px;
+            background: var(--color-accent);
         }
 
         .btn-submit {
+            width: 100%;
+            border: 0;
             background: var(--color-accent);
             color: var(--text-on-accent);
-            padding: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 8px;
-            transition: background 0.3s ease;
-            margin-top: 10px;
+            padding: 13px 18px;
+            min-height: 50px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                background 0.25s ease;
         }
 
         .btn-submit:hover {
             background: var(--color-accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--color-accent);
         }
 
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Mensaje de error */
         .alert-error {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
             color: var(--color-error);
             background: var(--color-error-dim);
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            margin-top: 1rem;
+            border: 1px solid var(--color-error);
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 0.87rem;
+            font-weight: 600;
+            line-height: 1.45;
+            margin-top: 2px;
         }
 
+        /* Navegación inferior */
         .links-container {
-            margin-top: 25px;
+            position: relative;
+            margin-top: 12px;
+            padding-top: 20px;
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            border-top: 1px solid var(--text-muted);
         }
 
         .links-container a {
             color: var(--text-muted);
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            transition:
+                color 0.25s ease,
+                transform 0.25s ease;
         }
 
         .links-container a:hover {
             color: var(--color-accent);
-            text-decoration: underline;
+            transform: translateX(2px);
+        }
+
+        .links-container a:first-child {
+            color: var(--color-accent);
+            font-weight: 700;
+        }
+
+        /* Pie contextual */
+        .register-footer {
+            margin-top: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 560px) {
+            .login-page {
+                padding: 20px 14px;
+            }
+
+            .login-container.card-panel-registro {
+                padding: 32px 24px;
+            }
+
+            .links-container {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .links-container a:hover {
+                transform: none;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .login-container.card-panel-registro {
+                padding: 28px 18px;
+            }
+
+            .login-container h2 {
+                font-size: 1.7rem;
+            }
+        }
+
+        /* Respeto por usuarios que reducen movimiento */
+        @media (prefers-reduced-motion: reduce) {
+            .login-form input,
+            .btn-submit,
+            .links-container a {
+                transition: none;
+            }
         }
     </style>
 </head>
+
 <body>
 
 <div class="login-page">
     <div class="login-container card-panel card-panel-registro">
-        <h2>Crear Cuenta</h2>
+
+        <div class="register-header">
+            <div class="register-badge">SmartGlass</div>
+
+            <h2>Crear Cuenta</h2>
+
+            <p class="register-description">
+                Completa tus datos para crear tu cuenta y comenzar a utilizar SmartGlass.
+            </p>
+        </div>
 
         <form class="login-form" th:action="@{/registro}" method="POST">
-            <input type="text" name="nombre" placeholder="Nombre completo" required>
-            <input type="email" name="email" placeholder="Correo electrónico" required>
-            <input type="tel" name="telefono" placeholder="Teléfono" required>
-            <input type="text" name="username" placeholder="Usuario (Login)" required>
-            <input type="password" name="password" placeholder="Contraseña" required>
 
-            <button type="submit" class="btn-submit">Registrarse</button>
+            <div class="form-field">
+                <label for="nombre">Nombre completo</label>
+                <input
+                    type="text"
+                    id="nombre"
+                    name="nombre"
+                    placeholder="Nombre completo"
+                    required>
+            </div>
+
+            <div class="form-field">
+                <label for="email">Correo electrónico</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Correo electrónico"
+                    required>
+            </div>
+
+            <div class="form-field">
+                <label for="telefono">Teléfono</label>
+                <input
+                    type="tel"
+                    id="telefono"
+                    name="telefono"
+                    placeholder="Teléfono"
+                    required>
+            </div>
+
+            <div class="form-field">
+                <label for="username">Usuario</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Usuario (Login)"
+                    required>
+            </div>
+
+            <div class="form-field">
+                <label for="password">Contraseña</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Contraseña"
+                    required>
+            </div>
+
+            <div class="form-action">
+                <button type="submit" class="btn-submit">Registrarse</button>
+            </div>
 
             <div th:if="${error}" class="alert-error">
                 ❌ <span th:text="${error}">El usuario o correo ya existe</span>
@@ -111,10 +397,17 @@
                 <a href="/login" style="color: var(--color-accent); font-weight: bold;">← Volver al login</a>
                 <a href="/home">← Ir al inicio</a>
             </div>
+
         </form>
+
+        <div class="register-footer">
+            Registro seguro · SmartGlass
+        </div>
+
     </div>
 </div>
 
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>
+```

@@ -1,130 +1,1152 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>SmartGlass - Mis Cotizaciones</title>
+
+    <!-- Ecosistema global -->
     <link rel="stylesheet" th:href="@{/css/theme.css}">
-    
+
     <style>
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
-        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
-        .nav-links { display: flex; list-style: none; gap: 15px; margin: 0; padding: 0; }
-        .nav-links a { color: var(--text-main); text-decoration: none; padding: 8px 16px; border-radius: 8px; background: var(--bg-tertiary); transition: 0.3s; font-size: 0.9rem;}
-        .nav-links a:hover { background: var(--color-accent); color: var(--bg-primary); }
+        /* =========================================================
+           BASE
+           ========================================================= */
 
-        .cotizaciones-container { max-width: 1200px; margin: 40px auto; padding: 20px; }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .btn-nueva { padding: 12px 24px; background: var(--color-accent); color: var(--bg-primary); text-decoration: none; border-radius: 8px; font-weight: bold; }
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(
+                    circle at 85% 0%,
+                    var(--color-accent-dim),
+                    transparent 28%
+                ),
+                var(--color-background);
+        }
 
-        .estadisticas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        /* fondo/borde/radio ahora los da .card-panel (inyectada en el HTML) */
-        .stat-card { padding: 20px; display: flex; align-items: center; gap: 15px; }
-        .stat-card strong { font-size: 1.8rem; color: var(--text-main); display: block; }
-        .stat-card span { color: var(--text-muted); font-size: 0.9rem; }
 
-        /* fondo/borde/radio ahora los da .card-panel (inyectada en el HTML) */
-        .cotizacion-card { margin-bottom: 20px; }
-        .card-header { padding: 20px; background: var(--bg-tertiary); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
-        .card-body { padding: 20px; display: grid; grid-template-columns: 1fr auto; gap: 20px; }
-        
-        .badge-estado { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
-        .estado-cotizacion { background: var(--color-warning-dim); color: var(--color-warning); border: 1px solid var(--color-warning); }
-        .estado-aprobado { background: var(--color-success-dim); color: var(--color-success); border: 1px solid var(--color-success); }
+        /* =========================================================
+           NAVBAR
+           ========================================================= */
 
-        .precio-box { text-align: right; }
-        .precio-valor { font-size: 1.5rem; color: var(--color-accent); font-weight: bold; display: block; }
-        
-        .card-footer { padding: 15px 20px; background: var(--bg-tertiary); border-top: 1px solid var(--border-color); display: flex; gap: 10px; }
-        .btn-mini { padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.85rem; border: none; cursor: pointer; }
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 72px;
+            padding: 0.8rem clamp(1rem, 4vw, 3rem);
+            background: color-mix(
+                in srgb,
+                var(--bg-secondary) 94%,
+                transparent
+            );
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            color: var(--text-main);
+            font-weight: 800;
+            font-size: 1.3rem;
+            text-decoration: none;
+            letter-spacing: -0.02em;
+            transition: transform 0.25s ease;
+        }
+
+        .logo:hover {
+            transform: translateY(-1px);
+        }
+
+        .logo img {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            color: var(--color-accent);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            list-style: none;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 9px 13px;
+            border-radius: 9px;
+            background: var(--bg-tertiary);
+            border: 1px solid transparent;
+            transition:
+                color 0.25s ease,
+                background 0.25s ease,
+                border-color 0.25s ease,
+                transform 0.25s ease;
+            font-size: 0.84rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+            background: var(--color-accent-dim);
+            border-color: var(--color-accent);
+            transform: translateY(-1px);
+        }
+
+        .nav-links a:last-child {
+            color: var(--text-muted);
+        }
+
+
+        /* =========================================================
+           CONTENEDOR PRINCIPAL
+           ========================================================= */
+
+        .cotizaciones-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 42px 24px 70px;
+        }
+
+
+        /* =========================================================
+           HEADER
+           ========================================================= */
+
+        .page-header {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 30px;
+            padding: 30px 34px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--color-accent-dim),
+                    var(--bg-secondary)
+                );
+            box-shadow: var(--shadow-card);
+        }
+
+        .page-header::after {
+            content: "";
+            position: absolute;
+            width: 230px;
+            height: 230px;
+            right: -110px;
+            top: -130px;
+            border: 1px solid var(--color-accent);
+            border-radius: 50%;
+            opacity: 0.14;
+            pointer-events: none;
+        }
+
+        .page-header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 9px;
+            color: var(--color-accent);
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            color: var(--text-main) !important;
+            font-size: clamp(1.75rem, 3vw, 2.35rem);
+            line-height: 1.15;
+            letter-spacing: -0.04em;
+        }
+
+        .page-header-description {
+            margin: 9px 0 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .btn-nueva {
+            position: relative;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-shrink: 0;
+            min-height: 46px;
+            padding: 11px 18px;
+            background: var(--color-accent);
+            color: var(--bg-primary);
+            text-decoration: none;
+            border: 1px solid var(--color-accent);
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.86rem;
+            transition:
+                transform 0.25s ease,
+                filter 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .btn-nueva:hover {
+            filter: brightness(1.08);
+            transform: translateY(-2px);
+            box-shadow: 0 9px 24px color-mix(
+                in srgb,
+                var(--color-accent) 22%,
+                transparent
+            );
+        }
+
+
+        /* =========================================================
+           ESTADÍSTICAS
+           ========================================================= */
+
+        .estadisticas-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 34px;
+        }
+
+        .stat-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-height: 102px;
+            padding: 19px;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            width: 75px;
+            height: 75px;
+            right: -30px;
+            bottom: -35px;
+            border-radius: 50%;
+            border: 1px solid var(--color-accent);
+            opacity: 0.12;
+        }
+
+        .stat-icon {
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 12px;
+            background: var(--color-accent-dim);
+            font-size: 1.35rem !important;
+        }
+
+        .stat-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .stat-card strong {
+            display: block;
+            color: var(--text-main);
+            font-size: 1.65rem;
+            line-height: 1;
+        }
+
+        .stat-card span {
+            color: var(--text-muted);
+            font-size: 0.77rem;
+            font-weight: 600;
+        }
+
+
+        /* =========================================================
+           ESTADO VACÍO
+           ========================================================= */
+
+        .empty-state {
+            position: relative;
+            padding: 70px 30px;
+            text-align: center;
+            border: 1px dashed var(--border-color);
+            border-radius: 18px;
+            background: var(--bg-secondary);
+        }
+
+        .empty-icon {
+            width: 65px;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            border-radius: 18px;
+            background: var(--color-accent-dim);
+            color: var(--color-accent);
+            font-size: 1.6rem;
+        }
+
+        .empty-state h2 {
+            margin: 0;
+            color: var(--text-main) !important;
+            font-size: 1.2rem;
+        }
+
+        .empty-state p {
+            max-width: 480px;
+            margin: 8px auto 0;
+            color: var(--text-muted);
+            font-size: 0.86rem;
+        }
+
+
+        /* =========================================================
+           LISTA DE COTIZACIONES
+           ========================================================= */
+
+        .lista-cotizaciones {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .cotizacion-card {
+            margin-bottom: 0;
+            overflow: hidden;
+            transition:
+                transform 0.25s ease,
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .cotizacion-card:hover {
+            transform: translateY(-2px);
+        }
+
+
+        /* =========================================================
+           CABECERA DE COTIZACIÓN
+           ========================================================= */
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 18px 21px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .quotation-title {
+            min-width: 0;
+        }
+
+        .quotation-title h3 {
+            margin: 0;
+            color: var(--text-main) !important;
+            font-size: 1rem;
+            line-height: 1.35;
+        }
+
+        .quotation-id {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            color: var(--text-muted) !important;
+            font-size: 0.73rem !important;
+            font-family: monospace;
+        }
+
+        .badge-estado {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            padding: 6px 11px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .estado-cotizacion {
+            background: var(--color-warning-dim);
+            color: var(--color-warning);
+            border: 1px solid var(--color-warning);
+        }
+
+        .estado-aprobado {
+            background: var(--color-success-dim);
+            color: var(--color-success);
+            border: 1px solid var(--color-success);
+        }
+
+
+        /* =========================================================
+           CUERPO
+           ========================================================= */
+
+        .card-body {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 25px;
+            padding: 21px;
+        }
+
+        .specs {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .spec-line {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin: 0 !important;
+            color: var(--text-muted) !important;
+            font-size: 0.86rem;
+        }
+
+        .spec-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .spec-separator {
+            color: var(--border-color);
+        }
+
+        .recycled-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            width: fit-content;
+            margin-top: 12px !important;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: var(--color-success-dim);
+            border: 1px solid var(--color-success);
+            color: var(--color-success) !important;
+            font-size: 0.76rem !important;
+            font-weight: 700;
+        }
+
+        .precio-box {
+            min-width: 180px;
+            padding-left: 25px;
+            border-left: 1px solid var(--border-color);
+            text-align: right;
+        }
+
+        .precio-box span {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .precio-valor {
+            display: block;
+            color: var(--color-accent);
+            font-size: 1.55rem;
+            line-height: 1;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+
+        /* =========================================================
+           FOOTER / ACCIONES
+           ========================================================= */
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 13px 21px;
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-mini {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 36px;
+            padding: 8px 13px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.77rem;
+            border: none;
+            cursor: pointer;
+            transition:
+                transform 0.2s ease,
+                filter 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .btn-mini:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.08);
+        }
+
+        .btn-details {
+            background: var(--bg-primary) !important;
+            color: var(--text-main) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .btn-approve {
+            background: var(--color-success) !important;
+            color: var(--text-on-accent) !important;
+        }
+
+        .btn-delete {
+            min-width: 36px;
+            background: transparent !important;
+            color: var(--color-error) !important;
+            border: 1px solid var(--color-error) !important;
+        }
+
+
+        /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+        @media (max-width: 950px) {
+
+            .estadisticas-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .btn-nueva {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .navbar {
+                min-height: 64px;
+                padding: 0.7rem 1rem;
+            }
+
+            .logo {
+                font-size: 1.15rem;
+            }
+
+            .logo img {
+                width: 34px;
+                height: 34px;
+            }
+
+            .nav-links {
+                gap: 4px;
+            }
+
+            .nav-links li:nth-child(1),
+            .nav-links li:nth-child(3) {
+                display: none;
+            }
+
+            .nav-links a {
+                padding: 8px 10px;
+                font-size: 0.75rem;
+            }
+
+            .cotizaciones-container {
+                padding: 28px 14px 50px;
+            }
+
+            .page-header {
+                padding: 24px 20px;
+                border-radius: 16px;
+            }
+
+            .estadisticas-grid {
+                gap: 10px;
+            }
+
+            .stat-card {
+                min-height: 90px;
+                padding: 15px;
+            }
+
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem !important;
+            }
+
+            .stat-card strong {
+                font-size: 1.4rem;
+            }
+
+            .card-header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .badge-estado {
+                align-self: flex-start;
+            }
+
+            .card-body {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .precio-box {
+                min-width: 0;
+                padding: 16px 0 0;
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+                text-align: left;
+            }
+
+            .precio-valor {
+                font-size: 1.4rem;
+            }
+
+            .card-footer {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 450px) {
+
+            .estadisticas-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                min-height: 80px;
+            }
+
+            .spec-line {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 7px;
+            }
+
+            .spec-separator {
+                display: none;
+            }
+
+            .card-footer {
+                display: grid;
+                grid-template-columns: 1fr 1fr auto;
+            }
+
+            .card-footer form {
+                width: 100%;
+            }
+
+            .btn-mini {
+                width: 100%;
+            }
+
+            .btn-delete {
+                width: 36px;
+            }
+        }
+
+
+        /* =========================================================
+           ACCESIBILIDAD
+           ========================================================= */
+
+        .logo:focus-visible,
+        .nav-links a:focus-visible,
+        .btn-nueva:focus-visible,
+        .btn-mini:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 3px;
+        }
+
+
+        /* =========================================================
+           IMPRESIÓN
+           ========================================================= */
+
+        @media print {
+
+            body {
+                background: #fff !important;
+            }
+
+            .navbar {
+                position: static;
+                background: transparent !important;
+                backdrop-filter: none;
+            }
+
+            .nav-links,
+            .btn-nueva,
+            .card-footer {
+                display: none !important;
+            }
+
+            .cotizaciones-container {
+                max-width: none;
+                padding: 15px 0;
+            }
+
+            .page-header,
+            .cotizacion-card,
+            .stat-card {
+                box-shadow: none !important;
+            }
+
+            .page-header {
+                background: transparent !important;
+            }
+
+            .cotizacion-card {
+                break-inside: avoid;
+            }
+        }
     </style>
 </head>
+
 <body>
 
 <nav class="navbar">
-    <a th:href="@{/usuario}" class="logo">◆ SmartGlass</a>
+
+    <a th:href="@{/usuario}" class="logo">
+
+        <img
+            th:src="@{/img/logo-icono.png}"
+            alt="SmartGlass"
+            style="width:38px;height:38px;object-fit:contain;">
+
+        <span class="logo-text">
+            SmartGlass
+        </span>
+
+    </a>
+
     <ul class="nav-links">
-        <li><a th:href="@{/catalogo}">Tienda</a></li>
-        <li><a th:href="@{/carrito}">🛒 Carrito</a></li>
-        <li><a th:href="@{/checkout/mis-pedidos}">Mis Pedidos</a></li>
-        <li><a th:href="@{/logout}" style="border:1px dashed var(--border-color); background:transparent;">Salir</a></li>
+
+        <li>
+            <a th:href="@{/catalogo}">
+                <i class="fas fa-store"></i>
+                Tienda
+            </a>
+        </li>
+
+        <li>
+            <a th:href="@{/carrito}">
+                <i class="fas fa-shopping-cart"></i>
+                Carrito
+            </a>
+        </li>
+
+        <li>
+            <a th:href="@{/checkout/mis-pedidos}">
+                <i class="fas fa-box"></i>
+                Mis Pedidos
+            </a>
+        </li>
+
+        <li>
+            <a
+                th:href="@{/logout}"
+                style="border:1px dashed var(--border-color); background:transparent;">
+
+                <i class="fas fa-right-from-bracket"></i>
+                Salir
+
+            </a>
+        </li>
+
     </ul>
+
 </nav>
 
+
 <div class="cotizaciones-container">
-    <div class="page-header">
-        <div>
-            <h1 style="color: var(--color-accent); margin: 0;">📋 Mis Cotizaciones</h1>
-            <p style="color: var(--text-muted); margin-top: 5px;">Seguimiento técnico de tus proyectos a medida.</p>
-        </div>
-        <a th:href="@{/vidrio-personalizado/cotizar}" class="btn-nueva">+ Nueva Cotización</a>
-    </div>
 
-    <div class="estadisticas-grid" th:if="${not #lists.isEmpty(cotizaciones)}">
-        <div class="stat-card card-panel">
-            <div style="font-size: 2rem;">📊</div>
-            <div><strong th:text="${totalCots}">0</strong><span>Total</span></div>
-        </div>
-        <div class="stat-card card-panel">
-            <div style="font-size: 2rem;">⏳</div>
-            <div><strong th:text="${pendientes}">0</strong><span>Pendientes</span></div>
-        </div>
-        <div class="stat-card card-panel">
-            <div style="font-size: 2rem;">✅</div>
-            <div><strong th:text="${aprobadas}">0</strong><span>Aprobadas</span></div>
-        </div>
-        <div class="stat-card card-panel">
-            <div style="font-size: 2rem;">🌱</div>
-            <div><strong th:text="${huellaTotal} + ' kg'">0</strong><span>CO₂ Estimado</span></div>
-        </div>
-    </div>
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
 
-    <div th:if="${#lists.isEmpty(cotizaciones)}" style="text-align: center; padding: 60px;">
-        <h2 style="color: var(--text-muted);">Aún no tienes cotizaciones personalizadas.</h2>
-        <a th:href="@{/vidrio-personalizado/cotizar}" class="btn-nueva" style="display: inline-block; margin-top: 20px;">Empezar Proyecto</a>
-    </div>
+    <div class="page-header sg-reveal">
 
-    <div th:unless="${#lists.isEmpty(cotizaciones)}" class="lista-cotizaciones">
-        <div class="cotizacion-card card-panel" th:each="cot : ${cotizaciones}">
-            <div class="card-header">
-                <div>
-                    <h3 style="margin: 0; color: var(--text-main);" th:text="${cot.tipoVidrio} + ' Personalizado'"></h3>
-                    <span style="font-size: 0.8rem; color: var(--text-muted);" th:text="'ID: #' + ${cot.id}"></span>
-                </div>
-                <span th:class="'badge-estado estado-' + ${#strings.toLowerCase(cot.estado)}" th:text="${cot.estado}"></span>
+        <div class="page-header-content">
+
+            <div class="page-eyebrow">
+                <i class="fas fa-file-invoice"></i>
+                Área de proyectos personalizados
             </div>
+
+            <h1>
+                📋 Mis Cotizaciones
+            </h1>
+
+            <p class="page-header-description">
+                Seguimiento técnico de tus proyectos a medida.
+            </p>
+
+        </div>
+
+        <a
+            th:href="@{/vidrio-personalizado/cotizar}"
+            class="btn-nueva">
+
+            <i class="fas fa-plus"></i>
+            Nueva Cotización
+
+        </a>
+
+    </div>
+
+
+    <!-- =========================================================
+         ESTADÍSTICAS
+         ========================================================= -->
+
+    <div
+        class="estadisticas-grid sg-reveal"
+        th:if="${not #lists.isEmpty(cotizaciones)}">
+
+        <div class="stat-card card-panel">
+
+            <div class="stat-icon">
+                📊
+            </div>
+
+            <div class="stat-content">
+
+                <strong th:text="${totalCots}">
+                    0
+                </strong>
+
+                <span>
+                    Total
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card card-panel">
+
+            <div class="stat-icon">
+                ⏳
+            </div>
+
+            <div class="stat-content">
+
+                <strong th:text="${pendientes}">
+                    0
+                </strong>
+
+                <span>
+                    Pendientes
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card card-panel">
+
+            <div class="stat-icon">
+                ✅
+            </div>
+
+            <div class="stat-content">
+
+                <strong th:text="${aprobadas}">
+                    0
+                </strong>
+
+                <span>
+                    Aprobadas
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card card-panel">
+
+            <div class="stat-icon">
+                🌱
+            </div>
+
+            <div class="stat-content">
+
+                <strong th:text="${huellaTotal} + ' kg'">
+                    0
+                </strong>
+
+                <span>
+                    CO₂ Estimado
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         ESTADO SIN COTIZACIONES
+         ========================================================= -->
+
+    <div
+        th:if="${#lists.isEmpty(cotizaciones)}"
+        class="empty-state sg-reveal">
+
+        <div class="empty-icon">
+            <i class="fas fa-file-circle-plus"></i>
+        </div>
+
+        <h2>
+            Aún no tienes cotizaciones personalizadas.
+        </h2>
+
+        <p>
+            Crea tu primer proyecto de vidrio personalizado y
+            consulta aquí sus especificaciones, análisis y estimación.
+        </p>
+
+        <a
+            th:href="@{/vidrio-personalizado/cotizar}"
+            class="btn-nueva"
+            style="display:inline-flex; margin-top:22px;">
+
+            <i class="fas fa-plus"></i>
+            Empezar Proyecto
+
+        </a>
+
+    </div>
+
+
+    <!-- =========================================================
+         LISTA DE COTIZACIONES
+         ========================================================= -->
+
+    <div
+        th:unless="${#lists.isEmpty(cotizaciones)}"
+        class="lista-cotizaciones">
+
+        <div
+            class="cotizacion-card card-panel sg-reveal"
+            th:each="cot : ${cotizaciones}">
+
+            <!-- =================================================
+                 HEADER DE COTIZACIÓN
+                 ================================================= -->
+
+            <div class="card-header">
+
+                <div class="quotation-title">
+
+                    <h3
+                        th:text="${cot.tipoVidrio} + ' Personalizado'">
+                    </h3>
+
+                    <span
+                        class="quotation-id"
+                        th:text="'ID: #' + ${cot.id}">
+                    </span>
+
+                </div>
+
+                <span
+                    th:class="'badge-estado estado-' + ${#strings.toLowerCase(cot.estado)}"
+                    th:text="${cot.estado}">
+                </span>
+
+            </div>
+
+
+            <!-- =================================================
+                 INFORMACIÓN
+                 ================================================= -->
 
             <div class="card-body">
+
                 <div class="specs">
-                    <p style="margin: 0; color: var(--text-muted);">
-                        📏 <span th:text="${cot.ancho} + 'x' + ${cot.alto} + ' cm'"></span> | 
-                        ↕️ <span th:text="${cot.espesor} + ' mm'"></span> | 
-                        📐 <span th:text="${cot.forma}"></span>
+
+                    <p class="spec-line">
+
+                        <span class="spec-item">
+                            📏
+                            <span
+                                th:text="${cot.ancho} + 'x' + ${cot.alto} + ' cm'">
+                            </span>
+                        </span>
+
+                        <span class="spec-separator">|</span>
+
+                        <span class="spec-item">
+                            ↕️
+                            <span
+                                th:text="${cot.espesor} + ' mm'">
+                            </span>
+                        </span>
+
+                        <span class="spec-separator">|</span>
+
+                        <span class="spec-item">
+                            📐
+                            <span
+                                th:text="${cot.forma}">
+                            </span>
+                        </span>
+
                     </p>
-                    <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: var(--color-success);" th:if="${cot.usarVidrioReciclado}">
-                        ♻️ Contiene material reciclado
+
+
+                    <p
+                        class="recycled-badge"
+                        th:if="${cot.usarVidrioReciclado}">
+
+                        ♻️
+                        Contiene material reciclado
+
                     </p>
+
                 </div>
+
+
+                <!-- =================================================
+                     PRECIO
+                     ================================================= -->
+
                 <div class="precio-box">
-                    <span>Inversión Estimada:</span>
-                    <strong class="precio-valor" th:text="${cot.precioEstimadoFormateado}"></strong>
+
+                    <span>
+                        Inversión Estimada
+                    </span>
+
+                    <strong
+                        class="precio-valor"
+                        th:text="${cot.precioEstimadoFormateado}">
+                    </strong>
+
                 </div>
+
             </div>
+
+
+            <!-- =================================================
+                 ACCIONES
+                 ================================================= -->
 
             <div class="card-footer">
-                <a th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${cot.id})}" class="btn-mini" style="background: var(--bg-primary); color: var(--text-main); border: 1px solid var(--border-color);">👁️ Ver Detalles</a>
-                
-                <form th:if="${cot.estado == 'COTIZACION'}" th:action="@{/vidrio-personalizado/aprobar/{id}(id=${cot.id})}" method="post">
-                    <button type="submit" class="btn-mini" style="background: var(--color-success); color: var(--text-on-accent);">✓ Aprobar</button>
+
+                <a
+                    th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${cot.id})}"
+                    class="btn-mini btn-details">
+
+                    👁️
+                    Ver Detalles
+
+                </a>
+
+
+                <form
+                    th:if="${cot.estado == 'COTIZACION'}"
+                    th:action="@{/vidrio-personalizado/aprobar/{id}(id=${cot.id})}"
+                    method="post">
+
+                    <button
+                        type="submit"
+                        class="btn-mini btn-approve">
+
+                        ✓
+                        Aprobar
+
+                    </button>
+
                 </form>
-                
-                <form th:if="${cot.estado == 'COTIZACION'}" th:action="@{/vidrio-personalizado/eliminar/{id}(id=${cot.id})}" method="post" onsubmit="return confirm('¿Eliminar esta cotización?')">
-                    <button type="submit" class="btn-mini" style="background: transparent; color: var(--color-error); border: 1px solid var(--color-error);">🗑️</button>
+
+
+                <form
+                    th:if="${cot.estado == 'COTIZACION'}"
+                    th:action="@{/vidrio-personalizado/eliminar/{id}(id=${cot.id})}"
+                    method="post"
+                    onsubmit="return confirm('¿Eliminar esta cotización?')">
+
+                    <button
+                        type="submit"
+                        class="btn-mini btn-delete"
+                        aria-label="Eliminar cotización">
+
+                        🗑️
+
+                    </button>
+
                 </form>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
+
 <script th:src="@{/js/main.js}"></script>
+
 </body>
 </html>

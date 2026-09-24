@@ -1,61 +1,489 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Confirmación</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-    
-    <style>
-        .confirmacion-wrapper { max-width: 900px; margin: 50px auto; padding: 20px; text-align: center; }
-        
-        /* Animación Success */
-        .success-icon { width: 100px; height: 100px; background: var(--color-success); border-radius: 50%; margin: 0 auto 30px; display: flex; align-items: center; justify-content: center; font-size: 3em; box-shadow: 0 0 30px rgba(166, 227, 161, 0.3); }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .info-card { background: var(--bg-secondary); border-radius: 16px; border: 1px solid var(--border-color); padding: 30px; margin: 30px 0; text-align: left; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .info-group label { display: block; font-size: 0.8em; color: var(--text-muted); text-transform: uppercase; font-weight: bold; }
-        .info-group span { font-size: 1.1em; color: var(--text-main); }
-        
-        .acciones-finales { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
-        .btn-nav { padding: 15px 30px; border-radius: 12px; font-weight: bold; text-decoration: none; transition: 0.3s; }
-        .btn-primario { background: var(--color-accent); color: var(--bg-primary); }
-        .btn-secundario { background: var(--bg-tertiary); color: var(--text-main); border: 1px solid var(--border-color); }
+    <title>SmartGlass - Confirmación</title>
+
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+
+    <style>
+
+        /* =========================================================
+           SMARTGLASS · CONFIRMACIÓN DE PEDIDO
+           ========================================================= */
+
+        body {
+            min-height: 100vh;
+        }
+
+        .confirmacion-page {
+            width: min(940px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 55px 0 70px;
+        }
+
+        /* ---------- CABECERA ---------- */
+
+        .confirmation-header {
+            text-align: center;
+            margin-bottom: 34px;
+        }
+
+        .brand-mark {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 62px;
+            height: 62px;
+            margin: 0 auto 28px;
+            overflow: hidden;
+        }
+
+        .brand-mark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* ---------- ICONO DE ÉXITO ---------- */
+
+        .success-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 86px;
+            height: 86px;
+            margin: 0 auto 24px;
+            border: 1px solid var(--color-success);
+            border-radius: 50%;
+            background: var(--color-success-dim);
+            color: var(--color-success);
+            font-size: 2.4rem;
+            font-weight: 800;
+            box-shadow: 0 0 28px rgba(166, 227, 161, 0.18);
+        }
+
+        .success-icon::before {
+            content: "";
+            position: absolute;
+            inset: -8px;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        .confirmation-header h1 {
+            margin: 0 0 10px;
+            color: var(--text-main);
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            line-height: 1.05;
+            letter-spacing: -0.045em;
+        }
+
+        .confirmation-header p {
+            max-width: 620px;
+            margin: 0 auto;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.65;
+        }
+
+        .confirmation-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 18px;
+            padding: 7px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .confirmation-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-success);
+        }
+
+        /* ---------- RESUMEN ---------- */
+
+        .info-card {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0;
+            margin: 34px 0;
+            overflow: hidden;
+            padding: 0;
+            text-align: left;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+
+        .info-card-header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 18px 22px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-card-title {
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        .info-card-label {
+            color: var(--text-muted);
+            font-size: 0.67rem;
+            font-weight: 800;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        .info-group {
+            min-height: 105px;
+            padding: 21px 22px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-group:nth-last-child(-n + 2) {
+            border-bottom: none;
+        }
+
+        .info-group:nth-child(odd) {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .info-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.67rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .info-group span {
+            display: block;
+            color: var(--text-main);
+            font-size: 0.98rem;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .invoice-number {
+            color: var(--color-accent) !important;
+            font-weight: 800;
+        }
+
+        .payment-total {
+            color: var(--color-accent) !important;
+            font-size: 1.35rem !important;
+            font-weight: 850;
+        }
+
+        /* ---------- ACCIONES ---------- */
+
+        .acciones-finales {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr 0.75fr;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .btn-nav {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-size: 0.82rem;
+            font-weight: 750;
+            text-decoration: none;
+            transition:
+                transform 0.2s ease,
+                filter 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .btn-nav:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primario {
+            background: var(--color-accent);
+            color: var(--bg-primary);
+            border: 1px solid var(--color-accent);
+        }
+
+        .btn-primario:hover {
+            filter: brightness(1.08);
+        }
+
+        .btn-secundario {
+            background: var(--bg-tertiary);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secundario:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        /* ---------- PIE ---------- */
+
+        .confirmation-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .confirmation-footer p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+
+        @media (max-width: 700px) {
+
+            .confirmacion-page {
+                width: min(100% - 20px, 940px);
+                padding-top: 35px;
+            }
+
+            .info-card {
+                grid-template-columns: 1fr;
+            }
+
+            .info-card-header {
+                grid-column: auto;
+            }
+
+            .info-group {
+                min-height: auto;
+            }
+
+            .info-group:nth-child(odd) {
+                border-right: none;
+            }
+
+            .info-group:nth-last-child(-n + 2) {
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .info-group:last-child {
+                border-bottom: none;
+            }
+
+            .acciones-finales {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-nav {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 430px) {
+
+            .confirmacion-header h1 {
+                font-size: 1.9rem;
+            }
+
+            .success-icon {
+                width: 76px;
+                height: 76px;
+                font-size: 2rem;
+            }
+
+            .info-card-header,
+            .info-group {
+                padding-left: 17px;
+                padding-right: 17px;
+            }
+        }
+
+        /* ---------- IMPRESIÓN ---------- */
+
+        @media print {
+
+            body {
+                background: var(--bg-primary);
+            }
+
+            .confirmacion-page {
+                width: 100%;
+                max-width: none;
+                padding: 20px;
+            }
+
+            .acciones-finales {
+                display: none;
+            }
+
+            .info-card {
+                box-shadow: none !important;
+            }
+
+            .success-icon {
+                box-shadow: none;
+            }
+        }
+
     </style>
 </head>
+
 <body>
 
-<div class="confirmacion-wrapper">
-    <div class="success-icon">✓</div>
-    <h1 style="color: var(--text-main); font-size: 2.8em; margin-bottom: 10px;">¡Pedido Confirmado!</h1>
-    <p style="color: var(--text-muted);">Tu orden ha sido enviada a nuestra planta de procesamiento térmico.</p>
+<main class="confirmacion-page">
 
-    <div class="info-card">
-        <div class="info-group">
-            <label>Nro. de Factura</label>
-            <span th:text="${pedido.numeroFactura}" style="color: var(--color-accent); font-weight: bold;"></span>
-        </div>
-        <div class="info-group">
-            <label>Fecha y Hora</label>
-            <span th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}"></span>
-        </div>
-        <div class="info-group">
-            <label>Dirección de Envío</label>
-            <span th:text="${pedido.direccionEnvio}"></span>
-        </div>
-        <div class="info-group">
-            <label>Total Pagado</label>
-            <span th:text="${pedido.totalFormateado}" style="font-size: 1.4em;"></span>
-        </div>
-    </div>
+    <!-- Identidad SmartGlass -->
+    <header class="confirmation-header">
 
+        <div class="brand-mark">
+            <img
+                th:src="@{/img/logo-icono.png}"
+                alt="SmartGlass">
+        </div>
+
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <h1>
+            ¡Pedido Confirmado!
+        </h1>
+
+        <p>
+            Tu orden ha sido enviada a nuestra planta de procesamiento térmico.
+        </p>
+
+        <div class="confirmation-status">
+            <span class="confirmation-status-dot"></span>
+            Pedido registrado correctamente
+        </div>
+
+    </header>
+
+    <!-- Información del pedido -->
+    <section class="info-card">
+
+        <div class="info-card-header">
+            <span class="info-card-title">
+                Resumen de la orden
+            </span>
+
+            <span class="info-card-label">
+                SmartGlass
+            </span>
+        </div>
+
+        <div class="info-group">
+
+            <label>
+                Nro. de Factura
+            </label>
+
+            <span
+                class="invoice-number"
+                th:text="${pedido.numeroFactura}">
+            </span>
+
+        </div>
+
+        <div class="info-group">
+
+            <label>
+                Fecha y Hora
+            </label>
+
+            <span
+                th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">
+            </span>
+
+        </div>
+
+        <div class="info-group">
+
+            <label>
+                Dirección de Envío
+            </label>
+
+            <span
+                th:text="${pedido.direccionEnvio}">
+            </span>
+
+        </div>
+
+        <div class="info-group">
+
+            <label>
+                Total Pagado
+            </label>
+
+            <span
+                class="payment-total"
+                th:text="${pedido.totalFormateado}">
+            </span>
+
+        </div>
+
+    </section>
+
+    <!-- Acciones -->
     <div class="acciones-finales">
-        <a th:href="@{/checkout/pedido/{id}(id=${pedido.id})}" class="btn-nav btn-primario">📄 Ver Factura</a>
-        
-        <a th:href="@{/checkout/mis-pedidos}" class="btn-nav btn-secundario">📋 Ver Todos Mis Pedidos</a>
-        
-        <a th:href="@{/usuario}" class="btn-nav btn-secundario">🏠 Inicio</a>
+
+        <a
+            th:href="@{/checkout/pedido/{id}(id=${pedido.id})}"
+            class="btn-nav btn-primario">
+            📄 Ver Factura
+        </a>
+
+        <a
+            th:href="@{/checkout/mis-pedidos}"
+            class="btn-nav btn-secundario">
+            📋 Ver Todos Mis Pedidos
+        </a>
+
+        <a
+            th:href="@{/usuario}"
+            class="btn-nav btn-secundario">
+            🏠 Inicio
+        </a>
+
     </div>
-</div>
+
+    <footer class="confirmation-footer">
+        <p>
+            SmartGlass · Gestión inteligente de soluciones en vidrio
+        </p>
+    </footer>
+
+</main>
 
 <script th:src="@{/js/main.js}"></script>
+
 </body>
 </html>

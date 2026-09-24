@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * (POST /auth/registro, JSON) para clientes que no usan formularios;
  * este controller es solo para registro.html.
  */
+
 @Controller
 public class RegistroController {
 

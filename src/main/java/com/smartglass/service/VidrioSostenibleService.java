@@ -10,7 +10,7 @@ import java.util.Optional;
 
 /**
  * Capa de persistencia/orquestacion para las cotizaciones de vidrio
- * sostenible. Traduce el DTO de entrada a la entidad, delega TODO el
+ * sostenible. Traduce el DTO de entrada a la entidad, delega
  * calculo matematico a AnalisisService, y guarda el resultado.
  * VidrioPersonalizadoController solo habla con esta clase; nunca
  * toca el repositorio ni AnalisisService directamente.

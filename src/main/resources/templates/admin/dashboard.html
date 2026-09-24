@@ -1,81 +1,566 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>SmartGlass - Panel Admin</title>
+
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 
     <style>
 
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        /* =========================================================
+           SMARTGLASS · ADMIN DASHBOARD
+           ========================================================= */
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }
-        /* fondo/borde/radio ahora los da .card-panel (inyectada en el HTML) */
-        .stat-box { padding: 25px; }
-        .stat-box .value { font-size: 2rem; font-weight: bold; color: var(--color-accent); display: block; }
-        .stat-box .label { color: var(--text-muted); font-size: 0.85rem; margin-top: 5px; }
+        body {
+            min-height: 100vh;
+        }
 
-        /* table NO se convierte a card-panel a proposito: es una tabla de
-           datos que se recorre fila por fila, no una tarjeta individual --
-           el hover-lift + luz de cursor de card-panel se sentiria como un
-           temblor constante mientras se escanean filas. Se queda con su
-           fondo/borde propio en todas las vistas de admin. */
-        table { width: 100%; border-collapse: collapse; background: var(--bg-secondary); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
-        th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--border-color); }
-        th { background: var(--bg-tertiary); color: var(--color-accent); font-size: 0.85rem; text-transform: uppercase; }
-        td { color: var(--text-muted); }
+        .admin-dashboard {
+            width: min(1240px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 34px 0 70px;
+        }
+
+        /* ---------- HEADER ---------- */
+
+        .dashboard-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dashboard-eyebrow {
+            display: block;
+            margin-bottom: 9px;
+            color: var(--color-accent);
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .dashboard-header h1 {
+            margin: 0 0 8px;
+            color: var(--text-main);
+            font-size: clamp(2rem, 4vw, 2.65rem);
+            line-height: 1.05;
+            letter-spacing: -0.045em;
+        }
+
+        .dashboard-header p {
+            max-width: 650px;
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .dashboard-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 13px;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--color-success);
+        }
+
+        /* ---------- KPIs ---------- */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin: 0 0 38px;
+        }
+
+        .stat-box {
+            position: relative;
+            min-height: 128px;
+            padding: 21px;
+            overflow: hidden;
+        }
+
+        .stat-box::after {
+            content: "";
+            position: absolute;
+            right: -42px;
+            bottom: -55px;
+            width: 135px;
+            height: 135px;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-icon {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-tertiary);
+            color: var(--color-accent);
+            font-size: 1rem;
+        }
+
+        .stat-index {
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+        }
+
+        .stat-box .value {
+            position: relative;
+            z-index: 1;
+            display: block;
+            margin-bottom: 5px;
+            overflow: hidden;
+            color: var(--color-accent);
+            font-size: clamp(1.45rem, 3vw, 2rem);
+            font-weight: 800;
+            line-height: 1.1;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .stat-box .label {
+            position: relative;
+            z-index: 1;
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.76rem;
+            font-weight: 650;
+        }
+
+        /* ---------- SECCIÓN PEDIDOS ---------- */
+
+        .orders-section {
+            overflow: hidden;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 14px;
+        }
+
+        .section-heading h3 {
+            margin: 0 0 4px;
+            color: var(--text-main);
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+        }
+
+        .section-heading p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.76rem;
+        }
+
+        .section-tag {
+            color: var(--text-muted);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* ---------- TABLA ---------- */
+
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+        }
+
+        table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            color: var(--color-accent);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        td {
+            color: var(--text-muted);
+            font-size: 0.83rem;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .invoice-cell {
+            color: var(--text-main);
+            font-weight: 750;
+        }
+
+        .status-cell {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 7px;
+            color: var(--text-main);
+            font-weight: 650;
+        }
+
+        .status-cell::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-accent);
+        }
+
+        .total-cell {
+            color: var(--color-accent);
+            font-weight: 800;
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+
+        @media (max-width: 1000px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 700px) {
+            .admin-dashboard {
+                width: min(100% - 20px, 1240px);
+                padding-top: 25px;
+            }
+
+            .dashboard-header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .dashboard-status {
+                align-self: flex-start;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin-bottom: 30px;
+            }
+
+            .stat-box {
+                min-height: 110px;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 7px;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .dashboard-header h1 {
+                font-size: 1.85rem;
+            }
+
+            .stat-box {
+                padding: 17px;
+            }
+
+            th,
+            td {
+                padding: 13px 14px;
+            }
+        }
+
+        /* ---------- IMPRESIÓN ---------- */
+
+        @media print {
+            .dashboard-header {
+                border-bottom: 1px solid #ccc;
+            }
+
+            .stat-box,
+            .table-wrapper {
+                box-shadow: none !important;
+            }
+
+            .dashboard-status {
+                display: none;
+            }
+        }
+
     </style>
 </head>
+
 <body>
 
+<!-- Navegación administrativa -->
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
-<div class="container">
+<main class="admin-dashboard">
+
+    <!-- Volver a tienda -->
     <div th:replace="~{admin/fragments/nav :: volver(destino='/catalogo', texto='Volver a la tienda')}"></div>
 
-    <h1 style="color: var(--text-main); margin-top: 20px;">Panel de administración</h1>
+    <!-- Encabezado -->
+    <header class="dashboard-header">
 
-    <div class="stats-grid">
-        <div class="stat-box card-panel">
-            <span class="value" th:text="'$ ' + ${#numbers.formatDecimal(stats.ingresos, 1, 'POINT', 0, 'COMMA')}"></span>
-            <span class="label">Ingresos</span>
-        </div>
-        <div class="stat-box card-panel">
-            <span class="value" th:text="${stats.co2Total} + ' kg'"></span>
-            <span class="label">CO2 total</span>
-        </div>
-        <div class="stat-box card-panel">
-            <span class="value" th:text="${stats.pendientes}"></span>
-            <span class="label">Pedidos pendientes</span>
-        </div>
-        <div class="stat-box card-panel">
-            <span class="value" th:text="${stats.totalPedidos}"></span>
-            <span class="label">Total pedidos</span>
-        </div>
-        <div class="stat-box card-panel">
-            <span class="value" th:text="${totalUsuarios}"></span>
-            <span class="label">Usuarios registrados</span>
-        </div>
-        <div class="stat-box card-panel">
-            <span class="value" th:text="${totalProductos}"></span>
-            <span class="label">Productos en catálogo</span>
-        </div>
-    </div>
+        <div>
+            <span class="dashboard-eyebrow">
+                SmartGlass · Administración
+            </span>
 
-    <h3 style="color: var(--text-main);">Últimos pedidos</h3>
-    <table>
-        <thead><tr><th>Factura</th><th>Estado</th><th>Total</th></tr></thead>
-        <tbody>
-            <tr th:each="pedido : ${stats.pedidos}">
-                <td th:text="${pedido.numeroFactura}"></td>
-                <td th:text="${pedido.estado}"></td>
-                <td th:text="${pedido.totalFormateado}"></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+            <h1>Panel de administración</h1>
+
+            <p>
+                Supervisa el rendimiento comercial, los pedidos,
+                usuarios y catálogo desde un único centro de gestión.
+            </p>
+        </div>
+
+        <div class="dashboard-status">
+            <span class="status-dot"></span>
+            Sistema operativo
+        </div>
+
+    </header>
+
+    <!-- Indicadores -->
+    <section class="stats-grid">
+
+        <div class="stat-box card-panel">
+
+            <div class="stat-top">
+                <div class="stat-icon">💰</div>
+                <span class="stat-index">01</span>
+            </div>
+
+            <span
+                class="value"
+                th:text="'$ ' + ${#numbers.formatDecimal(stats.ingresos, 1, 'POINT', 0, 'COMMA')}">
+            </span>
+
+            <span class="label">
+                Ingresos
+            </span>
+
+        </div>
+
+        <div class="stat-box card-panel">
+
+            <div class="stat-top">
+                <div class="stat-icon">🌱</div>
+                <span class="stat-index">02</span>
+            </div>
+
+            <span
+                class="value"
+                th:text="${stats.co2Total} + ' kg'">
+            </span>
+
+            <span class="label">
+                CO2 total
+            </span>
+
+        </div>
+
+        <div class="stat-box card-panel">
+
+            <div class="stat-top">
+                <div class="stat-icon">⏳</div>
+                <span class="stat-index">03</span>
+            </div>
+
+            <span
+                class="value"
+                th:text="${stats.pendientes}">
+            </span>
+
+            <span class="label">
+                Pedidos pendientes
+            </span>
+
+        </div>
+
+        <div class="stat-box card-panel">
+
+            <div class="stat-top">
+                <div class="stat-icon">📦</div>
+                <span class="stat-index">04</span>
+            </div>
+
+            <span
+                class="value"
+                th:text="${stats.totalPedidos}">
+            </span>
+
+            <span class="label">
+                Total pedidos
+            </span>
+
+        </div>
+
+        <div class="stat-box card-panel">
+
+            <div class="stat-top">
+                <div class="stat-icon">👥</div>
+                <span class="stat-index">05</span>
+            </div>
+
+            <span
+                class="value"
+                th:text="${totalUsuarios}">
+            </span>
+
+            <span class="label">
+                Usuarios registrados
+            </span>
+
+        </div>
+
+        <div class="stat-box card-panel">
+
+            <div class="stat-top">
+                <div class="stat-icon">▦</div>
+                <span class="stat-index">06</span>
+            </div>
+
+            <span
+                class="value"
+                th:text="${totalProductos}">
+            </span>
+
+            <span class="label">
+                Productos en catálogo
+            </span>
+
+        </div>
+
+    </section>
+
+    <!-- Últimos pedidos -->
+    <section class="orders-section">
+
+        <div class="section-heading">
+
+            <div>
+                <h3>Últimos pedidos</h3>
+
+                <p>
+                    Actividad comercial reciente registrada en SmartGlass.
+                </p>
+            </div>
+
+            <span class="section-tag">
+                Actividad reciente
+            </span>
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Factura</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="pedido : ${stats.pedidos}">
+
+                        <td class="invoice-cell">
+                            <span th:text="${pedido.numeroFactura}"></span>
+                        </td>
+
+                        <td>
+                            <span
+                                class="status-cell"
+                                th:text="${pedido.estado}">
+                            </span>
+                        </td>
+
+                        <td class="total-cell">
+                            <span
+                                th:text="${pedido.totalFormateado}">
+                            </span>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
 
 <script th:src="@{/js/main.js}"></script>
+
 </body>
 </html>

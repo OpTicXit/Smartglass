@@ -1,91 +1,873 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>SmartGlass - Panel de Usuario</title>
+
     <link rel="stylesheet" href="/css/theme.css">
-    
+
     <style>
-        /* Navbar */
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
-        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
-        .nav-links { display: flex; gap: 10px; flex-wrap: wrap;}
-        .nav-links a { color: var(--text-main); text-decoration: none; padding: 8px 16px; border-radius: 8px; background: var(--bg-tertiary); font-size: 0.9rem; transition: 0.3s;}
-        .nav-links a:hover { background: var(--color-accent); color: var(--bg-primary); }
+        /* =========================================================
+           SMARTGLASS - PANEL DE USUARIO
+           ========================================================= */
 
-        /* Panel Hero */
-        .usuario-hero { text-align: center; padding: 60px 20px; background: var(--bg-tertiary); margin-bottom: 40px; border-bottom: 1px solid var(--border-color); }
-        .usuario-hero h2 { font-size: 2.8rem; margin: 0 0 10px 0; color: var(--text-main); }
-        .usuario-hero span { color: var(--color-accent); }
-        .usuario-hero p { color: var(--text-muted); font-size: 1.1rem; }
+        body {
+            min-height: 100vh;
+            background: var(--color-background);
+        }
 
-        /* Sección Catálogo Dashboard */
-        .catalogo-container { max-width: 1300px; margin: 0 auto; padding: 0 20px 60px; }
-        .catalogo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        .catalogo-header h3 { font-size: 1.5rem; color: var(--text-main); margin: 0; }
-        .link-ver-mas { color: var(--color-accent); text-decoration: none; font-weight: bold; }
+        /* =========================================================
+           NAVBAR
+           ========================================================= */
 
-        /* Grid igual a Tienda */
-        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
+        .navbar {
+            min-height: 72px;
+            padding: 0 4%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
 
-        /* .producto-card: fondo, borde, sombra, hover y luz de cursor ya
-           los da theme.css (regla global compartida) -- aqui solo va lo
-           que es propio de ESTA vista: texto centrado y separacion inferior. */
-        .producto-card { text-align: center; padding-bottom: 20px; }
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
 
-        .producto-img-container { position: relative; width: 100%; height: 200px; overflow: hidden; margin-bottom: 15px; }
-        .producto-img-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .producto-card:hover .producto-img-container img { filter: brightness(0.5); transform: scale(1.05); }
+            position: sticky;
+            top: 0;
+            z-index: 100;
 
-        .ver-mas-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0; transition: 0.3s; }
-        .producto-card:hover .ver-mas-overlay { opacity: 1; }
-        .btn-view { padding: 10px 20px; background: var(--color-accent); color: var(--bg-primary); border-radius: 8px; text-decoration: none; font-weight: bold; }
+            backdrop-filter: blur(12px);
+        }
 
-        .producto-card h4 { color: var(--text-main); margin: 0 0 5px 0; font-size: 1.1rem; padding: 0 15px; }
-        .detalle { color: var(--text-muted); font-size: 0.85rem; padding: 0 15px; margin-bottom: 15px; }
-        .precio-badge { color: var(--color-accent); font-weight: bold; font-size: 1.3rem; }
+        .brand-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+
+            color: var(--text-main);
+            text-decoration: none;
+
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+
+            flex-shrink: 0;
+        }
+
+        .brand-link img {
+            width: 39px;
+            height: 39px;
+            object-fit: contain;
+        }
+
+        .brand-link span {
+            color: var(--color-accent);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            padding: 9px 13px;
+
+            color: var(--text-main);
+            background: var(--bg-tertiary);
+
+            border: 1px solid transparent;
+            border-radius: 8px;
+
+            text-decoration: none;
+            font-size: 0.78rem;
+            font-weight: 600;
+
+            transition:
+                background 0.25s ease,
+                border-color 0.25s ease,
+                color 0.25s ease,
+                transform 0.25s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-accent);
+            border-color: var(--color-accent);
+            background: var(--color-accent-dim);
+            transform: translateY(-1px);
+        }
+
+        .nav-links .cart-link {
+            color: var(--color-accent);
+            background: var(--color-accent-dim);
+            border-color: var(--color-accent);
+        }
+
+        .nav-links .logout-link {
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px dashed var(--border-color);
+        }
+
+        .nav-links .logout-link:hover {
+            color: var(--color-error);
+            border-color: var(--color-error);
+            background: transparent;
+        }
+
+        /* =========================================================
+           HERO
+           ========================================================= */
+
+        .usuario-hero {
+            position: relative;
+            overflow: hidden;
+
+            padding: 68px 20px 62px;
+
+            border-bottom: 1px solid var(--border-color);
+
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    var(--color-accent-dim),
+                    transparent 48%
+                ),
+                var(--bg-tertiary);
+
+            text-align: center;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            margin-bottom: 15px;
+
+            color: var(--color-accent);
+
+            font-size: 0.73rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .hero-label::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+            background: var(--color-accent);
+
+            box-shadow: 0 0 0 5px var(--color-accent-dim);
+        }
+
+        .usuario-hero h2 {
+            margin: 0;
+
+            color: var(--text-main);
+
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            line-height: 1.1;
+            letter-spacing: -0.045em;
+        }
+
+        .usuario-hero h2 span {
+            color: var(--color-accent);
+        }
+
+        .usuario-hero p {
+            max-width: 610px;
+            margin: 16px auto 0;
+
+            color: var(--text-muted);
+
+            font-size: 0.98rem;
+            line-height: 1.65;
+        }
+
+        /* =========================================================
+           ACCESOS RÁPIDOS
+           ========================================================= */
+
+        .quick-actions {
+            width: min(1180px, 92%);
+            margin: -30px auto 45px;
+
+            position: relative;
+            z-index: 5;
+
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+
+            padding: 17px;
+
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+
+            color: var(--text-main);
+            text-decoration: none;
+
+            transition:
+                border-color 0.25s ease,
+                transform 0.25s ease,
+                background 0.25s ease;
+        }
+
+        .quick-action:hover {
+            border-color: var(--color-accent);
+            background: var(--color-accent-dim);
+            transform: translateY(-3px);
+        }
+
+        .quick-icon {
+            width: 39px;
+            height: 39px;
+            flex: 0 0 39px;
+
+            display: grid;
+            place-items: center;
+
+            border-radius: 9px;
+
+            background: var(--color-accent-dim);
+            color: var(--color-accent);
+
+            font-size: 1rem;
+        }
+
+        .quick-info {
+            min-width: 0;
+        }
+
+        .quick-info strong {
+            display: block;
+
+            color: var(--text-main);
+
+            font-size: 0.82rem;
+            line-height: 1.2;
+        }
+
+        .quick-info span {
+            display: block;
+
+            margin-top: 4px;
+
+            color: var(--text-muted);
+
+            font-size: 0.7rem;
+        }
+
+        /* =========================================================
+           CATÁLOGO
+           ========================================================= */
+
+        .catalogo-container {
+            width: min(1180px, 92%);
+            margin: 0 auto;
+            padding-bottom: 70px;
+        }
+
+        .catalogo-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+
+            margin-bottom: 25px;
+            padding-bottom: 17px;
+
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .catalogo-heading {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .catalogo-eyebrow {
+            color: var(--color-accent);
+
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .catalogo-header h3 {
+            margin: 0;
+
+            color: var(--text-main);
+
+            font-size: 1.45rem;
+            letter-spacing: -0.025em;
+        }
+
+        .catalogo-header p {
+            margin: 0;
+
+            color: var(--text-muted);
+
+            font-size: 0.78rem;
+        }
+
+        .link-ver-mas {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            padding: 9px 13px;
+
+            color: var(--color-accent);
+
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+
+            text-decoration: none;
+
+            font-size: 0.8rem;
+            font-weight: 700;
+
+            white-space: nowrap;
+
+            transition: 0.25s ease;
+        }
+
+        .link-ver-mas:hover {
+            border-color: var(--color-accent);
+            background: var(--color-accent-dim);
+        }
+
+        /* =========================================================
+           PRODUCTOS
+           ========================================================= */
+
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .producto-card {
+            overflow: hidden;
+
+            padding-bottom: 19px;
+
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 13px;
+
+            text-align: center;
+
+            transition:
+                border-color 0.3s ease,
+                transform 0.3s ease,
+                box-shadow 0.3s ease;
+        }
+
+        .producto-card:hover {
+            border-color: var(--color-accent);
+            transform: translateY(-4px);
+        }
+
+        .producto-img-container {
+            position: relative;
+
+            width: 100%;
+            height: 205px;
+
+            overflow: hidden;
+
+            margin-bottom: 16px;
+
+            background: var(--bg-tertiary);
+        }
+
+        .producto-img-container img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            transition:
+                transform 0.5s ease,
+                filter 0.5s ease;
+        }
+
+        .producto-card:hover .producto-img-container img {
+            filter: brightness(0.52);
+            transform: scale(1.06);
+        }
+
+        .producto-img-container::after {
+            content: "";
+
+            position: absolute;
+            inset: 0;
+
+            background: linear-gradient(
+                to top,
+                rgba(0, 0, 0, 0.22),
+                transparent 45%
+            );
+
+            pointer-events: none;
+        }
+
+        .ver-mas-overlay {
+            position: absolute;
+
+            top: 50%;
+            left: 50%;
+
+            z-index: 2;
+
+            transform: translate(-50%, -45%);
+
+            opacity: 0;
+
+            transition:
+                opacity 0.3s ease,
+                transform 0.3s ease;
+        }
+
+        .producto-card:hover .ver-mas-overlay {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn-view {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 10px 19px;
+
+            background: var(--color-accent);
+            color: var(--bg-primary);
+
+            border-radius: 8px;
+
+            text-decoration: none;
+
+            font-size: 0.78rem;
+            font-weight: 800;
+
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.22);
+        }
+
+        .producto-card h4 {
+            margin: 0 0 7px;
+            padding: 0 14px;
+
+            color: var(--text-main);
+
+            font-size: 0.94rem;
+            font-weight: 700;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .detalle {
+            min-height: 36px;
+
+            margin: 0 0 13px;
+            padding: 0 14px;
+
+            color: var(--text-muted);
+
+            font-size: 0.76rem;
+            line-height: 1.5;
+
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .precio-badge {
+            display: inline-block;
+
+            padding: 5px 11px;
+
+            color: var(--color-accent);
+
+            background: var(--color-accent-dim);
+
+            border-radius: 7px;
+
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+
+        @media (max-width: 1050px) {
+
+            .navbar {
+                align-items: flex-start;
+                padding-top: 13px;
+                padding-bottom: 13px;
+            }
+
+            .nav-links {
+                justify-content: flex-end;
+            }
+
+            .productos-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 760px) {
+
+            .navbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .brand-link {
+                justify-content: center;
+            }
+
+            .nav-links {
+                justify-content: center;
+            }
+
+            .nav-links a {
+                font-size: 0.72rem;
+                padding: 8px 10px;
+            }
+
+            .usuario-hero {
+                padding: 52px 18px 58px;
+            }
+
+            .quick-actions {
+                margin-top: -25px;
+            }
+
+            .productos-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .catalogo-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .nav-links {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-links a {
+                justify-content: center;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .productos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .producto-img-container {
+                height: 220px;
+            }
+
+            .catalogo-container {
+                width: 90%;
+            }
+        }
+
+        /* =========================================================
+           ACCESIBILIDAD
+           ========================================================= */
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
+
 <body>
 
 <nav class="navbar">
-    <div class="logo">◆ SmartGlass</div>
-    <ul class="nav-links">
-        <a href="/catalogo">Tienda</a>
-        <a href="/destacados">Destacados</a>
-        <a href="/carrito" style="background:var(--color-accent-dim); color:var(--color-accent); border:1px solid var(--color-accent);">🛒 (<span th:text="${cantidadCarrito}">0</span>)</a>
-        <a href="/checkout/mis-pedidos">Mis Pedidos</a>
-        <a href="/vidrio-personalizado/mis-cotizaciones">Mis Cotizaciones</a>
-        <a href="/logout" style="border: 1px dashed var(--border-color); background:transparent;">Salir</a>
-    </ul>
+
+    <a href="/home" class="brand-link">
+        <img th:src="@{/img/logo-icono.png}" alt="SmartGlass">
+        <span>SmartGlass</span>
+    </a>
+
+    <div class="nav-links">
+
+        <a href="/catalogo">
+            🛍️ Tienda
+        </a>
+
+        <a href="/destacados">
+            ✦ Destacados
+        </a>
+
+        <a
+            href="/carrito"
+            class="cart-link"
+        >
+            🛒
+            <span>(
+                <span th:text="${cantidadCarrito}">0</span>
+            )</span>
+        </a>
+
+        <a href="/checkout/mis-pedidos">
+            📦 Mis Pedidos
+        </a>
+
+        <a href="/vidrio-personalizado/mis-cotizaciones">
+            📐 Mis Cotizaciones
+        </a>
+
+        <a href="/logout" class="logout-link">
+            Salir
+        </a>
+
+    </div>
+
 </nav>
 
+
+<!-- =========================================================
+     HERO
+     ========================================================= -->
+
 <section class="usuario-hero">
-    <h2>Bienvenido, <span th:text="${usuario.nombre}">Usuario</span></h2>
-    <p>Explora nuestros productos y gestiona tu panel de proyectos a medida.</p>
+
+    <div class="hero-content">
+
+        <div class="hero-label">
+            Panel de cliente
+        </div>
+
+        <h2>
+            Bienvenido,
+            <span th:text="${usuario.nombre}">
+                Usuario
+            </span>
+        </h2>
+
+        <p>
+            Explora soluciones de vidrio, descubre productos destacados
+            y gestiona tus pedidos y proyectos personalizados desde un
+            solo lugar.
+        </p>
+
+    </div>
+
 </section>
+
+
+<!-- =========================================================
+     ACCESOS RÁPIDOS
+     ========================================================= -->
+
+<section class="quick-actions">
+
+    <a href="/catalogo" class="quick-action">
+
+        <div class="quick-icon">
+            🛍️
+        </div>
+
+        <div class="quick-info">
+            <strong>Explorar tienda</strong>
+            <span>Ver catálogo completo</span>
+        </div>
+
+    </a>
+
+
+    <a href="/carrito" class="quick-action">
+
+        <div class="quick-icon">
+            🛒
+        </div>
+
+        <div class="quick-info">
+            <strong>Mi carrito</strong>
+            <span>
+                <span th:text="${cantidadCarrito}">0</span>
+                productos
+            </span>
+        </div>
+
+    </a>
+
+
+    <a href="/checkout/mis-pedidos" class="quick-action">
+
+        <div class="quick-icon">
+            📦
+        </div>
+
+        <div class="quick-info">
+            <strong>Mis pedidos</strong>
+            <span>Consultar compras</span>
+        </div>
+
+    </a>
+
+
+    <a href="/vidrio-personalizado/mis-cotizaciones" class="quick-action">
+
+        <div class="quick-icon">
+            📐
+        </div>
+
+        <div class="quick-info">
+            <strong>Mis cotizaciones</strong>
+            <span>Gestionar proyectos</span>
+        </div>
+
+    </a>
+
+</section>
+
+
+<!-- =========================================================
+     PRODUCTOS DESTACADOS
+     ========================================================= -->
 
 <section class="catalogo-container">
+
     <div class="catalogo-header">
-        <h3>🔥 Novedades y Destacados</h3>
-        <a href="/destacados" class="link-ver-mas">Ver todos →</a>
-    </div>
-    
-    <div class="productos-grid">
-        <div class="producto-card" th:each="producto, iterStat : ${destacados}" th:if="${iterStat.index < 8}">
-            <div class="producto-img-container">
-                <img th:src="@{/img/{img}(img=${producto.imagen})}" th:alt="${producto.nombre}">
-                <div class="ver-mas-overlay">
-                    <a th:href="@{/detalle/{id}(id=${producto.id})}" class="btn-view">Detalles</a>
-                </div>
-            </div>
-            <h4 th:text="${producto.nombre}">Vidrio</h4>
-            <p class="detalle" th:text="${producto.descripcionCorta}">Desc</p>
-            <div class="precio-badge" th:text="'$' + ${producto.precioFormateado}">$0</div>
+
+        <div class="catalogo-heading">
+
+            <span class="catalogo-eyebrow">
+                Selección SmartGlass
+            </span>
+
+            <h3>
+                Novedades y Destacados
+            </h3>
+
+            <p>
+                Descubre algunos de nuestros productos disponibles.
+            </p>
+
         </div>
+
+        <a href="/destacados" class="link-ver-mas">
+            Ver todos →
+        </a>
+
     </div>
+
+
+    <div class="productos-grid">
+
+        <div
+            class="producto-card"
+            th:each="producto, iterStat : ${destacados}"
+            th:if="${iterStat.index < 8}"
+        >
+
+            <div class="producto-img-container">
+
+                <img
+                    th:src="@{/img/{img}(img=${producto.imagen})}"
+                    th:alt="${producto.nombre}"
+                >
+
+                <div class="ver-mas-overlay">
+
+                    <a
+                        th:href="@{/detalle/{id}(id=${producto.id})}"
+                        class="btn-view"
+                    >
+                        Ver detalles
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <h4 th:text="${producto.nombre}">
+                Vidrio
+            </h4>
+
+
+            <p
+                class="detalle"
+                th:text="${producto.descripcionCorta}"
+            >
+                Desc
+            </p>
+
+
+            <div
+                class="precio-badge"
+                th:text="'$' + ${producto.precioFormateado}"
+            >
+                $0
+            </div>
+
+        </div>
+
+    </div>
+
 </section>
 
+
 <script th:src="@{/js/main.js}"></script>
+
 </body>
 </html>

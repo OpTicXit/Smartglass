@@ -2,54 +2,586 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>SmartGlass - Reseñas (Admin)</title>
+
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
+
     <style>
-        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
-        table { width: 100%; border-collapse: collapse; background: var(--bg-secondary); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
-        th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
-        th { background: var(--bg-tertiary); color: var(--color-accent); font-size: 0.85rem; text-transform: uppercase; }
-        td { color: var(--text-muted); }
-        .estrellas { color: var(--color-warning); }
-        .btn-eliminar { padding: 6px 12px; border-radius: 6px; background: transparent; border: 1px solid var(--color-error); color: var(--color-error); font-size: 0.8rem; }
-        .flash { padding: 12px 16px; border-radius: 8px; margin: 20px 0; background: var(--color-success-dim); border: 1px solid var(--color-success); color: var(--color-success); }
+        /* =========================================================
+           SMARTGLASS ADMIN — MODERACIÓN DE RESEÑAS
+           ========================================================= */
+
+        :root {
+            --admin-radius: 14px;
+            --admin-radius-sm: 9px;
+            --admin-transition: 180ms ease;
+        }
+
+        body {
+            min-height: 100vh;
+        }
+
+        .resenas-admin {
+            width: min(1320px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 34px 0 60px;
+        }
+
+        /* ---------- Header ---------- */
+
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+            margin: 24px 0 28px;
+        }
+
+        .page-header-copy {
+            max-width: 760px;
+        }
+
+        .page-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 9px;
+            color: var(--color-accent);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .page-eyebrow::before {
+            content: "";
+            width: 24px;
+            height: 2px;
+            background: var(--color-accent);
+            border-radius: 99px;
+        }
+
+        .page-title {
+            margin: 0;
+            color: var(--text-main);
+            font-size: clamp(1.8rem, 3vw, 2.45rem);
+            line-height: 1.08;
+            letter-spacing: -0.035em;
+        }
+
+        .page-description {
+            margin: 10px 0 0;
+            color: var(--text-muted);
+            font-size: 0.94rem;
+            line-height: 1.6;
+        }
+
+        .moderation-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--color-success);
+            box-shadow: 0 0 0 4px var(--color-success-dim);
+        }
+
+        /* ---------- Flash ---------- */
+
+        .flash {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 24px;
+            padding: 13px 16px;
+            border: 1px solid var(--color-success);
+            border-radius: var(--admin-radius-sm);
+            background: var(--color-success-dim);
+            color: var(--color-success);
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+
+        .flash::before {
+            content: "✓";
+            display: grid;
+            place-items: center;
+            width: 24px;
+            height: 24px;
+            flex: 0 0 24px;
+            border: 1px solid currentColor;
+            border-radius: 50%;
+            font-weight: 800;
+        }
+
+        /* ---------- Main panel ---------- */
+
+        .reviews-panel {
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: var(--admin-radius);
+            background: var(--bg-secondary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+        }
+
+        .panel-heading {
+            margin: 0;
+            color: var(--text-main);
+            font-size: 1rem;
+            font-weight: 750;
+        }
+
+        .panel-subheading {
+            margin: 4px 0 0;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        .panel-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        /* ---------- Table ---------- */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .reviews-table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+        }
+
+        .reviews-table th {
+            padding: 13px 18px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-align: left;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .reviews-table td {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            vertical-align: middle;
+        }
+
+        .reviews-table tbody tr {
+            transition: background var(--admin-transition);
+        }
+
+        .reviews-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .reviews-table tbody tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* ---------- Product link ---------- */
+
+        .product-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-accent);
+            text-decoration: none;
+            font-size: 0.78rem;
+            font-weight: 750;
+            white-space: nowrap;
+            transition:
+                color var(--admin-transition),
+                transform var(--admin-transition);
+        }
+
+        .product-link::after {
+            content: "→";
+            transition: transform var(--admin-transition);
+        }
+
+        .product-link:hover {
+            color: var(--color-accent-hover);
+        }
+
+        .product-link:hover::after {
+            transform: translateX(3px);
+        }
+
+        /* ---------- Customer ---------- */
+
+        .customer-name {
+            color: var(--text-main);
+            font-weight: 650;
+        }
+
+        /* ---------- Rating ---------- */
+
+        .rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rating-stars {
+            color: var(--color-warning);
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+        }
+
+        .rating-value {
+            display: inline-flex;
+            min-width: 26px;
+            justify-content: center;
+            padding: 4px 7px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            color: var(--text-main);
+            font-size: 0.72rem;
+            font-weight: 750;
+        }
+
+        /* ---------- Comment ---------- */
+
+        .comment {
+            max-width: 500px;
+            color: var(--text-muted);
+            line-height: 1.55;
+        }
+
+        /* ---------- Delete ---------- */
+
+        .action-cell {
+            width: 1%;
+            white-space: nowrap;
+            text-align: right !important;
+        }
+
+        .btn-eliminar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 34px;
+            padding: 7px 12px;
+            border: 1px solid var(--color-error);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--color-error);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition:
+                background var(--admin-transition),
+                color var(--admin-transition),
+                transform var(--admin-transition);
+        }
+
+        .btn-eliminar::before {
+            content: "×";
+            font-size: 1rem;
+            line-height: 0.8;
+        }
+
+        .btn-eliminar:hover {
+            background: var(--color-error);
+            color: var(--bg-primary);
+            transform: translateY(-1px);
+        }
+
+        /* ---------- Empty state ---------- */
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 260px;
+            padding: 40px 24px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            display: grid;
+            place-items: center;
+            width: 54px;
+            height: 54px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            font-size: 1.3rem;
+        }
+
+        .empty-title {
+            margin: 0;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        .empty-description {
+            max-width: 420px;
+            margin: 8px 0 0;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+
+        /* ---------- Responsive ---------- */
+
+        @media (max-width: 900px) {
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .moderation-status {
+                align-self: flex-start;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .resenas-admin {
+                width: min(100% - 24px, 1320px);
+                padding-top: 22px;
+            }
+
+            .page-header {
+                margin-top: 18px;
+                margin-bottom: 22px;
+            }
+
+            .panel-header {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 17px;
+            }
+
+            .reviews-table {
+                min-width: 780px;
+            }
+        }
+
+        /* ---------- Print ---------- */
+
+        @media print {
+            .admin-nav,
+            .btn-eliminar,
+            form {
+                display: none !important;
+            }
+
+            .resenas-admin {
+                width: 100%;
+                padding: 0;
+            }
+
+            .reviews-panel {
+                box-shadow: none;
+            }
+
+            .reviews-table {
+                min-width: 0;
+            }
+        }
     </style>
 </head>
+
 <body>
 
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
-<div class="container">
+<main class="resenas-admin">
+
     <div th:replace="~{admin/fragments/nav :: volver(destino='/admin/dashboard', texto='Dashboard')}"></div>
 
-    <h1 style="color: var(--text-main); margin-top: 20px;">Reseñas de productos</h1>
+    <header class="page-header">
+        <div class="page-header-copy">
+            <div class="page-eyebrow">Administración · Experiencia del cliente</div>
+
+            <h1 class="page-title">
+                Reseñas de productos
+            </h1>
+
+            <p class="page-description">
+                Consulta las opiniones registradas por los clientes y administra
+                el contenido publicado en las fichas de producto.
+            </p>
+        </div>
+
+        <div class="moderation-status">
+            <span class="status-dot"></span>
+            Moderación activa
+        </div>
+    </header>
 
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
 
-    <table>
-        <thead><tr><th>Producto</th><th>Cliente</th><th>Calificación</th><th>Comentario</th><th></th></tr></thead>
-        <tbody>
-            <tr th:each="r : ${resenas}">
-                <td><a th:href="@{/detalle/{id}(id=${r.productoId})}" style="color:var(--color-accent);">Ver producto</a></td>
-                <td th:text="${r.nombreUsuario}"></td>
-                <td class="estrellas" th:text="${r.estrellas}"></td>
-                <td th:text="${r.comentario}"></td>
-                <td>
-                    <form th:action="@{/admin/resenas/{id}/eliminar(id=${r.id})}" method="post"
-                          onsubmit="return confirm('¿Eliminar esta reseña?')">
-                        <button type="submit" class="btn-eliminar">Eliminar</button>
-                    </form>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <section class="reviews-panel">
 
-    <div th:if="${#lists.isEmpty(resenas)}" style="color:var(--text-muted); padding: 30px 0;">
-        Todavía no hay reseñas en el sistema.
-    </div>
-</div>
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-heading">
+                    Reseñas registradas
+                </h2>
+
+                <p class="panel-subheading">
+                    Opiniones, calificaciones y comentarios enviados por los clientes.
+                </p>
+            </div>
+
+            <div class="panel-indicator">
+                ● Contenido de clientes
+            </div>
+        </div>
+
+        <div
+            class="table-wrapper"
+            th:unless="${#lists.isEmpty(resenas)}">
+
+            <table class="reviews-table">
+
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cliente</th>
+                        <th>Calificación</th>
+                        <th>Comentario</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="r : ${resenas}">
+
+                        <td>
+                            <a
+                                class="product-link"
+                                th:href="@{/detalle/{id}(id=${r.productoId})}">
+                                Ver producto
+                            </a>
+                        </td>
+
+                        <td>
+                            <span
+                                class="customer-name"
+                                th:text="${r.nombreUsuario}">
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="rating">
+
+                                <span
+                                    class="rating-stars"
+                                    aria-hidden="true">
+                                    ★★★★★
+                                </span>
+
+                                <span
+                                    class="rating-value"
+                                    th:text="${r.estrellas}">
+                                </span>
+
+                            </div>
+                        </td>
+
+                        <td>
+                            <div
+                                class="comment"
+                                th:text="${r.comentario}">
+                            </div>
+                        </td>
+
+                        <td class="action-cell">
+
+                            <form
+                                th:action="@{/admin/resenas/{id}/eliminar(id=${r.id})}"
+                                method="post"
+                                onsubmit="return confirm('¿Eliminar esta reseña?')">
+
+                                <button
+                                    type="submit"
+                                    class="btn-eliminar">
+                                    Eliminar
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div
+            class="empty-state"
+            th:if="${#lists.isEmpty(resenas)}">
+
+            <div class="empty-icon">☆</div>
+
+            <h2 class="empty-title">
+                No hay reseñas todavía
+            </h2>
+
+            <p class="empty-description">
+                Todavía no hay reseñas en el sistema.
+                Cuando los clientes publiquen sus opiniones aparecerán aquí.
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
 
 <script th:src="@{/js/main.js}"></script>
+
 </body>
 </html>

@@ -2,58 +2,588 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>SmartGlass - Pedidos (Admin)</title>
+
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
+
     <style>
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        table { width: 100%; border-collapse: collapse; background: var(--bg-secondary); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
-        th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--border-color); }
-        th { background: var(--bg-tertiary); color: var(--color-accent); font-size: 0.85rem; text-transform: uppercase; }
-        td { color: var(--text-muted); }
-        .estado-form { display: flex; gap: 8px; }
-        .estado-form select { padding: 6px 8px; border-radius: 6px; font-size: 0.85rem; }
-        .estado-form button { padding: 6px 12px; border-radius: 6px; background: var(--color-accent); color: var(--bg-primary); font-weight: bold; font-size: 0.8rem; }
-        .flash { padding: 12px 16px; border-radius: 8px; margin: 20px 0; background: var(--color-success-dim); border: 1px solid var(--color-success); color: var(--color-success); }
+        /* =========================================================
+           SMARTGLASS ADMIN — GESTIÓN DE PEDIDOS
+           ========================================================= */
+
+        :root {
+            --admin-radius: 14px;
+            --admin-radius-sm: 9px;
+            --admin-transition: 180ms ease;
+        }
+
+        body {
+            min-height: 100vh;
+        }
+
+        .pedidos-admin {
+            width: min(1380px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 34px 0 60px;
+        }
+
+        /* ---------- Header ---------- */
+
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+            margin: 24px 0 28px;
+        }
+
+        .page-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 9px;
+            color: var(--color-accent);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .page-eyebrow::before {
+            content: "";
+            width: 24px;
+            height: 2px;
+            border-radius: 99px;
+            background: var(--color-accent);
+        }
+
+        .page-title {
+            margin: 0;
+            color: var(--text-main);
+            font-size: clamp(1.8rem, 3vw, 2.45rem);
+            line-height: 1.08;
+            letter-spacing: -0.035em;
+        }
+
+        .page-description {
+            max-width: 700px;
+            margin: 10px 0 0;
+            color: var(--text-muted);
+            font-size: 0.94rem;
+            line-height: 1.6;
+        }
+
+        .operation-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--color-success);
+            box-shadow: 0 0 0 4px var(--color-success-dim);
+        }
+
+        /* ---------- Flash ---------- */
+
+        .flash {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 24px;
+            padding: 13px 16px;
+            border: 1px solid var(--color-success);
+            border-radius: var(--admin-radius-sm);
+            background: var(--color-success-dim);
+            color: var(--color-success);
+            font-size: 0.86rem;
+            line-height: 1.45;
+        }
+
+        .flash::before {
+            content: "✓";
+            display: grid;
+            place-items: center;
+            width: 24px;
+            height: 24px;
+            flex: 0 0 24px;
+            border: 1px solid currentColor;
+            border-radius: 50%;
+            font-weight: 800;
+        }
+
+        /* ---------- Main panel ---------- */
+
+        .orders-panel {
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: var(--admin-radius);
+            background: var(--bg-secondary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+        }
+
+        .panel-heading {
+            margin: 0;
+            color: var(--text-main);
+            font-size: 1rem;
+            font-weight: 750;
+        }
+
+        .panel-subheading {
+            margin: 4px 0 0;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        .panel-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* ---------- Table ---------- */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .orders-table {
+            width: 100%;
+            min-width: 1050px;
+            border-collapse: collapse;
+        }
+
+        .orders-table th {
+            padding: 13px 18px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-align: left;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .orders-table td {
+            padding: 15px 18px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            vertical-align: middle;
+        }
+
+        .orders-table tbody tr {
+            transition: background var(--admin-transition);
+        }
+
+        .orders-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .orders-table tbody tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* ---------- Invoice ---------- */
+
+        .invoice-number {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 9px;
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            background: var(--bg-tertiary);
+            color: var(--text-main);
+            font-family: monospace;
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+
+        /* ---------- Client ---------- */
+
+        .client-name {
+            color: var(--text-main);
+            font-weight: 650;
+        }
+
+        .client-empty {
+            color: var(--text-muted);
+            opacity: 0.65;
+        }
+
+        /* ---------- Date ---------- */
+
+        .order-date {
+            white-space: nowrap;
+        }
+
+        /* ---------- Order status ---------- */
+
+        .order-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            background: var(--bg-tertiary);
+            color: var(--text-main);
+            font-size: 0.69rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .order-status::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-accent);
+        }
+
+        /* ---------- Total ---------- */
+
+        .order-total {
+            color: var(--text-main) !important;
+            font-size: 0.9rem !important;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        /* ---------- Status form ---------- */
+
+        .estado-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 290px;
+        }
+
+        .estado-form select {
+            min-height: 36px;
+            flex: 1;
+            padding: 7px 30px 7px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            background: var(--bg-tertiary);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.76rem;
+            font-weight: 650;
+            cursor: pointer;
+            transition:
+                border-color var(--admin-transition),
+                box-shadow var(--admin-transition);
+        }
+
+        .estado-form select:focus {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px var(--color-accent-dim);
+        }
+
+        .estado-form button {
+            min-height: 36px;
+            padding: 7px 13px;
+            border: 1px solid var(--color-accent);
+            border-radius: 8px;
+            background: var(--color-accent);
+            color: var(--bg-primary);
+            font-family: inherit;
+            font-size: 0.73rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition:
+                transform var(--admin-transition),
+                opacity var(--admin-transition),
+                box-shadow var(--admin-transition);
+        }
+
+        .estado-form button:hover {
+            transform: translateY(-1px);
+            opacity: 0.92;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .estado-form button:active {
+            transform: translateY(0);
+        }
+
+        /* ---------- Responsive ---------- */
+
+        @media (max-width: 900px) {
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .operation-status {
+                align-self: flex-start;
+            }
+
+            .panel-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .pedidos-admin {
+                width: min(100% - 24px, 1380px);
+                padding-top: 22px;
+            }
+
+            .page-header {
+                margin-top: 18px;
+                margin-bottom: 22px;
+            }
+
+            .panel-header {
+                padding: 17px;
+            }
+
+            .orders-table {
+                min-width: 1050px;
+            }
+        }
+
+        /* ---------- Print ---------- */
+
+        @media print {
+            .admin-nav,
+            .estado-form {
+                display: none !important;
+            }
+
+            .pedidos-admin {
+                width: 100%;
+                padding: 0;
+            }
+
+            .orders-panel {
+                box-shadow: none;
+            }
+
+            .orders-table {
+                min-width: 0;
+            }
+        }
     </style>
 </head>
+
 <body>
 
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
-<div class="container">
+<main class="pedidos-admin">
+
     <div th:replace="~{admin/fragments/nav :: volver(destino='/admin/dashboard', texto='Dashboard')}"></div>
 
-    <h1 style="color: var(--text-main); margin-top: 20px;">Pedidos</h1>
+    <header class="page-header">
 
-    <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div>
+            <div class="page-eyebrow">
+                Administración · Operaciones
+            </div>
 
-    <table>
-        <thead><tr><th>Factura</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Total</th><th>Cambiar estado</th></tr></thead>
-        <tbody>
-            <tr th:each="pedido : ${pedidos}">
-                <td th:text="${pedido.numeroFactura}"></td>
-                <td th:text="${pedido.usuario != null ? pedido.usuario.nombre : '—'}"></td>
-                <td th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy')}"></td>
-                <td th:text="${pedido.estado}"></td>
-                <td th:text="${pedido.totalFormateado}"></td>
-                <td>
-                    <form class="estado-form" th:action="@{/admin/pedidos/{id}/estado(id=${pedido.id})}" method="post">
-                        <select name="estado">
-                            <option value="PENDIENTE" th:selected="${pedido.estado == 'PENDIENTE'}">Pendiente</option>
-                            <option value="PROCESANDO" th:selected="${pedido.estado == 'PROCESANDO'}">Procesando</option>
-                            <option value="ENVIADO" th:selected="${pedido.estado == 'ENVIADO'}">Enviado</option>
-                            <option value="ENTREGADO" th:selected="${pedido.estado == 'ENTREGADO'}">Entregado</option>
-                            <option value="CANCELADO" th:selected="${pedido.estado == 'CANCELADO'}">Cancelado</option>
-                        </select>
-                        <button type="submit">Guardar</button>
-                    </form>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+            <h1 class="page-title">
+                Pedidos
+            </h1>
+
+            <p class="page-description">
+                Supervisa las órdenes de compra y actualiza su estado
+                para mantener el flujo operativo de SmartGlass.
+            </p>
+        </div>
+
+        <div class="operation-status">
+            <span class="status-dot"></span>
+            Control de pedidos
+        </div>
+
+    </header>
+
+    <div
+        class="flash"
+        th:if="${mensaje}"
+        th:text="${mensaje}">
+    </div>
+
+    <section class="orders-panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h2 class="panel-heading">
+                    Registro de pedidos
+                </h2>
+
+                <p class="panel-subheading">
+                    Facturación, cliente, fecha, estado y gestión de cada orden.
+                </p>
+            </div>
+
+            <div class="panel-label">
+                ● Actualización operativa
+            </div>
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table class="orders-table">
+
+                <thead>
+                    <tr>
+                        <th>Factura</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                        <th>Cambiar estado</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="pedido : ${pedidos}">
+
+                        <td>
+                            <span
+                                class="invoice-number"
+                                th:text="${pedido.numeroFactura}">
+                            </span>
+                        </td>
+
+                        <td>
+                            <span
+                                class="client-name"
+                                th:if="${pedido.usuario != null}"
+                                th:text="${pedido.usuario.nombre}">
+                            </span>
+
+                            <span
+                                class="client-empty"
+                                th:unless="${pedido.usuario != null}">
+                                —
+                            </span>
+                        </td>
+
+                        <td>
+                            <span
+                                class="order-date"
+                                th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy')}">
+                            </span>
+                        </td>
+
+                        <td>
+                            <span
+                                class="order-status"
+                                th:text="${pedido.estado}">
+                            </span>
+                        </td>
+
+                        <td
+                            class="order-total"
+                            th:text="${pedido.totalFormateado}">
+                        </td>
+
+                        <td>
+
+                            <form
+                                class="estado-form"
+                                th:action="@{/admin/pedidos/{id}/estado(id=${pedido.id})}"
+                                method="post">
+
+                                <select name="estado">
+
+                                    <option
+                                        value="PENDIENTE"
+                                        th:selected="${pedido.estado == 'PENDIENTE'}">
+                                        Pendiente
+                                    </option>
+
+                                    <option
+                                        value="PROCESANDO"
+                                        th:selected="${pedido.estado == 'PROCESANDO'}">
+                                        Procesando
+                                    </option>
+
+                                    <option
+                                        value="ENVIADO"
+                                        th:selected="${pedido.estado == 'ENVIADO'}">
+                                        Enviado
+                                    </option>
+
+                                    <option
+                                        value="ENTREGADO"
+                                        th:selected="${pedido.estado == 'ENTREGADO'}">
+                                        Entregado
+                                    </option>
+
+                                    <option
+                                        value="CANCELADO"
+                                        th:selected="${pedido.estado == 'CANCELADO'}">
+                                        Cancelado
+                                    </option>
+
+                                </select>
+
+                                <button type="submit">
+                                    Guardar
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
 
 <script th:src="@{/js/main.js}"></script>
+
 </body>
 </html>

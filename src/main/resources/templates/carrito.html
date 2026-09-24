@@ -3,185 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <title>SmartGlass - Carrito de Compras</title>
-    <link rel="stylesheet" href="/css/theme.css">
-    
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
     <style>
-        /* === NAVBAR SIMPLE === */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 3rem;
-            background: var(--bg-secondary);
+        /* Personalidad propia de la vista de Carrito:
+           Gestión eficiente de pedidos, resumen de costes e interacción clara de compra. */
+
+        .carrito-header {
+            padding: 40px 0 24px;
             border-bottom: 1px solid var(--border-color);
+            margin-bottom: 32px;
         }
-        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; }
-        .nav-links { display: flex; gap: 1rem; }
-        .nav-links a { color: var(--text-main); text-decoration: none; padding: 8px 16px; border-radius: 8px; background: var(--bg-tertiary); }
-        .nav-links a:hover { background: var(--border-color); }
+        .carrito-header .eyebrow {
+            color: var(--color-accent); font-size: 0.75rem; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+        }
+        .carrito-header h1 {
+            font-size: 2.2rem; margin: 8px 0 0; color: var(--text-main);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .carrito-header h1 i { color: var(--color-accent); }
 
-        /* === CONTENEDOR CARRITO === */
-        .carrito-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 20px;
-        }
-        .carrito-container h1 {
-            color: var(--color-accent);
-            margin-bottom: 30px;
+        /* Contenedor principal Grid de 2 columnas (Items + Resumen) */
+        .carrito-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 32px;
+            margin-bottom: 80px;
+            align-items: start;
         }
 
-        /* === ESTADO VACÍO === */
-        /* fondo/borde/radio ahora los da .card-panel (inyectada en el HTML) */
-        .carrito-vacio {
-            text-align: center;
-            padding: 80px 20px;
-        }
-        .carrito-vacio h2 { color: var(--text-main); }
-        .carrito-vacio p { color: var(--text-muted); margin-bottom: 20px; }
+        /* Lista de Ítems */
+        .items-lista { display: flex; flex-direction: column; gap: 16px; }
 
-        /* === LISTA DE ITEMS (GRID) === */
-        .items-lista {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        /* fondo/borde/radio ahora los da .card-panel; aqui solo el grid */
         .item-carrito {
             display: grid;
-            grid-template-columns: 100px 1fr auto auto auto;
+            grid-template-columns: 90px 1fr auto auto auto;
             gap: 20px;
             align-items: center;
             padding: 20px;
         }
-        .item-imagen img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 8px;
+
+        .item-imagen {
+            width: 90px; height: 90px; overflow: hidden;
+            border-radius: 10px; border: 1px solid var(--border-color);
+            background: rgba(7, 11, 25, 0.5);
         }
-        .item-info h3 { margin: 0 0 5px 0; color: var(--text-main); }
-        .item-info p { margin: 0; color: var(--text-muted); font-size: 0.9em; }
-        
-        .item-cantidad { display: flex; flex-direction: column; gap: 5px; align-items: center;}
-        .item-cantidad input { width: 60px; text-align: center; padding: 8px; }
-        .btn-actualizar { padding: 6px 12px; background: var(--color-info); color: var(--text-on-accent); border-radius: 6px; font-size: 0.8em; }
+        .item-imagen img { width: 100%; height: 100%; object-fit: cover; }
 
-        .item-precio { text-align: right; }
-        .item-precio .label { display: block; font-size: 0.85em; color: var(--text-muted); }
-        .item-precio .precio-total { font-size: 1.3em; font-weight: bold; color: var(--color-accent); }
+        .item-info h3 { margin: 0 0 6px; font-size: 1.05rem; color: var(--text-main); }
+        .item-info .codigo {
+            display: inline-block; font-size: 0.8rem; color: var(--text-muted);
+            font-family: monospace; background: rgba(255, 255, 255, 0.04);
+            padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-color);
+            margin-bottom: 6px;
+        }
+        .item-info .precio-unitario { font-size: 0.88rem; color: var(--text-muted); margin: 0; }
 
-        .btn-eliminar { background: var(--color-error); color: var(--bg-primary); padding: 10px 15px; border-radius: 8px; font-weight: bold; }
+        /* Formulario Actualizar Cantidad */
+        .form-cantidad { display: flex; align-items: center; gap: 8px; }
+        .input-qty-carrito {
+            width: 58px; text-align: center; font-size: 0.95rem; font-weight: 600;
+            padding: 8px 4px; background: rgba(13, 20, 42, 0.8);
+            border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main);
+        }
+        .btn-actualizar {
+            padding: 8px 12px; background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .btn-actualizar:hover {
+            background: #3B82F6; color: white; border-color: #3B82F6;
+        }
 
-        /* === RESUMEN Y BOTONES === */
-        /* fondo/borde/radio ahora los da .card-panel */
+        /* Subtotal e Identificación de Fila */
+        .item-precio { text-align: right; min-width: 100px; }
+        .item-precio .label { display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+        .item-precio .precio-total { font-size: 1.15rem; font-weight: 700; color: var(--color-accent); }
+
+        .btn-eliminar {
+            background: rgba(239, 68, 68, 0.1); color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.25); padding: 10px;
+            border-radius: 8px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-eliminar:hover {
+            background: #EF4444; color: white; border-color: #EF4444;
+        }
+
+        /* Panel de Resumen de Carrito */
         .carrito-resumen {
-            padding: 30px;
+            position: sticky; top: 100px; padding: 28px;
         }
-        .carrito-total {
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .carrito-total .total-monto { color: var(--color-success); }
+        .carrito-resumen h3 { font-size: 1.2rem; color: var(--text-main); margin-bottom: 20px; }
 
-        .carrito-acciones {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            flex-wrap: wrap;
+        .resumen-desglose { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .resumen-linea { display: flex; justify-content: space-between; font-size: 0.92rem; color: var(--text-muted); }
+
+        .carrito-total {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 1.3rem; font-weight: 700; padding: 16px 0;
+            border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px; color: var(--text-main);
         }
-        .btn { padding: 12px 24px; border-radius: 8px; font-weight: bold; text-decoration: none; cursor: pointer;}
-        .btn-danger { background: transparent; color: var(--color-error); border: 1px solid var(--color-error); }
-        .btn-secondary { background: var(--bg-tertiary); color: var(--text-main); border: 1px solid var(--border-color); }
-        .btn-primary { background: var(--color-success); color: var(--bg-primary); }
-        
-        /* Alertas */
-        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold;}
-        .alert-success { background: var(--color-success-dim); border: 1px solid var(--color-success); color: var(--color-success); }
+        .carrito-total .total-monto { color: #10B981; }
+
+        .carrito-acciones { display: flex; flex-direction: column; gap: 12px; }
+        .btn-checkout { width: 100%; justify-content: center; font-size: 1rem; padding: 14px; background: #10B981; border-color: #10B981; color: #070B19; font-weight: 700; }
+        .btn-checkout:hover { background: #059669; border-color: #059669; }
+
+        /* Estado Vacío */
+        .carrito-vacio {
+            text-align: center; padding: 80px 20px; margin-bottom: 80px;
+        }
+        .carrito-vacio i { font-size: 3.5rem; color: var(--border-color); margin-bottom: 16px; display: block; }
+        .carrito-vacio h2 { color: var(--text-main); font-size: 1.6rem; margin-bottom: 8px; }
+        .carrito-vacio p { color: var(--text-muted); margin-bottom: 24px; font-size: 0.95rem; }
+
+        /* Alerta personalizada */
+        .alert-banner {
+            padding: 14px 20px; border-radius: 12px; margin-bottom: 24px;
+            display: flex; align-items: center; gap: 12px; font-size: 0.95rem; font-weight: 500;
+        }
+        .alert-success { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #34D399; }
+        .alert-error { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #F87171; }
+
+        @media (max-width: 960px) {
+            .carrito-layout { grid-template-columns: 1fr; }
+            .item-carrito { grid-template-columns: 80px 1fr; gap: 16px; }
+            .form-cantidad, .item-precio, .item-eliminar { grid-column: span 2; }
+            .item-precio { text-align: left; margin: 4px 0; }
+        }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <div class="logo">◆ SmartGlass</div>
+    <a th:href="@{${usuarioLogueado} ? '/usuario' : '/home'}" class="logo">
+        <img src="/img/logo-icono.png" alt="Icono" th:src="@{/img/logo-icono.png}"> SmartGlass
+    </a>
     <ul class="nav-links">
-        <a href="/catalogo">Tienda</a>
-        <a href="/checkout/mis-pedidos">Mis Pedidos</a>
+        <li><a th:href="@{/home}">Inicio</a></li>
+        <li><a th:href="@{/catalogo}">Catálogo</a></li>
+        <li><a th:href="@{/destacados}">Destacados</a></li>
+        <li><a th:href="@{/vidrio-personalizado/cotizar}">Vidrio Personalizado</a></li>
+        <li><a th:href="@{/acerca}">Acerca de</a></li>
     </ul>
+    <div class="nav-acciones">
+        <a th:href="@{/carrito}" class="nav-icono sg-magnetico activo">
+            <i class="ph ph-shopping-cart"></i>
+        </a>
+        <a th:href="@{${usuarioLogueado} ? '/usuario' : '/login'}" class="btn-nav-cta sg-magnetico"
+           th:text="${usuarioLogueado} ? 'Mi cuenta' : 'Iniciar sesión'">Iniciar sesión</a>
+    </div>
 </nav>
 
-<div class="carrito-container">
-    <h1>🛒 Mi Carrito de Compras</h1>
+<main class="container">
+    <header class="carrito-header">
+        <span class="eyebrow">Orden de Compra</span>
+        <h1><i class="ph ph-shopping-bag-open"></i> Carrito de Compras</h1>
+    </header>
 
-    <div th:if="${mensaje}" th:class="'alert alert-' + ${tipoMensaje}">
-        <span th:text="${mensaje}"></span>
+    <!-- Alertas dinámicas -->
+    <div th:if="${mensaje}" th:class="'alert-banner alert-' + ${tipoMensaje}">
+        <i th:class="${tipoMensaje == 'success' ? 'ph ph-check-circle' : 'ph ph-warning-circle'}" style="font-size:1.3rem;"></i>
+        <span th:text="${mensaje}">Mensaje de notificación</span>
     </div>
 
+    <!-- Estado Vacío -->
     <div th:if="${#lists.isEmpty(items)}" class="carrito-vacio card-panel">
+        <i class="ph ph-shopping-cart-simple"></i>
         <h2>Tu carrito está vacío</h2>
-        <p>Explora nuestro catálogo y encuentra los mejores productos.</p>
-        <a href="/catalogo" class="btn btn-primary">Ir a la Tienda</a>
+        <p>Explora nuestro catálogo y agrega productos de vidrio a tu orden.</p>
+        <a th:href="@{/catalogo}" class="btn btn-primary">
+            <i class="ph ph-storefront"></i> Ir al Catálogo
+        </a>
     </div>
 
-    <div th:unless="${#lists.isEmpty(items)}">
+    <!-- Lista e Interacción del Carrito -->
+    <div th:unless="${#lists.isEmpty(items)}" class="carrito-layout">
         <div class="items-lista">
-            <div th:each="item : ${items}" class="item-carrito card-panel">
+            <article th:each="item : ${items}" class="item-carrito card-panel">
                 
                 <div class="item-imagen">
-                    <img th:src="@{/img/{img}(img=${item.producto.imagen})}" th:alt="${item.producto.nombre}">
+                    <img th:src="${item.producto.imagen != null ? '/img/' + item.producto.imagen : '/img/default-glass.jpg'}" th:alt="${item.producto.nombre}">
                 </div>
 
                 <div class="item-info">
-                    <h3 th:text="${item.producto.nombre}"></h3>
-                    <p th:text="'Código: ' + ${item.producto.codigo}"></p>
-                    <p th:text="'Unitario: $' + ${item.producto.precioFormateado}"></p>
+                    <h3 th:text="${item.producto.nombre}">Nombre de Vidrio</h3>
+                    <span class="codigo" th:text="'Código: ' + ${item.producto.codigo}">SKU-000</span>
+                    <p class="precio-unitario" th:text="'Precio unitario: $' + ${item.producto.precioFormateado}">$0.00</p>
                 </div>
 
                 <div class="item-cantidad">
-                    <form th:action="@{/carrito/actualizar}" method="post">
+                    <form th:action="@{/carrito/actualizar}" method="post" class="form-cantidad">
                         <input type="hidden" name="productoId" th:value="${item.producto.id}">
-                        <input type="number" name="cantidad" th:value="${item.cantidad}" min="1" max="99">
-                        <button type="submit" class="btn-actualizar">Actualizar</button>
+                        <input type="number" name="cantidad" th:value="${item.cantidad}" min="1" max="99" class="input-qty-carrito">
+                        <button type="submit" class="btn-actualizar" title="Actualizar cantidad">
+                            <i class="ph ph-arrows-clockwise"></i>
+                        </button>
                     </form>
                 </div>
 
                 <div class="item-precio">
-                    <span class="label">Subtotal:</span>
-                    <span class="precio-total" th:text="'$' + ${item.subtotalFormateado}"></span>
+                    <span class="label">Subtotal</span>
+                    <span class="precio-total" th:text="'$' + ${item.subtotalFormateado}">$0.00</span>
                 </div>
 
                 <div class="item-eliminar">
                     <form th:action="@{/carrito/eliminar/{id}(id=${item.producto.id})}" method="post" onsubmit="return confirmarEliminacion(event)">
-                        <button type="submit" class="btn-eliminar">🗑️ Eliminar</button>
+                        <button type="submit" class="btn-eliminar" title="Eliminar producto">
+                            <i class="ph ph-trash" style="font-size: 1.1rem;"></i>
+                        </button>
                     </form>
                 </div>
-            </div>
+
+            </article>
         </div>
 
-        <div class="carrito-resumen card-panel">
+        <!-- Panel de Resumen -->
+        <aside class="carrito-resumen card-panel">
+            <h3>Resumen del Pedido</h3>
+            
+            <div class="resumen-desglose">
+                <div class="resumen-linea">
+                    <span>Productos seleccionados:</span>
+                    <strong th:text="${#lists.size(items)}" style="color: var(--text-main);">0</strong>
+                </div>
+                <div class="resumen-linea">
+                    <span>Cálculo de impuestos:</span>
+                    <span>Incluido</span>
+                </div>
+            </div>
+
             <div class="carrito-total">
-                <span>Total a pagar:</span>
-                <span class="total-monto" th:text="'$ ' + ${#numbers.formatDecimal(total, 0, 'POINT', 0, 'COMMA')}"></span>
+                <span>Total:</span>
+                <span class="total-monto" th:text="'$' + ${#numbers.formatDecimal(total, 0, 'POINT', 0, 'COMMA')}">$0</span>
             </div>
 
             <div class="carrito-acciones">
-                <form th:action="@{/carrito/limpiar}" method="post" onsubmit="return confirmarVaciarCarrito(event)">
-                    <button type="submit" class="btn btn-danger">Vaciar Carrito</button>
-                </form>
-                <a href="/catalogo" class="btn btn-secondary">Seguir Comprando</a>
                 <form th:action="@{/carrito/procesar-compra}" method="post">
-                    <button type="submit" class="btn btn-primary">✓ Finalizar Compra</button>
+                    <button type="submit" class="btn btn-primary btn-checkout">
+                        <i class="ph ph-check-circle"></i> Finalizar Compra
+                    </button>
+                </form>
+
+                <a th:href="@{/catalogo}" class="btn btn-secondary" style="width: 100%; justify-content: center;">
+                    <i class="ph ph-arrow-left"></i> Seguir Comprando
+                </a>
+
+                <form th:action="@{/carrito/limpiar}" method="post" onsubmit="return confirmarVaciarCarrito(event)">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center; color: #F87171; border-color: rgba(239, 68, 68, 0.3);">
+                        <i class="ph ph-trash-simple"></i> Vaciar Carrito
+                    </button>
                 </form>
             </div>
-        </div>
+        </aside>
     </div>
-</div>
+</main>
 
 <script>
     function confirmarEliminacion(event) {

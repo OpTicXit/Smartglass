@@ -2,163 +2,292 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Detalle del Producto</title>
-    <link rel="stylesheet" href="/css/theme.css">
+    <title th:text="'SmartGlass - ' + ${producto.nombre}">SmartGlass - Detalle del Producto</title>
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <style>
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
-        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
-        
-        /* .detalle-grid: fondo/borde propios a proposito, NO se
-           convierte a .card-panel -- ese es un contenedor de pagina
-           completo (foto + info + compra), no una "tarjeta" individual
-           dentro de una coleccion. Aplicarle el hover-lift + luz de
-           cursor de .card-panel se sentiria raro (toda la seccion
-           "flotando" al pasar el mouse sobre un boton). Es una
-           excepcion deliberada, no un duplicado sin revisar. */
-        .detalle-grid { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 30px; max-width: 1200px; margin: 50px auto; padding: 20px; background: var(--bg-secondary); border-radius: 16px; border: 1px solid var(--border-color); }
+        /* Personalidad propia de la vista de detalle: layout de alta
+           presencia para la ficha del producto + seccion social de reseñas. */
 
-        .miniaturas { display: flex; flex-direction: column; gap: 10px; }
-        .miniaturas img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid transparent; cursor: pointer; }
-        .miniaturas img.active { border-color: var(--color-accent); }
+        .nav-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
+            margin: 28px 0 16px; transition: color 0.3s ease, transform 0.2s ease;
+        }
+        .nav-back:hover { color: var(--color-accent); transform: translateX(-3px); }
 
-        .imagen-principal img { width: 100%; height: 500px; object-fit: cover; border-radius: 12px; }
+        /* Contenedor principal de producto (Layout Grid de 3 columnas) */
+        .detalle-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr 1.1fr;
+            gap: 32px;
+            margin-bottom: 60px;
+            padding: 32px;
+            background: rgba(13, 20, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-main);
+        }
 
-        .info-producto h1 { font-size: 2.2rem; color: var(--text-main); margin-bottom: 5px; }
-        .info-producto .precio { font-size: 2rem; color: var(--color-accent); font-weight: bold; margin: 20px 0; }
+        /* Columna 1: Miniaturas */
+        .miniaturas { display: flex; flex-direction: column; gap: 12px; }
+        .miniaturas img {
+            width: 80px; height: 80px; object-fit: cover;
+            border-radius: 8px; border: 2px solid transparent;
+            cursor: pointer; transition: border-color 0.3s ease, transform 0.2s ease;
+        }
+        .miniaturas img:hover, .miniaturas img.active {
+            border-color: var(--color-accent); transform: scale(1.03);
+        }
 
-        .selector-cantidad { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
-        .selector-cantidad button { width: 40px; height: 40px; border-radius: 8px; background: var(--bg-tertiary); color: var(--text-main); font-size: 1.2rem; border: 1px solid var(--border-color); }
-        .selector-cantidad input { width: 60px; text-align: center; padding: 8px; font-size: 1.1rem; }
+        /* Columna 2: Imagen Principal */
+        .imagen-principal {
+            width: 100%; height: 480px; overflow: hidden;
+            border-radius: 12px; border: 1px solid var(--border-color);
+            background: rgba(7, 11, 25, 0.5);
+        }
+        .imagen-principal img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .imagen-principal:hover img { transform: scale(1.03); }
 
-        .btn-agregar { width: 100%; padding: 15px; background: var(--color-accent); color: var(--text-on-accent); border-radius: 8px; font-weight: bold; font-size: 1.1rem; }
-        
-        .especificaciones { margin-top: 30px; padding: 20px; }
-        .especificaciones ul { list-style: none; padding: 0; }
-        .especificaciones li { padding: 8px 0; border-bottom: 1px solid var(--border-color); color: var(--text-muted); }
+        /* Columna 3: Información e Interacción */
+        .info-producto { display: flex; flex-direction: column; }
+        .info-producto h1 { font-size: 2.2rem; color: var(--text-main); margin-bottom: 8px; }
+        .info-producto .codigo-badge {
+            display: inline-block; color: var(--text-muted); font-size: 0.85rem; font-family: monospace;
+            background: rgba(255, 255, 255, 0.04); padding: 4px 10px; border-radius: 6px;
+            border: 1px solid var(--border-color); margin-bottom: 20px; width: fit-content;
+        }
+        .info-producto .precio { font-size: 2.2rem; color: var(--color-accent); font-weight: 700; margin-bottom: 24px; }
 
-        @media (max-width: 850px) { .detalle-grid { grid-template-columns: 1fr; } .miniaturas { flex-direction: row; order: 2; } }
+        /* Controles de Compra */
+        .selector-cantidad { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .btn-qty {
+            width: 42px; height: 42px; border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05); color: var(--text-main);
+            font-size: 1.2rem; border: 1px solid var(--border-color); cursor: pointer;
+            transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-qty:hover {
+            background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-accent);
+        }
+        .input-qty {
+            width: 64px; text-align: center; font-size: 1.1rem; font-weight: 600;
+            padding: 8px 0; background: rgba(13, 20, 42, 0.8); border: 1px solid var(--border-color);
+            border-radius: 8px; color: var(--text-main);
+        }
 
-        /* Resenas */
-        .resenas-section { max-width: 1200px; margin: 0 auto 60px; padding: 0 20px; }
-        .resenas-header { display: flex; align-items: center; gap: 20px; margin-bottom: 25px; }
-        .promedio-box { text-align: center; }
-        .promedio-valor { font-size: 2.2rem; font-weight: bold; color: var(--color-accent); }
-        .estrellas { color: var(--color-warning); font-size: 1.1rem; letter-spacing: 2px; }
-        /* .resena-card y .form-resena ya no traen fondo/borde/radio local:
-           lo dan .card-panel (theme.css). form-resena solo sobreescribe el
-           borde a punteado, para marcar visualmente que es un formulario
-           de "agregar", no contenido ya publicado. */
-        .resena-card { padding: 18px 20px; margin-bottom: 12px; }
-        .resena-card .resena-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
-        .resena-card .resena-autor { color: var(--text-main); font-weight: bold; }
+        .btn-agregar-main { width: 100%; padding: 14px; font-size: 1.05rem; }
+
+        /* Ficha Técnica */
+        .especificaciones { margin-top: 28px; }
+        .especificaciones h3 {
+            font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--text-main); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+        }
+        .especificaciones h3 i { color: var(--color-accent); }
+        .especificaciones ul { list-style: none; padding: 0; margin: 0; }
+        .especificaciones li {
+            padding: 10px 0; border-bottom: 1px solid var(--border-color);
+            color: var(--text-muted); font-size: 0.9rem; display: flex; justify-content: space-between;
+        }
+        .especificaciones li:last-child { border-bottom: none; }
+        .especificaciones li span.valor { color: var(--text-main); font-weight: 500; }
+
+        /* Seccion de Reseñas */
+        .resenas-section { margin-bottom: 80px; }
+        .resenas-header {
+            display: flex; align-items: center; gap: 24px;
+            margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border-color);
+        }
+        .promedio-box {
+            text-align: center; padding: 16px 24px;
+            background: rgba(13, 20, 42, 0.6); border: 1px solid var(--border-color); border-radius: 12px;
+        }
+        .promedio-valor { font-size: 2.5rem; font-weight: 700; color: var(--color-accent); line-height: 1; margin-bottom: 4px; }
+        .estrellas { color: #F59E0B; font-size: 1.1rem; letter-spacing: 2px; }
+
+        .resena-card { margin-bottom: 16px; }
+        .resena-card .resena-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .resena-card .resena-autor { color: var(--text-main); font-weight: 600; font-size: 0.95rem; }
         .resena-card .resena-fecha { color: var(--text-muted); font-size: 0.8rem; }
-        .resena-card p { margin: 0; color: var(--text-muted); }
-        .form-resena { border-style: dashed !important; border-color: var(--color-accent) !important; padding: 20px; margin-top: 20px; }
-        .form-resena select, .form-resena textarea { width: 100%; padding: 10px; border-radius: 8px; margin: 10px 0; box-sizing: border-box; }
-        .form-resena button { padding: 10px 24px; background: var(--color-accent); color: var(--bg-primary); border-radius: 8px; font-weight: bold; }
+        .resena-card p { margin: 0; color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; }
+
+        .form-resena {
+            border: 1px dashed var(--color-accent) !important;
+            background: rgba(59, 130, 246, 0.03); margin-top: 28px;
+        }
+
+        @media (max-width: 850px) {
+            .detalle-grid { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
+            .miniaturas { flex-direction: row; order: 2; }
+            .imagen-principal { height: 350px; }
+            .resenas-header { flex-direction: column; align-items: flex-start; }
+        }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <a href="/catalogo" class="logo">◆ SmartGlass</a>
-    <div style="display:flex; gap:15px;">
-        <a href="/catalogo" style="color:var(--text-main); text-decoration:none;">← Volver</a>
-        <a th:if="${usuarioLogueado}" href="/carrito" style="color:var(--color-accent); text-decoration:none;">🛒 Carrito (<span th:text="${cantidadCarrito}">0</span>)</a>
+    <a th:href="@{${usuarioLogueado} ? '/usuario' : '/home'}" class="logo">
+        <img src="/img/logo-icono.png" alt="Icono" th:src="@{/img/logo-icono.png}"> SmartGlass
+    </a>
+    <ul class="nav-links">
+        <li><a th:href="@{/home}">Inicio</a></li>
+        <li><a th:href="@{/catalogo}">Catálogo</a></li>
+        <li><a th:href="@{/destacados}">Destacados</a></li>
+        <li><a th:href="@{/vidrio-personalizado/cotizar}">Vidrio Personalizado</a></li>
+        <li><a th:href="@{/acerca}">Acerca de</a></li>
+    </ul>
+    <div class="nav-acciones">
+        <a th:href="@{/carrito}" class="nav-icono sg-magnetico">
+            <i class="ph ph-shopping-cart"></i>
+            <span th:if="${usuarioLogueado and cantidadCarrito != null and cantidadCarrito > 0}" 
+                  th:text="${cantidadCarrito}" 
+                  style="font-size:0.75rem; background:var(--color-accent); color:white; border-radius:10px; padding:2px 6px; margin-left:2px; vertical-align:top;">0</span>
+        </a>
+        <a th:href="@{${usuarioLogueado} ? '/usuario' : '/login'}" class="btn-nav-cta sg-magnetico"
+           th:text="${usuarioLogueado} ? 'Mi cuenta' : 'Iniciar sesión'">Iniciar sesión</a>
     </div>
 </nav>
 
-<section class="detalle-grid">
-    <div class="miniaturas">
-        <img th:src="@{/img/{img}(img=${producto.imagen})}" class="active" />
-    </div>
+<main class="container">
+    <a th:href="@{/catalogo}" class="nav-back">
+        <i class="ph ph-arrow-left"></i> Volver al catálogo
+    </a>
 
-    <div class="imagen-principal">
-        <img th:src="@{/img/{img}(img=${producto.imagen})}" />
-    </div>
+    <section class="detalle-grid">
+        <!-- Miniaturas de producto -->
+        <div class="miniaturas">
+            <img th:src="@{/img/{img}(img=${producto.imagen})}" class="active" th:alt="${producto.nombre}" />
+        </div>
 
-    <div class="info-producto">
-        <h1 th:text="${producto.nombre}"></h1>
-        <p style="color:var(--text-muted);" th:text="'Código: ' + ${producto.codigo}"></p>
-        <div class="precio" th:text="'$' + ${producto.precioFormateado}"></div>
+        <!-- Imagen principal -->
+        <div class="imagen-principal">
+            <img th:src="@{/img/{img}(img=${producto.imagen})}" th:alt="${producto.nombre}" />
+        </div>
 
-        <div th:if="${usuarioLogueado}">
-            <form th:action="@{/carrito/agregar}" method="post">
-                <input type="hidden" name="productoId" th:value="${producto.id}">
-                <div class="selector-cantidad">
-                    <button type="button" onclick="cambiarCantidad(-1)">-</button>
-                    <input type="number" id="cantidad" name="cantidad" value="1" min="1" readonly>
-                    <button type="button" onclick="cambiarCantidad(1)">+</button>
+        <!-- Información e interacción del producto -->
+        <div class="info-producto">
+            <h1 th:text="${producto.nombre}">Nombre del Producto</h1>
+            <span class="codigo-badge" th:text="'Código: ' + ${producto.codigo}">SKU-000</span>
+            <div class="precio" th:text="'$' + ${producto.precioFormateado}">$0.00</div>
+
+            <div th:if="${usuarioLogueado}">
+                <form th:action="@{/carrito/agregar}" method="post">
+                    <input type="hidden" name="productoId" th:value="${producto.id}">
+                    <div class="selector-cantidad">
+                        <button type="button" class="btn-qty" onclick="cambiarCantidad(-1)"><i class="ph ph-minus"></i></button>
+                        <input type="number" id="cantidad" name="cantidad" value="1" min="1" readonly class="input-qty">
+                        <button type="button" class="btn-qty" onclick="cambiarCantidad(1)"><i class="ph ph-plus"></i></button>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-agregar-main">
+                        <i class="ph ph-shopping-cart-simple"></i> Añadir al Carrito
+                    </button>
+                </form>
+            </div>
+
+            <div th:unless="${usuarioLogueado}" style="margin-bottom: 24px;">
+                <a th:href="@{/login}" class="btn btn-secondary" style="width: 100%; justify-content: center; border-style: dashed;">
+                    <i class="ph ph-lock-key"></i> Inicia sesión para comprar
+                </a>
+            </div>
+
+            <!-- Ficha Técnica integrada en la columna de info -->
+            <div class="especificaciones info-box">
+                <h3><i class="ph ph-sliders-horizontal"></i> Ficha Técnica</h3>
+                <ul>
+                    <li>
+                        <span>Tipo de vidrio</span>
+                        <span class="valor" th:text="${producto.tipo}">Templado</span>
+                    </li>
+                    <li>
+                        <span>Dimensiones</span>
+                        <span class="valor" th:text="${producto.ancho} + ' x ' + ${producto.alto} + ' cm'">0x0 cm</span>
+                    </li>
+                    <li>
+                        <span>Espesor</span>
+                        <span class="valor" th:text="${producto.espesor} + ' mm'">0 mm</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Opiniones y Reseñas -->
+    <section class="resenas-section">
+        <div class="resenas-header">
+            <div class="promedio-box">
+                <div class="promedio-valor" th:text="${promedioCalificacion}">0.0</div>
+                <div class="estrellas" th:text="${estrellasPromedio}">☆☆☆☆☆</div>
+            </div>
+            <div>
+                <h2 style="margin: 0; font-size: 1.5rem;">Opiniones de clientes</h2>
+                <p style="margin: 4px 0 0; color: var(--text-muted); font-size: 0.9rem;"
+                   th:text="${#lists.size(resenas)} + ' reseña(s) registradas'">0 reseñas</p>
+            </div>
+        </div>
+
+        <!-- Lista de Reseñas -->
+        <div class="resena-card card-panel" th:each="r : ${resenas}">
+            <div class="resena-header">
+                <span class="resena-autor" th:text="${r.nombreUsuario}">Cliente</span>
+                <span class="estrellas" th:text="${r.estrellas}">★★★★★</span>
+            </div>
+            <p th:text="${r.comentario}">Comentario del usuario...</p>
+            <div style="margin-top: 8px; text-align: right;">
+                <span class="resena-fecha" th:text="${#temporals.format(r.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(resenas)}" class="card-panel" style="text-align: center; color: var(--text-muted); padding: 32px;">
+            <i class="ph ph-chat-teardrop-dots" style="font-size: 2.5rem; display: block; margin-bottom: 8px; color: var(--border-color);"></i>
+            Todavía no hay reseñas para este producto. ¡Sé el primero en opinar!
+        </div>
+
+        <!-- Formulario para agregar / editar reseña -->
+        <div class="form-resena card-panel" th:if="${usuarioLogueado}">
+            <h3 style="margin: 0 0 12px; font-size: 1.1rem;" th:text="${miResena != null} ? 'Actualiza tu reseña' : 'Deja tu reseña'"></h3>
+            <form th:action="@{/detalle/{id}/resenas(id=${producto.id})}" method="post">
+                <div class="form-group">
+                    <label for="calificacion">Calificación:</label>
+                    <select name="calificacion" id="calificacion">
+                        <option value="5" th:selected="${miResena != null and miResena.calificacion == 5}">★★★★★ (5 - Excelente)</option>
+                        <option value="4" th:selected="${miResena != null and miResena.calificacion == 4}">★★★★☆ (4 - Muy Bueno)</option>
+                        <option value="3" th:selected="${miResena == null or miResena.calificacion == 3}">★★★☆☆ (3 - Bueno)</option>
+                        <option value="2" th:selected="${miResena != null and miResena.calificacion == 2}">★★☆☆☆ (2 - Regular)</option>
+                        <option value="1" th:selected="${miResena != null and miResena.calificacion == 1}">★☆☆☆☆ (1 - Deficiente)</option>
+                    </select>
                 </div>
-                <button type="submit" class="btn-agregar">Añadir al Carrito</button>
+
+                <div class="form-group">
+                    <label for="comentario">Tu comentario:</label>
+                    <textarea name="comentario" id="comentario" rows="3" placeholder="¿Qué te pareció la calidad y el acabado de este vidrio?"
+                              th:text="${miResena != null ? miResena.comentario : ''}"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="ph ph-paper-plane-tilt"></i>
+                    <span th:text="${miResena != null} ? 'Actualizar reseña' : 'Publicar reseña'">Publicar</span>
+                </button>
             </form>
         </div>
-        <div th:unless="${usuarioLogueado}" style="margin-bottom:20px;">
-            <a href="/login" class="btn-agregar" style="display:block; text-align:center; text-decoration:none; background:var(--bg-tertiary); color:var(--text-muted); border:1px dashed var(--border-color);">🔒 Inicia sesión para comprar</a>
-        </div>
 
-        <div class="especificaciones info-box">
-            <h3 style="margin-top:0;">Ficha Técnica</h3>
-            <ul>
-                <li th:text="'Tipo: ' + ${producto.tipo}"></li>
-                <li th:text="'Dimensiones: ' + ${producto.ancho} + 'x' + ${producto.alto} + ' cm'"></li>
-                <li th:text="'Espesor: ' + ${producto.espesor} + ' mm'"></li>
-            </ul>
-        </div>
-    </div>
-</section>
-
-<section class="resenas-section">
-    <div class="resenas-header">
-        <div class="promedio-box">
-            <div class="promedio-valor" th:text="${promedioCalificacion}">0.0</div>
-            <div class="estrellas" th:text="${estrellasPromedio}">☆☆☆☆☆</div>
-        </div>
-        <div>
-            <h3 style="margin:0;">Opiniones de clientes</h3>
-            <p style="margin:4px 0 0; color:var(--text-muted); font-size:0.9rem;"
-               th:text="${#lists.size(resenas)} + ' reseña(s)'">0 reseñas</p>
-        </div>
-    </div>
-
-    <div class="resena-card card-panel" th:each="r : ${resenas}">
-        <div class="resena-header">
-            <span class="resena-autor" th:text="${r.nombreUsuario}">Cliente</span>
-            <span class="estrellas" th:text="${r.estrellas}"></span>
-        </div>
-        <p th:text="${r.comentario}"></p>
-        <span class="resena-fecha" th:text="${#temporals.format(r.fecha, 'dd/MM/yyyy')}"></span>
-    </div>
-
-    <div th:if="${#lists.isEmpty(resenas)}" style="color:var(--text-muted); padding: 10px 0;">
-        Todavía no hay reseñas para este producto. ¡Sé el primero en opinar!
-    </div>
-
-    <div class="form-resena card-panel" th:if="${usuarioLogueado}">
-        <h4 style="margin:0 0 5px;" th:text="${miResena != null} ? 'Actualiza tu reseña' : 'Deja tu reseña'"></h4>
-        <form th:action="@{/detalle/{id}/resenas(id=${producto.id})}" method="post">
-            <select name="calificacion">
-                <option value="5" th:selected="${miResena != null and miResena.calificacion == 5}">★★★★★ (5)</option>
-                <option value="4" th:selected="${miResena != null and miResena.calificacion == 4}">★★★★☆ (4)</option>
-                <option value="3" th:selected="${miResena == null or miResena.calificacion == 3}">★★★☆☆ (3)</option>
-                <option value="2" th:selected="${miResena != null and miResena.calificacion == 2}">★★☆☆☆ (2)</option>
-                <option value="1" th:selected="${miResena != null and miResena.calificacion == 1}">★☆☆☆☆ (1)</option>
-            </select>
-            <textarea name="comentario" rows="3" placeholder="¿Qué te pareció este producto?"
-                      th:text="${miResena != null ? miResena.comentario : ''}"></textarea>
-            <button type="submit" th:text="${miResena != null} ? 'Actualizar reseña' : 'Publicar reseña'"></button>
-        </form>
-    </div>
-    <p th:unless="${usuarioLogueado}" style="color:var(--text-muted);">
-        <a href="/login" style="color:var(--color-accent);">Inicia sesión</a> para dejar tu reseña.
-    </p>
-</section>
+        <p th:unless="${usuarioLogueado}" style="color: var(--text-muted); margin-top: 20px;">
+            <a th:href="@{/login}" style="color: var(--color-accent); font-weight: 600;">Inicia sesión</a> para dejar tu opinión sobre este producto.
+        </p>
+    </section>
+</main>
 
 <script>
     function cambiarCantidad(valor) {
         const input = document.getElementById('cantidad');
-        let actual = parseInt(input.value);
+        if (!input) return;
+        let actual = parseInt(input.value) || 1;
         if (actual + valor >= 1) {
             input.value = actual + valor;
         }
