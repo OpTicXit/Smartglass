@@ -1,0 +1,332 @@
+/* =========================================================
+   SMARTGLASS ADMIN - estilos propios del panel /admin/*
+   Se apoya en las variables de theme.css (paleta, sombras,
+   inputs) y NO lo modifica. Aca solo viven:
+     1) tokens que el catalogo publico no necesita (colores
+        de estado para badges/flashes, un slate mas apagado
+        para headers/etiquetas, y la profundidad de tarjeta
+        propia del admin)
+     2) los componentes que antes estaban copiados y pegados
+        en el <style> de cada una de las 6 vistas (navbar,
+        tarjetas KPI, tablas, badges, botones de fila, etc.)
+========================================================= */
+
+:root {
+  /* Colores de estado -- no existen en theme.css porque la tienda
+     publica no maneja pedidos/roles. PENDIENTE=warning,
+     PROCESANDO=info, ENVIADO=violet, ENTREGADO=success,
+     CANCELADO=error; el mismo set sirve para el rol de usuario. */
+  --color-success: #34D399;
+  --color-success-dim: rgba(52, 211, 153, 0.14);
+  --color-warning: #FBBF24;
+  --color-warning-dim: rgba(251, 191, 36, 0.14);
+  --color-error: #F87171;
+  --color-error-dim: rgba(248, 113, 113, 0.14);
+  --color-info: #60A5FA;
+  --color-info-dim: rgba(96, 165, 250, 0.14);
+  --color-violet: #A78BFA;
+  --color-violet-dim: rgba(167, 139, 250, 0.14);
+  --color-neutral: #94A3B8;
+  --color-neutral-dim: rgba(148, 163, 184, 0.12);
+
+  /* Slate para headers de tabla y etiquetas secundarias -- mas
+     apagado que --text-muted para que nunca compita con el dato. */
+  --text-label: rgba(148, 163, 184, 0.75);
+
+  /* Profundidad propia de las tarjetas del admin (KPIs, formularios,
+     ficha de usuario) -- un tono apenas mas claro que bg-primary. */
+  --admin-card-border: rgba(255, 255, 255, 0.06);
+  --admin-shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.4), 0 2px 8px -2px rgba(0, 0, 0, 0.3);
+}
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 40px;
+  background: rgba(13, 20, 42, 0.72);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+  color: var(--color-accent);
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.nav-links { display: flex; gap: 4px; }
+
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: transparent;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.nav-links a:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: transparent;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.btn-volver:hover { border-color: var(--border-hover); color: var(--color-accent); }
+
+/* =========================================================
+   CONTENEDOR Y TITULO
+========================================================= */
+.container { max-width: 1200px; margin: 40px auto; padding: 0 24px; }
+.container-narrow { max-width: 1000px; }
+.container-sm { max-width: 500px; }
+
+.admin-title { font-size: 1.6rem; font-weight: 700; color: var(--text-main); margin: 24px 0 28px; }
+
+/* =========================================================
+   TARJETAS KPI (dashboard)
+   .stat-box conserva la clase card-panel de theme.css (glass +
+   luz de cursor); aca solo se afina radio, profundidad y
+   tipografia, y se le da a cada tarjeta un acento de color
+   distinto segun lo que representa, en vez de dejarlas todas
+   identicas.
+========================================================= */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 18px;
+  margin: 8px 0 40px;
+}
+
+.stat-box {
+  border-radius: 16px;
+  border-color: var(--admin-card-border);
+  box-shadow: var(--admin-shadow-card);
+  padding: 22px 24px;
+}
+
+.stat-box:nth-child(1) { border-top-color: var(--color-success); border-top-width: 3px; }
+.stat-box:nth-child(2) { border-top-color: var(--color-info); border-top-width: 3px; }
+.stat-box:nth-child(3) { border-top-color: var(--color-warning); border-top-width: 3px; }
+.stat-box:nth-child(4) { border-top-color: var(--color-violet); border-top-width: 3px; }
+.stat-box:nth-child(5) { border-top-color: var(--color-accent); border-top-width: 3px; }
+.stat-box:nth-child(6) { border-top-color: var(--color-neutral); border-top-width: 3px; }
+
+.stat-box .value {
+  display: block;
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.stat-box .label {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-label);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* =========================================================
+   TABLAS DE DATOS
+========================================================= */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid var(--admin-card-border);
+  background: var(--bg-secondary);
+}
+
+table.table-admin { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+
+.table-admin th {
+  text-align: left;
+  padding: 14px 20px;
+  color: var(--text-label);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-bottom: 1px solid var(--admin-card-border);
+  white-space: nowrap;
+}
+
+.table-admin td {
+  padding: 16px 20px;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+
+.table-admin tbody tr:last-child td { border-bottom: none; }
+.table-admin tbody tr { transition: background-color 0.15s ease; }
+.table-admin tbody tr:hover td { background-color: rgba(255, 255, 255, 0.025); }
+
+.table-admin td.td-strong { color: var(--text-main); font-weight: 600; }
+.table-admin td img { width: 46px; height: 46px; object-fit: cover; border-radius: 8px; background: var(--bg-tertiary); }
+
+/* Select compacto dentro de una fila de tabla (cambiar estado) */
+.estado-form { display: flex; gap: 8px; align-items: center; }
+.estado-form select { padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; width: auto; min-width: 130px; }
+.estado-form button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--color-accent);
+  color: var(--bg-primary);
+  font-weight: 600;
+  font-size: 0.8rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.estado-form button:hover { background: var(--color-accent-hover); }
+
+/* =========================================================
+   BADGES (estados de pedido, roles de usuario)
+========================================================= */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-warning { background: var(--color-warning-dim); color: var(--color-warning); }
+.badge-info    { background: var(--color-info-dim); color: var(--color-info); }
+.badge-violet  { background: var(--color-violet-dim); color: var(--color-violet); }
+.badge-success { background: var(--color-success-dim); color: var(--color-success); }
+.badge-error   { background: var(--color-error-dim); color: var(--color-error); }
+.badge-neutral { background: var(--color-neutral-dim); color: var(--color-neutral); }
+
+/* =========================================================
+   BOTONES / ENLACES DE ACCION EN FILA
+========================================================= */
+.btn-eliminar {
+  padding: 7px 16px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: var(--color-error);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.btn-eliminar:hover { background: var(--color-error-dim); border-color: var(--color-error); }
+
+a.ver {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+a.ver:hover { border-color: var(--border-hover); color: var(--color-accent); background: var(--color-accent-dim); }
+
+.btn-crear {
+  padding: 12px 28px;
+  background: var(--color-accent);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-crear:hover { background: var(--color-accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-glow); }
+
+.btn-guardar {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--color-accent);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.btn-guardar:hover { background: var(--color-accent-hover); transform: translateY(-1px); }
+
+/* =========================================================
+   ALERTAS (flash)
+========================================================= */
+.flash {
+  padding: 12px 18px;
+  border-radius: 10px;
+  margin: 20px 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: var(--color-success-dim);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: var(--color-success);
+}
+
+/* =========================================================
+   TARJETA "crear producto" (productos.html)
+   No se convierte a card-panel a proposito: envuelve un
+   formulario activo, y el hover-lift + luz de cursor se
+   sentiria como temblor mientras se completan los campos.
+========================================================= */
+.card-form {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--admin-card-border);
+  border-radius: 16px;
+  box-shadow: var(--admin-shadow-card);
+  padding: 28px;
+}
+.card-form h2 { color: var(--text-main); font-size: 1.15rem; }
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.form-row label { display: block; margin-bottom: 6px; color: var(--text-label); font-size: 0.85rem; }
+
+/* =========================================================
+   TARJETA de ficha de usuario (usuario-detalle.html)
+   Mismo criterio que .card-form: contiene el formulario de
+   cambio de rol, por eso tampoco es card-panel.
+========================================================= */
+.card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--admin-card-border);
+  border-radius: 16px;
+  box-shadow: var(--admin-shadow-card);
+  padding: 26px;
+}
+.card h2 { margin-top: 0; color: var(--color-accent); font-size: 1.25rem; }
+.card .row { display: flex; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+.card .row:last-of-type { border-bottom: none; }
+.card .row span:first-child { color: var(--text-label); font-size: 0.85rem; }
+/* :not(.badge) evita que esta regla le gane en especificidad al
+   color propio del badge de rol que va en el ultimo span */
+.card .row span:last-child:not(.badge) { color: var(--text-main); font-weight: 600; }
+.card .field { margin-top: 22px; }
+.card .field label { display: block; color: var(--text-label); font-size: 0.85rem; margin-bottom: 8px; }

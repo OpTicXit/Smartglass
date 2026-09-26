@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<nav th:fragment="navbar" class="navbar">
+    <a th:href="@{/admin/dashboard}" class="logo">◆ SmartGlass Admin</a>
+    <div class="nav-links">
+        <a th:href="@{/admin/usuarios}">Usuarios</a>
+        <a th:href="@{/admin/pedidos}">Pedidos</a>
+        <a th:href="@{/admin/productos}">Catálogo</a>
+        <a th:href="@{/admin/resenas}">Reseñas</a>
+        <a th:href="@{/logout}" style="border:1px dashed var(--border-color); background:transparent;">Salir</a>
+    </div>
+</nav>
+
+<!-- Parametrizado porque el destino y el texto cambian segun la pagina
+     (la mayoria vuelve a /admin/dashboard, pero usuario-detalle.html
+     vuelve a /admin/usuarios y dashboard.html vuelve a /catalogo). -->
+<a th:fragment="volver(destino, texto)" th:href="@{${destino}}" class="btn-volver">
+    <span>&larr;</span> <span th:text="${texto}">Volver</span>
+</a>
+
+</body>
+</html>

@@ -81,8 +81,14 @@ public class TiendaController {
     public String agregarResena(@PathVariable String id,
                                  @RequestParam int calificacion,
                                  @RequestParam(required = false) String comentario,
-                                 @ModelAttribute("usuario") Usuario usuario,
+                                 @ModelAttribute(value = "usuario", binding = false) Usuario usuario,
                                  RedirectAttributes ra) {
+        if (usuario == null) {
+            ra.addFlashAttribute("mensaje", "Debes iniciar sesión para publicar una reseña.");
+            ra.addFlashAttribute("tipoMensaje", "error");
+            return "redirect:/login";
+        }
+
         try {
             resenaService.crearOActualizar(id, usuario.getId(), usuario.getNombre(), calificacion, comentario);
             ra.addFlashAttribute("mensaje", "¡Gracias por tu reseña!");
