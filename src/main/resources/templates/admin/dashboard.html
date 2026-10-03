@@ -8,13 +8,18 @@
 </head>
 <body>
 
-<div th:replace="~{admin/fragments/nav :: navbar}"></div>
+<!-- 1. Insertamos el Navbar dinámico -->
+<nav th:replace="~{admin/fragments/nav :: navbar}"></nav>
 
 <div class="container">
-    <div th:replace="~{admin/fragments/nav :: volver(destino='/catalogo', texto='Volver a la tienda')}"></div>
-
+    
+    <!-- Título principal -->
     <h1 class="admin-title">Panel de administración</h1>
 
+    <!-- Alerta de éxito (si viene de cambiar un rol o estado) -->
+    <div th:if="${mensaje}" class="flash" th:text="${mensaje}"></div>
+
+    <!-- 2. Grid de KPIs (Estadísticas) -->
     <div class="stats-grid">
         <div class="stat-box card-panel">
             <span class="value" th:text="'$ ' + ${#numbers.formatDecimal(stats.ingresos, 1, 'POINT', 0, 'COMMA')}"></span>
@@ -42,19 +47,32 @@
         </div>
     </div>
 
+    <!-- 3. Tabla de Últimos Pedidos -->
     <h3 style="color: var(--text-main); margin-bottom: 16px;">Últimos pedidos</h3>
     <div class="table-wrap">
         <table class="table-admin">
-            <thead><tr><th>Factura</th><th>Estado</th><th>Total</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Factura</th>
+                    <th>Estado</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr th:each="pedido : ${stats.pedidos}">
                     <td class="td-strong" th:text="${pedido.numeroFactura}"></td>
                     <td>
                         <span class="badge"
-                              th:classappend="${pedido.estado == 'PENDIENTE'} ? 'badge-warning' : (${pedido.estado == 'PROCESANDO'} ? 'badge-info' : (${pedido.estado == 'ENVIADO'} ? 'badge-violet' : (${pedido.estado == 'ENTREGADO'} ? 'badge-success' : 'badge-error')))"
+                              th:classappend="${pedido.estado == 'PENDIENTE'} ? 'badge-warning' : 
+                                              (${pedido.estado == 'PROCESANDO'} ? 'badge-info' : 
+                                              (${pedido.estado == 'ENVIADO'} ? 'badge-violet' : 
+                                              (${pedido.estado == 'ENTREGADO'} ? 'badge-success' : 'badge-error')))"
                               th:text="${pedido.estado}"></span>
                     </td>
                     <td th:text="${pedido.totalFormateado}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(stats.pedidos)}">
+                    <td colspan="3" style="text-align: center; padding: 20px;">No hay pedidos recientes.</td>
                 </tr>
             </tbody>
         </table>

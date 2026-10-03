@@ -133,28 +133,7 @@
 </head>
 <body>
 
-<nav class="navbar">
-    <a th:href="@{${usuarioLogueado} ? '/usuario' : '/home'}" class="logo">
-        <img src="/img/logo-icono.png" alt="Icono" th:src="@{/img/logo-icono.png}"> SmartGlass
-    </a>
-    <ul class="nav-links">
-        <li><a th:href="@{/home}">Inicio</a></li>
-        <li><a th:href="@{/catalogo}">Catálogo</a></li>
-        <li><a th:href="@{/destacados}">Destacados</a></li>
-        <li><a th:href="@{/vidrio-personalizado/cotizar}">Vidrio Personalizado</a></li>
-        <li><a th:href="@{/acerca}">Acerca de</a></li>
-    </ul>
-    <div class="nav-acciones">
-        <a th:href="@{/carrito}" class="nav-icono sg-magnetico">
-            <i class="ph ph-shopping-cart"></i>
-            <span th:if="${usuarioLogueado and cantidadCarrito != null and cantidadCarrito > 0}" 
-                  th:text="${cantidadCarrito}" 
-                  style="font-size:0.75rem; background:var(--color-accent); color:white; border-radius:10px; padding:2px 6px; margin-left:2px; vertical-align:top;">0</span>
-        </a>
-        <a th:href="@{${usuarioLogueado} ? '/usuario' : '/login'}" class="btn-nav-cta sg-magnetico"
-           th:text="${usuarioLogueado} ? 'Mi cuenta' : 'Iniciar sesión'">Iniciar sesión</a>
-    </div>
-</nav>
+<nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
 <main class="container">
     <a th:href="@{/catalogo}" class="nav-back">

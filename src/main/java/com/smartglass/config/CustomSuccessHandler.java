@@ -3,7 +3,7 @@ package com.smartglass.config;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -13,18 +13,16 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Set;
+import java.net.URI;
 
 /**
- * AJUSTE: antes redirigia siempre a una pagina fija segun el rol, lo
- * que rompia el flujo de "visitante intenta agregar al carrito ->
- * Spring Security lo manda a /login -> despues de loguearse pierde
- * la accion". Ahora primero revisa si Spring Security guardo una
- * peticion original (RequestCache, ya activo por defecto en la
- * cadena de filtros) -- si existe, vuelve ahi para retomar justo lo
- * que el usuario estaba haciendo (incluye POSTs como /carrito/agregar,
- * no solo navegacion GET). Si no hay peticion guardada (login normal
- * desde /login), cae al comportamiento anterior por rol.
+ * CustomSuccessHandler corregido.
+ *
+ * Mejoras:
+ * - Si hay una peticion guardada, intenta retomarla.
+ * - Evita redirigir a /logout o /login despues de autenticar.
+ * - Si un usuario sin rol ADMIN intenta volver a una ruta admin guardada,
+ *   se manda al dashboard de usuario normal.
  */
 @Component
 public class CustomSuccessHandler implements AuthenticationSuccessHandler {
@@ -33,21 +31,60 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-        Authentication authentication) throws IOException {
+    public void onAuthenticationSuccess(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication
+    ) throws IOException {
 
         SavedRequest savedRequest = requestCache.getRequest(request, response);
+
+        String targetUrl = determineTargetUrl(savedRequest, authentication);
+
+        redirectStrategy.sendRedirect(request, response, targetUrl);
+    }
+
+    private String determineTargetUrl(SavedRequest savedRequest, Authentication authentication) {
+        boolean isAdmin = hasAuthority(authentication, "ROLE_ADMIN");
+
         if (savedRequest != null) {
-            redirectStrategy.sendRedirect(request, response, savedRequest.getRedirectUrl());
-            return;
+            String redirectUrl = savedRequest.getRedirectUrl();
+            String path = extractPath(redirectUrl);
+
+            if (path != null && !path.contains("/logout") && !path.contains("/login")) {
+
+                // Si la peticion guardada era admin pero el usuario no es admin,
+                // no se le permite volver ahi.
+                if (path.contains("/admin") && !isAdmin) {
+                    return "/usuario";
+                }
+
+                return redirectUrl;
+            }
         }
 
-        Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+        return isAdmin ? "/admin/dashboard" : "/usuario";
+    }
 
-        if (roles.contains("ROLE_ADMIN")) {
-            redirectStrategy.sendRedirect(request, response, "/admin/dashboard");
-        } else {
-            redirectStrategy.sendRedirect(request, response, "/usuario");
+    private String extractPath(String url) {
+        if (url == null || url.isBlank()) {
+            return null;
         }
+
+        try {
+            return URI.create(url).getPath();
+        } catch (IllegalArgumentException ex) {
+            return url;
+        }
+    }
+
+    private boolean hasAuthority(Authentication authentication, String authority) {
+        if (authentication == null || authentication.getAuthorities() == null) {
+            return false;
+        }
+
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(a -> authority.equals(a));
     }
 }

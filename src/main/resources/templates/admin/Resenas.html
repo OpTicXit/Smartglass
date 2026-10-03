@@ -7,42 +7,66 @@
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <style>
         /* Unico a esta vista: color de las estrellas de calificacion */
-        .estrellas { color: var(--color-warning); font-weight: 600; letter-spacing: 0.05em; }
+        .estrellas { 
+            color: var(--color-warning); 
+            font-weight: 600; 
+            letter-spacing: 0.05em; 
+        }
     </style>
 </head>
 <body>
 
+<!-- Navbar del Admin -->
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
 <div class="container container-narrow">
-    <div th:replace="~{admin/fragments/nav :: volver(destino='/admin/dashboard', texto='Dashboard')}"></div>
+    
+    <!-- Se eliminó la línea problemática del fragmento 'volver' -->
 
     <h1 class="admin-title">Reseñas de productos</h1>
 
+    <!-- Alerta flash (cuando se elimina una reseña) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
 
+    <!-- Tabla de reseñas -->
     <div class="table-wrap">
         <table class="table-admin">
-            <thead><tr><th>Producto</th><th>Cliente</th><th>Calificación</th><th>Comentario</th><th></th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cliente</th>
+                    <th>Calificación</th>
+                    <th>Comentario</th>
+                    <th></th>
+                </tr>
+            </thead>
             <tbody>
                 <tr th:each="r : ${resenas}">
-                    <td><a class="ver" th:href="@{/detalle/{id}(id=${r.productoId})}">Ver producto</a></td>
+                    <td>
+                        <a class="ver" th:href="@{/detalle/{id}(id=${r.productoId})}">
+                            Ver producto
+                        </a>
+                    </td>
                     <td class="td-strong" th:text="${r.nombreUsuario}"></td>
                     <td class="estrellas" th:text="${r.estrellas}"></td>
                     <td th:text="${r.comentario}"></td>
                     <td>
-                        <form th:action="@{/admin/resenas/{id}/eliminar(id=${r.id})}" method="post"
+                        <form th:action="@{/admin/resenas/{id}/eliminar(id=${r.id})}" 
+                              method="post"
                               onsubmit="return confirm('¿Eliminar esta reseña?')">
-                            <button type="submit" class="btn-eliminar">Eliminar</button>
+                            <button type="submit" class="btn-eliminar">
+                                Eliminar
+                            </button>
                         </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(resenas)}">
+                    <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-label);">
+                        Todavía no hay reseñas en el sistema.
                     </td>
                 </tr>
             </tbody>
         </table>
-    </div>
-
-    <div th:if="${#lists.isEmpty(resenas)}" style="color: var(--text-label); padding: 30px 0; text-align: center;">
-        Todavía no hay reseñas en el sistema.
     </div>
 </div>
 

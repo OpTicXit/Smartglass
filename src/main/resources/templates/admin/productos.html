@@ -8,46 +8,83 @@
 </head>
 <body>
 
+<!-- Navbar del Admin (Reemplaza el div completo por el fragmento nav) -->
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
 <div class="container">
-    <div th:replace="~{admin/fragments/nav :: volver(destino='/admin/dashboard', texto='Dashboard')}"></div>
+    
+    <!-- Se eliminó la línea problemática del fragmento 'volver' -->
 
     <h1 class="admin-title">Catálogo de productos</h1>
 
+    <!-- Alerta flash (cuando se agrega o elimina un producto) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
 
+    <!-- Tabla de productos existentes -->
     <div class="table-wrap" style="margin-bottom: 40px;">
         <table class="table-admin">
-            <thead><tr><th></th><th>Nombre</th><th>Código</th><th>Tipo</th><th>Precio</th><th></th></tr></thead>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Nombre</th>
+                    <th>Código</th>
+                    <th>Tipo</th>
+                    <th>Precio</th>
+                    <th></th>
+                </tr>
+            </thead>
             <tbody>
                 <tr th:each="p : ${productos}">
-                    <td><img th:src="@{/img/{img}(img=${p.imagen})}" th:alt="${p.nombre}"></td>
+                    <td>
+                        <img th:src="@{/img/{img}(img=${p.imagen})}" 
+                             th:alt="${p.nombre}"
+                             onerror="this.src='/img/vidrio-default.jpg'">
+                    </td>
                     <td class="td-strong" th:text="${p.nombre}"></td>
                     <td th:text="${p.codigo}"></td>
                     <td th:text="${p.tipo}"></td>
                     <td th:text="'$ ' + ${p.precioFormateado}"></td>
                     <td>
-                        <form th:action="@{/admin/productos/{id}/eliminar(id=${p.id})}" method="post"
+                        <form th:action="@{/admin/productos/{id}/eliminar(id=${p.id})}" 
+                              method="post"
                               onsubmit="return confirm('¿Eliminar este producto del catálogo?')">
                             <button type="submit" class="btn-eliminar">Eliminar</button>
                         </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(productos)}">
+                    <td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">
+                        El catálogo está vacío. Agrega el primer producto abajo.
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
 
+    <!-- Formulario para agregar nuevo producto -->
     <div class="card-form">
         <h2>Agregar producto nuevo</h2>
         <form th:action="@{/admin/productos}" method="post">
             <div class="form-row">
-                <div><label>Nombre</label><input type="text" name="nombre" required></div>
-                <div><label>Código</label><input type="text" name="codigo" required></div>
-                <div><label>Imagen (archivo en /img/)</label><input type="text" name="imagen" placeholder="vidrio21.jpg" required></div>
+                <div>
+                    <label>Nombre</label>
+                    <input type="text" name="nombre" required>
+                </div>
+                <div>
+                    <label>Código</label>
+                    <input type="text" name="codigo" required>
+                </div>
+                <div>
+                    <label>Imagen (archivo en /img/)</label>
+                    <input type="text" name="imagen" placeholder="vidrio21.jpg" required>
+                </div>
             </div>
+            
             <div class="form-row">
-                <div><label>Precio (COP)</label><input type="number" name="precio" step="1" required></div>
+                <div>
+                    <label>Precio (COP)</label>
+                    <input type="number" name="precio" step="1" required>
+                </div>
                 <div>
                     <label>Tipo</label>
                     <select name="tipo">
@@ -65,14 +102,29 @@
                     </select>
                 </div>
             </div>
+            
             <div class="form-row">
-                <div><label>Ancho (cm)</label><input type="number" step="0.1" name="ancho"></div>
-                <div><label>Alto (cm)</label><input type="number" step="0.1" name="alto"></div>
-                <div><label>Espesor (mm)</label><input type="number" step="0.1" name="espesor"></div>
+                <div>
+                    <label>Ancho (cm)</label>
+                    <input type="number" step="0.1" name="ancho">
+                </div>
+                <div>
+                    <label>Alto (cm)</label>
+                    <input type="number" step="0.1" name="alto">
+                </div>
+                <div>
+                    <label>Espesor (mm)</label>
+                    <input type="number" step="0.1" name="espesor">
+                </div>
             </div>
+            
             <div class="form-row" style="grid-template-columns: 1fr;">
-                <div><label>Descripción</label><textarea name="descripcion" rows="2"></textarea></div>
+                <div>
+                    <label>Descripción</label>
+                    <textarea name="descripcion" rows="2"></textarea>
+                </div>
             </div>
+            
             <button type="submit" class="btn-crear">Agregar al catálogo</button>
         </form>
     </div>

@@ -8,18 +8,30 @@
 </head>
 <body>
 
+<!-- Navbar del Admin -->
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
 <div class="container container-narrow">
-    <div th:replace="~{admin/fragments/nav :: volver(destino='/admin/dashboard', texto='Dashboard')}"></div>
+    
+    <!-- Se eliminó la línea problemática del fragmento 'volver' -->
 
     <h1 class="admin-title">Usuarios</h1>
 
+    <!-- Alerta flash (cuando se cambia el rol de un usuario) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
 
+    <!-- Tabla de usuarios -->
     <div class="table-wrap">
         <table class="table-admin">
-            <thead><tr><th>Nombre</th><th>Username</th><th>Email</th><th>Rol</th><th></th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th></th>
+                </tr>
+            </thead>
             <tbody>
                 <tr th:each="u : ${usuarios}">
                     <td class="td-strong" th:text="${u.nombre}"></td>
@@ -30,7 +42,16 @@
                               th:classappend="${u.tipoUsuario == 'ROLE_ADMIN'} ? 'badge-violet' : 'badge-neutral'"
                               th:text="${u.tipoUsuario == 'ROLE_ADMIN'} ? 'Administrador' : 'Usuario'"></span>
                     </td>
-                    <td><a class="ver" th:href="@{/admin/usuarios/{id}(id=${u.id})}">Ver / editar</a></td>
+                    <td>
+                        <a class="ver" th:href="@{/admin/usuarios/{id}(id=${u.id})}">
+                            Ver / editar
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(usuarios)}">
+                    <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-label);">
+                        No hay usuarios registrados en el sistema.
+                    </td>
                 </tr>
             </tbody>
         </table>

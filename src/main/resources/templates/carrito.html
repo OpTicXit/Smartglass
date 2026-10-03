@@ -141,25 +141,7 @@
 </head>
 <body>
 
-<nav class="navbar">
-    <a th:href="@{${usuarioLogueado} ? '/usuario' : '/home'}" class="logo">
-        <img src="/img/logo-icono.png" alt="Icono" th:src="@{/img/logo-icono.png}"> SmartGlass
-    </a>
-    <ul class="nav-links">
-        <li><a th:href="@{/home}">Inicio</a></li>
-        <li><a th:href="@{/catalogo}">Catálogo</a></li>
-        <li><a th:href="@{/destacados}">Destacados</a></li>
-        <li><a th:href="@{/vidrio-personalizado/cotizar}">Vidrio Personalizado</a></li>
-        <li><a th:href="@{/acerca}">Acerca de</a></li>
-    </ul>
-    <div class="nav-acciones">
-        <a th:href="@{/carrito}" class="nav-icono sg-magnetico activo">
-            <i class="ph ph-shopping-cart"></i>
-        </a>
-        <a th:href="@{${usuarioLogueado} ? '/usuario' : '/login'}" class="btn-nav-cta sg-magnetico"
-           th:text="${usuarioLogueado} ? 'Mi cuenta' : 'Iniciar sesión'">Iniciar sesión</a>
-    </div>
-</nav>
+<nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
 <main class="container">
     <header class="carrito-header">

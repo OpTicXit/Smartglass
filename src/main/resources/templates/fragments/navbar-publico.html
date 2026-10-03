@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<nav th:fragment="navbar-publico"
+     id="smartglass-navbar"
+     th:with="auth=${autenticado != null ? autenticado : (usuarioLogueado != null and usuarioLogueado)},
+              admin=${esAdmin != null ? esAdmin : false},
+              cartCount=${cantidadCarrito != null ? cantidadCarrito : 0}"
+     class="navbar">
+
+    <!-- ESTILOS DINÁMICOS LOCALES (Viajan con el fragmento) -->
+    <style>
+        /* 1. Animación de entrada */
+        #smartglass-navbar {
+            animation: navbarSlideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+        }
+        @keyframes navbarSlideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* 2. Efecto al hacer scroll */
+        #smartglass-navbar.scrolled {
+            background: rgba(7, 11, 25, 0.95) !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            padding: 10px 40px;
+        }
+
+        /* 3. Subrayado animado en links */
+        #smartglass-navbar .nav-links a {
+            position: relative;
+        }
+        #smartglass-navbar .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--color-accent);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            box-shadow: 0 0 8px var(--color-accent);
+        }
+        #smartglass-navbar .nav-links a:hover::after {
+            width: 80%;
+        }
+
+        /* 4. Interacción con el Carrito */
+        #smartglass-navbar .nav-icono {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: inline-block;
+        }
+        #smartglass-navbar .nav-icono:hover {
+            transform: scale(1.2) rotate(-15deg);
+        }
+
+        /* 5. Efecto "Shine" en botones CTA */
+        #smartglass-navbar .btn-nav-cta, 
+        #smartglass-navbar .nav-acciones > a:not(.nav-icono) {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        #smartglass-navbar .btn-nav-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.6s ease;
+        }
+        #smartglass-navbar .btn-nav-cta:hover::before {
+            left: 100%;
+        }
+        
+        /* 6. Botón Hamburguesa (Móvil) */
+        .navbar-toggle {
+            display: none;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .navbar-toggle:hover {
+            background: var(--color-accent-dim);
+            border-color: var(--color-accent);
+        }
+
+        /* 7. Responsive */
+        @media (max-width: 950px) {
+            #smartglass-navbar {
+                flex-wrap: wrap;
+            }
+            .navbar-toggle { 
+                display: block; 
+                order: 2;
+            }
+            #smartglass-navbar .nav-links,
+            #smartglass-navbar .nav-acciones {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                padding: 20px 0 10px;
+                order: 3;
+            }
+            #smartglass-navbar.mobile-open .nav-links,
+            #smartglass-navbar.mobile-open .nav-acciones {
+                display: flex;
+                animation: mobileMenuFade 0.3s ease forwards;
+            }
+            @keyframes mobileMenuFade {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            #smartglass-navbar .nav-acciones {
+                border-top: 1px solid var(--border-color);
+                padding-top: 15px;
+            }
+        }
+    </style>
+
+    <a th:href="@{/home}" class="logo">
+        <img th:src="@{/img/logo-icono.png}" alt="SmartGlass"/>
+        SmartGlass
+    </a>
+
+    <!-- Botón Móvil -->
+    <button class="navbar-toggle" aria-label="Abrir menú">
+        ☰
+    </button>
+
+    <ul class="nav-links">
+        <li><a th:href="@{/home}">Inicio</a></li>
+        <li><a th:href="@{/catalogo}">Catálogo</a></li>
+        <li><a th:href="@{/destacados}">Destacados</a></li>
+        <li><a th:href="@{/vidrio-personalizado/cotizar}">Vidrio Personalizado</a></li>
+        <li><a th:href="@{/acerca}">Acerca de</a></li>
+    </ul>
+
+    <div class="nav-acciones">
+        <!-- Carrito -->
+        <a th:href="@{/carrito}" class="nav-icono" title="Carrito">
+            🛒
+            <span class="cart-count" th:text="${cartCount}" style="font-size: 0.75rem; margin-left: 4px; font-weight: bold; color: var(--color-accent);">0</span>
+        </a>
+
+        <!-- No autenticado -->
+        <a th:if="${!auth}" th:href="@{/login}" class="btn-nav-cta">
+            Iniciar sesión
+        </a>
+        
+        <!-- Administrador (Gradiente especial) -->
+        <a th:if="${auth and admin}" th:href="@{/admin/dashboard}" class="btn-nav-cta" style="background: linear-gradient(135deg, #8B5CF6, #3B82F6); box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);">
+            ⚡ Panel Admin
+        </a>
+
+        <!-- Mi Cuenta (Si es admin, se vuelve secundario para no saturar) -->
+        <a th:if="${auth}" th:href="@{/usuario}" class="btn-nav-cta" th:style="${admin} ? 'background: transparent; border: 1px solid var(--border-color); box-shadow: none;' : ''">
+            Mi cuenta
+        </a>
+
+        <!-- Salir -->
+        <a th:if="${auth}" th:href="@{/logout}" style="color: var(--text-muted); font-size: 0.9rem; margin-left: 10px;">
+            Salir
+        </a>
+    </div>
+
+    <!-- JAVASCRIPT DINÁMICO LOCAL -->
+    <script>
+        (function() {
+            const navbar = document.getElementById('smartglass-navbar');
+            if (!navbar) return;
+
+            // 1. Efecto de scroll (cambia fondo y tamaño)
+            const handleScroll = () => {
+                if (window.scrollY > 40) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            };
+            window.addEventListener('scroll', handleScroll, { passive: true });
+
+            // 2. Menú móvil (hamburguesa)
+            const toggleBtn = navbar.querySelector('.navbar-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    navbar.classList.toggle('mobile-open');
+                    toggleBtn.textContent = navbar.classList.contains('mobile-open') ? '✕' : '☰';
+                });
+            }
+            
+            // 3. Cerrar menú móvil al hacer clic en un enlace
+            const links = navbar.querySelectorAll('.nav-links a, .nav-acciones a');
+            links.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (navbar.classList.contains('mobile-open')) {
+                        navbar.classList.remove('mobile-open');
+                        if (toggleBtn) toggleBtn.textContent = '☰';
+                    }
+                });
+            });
+        })();
+    </script>
+
+</nav>
+
+</body>
+</html>

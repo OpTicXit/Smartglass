@@ -2,23 +2,202 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<nav th:fragment="navbar" class="navbar">
-    <a th:href="@{/admin/dashboard}" class="logo">◆ SmartGlass Admin</a>
+<nav th:fragment="navbar"
+     id="admin-navbar"
+     class="navbar">
+
+    <!-- Mejoras visuales dinámicas (Scroll, Responsive, Animaciones) -->
+    <style>
+        #admin-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: adminNavSlideDown 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+        }
+
+        @keyframes adminNavSlideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        #admin-navbar.scrolled {
+            background: rgba(13, 20, 42, 0.96) !important;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+            padding: 10px 40px;
+        }
+
+        #admin-navbar .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.25s ease, text-shadow 0.25s ease;
+        }
+
+        #admin-navbar .logo:hover {
+            transform: translateY(-1px);
+            text-shadow: 0 0 18px rgba(59, 130, 246, 0.45);
+        }
+
+        #admin-navbar .nav-links a {
+            position: relative;
+        }
+
+        #admin-navbar .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--color-accent);
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--color-accent);
+        }
+
+        #admin-navbar .nav-links a:hover::after {
+            width: 60%;
+        }
+
+        .admin-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-salir {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #F87171;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: transparent;
+            transition: all 0.25s ease;
+        }
+
+        .btn-salir:hover {
+            background: rgba(248, 113, 113, 0.12);
+            border-color: #F87171;
+            color: #F87171;
+        }
+
+        .admin-toggle {
+            display: none;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 1.15rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .admin-toggle:hover {
+            border-color: var(--border-hover);
+            background: var(--color-accent-dim);
+        }
+
+        @media (max-width: 950px) {
+            #admin-navbar { flex-wrap: wrap; }
+            .admin-toggle { display: block; order: 2; }
+            
+            #admin-navbar .nav-links,
+            #admin-navbar .admin-actions {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 16px 0 10px;
+                order: 3;
+            }
+            
+            #admin-navbar.mobile-open .nav-links,
+            #admin-navbar.mobile-open .admin-actions {
+                display: flex;
+                animation: adminMobileFade 0.3s ease forwards;
+            }
+            
+            #admin-navbar .admin-actions {
+                border-top: 1px solid var(--border-color);
+                padding-top: 14px;
+            }
+
+            @keyframes adminMobileFade {
+                from { opacity: 0; transform: translateY(-8px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+
+    <a th:href="@{/admin/dashboard}" class="logo">
+        ◆ SmartGlass Admin
+    </a>
+
+    <button class="admin-toggle" aria-label="Abrir menú admin">
+        ☰
+    </button>
+
     <div class="nav-links">
+        <a th:href="@{/admin/dashboard}">Dashboard</a>
         <a th:href="@{/admin/usuarios}">Usuarios</a>
         <a th:href="@{/admin/pedidos}">Pedidos</a>
         <a th:href="@{/admin/productos}">Catálogo</a>
         <a th:href="@{/admin/resenas}">Reseñas</a>
-        <a th:href="@{/logout}" style="border:1px dashed var(--border-color); background:transparent;">Salir</a>
     </div>
-</nav>
 
-<!-- Parametrizado porque el destino y el texto cambian segun la pagina
-     (la mayoria vuelve a /admin/dashboard, pero usuario-detalle.html
-     vuelve a /admin/usuarios y dashboard.html vuelve a /catalogo). -->
-<a th:fragment="volver(destino, texto)" th:href="@{${destino}}" class="btn-volver">
-    <span>&larr;</span> <span th:text="${texto}">Volver</span>
-</a>
+    <div class="admin-actions">
+        <a th:href="@{/home}" class="btn-volver">
+            ← Volver
+        </a>
+
+        <a th:href="@{/logout}" class="btn-salir">
+            Salir
+        </a>
+    </div>
+
+    <script>
+        (function () {
+            const navbar = document.getElementById('admin-navbar');
+            if (!navbar) return;
+
+            const handleScroll = () => {
+                if (window.scrollY > 30) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            };
+            window.addEventListener('scroll', handleScroll, { passive: true });
+
+            const toggleBtn = navbar.querySelector('.admin-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    navbar.classList.toggle('mobile-open');
+                    toggleBtn.textContent = navbar.classList.contains('mobile-open') ? '✕' : '☰';
+                });
+            }
+
+            const links = navbar.querySelectorAll('.nav-links a, .admin-actions a');
+            links.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (navbar.classList.contains('mobile-open')) {
+                        navbar.classList.remove('mobile-open');
+                        if (toggleBtn) toggleBtn.textContent = '☰';
+                    }
+                });
+            });
+        })();
+    </script>
+
+</nav>
 
 </body>
 </html>

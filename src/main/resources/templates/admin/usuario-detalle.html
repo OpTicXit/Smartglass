@@ -8,18 +8,35 @@
 </head>
 <body>
 
+<!-- Navbar del Admin -->
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
 <div class="container container-sm">
-    <div th:replace="~{admin/fragments/nav :: volver(destino='/admin/usuarios', texto='Usuarios')}"></div>
+    
+    <!-- Se eliminó la línea problemática del fragmento 'volver' -->
 
+    <!-- Alerta flash (cuando se cambia el rol) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}" style="margin-top: 20px;"></div>
 
+    <!-- Ficha del usuario -->
     <div class="card" style="margin-top: 20px;">
         <h2 th:text="${usuario.nombre}"></h2>
-        <div class="row"><span>Username</span><span th:text="${usuario.username}"></span></div>
-        <div class="row"><span>Email</span><span th:text="${usuario.email}"></span></div>
-        <div class="row"><span>Teléfono</span><span th:text="${usuario.telefono}"></span></div>
+        
+        <div class="row">
+            <span>Username</span>
+            <span th:text="${usuario.username}"></span>
+        </div>
+        
+        <div class="row">
+            <span>Email</span>
+            <span th:text="${usuario.email}"></span>
+        </div>
+        
+        <div class="row">
+            <span>Teléfono</span>
+            <span th:text="${usuario.telefono}"></span>
+        </div>
+        
         <div class="row">
             <span>Rol actual</span>
             <span class="badge"
@@ -27,6 +44,7 @@
                   th:text="${usuario.tipoUsuario == 'ROLE_ADMIN'} ? 'Administrador' : 'Usuario'"></span>
         </div>
 
+        <!-- Formulario para cambiar el rol -->
         <form th:action="@{/admin/usuarios/{id}/rol(id=${usuario.id})}" method="post">
             <div class="field">
                 <label for="tipoUsuario">Cambiar rol</label>

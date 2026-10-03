@@ -8,19 +8,25 @@ import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * VERSION AJUSTADA A JJWT 0.12.x: tu pom.xml quedo con esa version
- * (no 0.11.5 como asumi originalmente), que renombro/elimino varios
- * metodos: Jwts.parserBuilder() -> Jwts.parser(); parseClaimsJws()
- * -> parseSignedClaims(); getBody() -> getPayload(); y signWith(Key)
- * ya no necesita el SignatureAlgorithm explicito (lo infiere de la
- * clave). Si prefieres mantener el codigo con la API vieja, fija
- * jjwt a la version 0.11.5 en el pom.xml en vez de usar esta clase.
+ * JwtPorvider corregido.
+ *
+ * Nota:
+ * Se mantiene el nombre JwtPorvider para no romper referencias existentes.
+ *
+ * Mejora:
+ * - Se agrega metodo para generar token incluyendo roles.
+ * - Se mantiene el metodo generateToken(String) por compatibilidad.
  */
 @Component
 public class JwtPorvider {
@@ -38,12 +44,29 @@ public class JwtPorvider {
         this.expirationMs = expirationMs;
     }
 
+    /**
+     * Metodo compatible con el codigo actual.
+     */
     public String generateToken(String username) {
+        return generateToken(username, Collections.emptyList());
+    }
+
+    /**
+     * Metodo recomendado para generar token con roles.
+     */
+    public String generateToken(String username, Collection<? extends GrantedAuthority> authorities) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
 
+        List<String> roles = authorities == null
+                ? Collections.emptyList()
+                : authorities.stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+
         return Jwts.builder()
                 .subject(username)
+                .claim("roles", roles)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(secretKey)
@@ -63,15 +86,18 @@ public class JwtPorvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token);
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token);
+
             return true;
+
         } catch (ExpiredJwtException ex) {
             log.warn("Token JWT expirado: {}", ex.getMessage());
         } catch (JwtException | IllegalArgumentException ex) {
             log.warn("Token JWT invalido: {}", ex.getMessage());
         }
+
         return false;
     }
 }

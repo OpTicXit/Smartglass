@@ -8,18 +8,28 @@
 </head>
 <body>
 
-<div th:replace="~{admin/fragments/nav :: navbar}"></div>
+<!-- Navbar del Admin -->
+<nav th:replace="~{admin/fragments/nav :: navbar}"></nav>
 
 <div class="container">
-    <div th:replace="~{admin/fragments/nav :: volver(destino='/admin/dashboard', texto='Dashboard')}"></div>
-
+    
     <h1 class="admin-title">Pedidos</h1>
 
+    <!-- Alerta flash (cuando se cambia el estado de un pedido) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
 
     <div class="table-wrap">
         <table class="table-admin">
-            <thead><tr><th>Factura</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Total</th><th>Cambiar estado</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Factura</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Total</th>
+                    <th>Cambiar estado</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr th:each="pedido : ${pedidos}">
                     <td class="td-strong" th:text="${pedido.numeroFactura}"></td>
@@ -27,12 +37,17 @@
                     <td th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy')}"></td>
                     <td>
                         <span class="badge"
-                              th:classappend="${pedido.estado == 'PENDIENTE'} ? 'badge-warning' : (${pedido.estado == 'PROCESANDO'} ? 'badge-info' : (${pedido.estado == 'ENVIADO'} ? 'badge-violet' : (${pedido.estado == 'ENTREGADO'} ? 'badge-success' : 'badge-error')))"
+                              th:classappend="${pedido.estado == 'PENDIENTE'} ? 'badge-warning' : 
+                                              (${pedido.estado == 'PROCESANDO'} ? 'badge-info' : 
+                                              (${pedido.estado == 'ENVIADO'} ? 'badge-violet' : 
+                                              (${pedido.estado == 'ENTREGADO'} ? 'badge-success' : 'badge-error')))"
                               th:text="${pedido.estado}"></span>
                     </td>
                     <td th:text="${pedido.totalFormateado}"></td>
                     <td>
-                        <form class="estado-form" th:action="@{/admin/pedidos/{id}/estado(id=${pedido.id})}" method="post">
+                        <form class="estado-form" 
+                              th:action="@{/admin/pedidos/{id}/estado(id=${pedido.id})}" 
+                              method="post">
                             <select name="estado">
                                 <option value="PENDIENTE" th:selected="${pedido.estado == 'PENDIENTE'}">Pendiente</option>
                                 <option value="PROCESANDO" th:selected="${pedido.estado == 'PROCESANDO'}">Procesando</option>
@@ -42,6 +57,11 @@
                             </select>
                             <button type="submit">Guardar</button>
                         </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(pedidos)}">
+                    <td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">
+                        No hay pedidos registrados.
                     </td>
                 </tr>
             </tbody>
