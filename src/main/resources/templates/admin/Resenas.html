@@ -164,6 +164,7 @@
         .rv-tabla td.comentario { min-width: 240px; max-width: 460px; line-height: 1.55; }
         .rv-tabla .estrellas { color: var(--color-warning); font-weight: 600; letter-spacing: 0.05em; white-space: nowrap; }
         .rv-tabla tr.baja td:first-child { box-shadow: inset 3px 0 0 var(--color-error); }
+        .rv-tabla td.fecha { color: var(--text-muted); font-size: 0.85rem; white-space: nowrap; }
         .rv-tabla td.accion { text-align: right; width: 1%; white-space: nowrap; }
 
         .rv-pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; color: var(--text-muted); font-size: 0.85rem; }
@@ -212,6 +213,9 @@
         <div class="dato" th:each="r : ${resenas}" th:attr="data-producto=${r.productoId}">
             <span class="d-usuario" th:text="${r.nombreUsuario}"></span>
             <span class="d-estrellas" th:text="${r.estrellas}"></span>
+            <span class="d-cal" th:text="${r.calificacion}"></span>
+            <span class="d-fecha" th:text="${#temporals.format(r.fecha, 'yyyy-MM-dd HH:mm')}"></span>
+            <span class="d-nombre" th:text="${nombresProducto[r.productoId]}"></span>
             <span class="d-comentario" th:text="${r.comentario}"></span>
             <a class="d-ver" th:href="@{/detalle/{id}(id=${r.productoId})}">Ver</a>
             <form class="d-form" th:action="@{/admin/resenas/{id}/eliminar(id=${r.id})}" method="post"></form>
@@ -225,20 +229,27 @@
 <script>
 (function () {
     var POR_PAGINA = 10;
-    var CLAVE_NOMBRES = 'sg-nombres-producto';
     var CLAVE_SEL = 'sg-resenas-sel';
 
     var app = document.getElementById('rv-app');
 
     /* ---------- Datos ---------- */
+    function texto(el, sel) { var x = el.querySelector(sel); return x ? x.textContent.trim() : ''; }
+
     var datos = Array.prototype.map.call(document.querySelectorAll('#rv-datos .dato'), function (el) {
-        var est = el.querySelector('.d-estrellas').textContent.trim();
+        var est = texto(el, '.d-estrellas');
+        var cal = parseInt(texto(el, '.d-cal'), 10);
+        var fecha = texto(el, '.d-fecha');          // yyyy-MM-dd HH:mm
+        var f = fecha.slice(0, 10).split('-');
         return {
             producto: el.getAttribute('data-producto') || '',
-            usuario: el.querySelector('.d-usuario').textContent.trim(),
+            nombreProducto: texto(el, '.d-nombre'),
+            usuario: texto(el, '.d-usuario'),
             est: est,
-            n: (est.match(/\u2605/g) || []).length,
-            comentario: el.querySelector('.d-comentario').textContent.trim(),
+            n: isNaN(cal) ? (est.match(/\u2605/g) || []).length : cal,
+            comentario: texto(el, '.d-comentario'),
+            fecha: fecha,
+            fechaTxt: f.length === 3 ? f[2] + '/' + f[1] + '/' + f[0] : '',
             ver: el.querySelector('.d-ver').href,
             form: el.querySelector('.d-form')
         };
@@ -249,7 +260,7 @@
     datos.forEach(function (d) {
         var g = porId[d.producto];
         if (!g) {
-            g = porId[d.producto] = { id: d.producto, ver: d.ver, items: [], suma: 0, dist: [0, 0, 0, 0, 0, 0] };
+            g = porId[d.producto] = { id: d.producto, nombre: d.nombreProducto, ver: d.ver, items: [], suma: 0, dist: [0, 0, 0, 0, 0, 0] };
             grupos.push(g);
         }
         g.items.push(d);
@@ -260,43 +271,14 @@
         g.total = g.items.length;
         g.prom = g.total ? g.suma / g.total : 0;
         g.bajas = g.dist[1] + g.dist[2];
+        // mas recientes primero
+        g.items.sort(function (a, b) { return a.fecha < b.fecha ? 1 : (a.fecha > b.fecha ? -1 : 0); });
     });
 
-    /* ---------- Nombres de producto (se leen de la ficha publica y se guardan en la sesion) ---------- */
-    var nombres = {};
-    try { nombres = JSON.parse(sessionStorage.getItem(CLAVE_NOMBRES) || '{}'); } catch (e) { nombres = {}; }
-
     function nombreDe(g) {
+        if (g.nombre) return g.nombre;
         if (!g.id) return 'Sin producto asociado';
-        return nombres[g.id] || ('Producto \u2026' + g.id.slice(-4));
-    }
-
-    function decodificar(s) {
-        var t = document.createElement('textarea');
-        t.innerHTML = s;
-        return t.value;
-    }
-
-    function resolverNombres() {
-        var pend = grupos.filter(function (g) { return g.id && !nombres[g.id]; });
-        var i = 0;
-        function trabajador() {
-            if (i >= pend.length) return Promise.resolve();
-            var g = pend[i++];
-            return fetch(g.ver, { credentials: 'same-origin' })
-                .then(function (r) { return r.ok ? r.text() : ''; })
-                .then(function (html) {
-                    var m = html.match(/<title>\s*SmartGlass\s*-\s*([^<]+?)\s*<\/title>/i);
-                    if (m) {
-                        nombres[g.id] = decodificar(m[1]);
-                        try { sessionStorage.setItem(CLAVE_NOMBRES, JSON.stringify(nombres)); } catch (e) {}
-                        document.querySelectorAll('[data-nombre="' + g.id + '"]').forEach(function (el) { el.textContent = nombres[g.id]; });
-                    }
-                })
-                .catch(function () {})
-                .then(trabajador);
-        }
-        return Promise.all([trabajador(), trabajador(), trabajador(), trabajador(), trabajador()]);
+        return 'Producto eliminado (\u2026' + g.id.slice(-4) + ')';
     }
 
     /* ---------- Utilidades de DOM ---------- */
@@ -400,7 +382,7 @@
 
             cuadricula.replaceChildren.apply(cuadricula, lista.map(function (g) {
                 return h('button', { type: 'button', class: 'rv-card', onclick: function () { abrir(g.id); } },
-                    h('h3', { 'data-nombre': g.id, text: nombreDe(g) }),
+                    h('h3', { text: nombreDe(g) }),
                     h('div', { class: 'rv-meta' },
                         h('span', { class: 'rv-avg', text: estrellas(g.prom) + ' ' + g.prom.toFixed(1) }),
                         h('span', { text: g.total + ' reseña' + (g.total === 1 ? '' : 's') })
@@ -495,7 +477,7 @@
             var pagina = lista.slice(ini, ini + POR_PAGINA);
 
             if (!pagina.length) {
-                cuerpo.replaceChildren(h('tr', null, h('td', { colspan: '4', class: 'rv-empty', text: 'No hay reseñas con ese filtro.' })));
+                cuerpo.replaceChildren(h('tr', null, h('td', { colspan: '5', class: 'rv-empty', text: 'No hay reseñas con ese filtro.' })));
             } else {
                 cuerpo.replaceChildren.apply(cuerpo, pagina.map(function (d) {
                     var f = d.form.cloneNode(true);
@@ -508,6 +490,7 @@
                         h('td', { class: 'td-strong', text: d.usuario }),
                         h('td', { class: 'estrellas', text: d.est }),
                         h('td', { class: 'comentario', text: d.comentario }),
+                        h('td', { class: 'fecha', text: d.fechaTxt }),
                         h('td', { class: 'accion' }, f)
                     );
                 }));
@@ -535,8 +518,8 @@
         app.replaceChildren(
             h('button', { type: 'button', class: 'btn-volver rv-back', onclick: volver, text: '← Todos los productos' }),
             h('div', { class: 'rv-prod-head' },
-                h('h2', { 'data-nombre': g.id, text: nombreDe(g) }),
-                g.id ? h('a', { class: 'ver', href: g.ver, text: 'Ver producto' }) : null
+                h('h2', { text: nombreDe(g) }),
+                g.nombre ? h('a', { class: 'ver', href: g.ver, text: 'Ver producto' }) : null
             ),
             h('div', { class: 'rv-summary' },
                 h('div', null,
@@ -549,7 +532,7 @@
             h('div', { class: 'rv-toolbar' }, buscador, chipEl),
             h('div', { class: 'table-wrap' }, h('table', { class: 'table-admin rv-tabla' },
                 h('thead', null, h('tr', null,
-                    h('th', { text: 'Cliente' }), h('th', { text: 'Calificación' }), h('th', { text: 'Comentario' }), h('th')
+                    h('th', { text: 'Cliente' }), h('th', { text: 'Calificación' }), h('th', { text: 'Comentario' }), h('th', { text: 'Fecha' }), h('th')
                 )),
                 cuerpo
             )),
@@ -571,10 +554,6 @@
     } else {
         ruta(null);
     }
-
-    resolverNombres().then(function () {
-        if (vistaGeneral.repintar && document.querySelector('.rv-grid')) vistaGeneral.repintar();
-    });
 })();
 </script>
 
