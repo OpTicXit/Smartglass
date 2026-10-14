@@ -2,6 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartGlass - Checkout</title>
 
@@ -417,9 +418,26 @@
             display: flex;
             align-items: center;
             gap: 11px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: var(--bg-secondary);
             cursor: pointer;
             color: var(--text-main);
             font-size: 0.82rem;
+        }
+
+        .compensacion-option strong { flex: 1; }
+
+        .compensacion-option:has(input:checked)::before { opacity: 0.7; }
+
+        .chip-premium {
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: var(--color-accent-dim);
+            color: var(--color-accent);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
         }
 
         .compensacion-option input {
@@ -564,7 +582,23 @@
            RESPONSIVE
            ========================= */
 
+        .btn-finalizar:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            transform: none;
+        }
+
+        .btn-finalizar:focus-visible {
+            outline: 3px solid var(--color-accent-hover);
+            outline-offset: 3px;
+        }
+
         @media (max-width: 900px) {
+            .btn-finalizar-resumen,
+            .resumen-pedido .secure-note {
+                display: none;
+            }
+
             .checkout-grid {
                 grid-template-columns: 1fr;
             }
@@ -891,7 +925,7 @@
 
                         </div>
 
-                        <label class="compensacion-option">
+                        <label class="compensacion-option sg-rainbow">
 
                             <input
                                 type="checkbox"
@@ -902,6 +936,8 @@
                             <strong>
                                 Deseo compensar mi huella (+$5.000)
                             </strong>
+
+                            <span class="chip-premium">★ Premium</span>
 
                         </label>
 
@@ -967,11 +1003,19 @@
 
                     <span
                         class="total-amount"
-                        th:text="'$' + ${total}"
+                        th:text="'$ ' + ${#numbers.formatDecimal(total, 1, 'POINT', 0, 'COMMA')}"
                     >
                         $0
                     </span>
 
+                </div>
+
+                <button type="submit" form="formCheckout" class="btn-finalizar btn-finalizar-resumen">
+                    Confirmar y pagar
+                </button>
+
+                <div class="secure-note">
+                    🔒 Pago procesado de forma segura.
                 </div>
 
             </div>
@@ -988,6 +1032,16 @@
         card.addEventListener('click', () => {
             document.querySelectorAll('.metodo-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
+        });
+    });
+</script>
+
+<script>
+    // Evita doble envio del pedido
+    document.getElementById('formCheckout').addEventListener('submit', () => {
+        document.querySelectorAll('.btn-finalizar').forEach(b => {
+            b.disabled = true;
+            b.textContent = 'Procesando pedido...';
         });
     });
 </script>

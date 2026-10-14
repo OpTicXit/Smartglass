@@ -2,11 +2,13 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Comparar Productos</title>
 
     <!-- Ecosistema global -->
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
         /* =========================================================
@@ -242,6 +244,21 @@
             display: grid;
             gap: 0;
             min-width: 720px;
+        }
+
+        /* Cada columna reutiliza las 10 filas del grid padre (subgrid):
+           asi imagen, cabecera y cada fila quedan alineadas entre
+           productos aunque una descripcion sea mas larga que otra. */
+        @supports (grid-template-rows: subgrid) {
+            .comparador-grid {
+                grid-template-rows: repeat(10, auto);
+            }
+
+            .producto-columna {
+                display: grid;
+                grid-row: span 10;
+                grid-template-rows: subgrid;
+            }
         }
 
 

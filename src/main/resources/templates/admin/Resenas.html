@@ -2,7 +2,10 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartGlass - Reseñas (Admin)</title>
+    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <style>
@@ -12,6 +15,11 @@
             font-weight: 600; 
             letter-spacing: 0.05em; 
         }
+
+        .estrellas { white-space: nowrap; }
+        .comentario { min-width: 220px; max-width: 420px; line-height: 1.5; }
+        .admin-title .badge { margin-left: 10px; vertical-align: middle; }
+        .vacio { text-align: center; padding: 36px 20px !important; color: var(--text-label) !important; }
     </style>
 </head>
 <body>
@@ -21,9 +29,10 @@
 
 <div class="container container-narrow">
     
-    <!-- Se eliminó la línea problemática del fragmento 'volver' -->
-
-    <h1 class="admin-title">Reseñas de productos</h1>
+    <h1 class="admin-title">
+        Reseñas de productos
+        <span class="badge badge-neutral" th:text="${#lists.size(resenas)}"></span>
+    </h1>
 
     <!-- Alerta flash (cuando se elimina una reseña) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
@@ -49,7 +58,7 @@
                     </td>
                     <td class="td-strong" th:text="${r.nombreUsuario}"></td>
                     <td class="estrellas" th:text="${r.estrellas}"></td>
-                    <td th:text="${r.comentario}"></td>
+                    <td class="comentario" th:text="${r.comentario}"></td>
                     <td>
                         <form th:action="@{/admin/resenas/{id}/eliminar(id=${r.id})}" 
                               method="post"
@@ -61,7 +70,7 @@
                     </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(resenas)}">
-                    <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-label);">
+                    <td colspan="5" class="vacio">
                         Todavía no hay reseñas en el sistema.
                     </td>
                 </tr>

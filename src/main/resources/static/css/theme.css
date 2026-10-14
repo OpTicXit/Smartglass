@@ -27,6 +27,82 @@
   /* Tipografía */
   --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
   --base-font-size: 16px;
+
+  color-scheme: dark;
+
+  /* Superficies y efectos que cambian entre modo oscuro y claro */
+  --nav-bg: rgba(7, 11, 25, 0.7);
+  --card-bg: rgba(13, 20, 42, 0.6);
+  --card-bg-soft: rgba(13, 20, 42, 0.4);
+  --input-bg: rgba(13, 20, 42, 0.7);
+  --placeholder: rgba(148, 163, 184, 0.4);
+  --grid-line: rgba(255, 255, 255, 0.015);
+  --bg-ambient: radial-gradient(900px 500px at 85% -5%, rgba(59, 130, 246, 0.10), transparent 60%);
+  --surface-hover: rgba(255, 255, 255, 0.025);
+  --shadow-hover: 0 12px 30px -6px rgba(0, 0, 0, 0.8);
+  --scroll-hover: #1E293B;
+
+  /* Estados (faltaban: varias vistas los usaban y quedaban transparentes) */
+  --color-success: #34D399;
+  --color-success-dim: rgba(52, 211, 153, 0.14);
+  --color-warning: #FBBF24;
+  --color-warning-dim: rgba(251, 191, 36, 0.14);
+  --color-info: #60A5FA;
+  --color-info-dim: rgba(96, 165, 250, 0.14);
+  --color-error: #F87171;
+  --color-error-dim: rgba(248, 113, 113, 0.14);
+  --shadow-card: var(--shadow-main);
+  --color-background: var(--bg-primary);
+  --co2-glow-normal: 0 0 28px rgba(52, 211, 153, 0.25);
+}
+
+/* =========================================================
+   MODO CLARO  (se activa con <html data-theme="light">)
+   Selector :root[...] para ganarle en especificidad a cualquier
+   :root de otra hoja (p. ej. admin.css).
+========================================================= */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-primary: #F4F7FD;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #E8EEFA;
+
+  --text-main: #0B1530;
+  --text-muted: #56668A;
+  --text-on-accent: #FFFFFF;
+
+  --color-accent: #2563EB;
+  --color-accent-hover: #1D4ED8;
+  --color-accent-dim: rgba(37, 99, 235, 0.10);
+
+  --border-color: rgba(15, 23, 42, 0.10);
+  --border-hover: rgba(37, 99, 235, 0.45);
+  --shadow-main: 0 10px 30px -12px rgba(30, 58, 138, 0.18), 0 4px 12px -6px rgba(30, 58, 138, 0.10);
+  --shadow-glow: 0 0 22px rgba(37, 99, 235, 0.18);
+
+  --color-success: #047857;
+  --color-success-dim: rgba(4, 120, 87, 0.10);
+  --color-warning: #B45309;
+  --color-warning-dim: rgba(180, 83, 9, 0.10);
+  --color-info: #0369A1;
+  --color-info-dim: rgba(3, 105, 161, 0.10);
+  --color-error: #DC2626;
+  --color-error-dim: rgba(220, 38, 38, 0.10);
+  --co2-glow-normal: 0 0 28px rgba(4, 120, 87, 0.22);
+
+  --nav-bg: rgba(255, 255, 255, 0.78);
+  --card-bg: rgba(255, 255, 255, 0.82);
+  --card-bg-soft: rgba(255, 255, 255, 0.65);
+  --input-bg: #FFFFFF;
+  --placeholder: rgba(86, 102, 138, 0.55);
+  --grid-line: rgba(30, 58, 138, 0.032);
+  --bg-ambient:
+    radial-gradient(900px 520px at 88% -8%, rgba(37, 99, 235, 0.13), transparent 62%),
+    radial-gradient(700px 420px at 4% 6%, rgba(14, 165, 233, 0.09), transparent 60%);
+  --surface-hover: rgba(15, 23, 42, 0.035);
+  --shadow-hover: 0 18px 40px -14px rgba(30, 58, 138, 0.30);
+  --scroll-hover: #C7D2EA;
 }
 
 /* =========================================================
@@ -43,10 +119,11 @@ html, body {
   margin: 0; padding: 0;
   min-height: 100vh;
   /* Efecto de cuadrícula sutil en el fondo global */
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image:
+    var(--bg-ambient),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: auto, 40px 40px, 40px 40px;
 }
 
 h1, h2, h3, h4, h5, h6 { color: var(--text-main); margin-top: 0; font-weight: 600; line-height: 1.2; }
@@ -62,7 +139,7 @@ img { max-width: 100%; height: auto; display: block; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
 ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 5px; }
-::-webkit-scrollbar-thumb:hover { background: #1E293B; }
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-hover); }
 
 /* =========================================================
    NAVBAR COMPONENTE
@@ -71,9 +148,9 @@ img { max-width: 100%; height: auto; display: block; }
   position: sticky; top: 0; z-index: 1000;
   display: flex; align-items: center; justify-content: space-between;
   padding: 15px 40px;
-  background: rgba(7, 11, 25, 0.7);
+  background: var(--nav-bg);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid var(--border-color);
 }
 .navbar .logo { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 700; color: var(--text-main); text-decoration: none; }
 .navbar .logo img { height: 28px; }
@@ -113,8 +190,8 @@ img { max-width: 100%; height: auto; display: block; }
 
 .form-group { margin-bottom: 20px; }
 label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
-input[type="text"], input[type="password"], input[type="email"], input[type="number"], textarea, select {
-  width: 100%; background-color: rgba(13, 20, 42, 0.7); color: var(--text-main);
+input[type="text"], input[type="password"], input[type="email"], input[type="number"], input[type="tel"], textarea, select {
+  width: 100%; background-color: var(--input-bg); color: var(--text-main);
   border: 1px solid var(--border-color); font-family: var(--font-primary);
   border-radius: 8px; padding: 12px 16px; font-size: 0.95rem;
   transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
@@ -124,22 +201,38 @@ input:focus, textarea:focus, select:focus {
   border-color: var(--color-accent); background-color: var(--bg-secondary);
   box-shadow: 0 0 0 3px var(--color-accent-dim); outline: none;
 }
-input::placeholder, textarea::placeholder { color: rgba(148, 163, 184, 0.4); }
+input::placeholder, textarea::placeholder { color: var(--placeholder); }
 
 /* =========================================================
    TARJETAS GLOBALES (Efecto Glassmorphism Dark)
 ========================================================= */
 .card-panel, .producto-card, .info-box, .dashboard-widget {
   position: relative; overflow: hidden;
-  background-color: rgba(13, 20, 42, 0.6); backdrop-filter: blur(12px);
+  background-color: var(--card-bg); backdrop-filter: blur(12px);
   border: 1px solid var(--border-color); border-radius: 12px;
   box-shadow: var(--shadow-main); padding: 24px;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
 }
 .card-panel-hoverable:hover, .producto-card:hover, .info-box:hover {
   border-color: var(--border-hover); transform: translateY(-4px);
-  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.8), var(--shadow-glow);
+  box-shadow: var(--shadow-hover), var(--shadow-glow);
 }
+
+/* .tech-card (detalle de cotizacion) comparte el look de las tarjetas globales */
+.tech-card {
+  position: relative; overflow: hidden;
+  background-color: var(--card-bg); backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color); border-radius: 12px;
+  box-shadow: var(--shadow-main);
+}
+.tech-card::before {
+  content: ""; position: absolute;
+  top: var(--mouse-y, 50%); left: var(--mouse-x, 50%);
+  transform: translate(-50%, -50%); width: 450px; height: 450px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
+}
+.tech-card:hover::before { opacity: 1; }
 
 /* Luz que sigue el cursor (main.js actualiza --mouse-x/--mouse-y en
    mousemove). Antes vivia en el theme.css viejo -- se porta aca con
@@ -199,17 +292,17 @@ a[href="/carrito"], .sg-magnetico {
    TABLAS GLOBALES
 ========================================================= */
 .table-container {
-  overflow-x: auto; background-color: rgba(13, 20, 42, 0.4);
+  overflow-x: auto; background-color: var(--card-bg-soft);
   border-radius: 12px; border: 1px solid var(--border-color);
 }
 table { width: 100%; border-collapse: collapse; text-align: left; }
 th, td { padding: 16px; border-bottom: 1px solid var(--border-color); }
 th {
-  background-color: rgba(255, 255, 255, 0.02); color: var(--text-muted);
+  background-color: var(--surface-hover); color: var(--text-muted);
   font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
 }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
+tr:hover td { background-color: var(--surface-hover); }
 
 /* =========================================================
    FOOTER ANIMADO
@@ -238,3 +331,124 @@ tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
 .d-flex { display: flex; }
 .align-center { align-items: center; }
 .justify-between { justify-content: space-between; }
+
+/* =========================================================
+   PREMIUM / RAINBOW -- borde con degradado continuo + glow
+   Uso: agregar la clase .sg-rainbow a un boton o tarjeta.
+   - Nota: usa ::before (glow) y ::after (trazo). No combinar
+     con .info-box/.card-panel/.producto-card, que ya usan ::before.
+   - Opcional: --sg-rainbow-radius para igualar el radio del elemento.
+========================================================= */
+@property --sg-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.sg-rainbow {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--sg-rainbow-radius, 10px);
+}
+.sg-rainbow::before,
+.sg-rainbow::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+  background: conic-gradient(from var(--sg-angle),
+    #FF5A5A, #FFB84D, #F5F25A, #4DF0A0, #4DCBFF, #8B6BFF, #FF5AD0, #FF5A5A);
+  animation: sg-rainbow-spin 4s linear infinite;
+  pointer-events: none;
+}
+/* Trazo: anillo de 2px dibujado con mascara */
+.sg-rainbow::after {
+  inset: 0;
+  padding: 2px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  z-index: 2;
+}
+/* Glow suave por detras */
+.sg-rainbow::before {
+  inset: -2px;
+  filter: blur(14px);
+  opacity: 0.35;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+.sg-rainbow:hover::before { opacity: 0.6; }
+:root[data-theme="light"] .sg-rainbow::before { opacity: 0.26; }
+:root[data-theme="light"] .sg-rainbow:hover::before { opacity: 0.45; }
+
+@keyframes sg-rainbow-spin { to { --sg-angle: 360deg; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-rainbow::before, .sg-rainbow::after { animation: none; }
+}
+
+/* =========================================================
+   SWITCH DE TEMA (lo inyecta main.js en todas las vistas)
+========================================================= */
+.sg-theme-switch {
+  position: fixed;
+  right: 20px;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 2000;
+  display: inline-flex;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--nav-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-main);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.navbar .sg-theme-switch { position: static; margin-left: 14px; box-shadow: none; }
+.sg-theme-switch:hover { transform: translateY(-2px); box-shadow: var(--shadow-main), var(--shadow-glow); }
+.sg-theme-switch:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+
+.sg-theme-track {
+  position: relative;
+  width: 58px;
+  height: 30px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0F1B3D, #1E3A8A);
+  transition: background 0.4s ease;
+}
+:root[data-theme="light"] .sg-theme-track { background: linear-gradient(135deg, #7DD3FC, #BFDBFE); }
+
+.sg-theme-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #E2E8F0;
+  color: #1E3A8A;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, color 0.3s ease;
+}
+:root[data-theme="light"] .sg-theme-thumb { transform: translateX(28px); background: #FFFFFF; color: #F59E0B; }
+
+.sg-theme-thumb svg { position: absolute; transition: opacity 0.25s ease, transform 0.4s ease; }
+.sg-theme-thumb .sg-ico-sun { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+:root[data-theme="light"] .sg-theme-thumb .sg-ico-sun { opacity: 1; transform: none; }
+:root[data-theme="light"] .sg-theme-thumb .sg-ico-moon { opacity: 0; transform: rotate(90deg) scale(0.6); }
+
+/* Transicion suave de colores solo mientras se cambia de tema */
+html.sg-theme-transition *,
+html.sg-theme-transition *::before,
+html.sg-theme-transition *::after {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease !important;
+}
+
+@media print { .sg-theme-switch { display: none !important; } }
+@media (prefers-reduced-motion: reduce) {
+  .sg-theme-thumb, .sg-theme-thumb svg, .sg-theme-track { transition: none; }
+}

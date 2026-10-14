@@ -2,6 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Factura de Venta</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
@@ -165,6 +166,64 @@
             font-size: 0.82rem;
             line-height: 1.5;
         }
+
+        /* El .info-box global (theme.css) trae efectos de hover/luz que
+           aqui no aplican; se neutralizan para que la barra de acento
+           y la tarjeta se vean como comprobante. */
+        .factura-container .info-box {
+            overflow: visible;
+            backdrop-filter: none;
+            box-shadow: none;
+        }
+        .factura-container .info-box:hover {
+            transform: none;
+            border-color: var(--border-color);
+            box-shadow: none;
+        }
+        .factura-container .info-box::before {
+            opacity: 1;
+            transform: none;
+            transition: none;
+            z-index: auto;
+        }
+        .factura-container .info-box:hover::before { opacity: 1; }
+
+        /* Marca de agua con el logo */
+        .watermark {
+            position: absolute;
+            right: 48px;
+            bottom: 150px;
+            width: 280px;
+            height: auto;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .factura-container > *:not(.watermark) { position: relative; z-index: 1; }
+
+        .factura-nota {
+            margin-top: 34px;
+            padding: 16px 20px;
+            border-left: 3px solid var(--color-accent);
+            border-radius: 0 8px 8px 0;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+        .factura-nota strong { color: var(--text-main); }
+
+        .factura-marca {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            color: var(--text-main);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .factura-marca img { height: 26px; width: auto; }
 
         /* =========================================================
            TABLA DE PRODUCTOS
@@ -493,6 +552,18 @@
                 color: black !important;
             }
 
+            .watermark { opacity: 0.06; }
+
+            .factura-nota {
+                background: white;
+                border: 1px solid #999;
+                border-left: 3px solid black;
+                color: #444;
+            }
+
+            .factura-nota strong,
+            .factura-marca { color: black !important; }
+
             .factura-footer {
                 border-top: 1px dashed #999;
             }
@@ -504,13 +575,15 @@
 
 <div class="factura-container">
 
+    <img class="watermark" th:src="@{/img/logo-icono.png}" alt="">
+
     <div class="factura-header">
 
         <div class="empresa-brand">
 
             <img
                 class="empresa-logo"
-                th:src="@{/img/logo-factura.png}"
+                th:src="@{/img/logo-icono.png}"
                 alt="SmartGlass">
 
             <div class="empresa-info">
@@ -601,12 +674,22 @@
     </div>
 
 
+    <div class="factura-nota">
+        <strong>Soporte de compra.</strong>
+        Conserva este documento como comprobante de tu pedido. Los vidrios
+        personalizados se fabrican a la medida indicada en la cotización aprobada.
+    </div>
+
     <div class="factura-footer">
 
+        <div class="factura-marca">
+            <img th:src="@{/img/logo-icono.png}" alt="">
+            SmartGlass
+        </div>
+
         <p>
-            Esta factura ha sido generada electrónicamente y compensa
-            <strong class="carbono-value" th:text="${pedido.huellaCarbono} + ' kg'"></strong>
-            de CO₂.
+            Factura generada electrónicamente. Huella de carbono estimada de este pedido:
+            <strong class="carbono-value" th:text="${pedido.huellaCarbono} + ' kg CO₂e'"></strong>.
         </p>
 
         <div class="no-print factura-actions">

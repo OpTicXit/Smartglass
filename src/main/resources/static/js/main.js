@@ -5,6 +5,7 @@
 ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
+  inicializarSelectorDeTema();
   revelarAlEntrar();
   rebotarCarritoSiHuboExito();
   scrollSuaveEnAnclas();
@@ -152,4 +153,71 @@ function inicializarEfectoMagnetico() {
       el.style.transform = 'translate(0, 0)';
     });
   });
+}
+
+/* --- Switch de tema claro/oscuro ---
+   La eleccion se guarda en localStorage ('sg-theme'), asi que vale para
+   TODAS las vistas y se sincroniza entre pestanas abiertas.
+   - Si la pagina ya trae un <button class="sg-theme-switch"> (p. ej. dentro
+     de un fragmento de navbar), este bloque solo lo conecta.
+   - Si no, inyecta uno flotante en la esquina inferior derecha.
+   Para evitar el parpadeo, cada pagina carga ademas theme-init.js en el
+   <head>; si no lo tiene, aqui se aplica el tema igualmente. */
+function inicializarSelectorDeTema() {
+  const raiz = document.documentElement;
+  const CLAVE = 'sg-theme';
+
+  const leer = () => {
+    try {
+      const v = localStorage.getItem(CLAVE);
+      return v === 'light' || v === 'dark' ? v : 'dark';
+    } catch (e) { return 'dark'; }
+  };
+
+  let boton = document.querySelector('.sg-theme-switch');
+  const yaEnPagina = Boolean(boton);
+
+  if (!boton) {
+    boton = document.createElement('button');
+    boton.type = 'button';
+    boton.className = 'sg-theme-switch';
+    boton.setAttribute('role', 'switch');
+    boton.innerHTML =
+      '<span class="sg-theme-track" aria-hidden="true">' +
+        '<span class="sg-theme-thumb">' +
+          '<svg class="sg-ico-moon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>' +
+          '<svg class="sg-ico-sun" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>' +
+        '</span>' +
+      '</span>';
+  }
+
+  function aplicar(tema, guardar, animar) {
+    if (animar) {
+      raiz.classList.add('sg-theme-transition');
+      setTimeout(() => raiz.classList.remove('sg-theme-transition'), 400);
+    }
+    raiz.setAttribute('data-theme', tema);
+    const claro = tema === 'light';
+    boton.setAttribute('aria-checked', String(claro));
+    boton.setAttribute('aria-label', claro ? 'Modo claro activado. Cambiar a modo oscuro' : 'Modo oscuro activado. Cambiar a modo claro');
+    boton.title = claro ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro';
+    if (guardar) {
+      try { localStorage.setItem(CLAVE, tema); } catch (e) { /* sin almacenamiento */ }
+    }
+    document.dispatchEvent(new CustomEvent('sg-theme-change', { detail: { tema } }));
+  }
+
+  boton.addEventListener('click', () => {
+    aplicar(raiz.getAttribute('data-theme') === 'light' ? 'dark' : 'light', true, true);
+  });
+
+  // Si otra pestana cambia el tema, esta lo sigue
+  window.addEventListener('storage', (e) => {
+    if (e.key === CLAVE && (e.newValue === 'light' || e.newValue === 'dark')) {
+      aplicar(e.newValue, false, true);
+    }
+  });
+
+  aplicar(leer(), false, false);
+  if (!yaEnPagina) document.body.appendChild(boton);
 }

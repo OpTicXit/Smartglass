@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>SmartGlass - Confirmación</title>
@@ -65,7 +66,7 @@
             color: var(--color-success);
             font-size: 2.4rem;
             font-weight: 800;
-            box-shadow: 0 0 28px rgba(166, 227, 161, 0.18);
+            box-shadow: var(--co2-glow-normal);
         }
 
         .success-icon::before {
@@ -200,6 +201,78 @@
             font-weight: 850;
         }
 
+        /* ---------- QUÉ SIGUE ---------- */
+
+        .siguientes-pasos {
+            margin: 0 0 34px;
+            padding: 22px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+
+        .siguientes-pasos h2 {
+            margin: 0 0 20px;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        .pasos {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .paso {
+            position: relative;
+            padding: 28px 14px 0 0;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+
+        .paso::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            background: var(--bg-primary);
+            z-index: 1;
+        }
+
+        .paso::after {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 18px;
+            right: 4px;
+            height: 2px;
+            background: var(--border-color);
+        }
+
+        .paso:last-child::after {
+            display: none;
+        }
+
+        .paso strong {
+            display: block;
+            margin-bottom: 2px;
+            color: var(--text-main);
+            font-size: 0.84rem;
+        }
+
+        .paso.hecho::before {
+            border-color: var(--color-success);
+            background: var(--color-success);
+        }
+
         /* ---------- ACCIONES ---------- */
 
         .acciones-finales {
@@ -302,6 +375,23 @@
                 grid-template-columns: 1fr;
             }
 
+            .pasos {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .paso {
+                padding: 0 0 0 28px;
+            }
+
+            .paso::before {
+                top: 2px;
+            }
+
+            .paso::after {
+                display: none;
+            }
+
             .btn-nav {
                 width: 100%;
             }
@@ -309,7 +399,7 @@
 
         @media (max-width: 430px) {
 
-            .confirmacion-header h1 {
+            .confirmation-header h1 {
                 font-size: 1.9rem;
             }
 
@@ -365,7 +455,7 @@
 
         <div class="brand-mark">
             <img
-                th:src="@{/img/logo-factura.png}"
+                th:src="@{/img/logo-icono.png}"
                 alt="SmartGlass">
         </div>
 
@@ -402,55 +492,46 @@
         </div>
 
         <div class="info-group">
-
-            <label>
-                Nro. de Factura
-            </label>
-
-            <span
-                class="invoice-number"
-                th:text="${pedido.numeroFactura}">
-            </span>
-
+            <label>Nro. de Factura</label>
+            <span class="invoice-number" th:text="${pedido.numeroFactura}"></span>
         </div>
 
         <div class="info-group">
-
-            <label>
-                Fecha y Hora
-            </label>
-
-            <span
-                th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">
-            </span>
-
+            <label>Fecha y Hora</label>
+            <span th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}"></span>
         </div>
 
         <div class="info-group">
-
-            <label>
-                Dirección de Envío
-            </label>
-
-            <span
-                th:text="${pedido.direccionEnvio}">
-            </span>
-
+            <label>Método de Pago</label>
+            <span th:text="${pedido.metodoPago}"></span>
         </div>
 
         <div class="info-group">
-
-            <label>
-                Total Pagado
-            </label>
-
-            <span
-                class="payment-total"
-                th:text="${pedido.totalFormateado}">
-            </span>
-
+            <label>Huella de Carbono</label>
+            <span th:text="${pedido.huellaCarbono} + ' kg CO₂e'"></span>
         </div>
 
+        <div class="info-group">
+            <label>Dirección de Envío</label>
+            <span th:text="${pedido.direccionEnvio}"></span>
+        </div>
+
+        <div class="info-group">
+            <label>Total Pagado</label>
+            <span class="payment-total" th:text="${pedido.totalFormateado}"></span>
+        </div>
+
+</section>
+
+    <!-- Qué sigue -->
+    <section class="siguientes-pasos">
+        <h2>Qué sigue con tu pedido</h2>
+        <ol class="pasos">
+            <li class="paso hecho"><strong>Pedido recibido</strong>Tu orden quedó registrada.</li>
+            <li class="paso"><strong>Procesamiento térmico</strong>Fabricamos tu vidrio a la medida.</li>
+            <li class="paso"><strong>Envío</strong>Despachamos a la dirección indicada.</li>
+            <li class="paso"><strong>Entrega</strong>Recibes tu pedido.</li>
+        </ol>
     </section>
 
     <!-- Acciones -->

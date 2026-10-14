@@ -2,15 +2,23 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Detalle de Cotización</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
-        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
+        .logo { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-weight: 700; font-size: 1.3rem; text-decoration: none; }
+        .logo img { height: 38px; width: auto; }
+        .logo span { color: var(--color-accent); }
+        .header-logo { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); height: 130px; width: auto; opacity: 0.95; pointer-events: none; }
+        .footer-brand { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .footer-brand img { height: 22px; width: auto; }
+        @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; padding: 0 16px; } .header-logo { display: none; } .navbar { padding: 1rem 1.2rem; } }
         
-        .cotizacion-header { background: var(--color-accent-dim); padding: 40px; border-radius: 16px; margin: 30px auto; max-width: 1200px; border: 1px solid var(--color-accent); }
+        .cotizacion-header { position: relative; overflow: hidden; background: var(--color-accent-dim); padding: 40px; border-radius: 16px; margin: 30px auto; max-width: 1200px; border: 1px solid var(--color-accent); }
         .cotizacion-header h1 { margin: 0 0 10px 0; color: var(--color-accent); }
 
         .main-grid { display: grid; grid-template-columns: 1fr 350px; gap: 30px; max-width: 1200px; margin: 0 auto 50px; }
@@ -46,16 +54,20 @@
 <body>
 
 <nav class="navbar">
-    <a th:href="@{/usuario}" class="logo">◆ SmartGlass</a>
+    <a th:href="@{/usuario}" class="logo">
+        <img th:src="@{/img/logo-icono.png}" alt="SmartGlass">
+        <span>SmartGlass</span>
+    </a>
     <div style="display:flex; gap:15px;">
         <a th:href="@{/vidrio-personalizado/mis-cotizaciones}" style="color:var(--text-main); text-decoration:none;">← Volver a Mis Proyectos</a>
     </div>
 </nav>
 
 <div class="cotizacion-header" th:if="${vidrio != null}">
+    <img class="header-logo" th:src="@{/img/logo-icono.png}" alt="">
     <h1>Resumen de Cotización Técnica</h1>
     <p th:text="'Referencia única: #' + ${vidrio.id}" style="font-family: monospace; color: var(--text-muted);"></p>
-    <span th:if="${vidrio.urgente}" style="display:inline-block; margin-top:8px; padding:4px 12px; background: var(--color-warning); color: var(--bg-primary); border-radius: 20px; font-size: 0.8rem; font-weight: bold;">⚡ Entrega urgente (+20%)</span>
+    <span th:if="${vidrio.urgente}" class="sg-rainbow" style="--sg-rainbow-radius:20px; display:inline-block; margin-top:8px; padding:5px 14px; background: var(--bg-secondary); color: var(--text-main); border-radius: 20px; font-size: 0.8rem; font-weight: bold;">⚡ Entrega urgente (+20%)</span>
 </div>
 
 <div class="main-grid" th:if="${vidrio != null}">
@@ -112,7 +124,7 @@
         </div>
 
         <!-- Tarjeta de Precio -->
-        <div class="tech-card" style="margin-top:20px; text-align:center;">
+        <div class="tech-card" style="margin-top:20px; text-align:center; border-color: var(--border-hover); box-shadow: var(--shadow-main), var(--shadow-glow);">
             <span style="color:var(--text-muted); font-size:0.9rem; text-transform: uppercase; font-weight: bold;">Inversión Estimada</span>
             <div style="font-size: 2.2rem; font-weight: bold; color: var(--color-success); margin: 15px 0;" th:text="${vidrio.precioEstimadoFormateado}">$0</div>
             
@@ -122,6 +134,13 @@
         </div>
     </aside>
 </div>
+
+<footer class="footer-main">
+    <div class="footer-brand">
+        <img th:src="@{/img/logo-icono.png}" alt="">
+        <p><span>SmartGlass</span> · Soluciones técnicas en vidrio sostenible</p>
+    </div>
+</footer>
 
 <script th:inline="javascript">
         document.addEventListener("DOMContentLoaded", function() {
