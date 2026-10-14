@@ -2,6 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Vidrio inteligente y sostenible</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <!-- Cambiamos temporalmente a Phosphor Icons (o usarás FontAwesome) para los iconos finos del mockup -->
@@ -28,7 +29,7 @@
 .hero .container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; }
 .hero-badge {
   display: inline-flex; align-items: center; gap: 8px;
-  background: transparent; border: 1px solid rgba(255,255,255,0.1);
+  background: transparent; border: 1px solid var(--border-color);
   color: var(--text-muted); font-size: 0.7rem; font-weight: 600;
   letter-spacing: 0.1em; text-transform: uppercase; padding: 6px 14px; border-radius: 30px; margin-bottom: 20px;
 }
@@ -45,9 +46,9 @@
 }
 .btn-hero-primario:hover { background: var(--color-accent-hover); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
 .btn-hero-secundario {
-  background: transparent; color: white; padding: 12px 28px;
+  background: transparent; color: var(--text-main); padding: 12px 28px;
   border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.95rem;
-  border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+  border: 1px solid color-mix(in srgb, var(--text-main) 25%, transparent); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
 }
 .btn-hero-secundario:hover { background: var(--color-accent-dim); border-color: var(--color-accent); }
 
@@ -69,15 +70,15 @@
 .hero-flotantes { position: absolute; right: -50px; top: 15%; display: flex; flex-direction: column; gap: 15px; z-index: 3; }
 .badge-flotante { 
   width: 220px; padding: 12px 16px; display: flex; align-items: center; gap: 15px; 
-  background: rgba(13, 20, 42, 0.5); backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;
+  background: var(--card-bg); backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color); border-radius: 12px;
   cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .badge-flotante:hover {
   transform: translateX(-12px) scale(1.02);
-  background: rgba(13, 20, 42, 0.85);
+  background: var(--bg-secondary);
   border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6), 0 0 20px rgba(59, 130, 246, 0.25);
+  box-shadow: var(--shadow-hover), 0 0 20px rgba(59, 130, 246, 0.25);
 }
 .badge-flotante i { font-size: 1.5rem; color: var(--text-muted); transition: color 0.3s ease, transform 0.4s ease; }
 .badge-flotante:hover i { color: var(--color-accent); transform: scale(1.15) rotate(-5deg); }
@@ -115,6 +116,11 @@
 .categoria-card:hover .categoria-overlay i { opacity: 1; transform: translateX(5px); }
 
 
+
+/* Modo claro: paneles de vidrio con sombra azulada en vez de negra */
+:root[data-theme="light"] .panel-vidrio {
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.3), 0 25px 40px rgba(30, 58, 138, 0.25), 0 0 40px rgba(37, 99, 235, 0.25);
+}
     </style>
 </head>
 <body>
@@ -212,6 +218,8 @@
         <p>&copy; 2026 SmartGlass — Todos los derechos reservados</p>
     </div>
 </footer>
+
+<script th:src="@{/js/main.js}"></script>
 
 </body>
 </html>

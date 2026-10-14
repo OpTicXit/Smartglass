@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>SmartGlass - Catálogo</title>
@@ -548,7 +549,7 @@
 
             box-shadow:
                 var(--shadow-glow),
-                0 20px 40px -15px rgba(0, 0, 0, 0.7);
+                var(--shadow-hover);
 
             backdrop-filter: blur(16px);
         }
@@ -655,6 +656,12 @@
             .barra-comparador span {
                 white-space: normal;
             }
+        }
+
+        /* En pantallas angostas la barra del comparador ocupa casi todo el ancho:
+           se sube para no quedar debajo del switch de tema. */
+        @media (max-width: 700px) {
+            .barra-comparador { bottom: 76px; }
         }
     </style>
 </head>

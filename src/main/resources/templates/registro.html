@@ -2,6 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Registro</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
@@ -315,6 +316,22 @@
                 transition: none;
             }
         }
+
+        /* El logo completo trae fondo oscuro incluido: en modo claro se
+           reemplaza por icono + nombre. */
+        .logo-wordmark {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--text-main);
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        .logo-wordmark img { width: 46px; height: auto; }
+        :root[data-theme="light"] .register-logo-full { display: none; }
+        :root[data-theme="light"] .logo-wordmark { display: inline-flex; }
     </style>
 </head>
 
@@ -326,6 +343,7 @@
         <div class="register-header">
             <a th:href="@{/home}" class="brand-logo-link" title="Volver al inicio">
                 <img th:src="@{/img/logo-full.png}" src="/img/logo-full.png" alt="SmartGlass" class="register-logo-full">
+                <span class="logo-wordmark"><img th:src="@{/img/logo-icono.png}" src="/img/logo-icono.png" alt="">SmartGlass</span>
             </a>
 
             <h2>Crear Cuenta</h2>

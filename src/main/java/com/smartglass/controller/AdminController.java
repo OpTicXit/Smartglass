@@ -11,7 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Panel de administracion. Ya no es solo lectura: puede cambiar el
@@ -120,7 +122,17 @@ public class AdminController {
 
     @GetMapping("/resenas")
     public String listarResenas(Model model) {
+        // productoId -> nombre, para que la vista agrupe las reseñas por
+        // producto y muestre su nombre (la reseña solo guarda el id).
+        Map<String, String> nombresProducto = new HashMap<>();
+        for (CatalogoProducto p : productoService.obtenerTodos()) {
+            if (p.getId() != null) {
+                nombresProducto.put(String.valueOf(p.getId()), p.getNombre());
+            }
+        }
+
         model.addAttribute("resenas", resenaService.obtenerTodas());
+        model.addAttribute("nombresProducto", nombresProducto);
         return "admin/resenas";
     }
 

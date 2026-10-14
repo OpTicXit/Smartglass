@@ -9,17 +9,189 @@
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <style>
-        /* Unico a esta vista: color de las estrellas de calificacion */
-        .estrellas { 
-            color: var(--color-warning); 
-            font-weight: 600; 
-            letter-spacing: 0.05em; 
+        .container { max-width: 1200px; }
+
+        .rv-sub { margin: -14px 0 28px; color: var(--text-muted); font-size: 0.92rem; }
+
+        /* ---------- Resumen ---------- */
+        .rv-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 26px;
         }
 
-        .estrellas { white-space: nowrap; }
-        .comentario { min-width: 220px; max-width: 420px; line-height: 1.5; }
-        .admin-title .badge { margin-left: 10px; vertical-align: middle; }
-        .vacio { text-align: center; padding: 36px 20px !important; color: var(--text-label) !important; }
+        .rv-stat {
+            padding: 16px 20px;
+            border: 1px solid var(--admin-card-border);
+            border-radius: 14px;
+            background: var(--bg-secondary);
+            box-shadow: var(--admin-shadow-card);
+        }
+
+        .rv-stat strong {
+            display: block;
+            color: var(--text-main);
+            font-size: 1.7rem;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        .rv-stat span { color: var(--text-label); font-size: 0.78rem; font-weight: 600; }
+
+        /* ---------- Barra de herramientas ---------- */
+        .rv-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 18px; }
+
+        .rv-input {
+            flex: 1;
+            min-width: 220px;
+            padding: 11px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--input-bg);
+            color: var(--text-main);
+            font: inherit;
+            font-size: 0.92rem;
+        }
+
+        .rv-input:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-accent-dim); }
+        .rv-toolbar select { width: auto; min-width: 210px; }
+
+        /* ---------- Tarjetas de producto ---------- */
+        .rv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 16px; }
+
+        .rv-card {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 18px 20px;
+            border: 1px solid var(--admin-card-border);
+            border-radius: 16px;
+            background: var(--bg-secondary);
+            box-shadow: var(--admin-shadow-card);
+            color: inherit;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .rv-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-hover);
+            box-shadow: var(--admin-shadow-card), var(--shadow-glow);
+        }
+
+        .rv-card:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+
+        .rv-card h3 { min-height: 2.6em; margin: 0; color: var(--text-main); font-size: 1rem; line-height: 1.3; }
+
+        .rv-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--text-muted); font-size: 0.82rem; }
+        .rv-avg { color: var(--color-warning); font-weight: 700; letter-spacing: 0.05em; white-space: nowrap; }
+
+        .rv-bar { display: flex; height: 6px; overflow: hidden; border-radius: 99px; background: var(--bg-tertiary); }
+        .rv-bar i { display: block; height: 100%; }
+        .ok { background: var(--color-success); }
+        .mid { background: var(--color-neutral); }
+        .bad { background: var(--color-error); }
+
+        .rv-empty { padding: 44px 20px; color: var(--text-label); text-align: center; }
+
+        /* ---------- Vista de producto ---------- */
+        .rv-back { cursor: pointer; font: inherit; font-size: 0.85rem; margin-bottom: 18px; }
+
+        .rv-prod-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 20px; }
+        .rv-prod-head h2 { margin: 0; color: var(--text-main); font-size: 1.6rem; letter-spacing: -0.02em; }
+
+        .rv-summary {
+            display: grid;
+            grid-template-columns: 190px 1fr;
+            gap: 28px;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 22px 26px;
+            border: 1px solid var(--admin-card-border);
+            border-radius: 16px;
+            background: var(--bg-secondary);
+            box-shadow: var(--admin-shadow-card);
+        }
+
+        .rv-big { color: var(--text-main); font-size: 2.7rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+        .rv-big-stars { margin-top: 6px; color: var(--color-warning); font-size: 1.05rem; letter-spacing: 3px; }
+        .rv-big-count { margin-top: 4px; color: var(--text-muted); font-size: 0.82rem; }
+
+        .rv-dist { display: grid; gap: 4px; }
+
+        .rv-dist button {
+            display: grid;
+            grid-template-columns: 38px 1fr 40px;
+            align-items: center;
+            gap: 12px;
+            padding: 4px 8px;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-muted);
+            font: inherit;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .rv-dist button:hover, .rv-dist button.activo { background: var(--color-accent-dim); color: var(--text-main); }
+        .rv-dist button:disabled { opacity: 0.45; cursor: default; }
+        .rv-dist button:disabled:hover { background: transparent; }
+
+        .rv-track { height: 8px; overflow: hidden; border-radius: 99px; background: var(--bg-tertiary); }
+        .rv-track i { display: block; height: 100%; border-radius: 99px; }
+        .rv-dist b { text-align: right; color: var(--text-main); font-weight: 600; }
+
+        .rv-filtro-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border: 1px solid var(--color-accent);
+            border-radius: 999px;
+            background: var(--color-accent-dim);
+            color: var(--color-accent);
+            font: inherit;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .rv-tabla td.comentario { min-width: 240px; max-width: 460px; line-height: 1.55; }
+        .rv-tabla .estrellas { color: var(--color-warning); font-weight: 600; letter-spacing: 0.05em; white-space: nowrap; }
+        .rv-tabla tr.baja td:first-child { box-shadow: inset 3px 0 0 var(--color-error); }
+        .rv-tabla td.accion { text-align: right; width: 1%; white-space: nowrap; }
+
+        .rv-pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; color: var(--text-muted); font-size: 0.85rem; }
+        .rv-pages { display: flex; flex-wrap: wrap; gap: 6px; }
+
+        .rv-pages button {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-main);
+            font: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .rv-pages button:hover:not(:disabled):not(.activo) { border-color: var(--border-hover); color: var(--color-accent); }
+        .rv-pages button.activo { border-color: var(--color-accent); background: var(--color-accent); color: var(--text-on-accent); }
+        .rv-pages button:disabled { opacity: 0.4; cursor: default; }
+        .rv-pages span { align-self: center; padding: 0 4px; color: var(--text-muted); }
+
+        @media (max-width: 720px) {
+            .rv-summary { grid-template-columns: 1fr; gap: 18px; }
+            .rv-toolbar select { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -27,57 +199,384 @@
 <!-- Navbar del Admin -->
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
-<div class="container container-narrow">
-    
-    <h1 class="admin-title">
-        Reseñas de productos
-        <span class="badge badge-neutral" th:text="${#lists.size(resenas)}"></span>
-    </h1>
+<div class="container">
+
+    <h1 class="admin-title">Reseñas de productos</h1>
+    <p class="rv-sub">Explora las opiniones agrupadas por producto y modera las que sea necesario.</p>
 
     <!-- Alerta flash (cuando se elimina una reseña) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
 
-    <!-- Tabla de reseñas -->
-    <div class="table-wrap">
-        <table class="table-admin">
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cliente</th>
-                    <th>Calificación</th>
-                    <th>Comentario</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="r : ${resenas}">
-                    <td>
-                        <a class="ver" th:href="@{/detalle/{id}(id=${r.productoId})}">
-                            Ver producto
-                        </a>
-                    </td>
-                    <td class="td-strong" th:text="${r.nombreUsuario}"></td>
-                    <td class="estrellas" th:text="${r.estrellas}"></td>
-                    <td class="comentario" th:text="${r.comentario}"></td>
-                    <td>
-                        <form th:action="@{/admin/resenas/{id}/eliminar(id=${r.id})}" 
-                              method="post"
-                              onsubmit="return confirm('¿Eliminar esta reseña?')">
-                            <button type="submit" class="btn-eliminar">
-                                Eliminar
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(resenas)}">
-                    <td colspan="5" class="vacio">
-                        Todavía no hay reseñas en el sistema.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <!-- Datos de las reseñas (los lee el script y los muestra agrupados por producto) -->
+    <div id="rv-datos" hidden>
+        <div class="dato" th:each="r : ${resenas}" th:attr="data-producto=${r.productoId}">
+            <span class="d-usuario" th:text="${r.nombreUsuario}"></span>
+            <span class="d-estrellas" th:text="${r.estrellas}"></span>
+            <span class="d-comentario" th:text="${r.comentario}"></span>
+            <a class="d-ver" th:href="@{/detalle/{id}(id=${r.productoId})}">Ver</a>
+            <form class="d-form" th:action="@{/admin/resenas/{id}/eliminar(id=${r.id})}" method="post"></form>
+        </div>
     </div>
+
+    <div id="rv-app"></div>
+    <noscript><p class="rv-empty">Activa JavaScript para ver las reseñas.</p></noscript>
 </div>
+
+<script>
+(function () {
+    var POR_PAGINA = 10;
+    var CLAVE_NOMBRES = 'sg-nombres-producto';
+    var CLAVE_SEL = 'sg-resenas-sel';
+
+    var app = document.getElementById('rv-app');
+
+    /* ---------- Datos ---------- */
+    var datos = Array.prototype.map.call(document.querySelectorAll('#rv-datos .dato'), function (el) {
+        var est = el.querySelector('.d-estrellas').textContent.trim();
+        return {
+            producto: el.getAttribute('data-producto') || '',
+            usuario: el.querySelector('.d-usuario').textContent.trim(),
+            est: est,
+            n: (est.match(/\u2605/g) || []).length,
+            comentario: el.querySelector('.d-comentario').textContent.trim(),
+            ver: el.querySelector('.d-ver').href,
+            form: el.querySelector('.d-form')
+        };
+    });
+
+    var grupos = [];
+    var porId = {};
+    datos.forEach(function (d) {
+        var g = porId[d.producto];
+        if (!g) {
+            g = porId[d.producto] = { id: d.producto, ver: d.ver, items: [], suma: 0, dist: [0, 0, 0, 0, 0, 0] };
+            grupos.push(g);
+        }
+        g.items.push(d);
+        g.suma += d.n;
+        if (d.n >= 1 && d.n <= 5) g.dist[d.n]++;
+    });
+    grupos.forEach(function (g) {
+        g.total = g.items.length;
+        g.prom = g.total ? g.suma / g.total : 0;
+        g.bajas = g.dist[1] + g.dist[2];
+    });
+
+    /* ---------- Nombres de producto (se leen de la ficha publica y se guardan en la sesion) ---------- */
+    var nombres = {};
+    try { nombres = JSON.parse(sessionStorage.getItem(CLAVE_NOMBRES) || '{}'); } catch (e) { nombres = {}; }
+
+    function nombreDe(g) {
+        if (!g.id) return 'Sin producto asociado';
+        return nombres[g.id] || ('Producto \u2026' + g.id.slice(-4));
+    }
+
+    function decodificar(s) {
+        var t = document.createElement('textarea');
+        t.innerHTML = s;
+        return t.value;
+    }
+
+    function resolverNombres() {
+        var pend = grupos.filter(function (g) { return g.id && !nombres[g.id]; });
+        var i = 0;
+        function trabajador() {
+            if (i >= pend.length) return Promise.resolve();
+            var g = pend[i++];
+            return fetch(g.ver, { credentials: 'same-origin' })
+                .then(function (r) { return r.ok ? r.text() : ''; })
+                .then(function (html) {
+                    var m = html.match(/<title>\s*SmartGlass\s*-\s*([^<]+?)\s*<\/title>/i);
+                    if (m) {
+                        nombres[g.id] = decodificar(m[1]);
+                        try { sessionStorage.setItem(CLAVE_NOMBRES, JSON.stringify(nombres)); } catch (e) {}
+                        document.querySelectorAll('[data-nombre="' + g.id + '"]').forEach(function (el) { el.textContent = nombres[g.id]; });
+                    }
+                })
+                .catch(function () {})
+                .then(trabajador);
+        }
+        return Promise.all([trabajador(), trabajador(), trabajador(), trabajador(), trabajador()]);
+    }
+
+    /* ---------- Utilidades de DOM ---------- */
+    function h(tag, attrs) {
+        var e = document.createElement(tag);
+        Object.keys(attrs || {}).forEach(function (k) {
+            var v = attrs[k];
+            if (v === false || v == null) return;
+            if (k === 'class') e.className = v;
+            else if (k === 'text') e.textContent = v;
+            else if (k.indexOf('on') === 0) e.addEventListener(k.slice(2), v);
+            else e.setAttribute(k, v === true ? '' : v);
+        });
+        for (var i = 2; i < arguments.length; i++) {
+            var c = arguments[i];
+            if (c == null || c === false) continue;
+            if (Array.isArray(c)) c.forEach(function (x) { e.append(x); });
+            else e.append(c);
+        }
+        return e;
+    }
+
+    function estrellas(n) {
+        n = Math.max(0, Math.min(5, Math.round(n)));
+        return '\u2605'.repeat(n) + '\u2606'.repeat(5 - n);
+    }
+
+    function stat(valor, etiqueta) {
+        return h('div', { class: 'rv-stat' }, h('strong', { text: String(valor) }), h('span', { text: etiqueta }));
+    }
+
+    function barra(g) {
+        var buenas = g.dist[4] + g.dist[5], medias = g.dist[3], malas = g.dist[1] + g.dist[2];
+        function seg(clase, n) { return h('i', { class: clase, style: 'width:' + (g.total ? (n / g.total * 100) : 0) + '%' }); }
+        return h('div', { class: 'rv-bar', 'aria-hidden': 'true' }, seg('ok', buenas), seg('mid', medias), seg('bad', malas));
+    }
+
+    function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+
+    /* ---------- Rutas (hash #p=ID) ---------- */
+    function idDeHash() {
+        var m = location.hash.match(/^#p=(.*)$/);
+        return m ? decodeURIComponent(m[1]) : null;
+    }
+    function abrir(id) {
+        history.pushState({}, '', '#p=' + encodeURIComponent(id));
+        window.scrollTo(0, 0);
+        ruta(null);
+    }
+    function volver() {
+        history.pushState({}, '', location.pathname + location.search);
+        window.scrollTo(0, 0);
+        ruta(null);
+    }
+    window.addEventListener('popstate', function () { ruta(null); });
+
+    function ruta(restaurar) {
+        var id = restaurar ? restaurar.p : idDeHash();
+        if (id !== null && porId[id]) vistaProducto(porId[id], restaurar);
+        else vistaGeneral();
+    }
+
+    /* ---------- Vista general: una tarjeta por producto ---------- */
+    function vistaGeneral() {
+        if (!datos.length) {
+            app.replaceChildren(h('div', { class: 'rv-empty', text: 'Todavía no hay reseñas en el sistema.' }));
+            return;
+        }
+
+        var total = datos.length;
+        var prom = datos.reduce(function (a, d) { return a + d.n; }, 0) / total;
+        var bajas = datos.filter(function (d) { return d.n <= 2; }).length;
+
+        var buscador = h('input', { type: 'search', class: 'rv-input', placeholder: 'Buscar producto…', 'aria-label': 'Buscar producto' });
+        var orden = h('select', { 'aria-label': 'Ordenar productos' },
+            h('option', { value: 'bajas', text: 'Más reseñas bajas primero' }),
+            h('option', { value: 'nombre', text: 'Nombre (A–Z)' }),
+            h('option', { value: 'cantidad', text: 'Más reseñas' }),
+            h('option', { value: 'mejor', text: 'Mejor promedio' }),
+            h('option', { value: 'peor', text: 'Peor promedio' })
+        );
+        var cuadricula = h('div', { class: 'rv-grid' });
+
+        function pintar() {
+            var q = norm(buscador.value.trim());
+            var lista = grupos.filter(function (g) { return !q || norm(nombreDe(g)).indexOf(q) !== -1 || g.id.toLowerCase().indexOf(q) !== -1; });
+            var cmpNombre = function (a, b) { return nombreDe(a).localeCompare(nombreDe(b), 'es'); };
+            var o = orden.value;
+            lista.sort(function (a, b) {
+                if (o === 'cantidad') return (b.total - a.total) || cmpNombre(a, b);
+                if (o === 'mejor') return (b.prom - a.prom) || cmpNombre(a, b);
+                if (o === 'peor') return (a.prom - b.prom) || cmpNombre(a, b);
+                if (o === 'nombre') return cmpNombre(a, b);
+                return (b.bajas - a.bajas) || cmpNombre(a, b);
+            });
+
+            if (!lista.length) {
+                cuadricula.replaceChildren(h('div', { class: 'rv-empty', text: 'Ningún producto coincide con la búsqueda.' }));
+                return;
+            }
+
+            cuadricula.replaceChildren.apply(cuadricula, lista.map(function (g) {
+                return h('button', { type: 'button', class: 'rv-card', onclick: function () { abrir(g.id); } },
+                    h('h3', { 'data-nombre': g.id, text: nombreDe(g) }),
+                    h('div', { class: 'rv-meta' },
+                        h('span', { class: 'rv-avg', text: estrellas(g.prom) + ' ' + g.prom.toFixed(1) }),
+                        h('span', { text: g.total + ' reseña' + (g.total === 1 ? '' : 's') })
+                    ),
+                    barra(g),
+                    h('div', { class: 'rv-meta' },
+                        h('span', { text: g.bajas ? g.bajas + ' baja' + (g.bajas === 1 ? '' : 's') + ' (1–2 ★)' : 'Sin reseñas bajas' }),
+                        h('span', { class: 'badge ' + (g.bajas ? 'badge-error' : 'badge-success'), text: g.bajas ? 'Revisar' : 'Todo bien' })
+                    )
+                );
+            }));
+        }
+
+        buscador.addEventListener('input', pintar);
+        orden.addEventListener('change', pintar);
+
+        app.replaceChildren(
+            h('div', { class: 'rv-stats' },
+                stat(total, 'Reseñas en total'),
+                stat(grupos.length, 'Productos con reseñas'),
+                stat(prom.toFixed(1) + ' ★', 'Promedio general'),
+                stat(bajas, 'Reseñas bajas (1–2 ★)')
+            ),
+            h('div', { class: 'rv-toolbar' }, buscador, orden),
+            cuadricula
+        );
+        pintar();
+        vistaGeneral.repintar = pintar;
+    }
+
+    /* ---------- Vista de producto: reseñas paginadas ---------- */
+    function vistaProducto(g, restaurar) {
+        var sel = { filtro: 0, q: '', pag: 1 };
+        if (restaurar) { sel.filtro = restaurar.filtro || 0; sel.q = restaurar.q || ''; sel.pag = restaurar.pag || 1; }
+
+        var cuerpo = h('tbody');
+        var pie = h('div', { class: 'rv-pager' });
+        var distEl = h('div', { class: 'rv-dist' });
+        var chipEl = h('span');
+        var buscador = h('input', { type: 'search', class: 'rv-input', placeholder: 'Buscar en los comentarios…', 'aria-label': 'Buscar en los comentarios', value: sel.q });
+
+        function visibles() {
+            var q = norm(sel.q.trim());
+            return g.items.filter(function (d) {
+                return (!sel.filtro || d.n === sel.filtro) &&
+                       (!q || norm(d.comentario).indexOf(q) !== -1 || norm(d.usuario).indexOf(q) !== -1);
+            });
+        }
+
+        function pintarDist() {
+            var filas = [];
+            for (var n = 5; n >= 1; n--) {
+                (function (n) {
+                    var cant = g.dist[n];
+                    var clase = n >= 4 ? 'ok' : (n === 3 ? 'mid' : 'bad');
+                    filas.push(h('button', {
+                        type: 'button',
+                        class: sel.filtro === n ? 'activo' : false,
+                        disabled: cant === 0,
+                        'aria-label': 'Filtrar reseñas de ' + n + ' estrellas',
+                        onclick: function () { sel.filtro = sel.filtro === n ? 0 : n; sel.pag = 1; pintar(); }
+                    },
+                        h('span', { text: n + ' \u2605' }),
+                        h('span', { class: 'rv-track' }, h('i', { class: clase, style: 'width:' + (g.total ? cant / g.total * 100 : 0) + '%' })),
+                        h('b', { text: String(cant) })
+                    ));
+                })(n);
+            }
+            distEl.replaceChildren.apply(distEl, filas);
+            chipEl.replaceChildren();
+            if (sel.filtro) {
+                chipEl.append(h('button', { type: 'button', class: 'rv-filtro-chip', onclick: function () { sel.filtro = 0; sel.pag = 1; pintar(); } },
+                    'Filtro: ' + sel.filtro + ' ★ \u2715'));
+            }
+        }
+
+        function paginas(total, actual) {
+            var out = [], i;
+            for (i = 1; i <= total; i++) {
+                if (i === 1 || i === total || Math.abs(i - actual) <= 1) out.push(i);
+                else if (out[out.length - 1] !== '\u2026') out.push('\u2026');
+            }
+            return out;
+        }
+
+        function pintar() {
+            pintarDist();
+            var lista = visibles();
+            var paginasTotal = Math.max(1, Math.ceil(lista.length / POR_PAGINA));
+            if (sel.pag > paginasTotal) sel.pag = paginasTotal;
+            var ini = (sel.pag - 1) * POR_PAGINA;
+            var pagina = lista.slice(ini, ini + POR_PAGINA);
+
+            if (!pagina.length) {
+                cuerpo.replaceChildren(h('tr', null, h('td', { colspan: '4', class: 'rv-empty', text: 'No hay reseñas con ese filtro.' })));
+            } else {
+                cuerpo.replaceChildren.apply(cuerpo, pagina.map(function (d) {
+                    var f = d.form.cloneNode(true);
+                    f.append(h('button', { type: 'submit', class: 'btn-eliminar', text: 'Eliminar' }));
+                    f.addEventListener('submit', function (e) {
+                        if (!confirm('¿Eliminar esta reseña?')) { e.preventDefault(); return; }
+                        try { sessionStorage.setItem(CLAVE_SEL, JSON.stringify({ p: g.id, pag: sel.pag, filtro: sel.filtro, q: sel.q })); } catch (x) {}
+                    });
+                    return h('tr', { class: d.n <= 2 ? 'baja' : false },
+                        h('td', { class: 'td-strong', text: d.usuario }),
+                        h('td', { class: 'estrellas', text: d.est }),
+                        h('td', { class: 'comentario', text: d.comentario }),
+                        h('td', { class: 'accion' }, f)
+                    );
+                }));
+            }
+
+            var desde = lista.length ? ini + 1 : 0;
+            var hasta = Math.min(ini + POR_PAGINA, lista.length);
+            var botones = [
+                h('button', { type: 'button', disabled: sel.pag === 1, 'aria-label': 'Página anterior', onclick: function () { sel.pag--; pintar(); }, text: '\u2039' })
+            ];
+            paginas(paginasTotal, sel.pag).forEach(function (p) {
+                if (p === '\u2026') botones.push(h('span', { text: p }));
+                else botones.push(h('button', { type: 'button', class: p === sel.pag ? 'activo' : false, 'aria-current': p === sel.pag ? 'page' : false, onclick: function () { sel.pag = p; pintar(); }, text: String(p) }));
+            });
+            botones.push(h('button', { type: 'button', disabled: sel.pag === paginasTotal, 'aria-label': 'Página siguiente', onclick: function () { sel.pag++; pintar(); }, text: '\u203A' }));
+
+            pie.replaceChildren(
+                h('span', { text: 'Mostrando ' + desde + '–' + hasta + ' de ' + lista.length + ' reseña' + (lista.length === 1 ? '' : 's') }),
+                paginasTotal > 1 ? h('div', { class: 'rv-pages' }, botones) : null
+            );
+        }
+
+        buscador.addEventListener('input', function () { sel.q = buscador.value; sel.pag = 1; pintar(); });
+
+        app.replaceChildren(
+            h('button', { type: 'button', class: 'btn-volver rv-back', onclick: volver, text: '← Todos los productos' }),
+            h('div', { class: 'rv-prod-head' },
+                h('h2', { 'data-nombre': g.id, text: nombreDe(g) }),
+                g.id ? h('a', { class: 'ver', href: g.ver, text: 'Ver producto' }) : null
+            ),
+            h('div', { class: 'rv-summary' },
+                h('div', null,
+                    h('div', { class: 'rv-big', text: g.prom.toFixed(1) }),
+                    h('div', { class: 'rv-big-stars', text: estrellas(g.prom) }),
+                    h('div', { class: 'rv-big-count', text: g.total + ' reseña' + (g.total === 1 ? '' : 's') })
+                ),
+                distEl
+            ),
+            h('div', { class: 'rv-toolbar' }, buscador, chipEl),
+            h('div', { class: 'table-wrap' }, h('table', { class: 'table-admin rv-tabla' },
+                h('thead', null, h('tr', null,
+                    h('th', { text: 'Cliente' }), h('th', { text: 'Calificación' }), h('th', { text: 'Comentario' }), h('th')
+                )),
+                cuerpo
+            )),
+            pie
+        );
+        pintar();
+    }
+
+    /* ---------- Inicio: si venimos de eliminar una reseña, volver al mismo producto y pagina ---------- */
+    var guardado = null;
+    try {
+        guardado = JSON.parse(sessionStorage.getItem(CLAVE_SEL) || 'null');
+        sessionStorage.removeItem(CLAVE_SEL);
+    } catch (e) { guardado = null; }
+
+    if (guardado && porId[guardado.p]) {
+        history.replaceState({}, '', '#p=' + encodeURIComponent(guardado.p));
+        ruta(guardado);
+    } else {
+        ruta(null);
+    }
+
+    resolverNombres().then(function () {
+        if (vistaGeneral.repintar && document.querySelector('.rv-grid')) vistaGeneral.repintar();
+    });
+})();
+</script>
 
 <script th:src="@{/js/main.js}"></script>
 </body>

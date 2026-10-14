@@ -2,6 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartGlass - Iniciar Sesión</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
@@ -91,7 +92,7 @@
             width: 100%;
             box-sizing: border-box;
             padding: 12px 14px 12px 44px;
-            background: rgba(13, 20, 42, 0.6);
+            background: var(--input-bg);
             border: 1px solid var(--border-color);
             border-radius: 10px;
             color: var(--text-main);
@@ -196,19 +197,19 @@
         .alert-error {
             background: rgba(239, 68, 68, 0.12);
             border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #F87171;
+            color: var(--color-error);
         }
 
         .alert-info {
             background: rgba(59, 130, 246, 0.12);
             border: 1px solid rgba(59, 130, 246, 0.3);
-            color: #60A5FA;
+            color: var(--color-info);
         }
 
         .alert-success {
             background: rgba(16, 185, 129, 0.12);
             border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #34D399;
+            color: var(--color-success);
         }
 
         /* Enlaces de navegación inferior */
@@ -245,6 +246,21 @@
         .links-container a.back-link:hover {
             color: var(--text-main);
         }
+
+        /* El logo completo trae fondo oscuro incluido: en modo claro se
+           reemplaza por icono + nombre. */
+        .logo-wordmark {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-main);
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        .logo-wordmark img { width: 46px; height: auto; }
+        :root[data-theme="light"] .login-logo-full { display: none; }
+        :root[data-theme="light"] .logo-wordmark { display: inline-flex; }
     </style>
 </head>
 <body>
@@ -256,6 +272,7 @@
 <div class="login-brand">
     <a th:href="@{/home}" class="brand-logo-link" title="Volver al inicio">
         <img th:src="@{/img/logo-full.png}" src="/img/logo-full.png" alt="SmartGlass" class="login-logo-full">
+        <span class="logo-wordmark"><img th:src="@{/img/logo-icono.png}" src="/img/logo-icono.png" alt="">SmartGlass</span>
     </a>
     <p class="login-subtitle">Ingresa a tu cuenta para continuar</p>
 </div>

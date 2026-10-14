@@ -2,12 +2,16 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Mis Cotizaciones</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
     
     <style>
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
-        .logo { color: var(--color-accent); font-weight: bold; font-size: 1.5rem; text-decoration: none; }
+        .logo { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-weight: 700; font-size: 1.3rem; text-decoration: none; }
+        .logo img { height: 38px; width: auto; }
+        .logo span { color: var(--color-accent); }
         .nav-links { display: flex; list-style: none; gap: 15px; margin: 0; padding: 0; }
         .nav-links a { color: var(--text-main); text-decoration: none; padding: 8px 16px; border-radius: 8px; background: var(--bg-tertiary); transition: 0.3s; font-size: 0.9rem;}
         .nav-links a:hover { background: var(--color-accent); color: var(--bg-primary); }
@@ -41,7 +45,10 @@
 <body>
 
 <nav class="navbar">
-    <a th:href="@{/usuario}" class="logo">◆ SmartGlass</a>
+    <a th:href="@{/usuario}" class="logo">
+        <img th:src="@{/img/logo-icono.png}" alt="SmartGlass">
+        <span>SmartGlass</span>
+    </a>
     <ul class="nav-links">
         <li><a th:href="@{/catalogo}">Tienda</a></li>
         <li><a th:href="@{/carrito}">🛒 Carrito</a></li>
