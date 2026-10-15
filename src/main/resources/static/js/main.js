@@ -194,7 +194,7 @@ function inicializarSelectorDeTema() {
   function aplicar(tema, guardar, animar) {
     if (animar) {
       raiz.classList.add('sg-theme-transition');
-      setTimeout(() => raiz.classList.remove('sg-theme-transition'), 400);
+      setTimeout(() => raiz.classList.remove('sg-theme-transition'), 600);
     }
     raiz.setAttribute('data-theme', tema);
     const claro = tema === 'light';
@@ -207,8 +207,32 @@ function inicializarSelectorDeTema() {
     document.dispatchEvent(new CustomEvent('sg-theme-change', { detail: { tema } }));
   }
 
+  // Cambio con revelado circular que nace en el interruptor. Si el navegador
+  // no soporta View Transitions (o el usuario pidio menos movimiento) cae a un
+  // fundido de colores / cambio directo.
+  function cambiarTema(tema) {
+    const reducir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducir) { aplicar(tema, true, false); return; }
+    if (!document.startViewTransition) { aplicar(tema, true, true); return; }
+
+    const r = boton.getBoundingClientRect();
+    const x = r.left + r.width / 2;
+    const y = r.top + r.height / 2;
+    const radio = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+    raiz.classList.add('sg-vt');
+    const vt = document.startViewTransition(() => aplicar(tema, true, false));
+    vt.ready.then(() => {
+      raiz.animate(
+        { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + radio + 'px at ' + x + 'px ' + y + 'px)'] },
+        { duration: 750, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+      );
+    }).catch(() => {});
+    vt.finished.finally(() => raiz.classList.remove('sg-vt'));
+  }
+
   boton.addEventListener('click', () => {
-    aplicar(raiz.getAttribute('data-theme') === 'light' ? 'dark' : 'light', true, true);
+    cambiarTema(raiz.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
   });
 
   // Si otra pestana cambia el tema, esta lo sigue

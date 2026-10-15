@@ -10,7 +10,7 @@
   
   /* Textos */
   --text-main: #FFFFFF;
-  --text-muted: #94A3B8;
+  --text-muted: #B0BDD1;
   --text-on-accent: #FFFFFF;
   
   /* Acentos - Azul eléctrico brillante */
@@ -35,12 +35,18 @@
   --card-bg: rgba(13, 20, 42, 0.6);
   --card-bg-soft: rgba(13, 20, 42, 0.4);
   --input-bg: rgba(13, 20, 42, 0.7);
-  --placeholder: rgba(148, 163, 184, 0.4);
+  --placeholder: #8B9AB5;
   --grid-line: rgba(255, 255, 255, 0.015);
   --bg-ambient: radial-gradient(900px 500px at 85% -5%, rgba(59, 130, 246, 0.10), transparent 60%);
   --surface-hover: rgba(255, 255, 255, 0.025);
   --shadow-hover: 0 12px 30px -6px rgba(0, 0, 0, 0.8);
   --scroll-hover: #1E293B;
+
+  /* Acento: texto claro sobre fondo oscuro; relleno mas profundo para que el texto blanco tenga contraste */
+  --color-accent-text: #6FA8FF;
+  --color-accent-solid: #2563EB;
+  --color-accent-solid-hover: #1D4ED8;
+  --color-star: #FBBF24;
 
   /* Estados (faltaban: varias vistas los usaban y quedaban transparentes) */
   --color-success: #34D399;
@@ -69,7 +75,7 @@
   --bg-tertiary: #E8EEFA;
 
   --text-main: #0B1530;
-  --text-muted: #56668A;
+  --text-muted: #44537A;
   --text-on-accent: #FFFFFF;
 
   --color-accent: #2563EB;
@@ -81,21 +87,24 @@
   --shadow-main: 0 10px 30px -12px rgba(30, 58, 138, 0.18), 0 4px 12px -6px rgba(30, 58, 138, 0.10);
   --shadow-glow: 0 0 22px rgba(37, 99, 235, 0.18);
 
-  --color-success: #047857;
-  --color-success-dim: rgba(4, 120, 87, 0.10);
-  --color-warning: #B45309;
-  --color-warning-dim: rgba(180, 83, 9, 0.10);
+  --color-success: #05694B;
+  --color-success-dim: rgba(5, 105, 75, 0.10);
+  --color-warning: #9A4A06;
+  --color-warning-dim: rgba(154, 74, 6, 0.10);
   --color-info: #0369A1;
   --color-info-dim: rgba(3, 105, 161, 0.10);
-  --color-error: #DC2626;
-  --color-error-dim: rgba(220, 38, 38, 0.10);
-  --co2-glow-normal: 0 0 28px rgba(4, 120, 87, 0.22);
+  --color-error: #B91C1C;
+  --color-error-dim: rgba(185, 28, 28, 0.10);
+  --co2-glow-normal: 0 0 28px rgba(5, 105, 75, 0.22);
+
+  --color-accent-text: #1D4ED8;
+  --color-star: #C2610A;
 
   --nav-bg: rgba(255, 255, 255, 0.78);
   --card-bg: rgba(255, 255, 255, 0.82);
   --card-bg-soft: rgba(255, 255, 255, 0.65);
   --input-bg: #FFFFFF;
-  --placeholder: rgba(86, 102, 138, 0.55);
+  --placeholder: #5E6C88;
   --grid-line: rgba(30, 58, 138, 0.032);
   --bg-ambient:
     radial-gradient(900px 520px at 88% -8%, rgba(37, 99, 235, 0.13), transparent 62%),
@@ -127,7 +136,7 @@ html, body {
 }
 
 h1, h2, h3, h4, h5, h6 { color: var(--text-main); margin-top: 0; font-weight: 600; line-height: 1.2; }
-a { color: var(--color-accent); text-decoration: none; transition: color 0.3s ease; }
+a { color: var(--color-accent-text); text-decoration: none; transition: color 0.3s ease; }
 a:hover { color: var(--color-accent-hover); }
 img { max-width: 100%; height: auto; display: block; }
 
@@ -156,18 +165,18 @@ img { max-width: 100%; height: auto; display: block; }
 .navbar .logo img { height: 28px; }
 .nav-links { display: flex; align-items: center; gap: 35px; list-style: none; margin: 0; padding: 0; }
 .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: 0.3s; }
-.nav-links a:hover, .nav-links a.activo { color: var(--color-accent); }
+.nav-links a:hover, .nav-links a.activo { color: var(--color-accent-text); }
 .nav-acciones { display: flex; align-items: center; gap: 20px; }
 .nav-icono { color: var(--text-muted); font-size: 1.2rem; transition: 0.3s; }
 .nav-icono:hover { color: var(--text-main); }
 .btn-nav-cta {
-  background: var(--color-accent); color: white;
+  background: var(--color-accent-solid); color: white;
   padding: 8px 24px; border-radius: 30px; text-decoration: none;
   font-weight: 600; font-size: 0.9rem;
   box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
   transition: all 0.3s ease;
 }
-.btn-nav-cta:hover { background: var(--color-accent-hover); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+.btn-nav-cta:hover { background: var(--color-accent-solid-hover); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
 
 /* NOTA: el CSS especifico de HERO/BENEFICIOS/VITRINA vive ahora
    en el <style> local de index.html -- es contenido exclusivo
@@ -181,8 +190,8 @@ img { max-width: 100%; height: auto; display: block; }
   padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.95rem;
   border: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); text-decoration: none;
 }
-.btn-primary { background-color: var(--color-accent); color: var(--text-on-accent); box-shadow: var(--shadow-glow); }
-.btn-primary:hover { background-color: var(--color-accent-hover); transform: translateY(-2px); box-shadow: 0 0 25px rgba(59, 130, 246, 0.4); color: #fff; }
+.btn-primary { background-color: var(--color-accent-solid); color: var(--text-on-accent); box-shadow: var(--shadow-glow); }
+.btn-primary:hover { background-color: var(--color-accent-solid-hover); transform: translateY(-2px); box-shadow: 0 0 25px rgba(59, 130, 246, 0.4); color: #fff; }
 .btn-secondary { background-color: transparent; color: var(--text-main); border: 1px solid var(--border-color); }
 .btn-secondary:hover { border-color: var(--color-accent); background-color: var(--color-accent-dim); color: var(--text-main); }
 .btn-danger { background-color: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
@@ -282,7 +291,7 @@ a[href="/carrito"], .sg-magnetico {
 }
 @keyframes carritoElastic {
   0%   { transform: scale(1); }
-  30%  { transform: scale(1.3) rotate(-10deg); color: var(--color-accent); text-shadow: 0 0 12px var(--color-accent); }
+  30%  { transform: scale(1.3) rotate(-10deg); color: var(--color-accent-text); text-shadow: 0 0 12px var(--color-accent); }
   50%  { transform: scale(0.9) rotate(5deg); }
   70%  { transform: scale(1.1) rotate(-3deg); }
   100% { transform: scale(1) rotate(0); }
@@ -314,13 +323,13 @@ tr:hover td { background-color: var(--surface-hover); }
   text-align: center; color: var(--text-muted); font-size: 0.9rem;
 }
 .footer-main p { margin: 0; }
-.footer-main span { color: var(--color-accent); font-weight: 600; }
+.footer-main span { color: var(--color-accent-text); font-weight: 600; }
 
 /* =========================================================
    UTILIDADES GLOBALES
 ========================================================= */
 .text-center { text-align: center; }
-.text-accent { color: var(--color-accent); }
+.text-accent { color: var(--color-accent-text); }
 .text-muted { color: var(--text-muted); }
 .mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }
@@ -441,11 +450,31 @@ tr:hover td { background-color: var(--surface-hover); }
 :root[data-theme="light"] .sg-theme-thumb .sg-ico-sun { opacity: 1; transform: none; }
 :root[data-theme="light"] .sg-theme-thumb .sg-ico-moon { opacity: 0; transform: rotate(90deg) scale(0.6); }
 
-/* Transicion suave de colores solo mientras se cambia de tema */
+/* Cambio de tema: revelado circular desde el interruptor (View Transitions API).
+   main.js anima el clip-path de la vista nueva; aqui solo se apagan las
+   animaciones por defecto del navegador. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+
+/* Durante el revelado se pausan las transiciones propias de cada elemento
+   (salvo las del interruptor) para que no se mezclen con la animacion. */
+html.sg-vt *:not(.sg-theme-switch):not(.sg-theme-switch *),
+html.sg-vt *::before,
+html.sg-vt *::after {
+  transition: none !important;
+}
+
+/* Respaldo (navegadores sin View Transitions): fundido de colores */
 html.sg-theme-transition *,
 html.sg-theme-transition *::before,
 html.sg-theme-transition *::after {
-  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease !important;
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease,
+              box-shadow 0.5s ease, fill 0.5s ease, stroke 0.5s ease !important;
 }
 
 @media print { .sg-theme-switch { display: none !important; } }

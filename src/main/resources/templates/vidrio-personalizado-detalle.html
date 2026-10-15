@@ -12,14 +12,14 @@
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
         .logo { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-weight: 700; font-size: 1.3rem; text-decoration: none; }
         .logo img { height: 38px; width: auto; }
-        .logo span { color: var(--color-accent); }
+        .logo span { color: var(--color-accent-text); }
         .header-logo { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); height: 130px; width: auto; opacity: 0.95; pointer-events: none; }
         .footer-brand { display: flex; align-items: center; justify-content: center; gap: 10px; }
         .footer-brand img { height: 22px; width: auto; }
         @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; padding: 0 16px; } .header-logo { display: none; } .navbar { padding: 1rem 1.2rem; } }
         
         .cotizacion-header { position: relative; overflow: hidden; background: var(--color-accent-dim); padding: 40px; border-radius: 16px; margin: 30px auto; max-width: 1200px; border: 1px solid var(--color-accent); }
-        .cotizacion-header h1 { margin: 0 0 10px 0; color: var(--color-accent); }
+        .cotizacion-header h1 { margin: 0 0 10px 0; color: var(--color-accent-text); }
 
         .main-grid { display: grid; grid-template-columns: 1fr 350px; gap: 30px; max-width: 1200px; margin: 0 auto 50px; }
 
@@ -74,13 +74,13 @@
     <div class="content-left">
         <!-- Tarjeta de Especificaciones Original -->
         <div class="tech-card">
-            <h3 style="margin-top:0; color:var(--color-accent);">Especificaciones del Vidrio</h3>
+            <h3 style="margin-top:0; color: var(--color-accent-text);">Especificaciones del Vidrio</h3>
             <div class="tech-item"><span style="color: var(--text-muted);">Tipo de Vidrio:</span> <strong style="color: var(--text-main);" th:text="${vidrio.tipoVidrio}"></strong></div>
             <div class="tech-item"><span style="color: var(--text-muted);">Dimensiones:</span> <strong style="color: var(--text-main);" th:text="${vidrio.ancho} + ' x ' + ${vidrio.alto} + ' cm'"></strong></div>
             <div class="tech-item"><span style="color: var(--text-muted);">Espesor Requerido:</span> <strong style="color: var(--text-main);" th:text="${vidrio.espesor} + ' mm'"></strong></div>
             <div class="tech-item"><span style="color: var(--text-muted);">Área Total:</span> <strong style="color: var(--text-main);" th:text="${vidrio.areaTotal} + ' m²'"></strong></div>
             
-            <h3 style="margin-top:30px; color:var(--color-accent);">Composición de Materiales</h3>
+            <h3 style="margin-top:30px; color: var(--color-accent-text);">Composición de Materiales</h3>
             <div class="material-row">
                 <div class="material-label"><span>Sílice (Arena)</span> <span th:text="${vidrio.cantidadSilice} + ' kg'"></span></div>
                 <div class="progress-bar"><div class="progress-fill" style="width: 72%;"></div></div>

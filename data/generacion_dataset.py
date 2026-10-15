@@ -5,7 +5,7 @@ Dataset derivado de factores de emisión documentados:
 - Factor red eléctrica Colombia: ~0.25 kg CO2/kWh
 - El calcín reduce ~2.5% de energía por cada 10% y sustituye CO2 de materia prima.
 Los 20 tipos de vidrio y sus multiplicadores son fieles al catálogo de SmartGlass.
-Reproducible: semilla fija 42.
+Reproducible
 """
 import os
 import numpy as np

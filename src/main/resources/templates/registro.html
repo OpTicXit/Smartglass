@@ -101,7 +101,7 @@
 
         .login-container h2 {
             margin: 0 0 8px;
-            color: var(--color-accent);
+            color: var(--color-accent-text);
             font-size: clamp(1.8rem, 4vw, 2.2rem);
             line-height: 1.15;
             letter-spacing: -0.03em;
@@ -155,8 +155,7 @@
         }
 
         .login-form input::placeholder {
-            color: var(--text-muted);
-            opacity: 0.75;
+            color: var(--placeholder);
         }
 
         .login-form input:hover {
@@ -189,7 +188,7 @@
         .btn-submit {
             width: 100%;
             border: 0;
-            background: var(--color-accent);
+            background: var(--color-accent-solid);
             color: var(--text-on-accent);
             padding: 13px 18px;
             min-height: 50px;
@@ -205,7 +204,7 @@
         }
 
         .btn-submit:hover {
-            background: var(--color-accent-hover);
+            background: var(--color-accent-solid-hover);
             transform: translateY(-2px);
             box-shadow: 0 8px 20px var(--color-accent);
         }
@@ -253,12 +252,12 @@
         }
 
         .links-container a:hover {
-            color: var(--color-accent);
+            color: var(--color-accent-text);
             transform: translateX(2px);
         }
 
         .links-container a:first-child {
-            color: var(--color-accent);
+            color: var(--color-accent-text);
             font-weight: 700;
         }
 
@@ -269,7 +268,6 @@
             color: var(--text-muted);
             font-size: 0.72rem;
             letter-spacing: 0.04em;
-            opacity: 0.8;
         }
 
         /* Responsive */
@@ -414,7 +412,7 @@
             </div>
 
             <div class="links-container">
-                <a th:href="@{/login}" style="color: var(--color-accent); font-weight: bold;">← Volver al login</a>
+                <a th:href="@{/login}" style="color: var(--color-accent-text); font-weight: bold;">← Volver al login</a>
                 <a th:href="@{/home}">← Ir al inicio</a>
             </div>
 

@@ -117,7 +117,7 @@
         }
 
         .rv-big { color: var(--text-main); font-size: 2.7rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
-        .rv-big-stars { margin-top: 6px; color: var(--color-warning); font-size: 1.05rem; letter-spacing: 3px; }
+        .rv-big-stars { margin-top: 6px; color: var(--color-star); font-size: 1.05rem; letter-spacing: 3px; }
         .rv-big-count { margin-top: 4px; color: var(--text-muted); font-size: 0.82rem; }
 
         .rv-dist { display: grid; gap: 4px; }
@@ -154,7 +154,7 @@
             border: 1px solid var(--color-accent);
             border-radius: 999px;
             background: var(--color-accent-dim);
-            color: var(--color-accent);
+            color: var(--color-accent-text);
             font: inherit;
             font-size: 0.8rem;
             font-weight: 700;
@@ -162,7 +162,7 @@
         }
 
         .rv-tabla td.comentario { min-width: 240px; max-width: 460px; line-height: 1.55; }
-        .rv-tabla .estrellas { color: var(--color-warning); font-weight: 600; letter-spacing: 0.05em; white-space: nowrap; }
+        .rv-tabla .estrellas { color: var(--color-star); font-weight: 600; letter-spacing: 0.05em; white-space: nowrap; }
         .rv-tabla tr.baja td:first-child { box-shadow: inset 3px 0 0 var(--color-error); }
         .rv-tabla td.fecha { color: var(--text-muted); font-size: 0.85rem; white-space: nowrap; }
         .rv-tabla td.accion { text-align: right; width: 1%; white-space: nowrap; }
@@ -184,8 +184,8 @@
             cursor: pointer;
         }
 
-        .rv-pages button:hover:not(:disabled):not(.activo) { border-color: var(--border-hover); color: var(--color-accent); }
-        .rv-pages button.activo { border-color: var(--color-accent); background: var(--color-accent); color: var(--text-on-accent); }
+        .rv-pages button:hover:not(:disabled):not(.activo) { border-color: var(--border-hover); color: var(--color-accent-text); }
+        .rv-pages button.activo { border-color: var(--color-accent); background: var(--color-accent-solid); color: var(--text-on-accent); }
         .rv-pages button:disabled { opacity: 0.4; cursor: default; }
         .rv-pages span { align-self: center; padding: 0 4px; color: var(--text-muted); }
 

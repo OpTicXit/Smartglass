@@ -11,7 +11,7 @@
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
         .logo { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-weight: 700; font-size: 1.3rem; text-decoration: none; }
         .logo img { height: 38px; width: auto; }
-        .logo span { color: var(--color-accent); }
+        .logo span { color: var(--color-accent-text); }
         .nav-links { display: flex; list-style: none; gap: 15px; margin: 0; padding: 0; }
         .nav-links a { color: var(--text-main); text-decoration: none; padding: 8px 16px; border-radius: 8px; background: var(--bg-tertiary); transition: 0.3s; font-size: 0.9rem;}
         .nav-links a:hover { background: var(--color-accent); color: var(--bg-primary); }
@@ -36,7 +36,7 @@
         .estado-aprobado { background: var(--color-success-dim); color: var(--color-success); border: 1px solid var(--color-success); }
 
         .precio-box { text-align: right; }
-        .precio-valor { font-size: 1.5rem; color: var(--color-accent); font-weight: bold; display: block; }
+        .precio-valor { font-size: 1.5rem; color: var(--color-accent-text); font-weight: bold; display: block; }
         
         .card-footer { padding: 15px 20px; background: var(--bg-tertiary); border-top: 1px solid var(--border-color); display: flex; gap: 10px; }
         .btn-mini { padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.85rem; border: none; cursor: pointer; }
@@ -60,7 +60,7 @@
 <div class="cotizaciones-container">
     <div class="page-header">
         <div>
-            <h1 style="color: var(--color-accent); margin: 0;">📋 Mis Cotizaciones</h1>
+            <h1 style="color: var(--color-accent-text); margin: 0;">📋 Mis Cotizaciones</h1>
             <p style="color: var(--text-muted); margin-top: 5px;">Seguimiento técnico de tus proyectos a medida.</p>
         </div>
         <a th:href="@{/vidrio-personalizado/cotizar}" class="btn-nueva">+ Nueva Cotización</a>
@@ -121,7 +121,7 @@
                 <a th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${cot.id})}" class="btn-mini" style="background: var(--bg-primary); color: var(--text-main); border: 1px solid var(--border-color);">👁️ Ver Detalles</a>
                 
                 <form th:if="${cot.estado == 'COTIZACION'}" th:action="@{/vidrio-personalizado/aprobar/{id}(id=${cot.id})}" method="post">
-                    <button type="submit" class="btn-mini" style="background: var(--color-success); color: var(--text-on-accent);">✓ Aprobar</button>
+                    <button type="submit" class="btn-mini" style="background: var(--color-success); color: var(--bg-primary);">✓ Aprobar</button>
                 </form>
                 
                 <form th:if="${cot.estado == 'COTIZACION'}" th:action="@{/vidrio-personalizado/eliminar/{id}(id=${cot.id})}" method="post" onsubmit="return confirm('¿Eliminar esta cotización?')">

@@ -55,7 +55,7 @@
         }
 
         .brand-link span {
-            color: var(--color-accent);
+            color: var(--color-accent-text);
         }
 
         .nav-links {
@@ -79,7 +79,7 @@
 
         .back-store:hover {
             border-color: var(--color-accent);
-            color: var(--color-accent);
+            color: var(--color-accent-text);
             transform: translateY(-1px);
         }
 
@@ -114,12 +114,12 @@
         }
 
         .breadcrumb-item.current {
-            color: var(--color-accent);
+            color: var(--color-accent-text);
             font-weight: 700;
         }
 
         .breadcrumb-separator {
-            opacity: 0.45;
+            color: var(--text-muted);
         }
 
         /* =========================
@@ -134,7 +134,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: var(--color-accent);
+            color: var(--color-accent-text);
             font-size: 0.78rem;
             font-weight: 700;
             letter-spacing: 0.08em;
@@ -211,7 +211,7 @@
             place-items: center;
             border-radius: 9px;
             background: var(--color-accent-dim);
-            color: var(--color-accent);
+            color: var(--color-accent-text);
             font-weight: 800;
             font-size: 0.85rem;
         }
@@ -434,8 +434,8 @@
             padding: 3px 9px;
             border-radius: 999px;
             background: var(--color-accent-dim);
-            color: var(--color-accent);
-            font-size: 0.68rem;
+            color: var(--color-accent-text);
+            font-size: 0.72rem;
             font-weight: 800;
             letter-spacing: 0.04em;
         }
@@ -527,14 +527,13 @@
             margin-top: 16px;
             padding: 17px;
             border-radius: 11px;
-            background: var(--color-accent);
+            background: var(--color-accent-solid);
             color: var(--text-on-accent);
         }
 
         .total-label {
             font-size: 0.82rem;
-            opacity: 0.9;
-        }
+            }
 
         .total-amount {
             font-size: 1.25rem;
