@@ -117,6 +117,128 @@
 
 
 
+/* =========================================================
+   ANIMACIONES AMBIENTALES (la pagina "respira" aunque nadie la toque)
+   Se usan las propiedades individuales translate/scale para que
+   se combinen con los transform de hover/perspectiva ya existentes.
+========================================================= */
+
+/* Resplandor del hero que respira y se desplaza */
+.hero { overflow: hidden; }
+.hero::before {
+  content: ""; position: absolute; width: 620px; height: 620px; top: 50%; left: 62%;
+  margin: -310px 0 0 -310px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, transparent 62%);
+  animation: ambDrift 14s ease-in-out infinite alternate;
+}
+.hero .container { position: relative; z-index: 2; }
+@keyframes ambDrift {
+  0%   { translate: -90px -40px; scale: 0.85; opacity: 0.6; }
+  50%  { translate: 40px 50px;  scale: 1.1;  opacity: 1; }
+  100% { translate: 110px -30px; scale: 0.95; opacity: 0.7; }
+}
+
+/* Particulas de luz que suben lentamente (las crea el script de abajo) */
+.amb-particulas { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+.amb-particula {
+  position: absolute; bottom: -20px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(147, 197, 253, 0.9), rgba(59, 130, 246, 0) 70%);
+  opacity: 0; animation: ambSubir linear infinite;
+}
+@keyframes ambSubir {
+  0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  12%  { opacity: 0.8; }
+  50%  { transform: translate(var(--deriva, 30px), -300px) scale(1); }
+  100% { transform: translate(calc(var(--deriva, 30px) * -1), -640px) scale(0.7); opacity: 0; }
+}
+:root[data-theme="light"] .amb-particula {
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.55), rgba(37, 99, 235, 0) 70%);
+}
+
+/* Paneles de vidrio: flotan y reciben un destello que los recorre */
+.panel-vidrio { animation: ambFlotar 7s ease-in-out infinite; overflow: hidden; }
+.panel-vidrio.p1 { animation-delay: -2s; }
+.panel-vidrio.p3 { animation-delay: -4s; }
+.panel-vidrio.p2 { animation-duration: 8s; }
+@keyframes ambFlotar {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -14px; }
+}
+.panel-vidrio::after {
+  content: ""; position: absolute; inset: -20% -60%; pointer-events: none;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.45) 50%, transparent 60%);
+  translate: -100% 0; animation: ambDestello 6s ease-in-out infinite;
+}
+.panel-vidrio.p1::after { animation-delay: 0s; }
+.panel-vidrio.p2::after { animation-delay: 0.5s; }
+.panel-vidrio.p3::after { animation-delay: 1s; }
+@keyframes ambDestello {
+  0%, 55% { translate: -100% 0; }
+  100%    { translate: 100% 0; }
+}
+
+/* Titular: el acento tiene un brillo que se desliza */
+.hero-texto h1 .acento {
+  background: linear-gradient(100deg, var(--color-accent-text) 0%, #BFDBFE 40%, var(--color-accent-text) 80%);
+  background-size: 220% auto; -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; animation: ambBrillo 5s linear infinite;
+}
+:root[data-theme="light"] .hero-texto h1 .acento {
+  background-image: linear-gradient(100deg, #1D4ED8 0%, #38BDF8 40%, #1D4ED8 80%);
+}
+@keyframes ambBrillo { to { background-position: -220% center; } }
+
+/* Efecto arcoiris (.sg-rainbow de theme.css) en el CTA principal y la insignia del hero.
+   El radio coincide con el de cada elemento (30px, forma de pastilla). */
+.btn-hero-primario.sg-rainbow, .hero-badge.sg-rainbow { --sg-rainbow-radius: 30px; }
+.hero-badge.sg-rainbow { padding: 7px 16px; border-color: transparent; }
+/* El arcoiris ya aporta el brillo animado: se quita el pulso para no duplicar efectos */
+.btn-hero-primario.sg-rainbow { box-shadow: none; }
+.btn-hero-primario.sg-rainbow:hover { box-shadow: none; }
+
+/* Insignias flotantes: vaiven escalonado */
+.badge-flotante { animation: ambVaiven 5s ease-in-out infinite; }
+.badge-flotante:nth-child(2) { animation-delay: -1.6s; }
+.badge-flotante:nth-child(3) { animation-delay: -3.2s; }
+@keyframes ambVaiven {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -8px; }
+}
+/* Resalte rotativo (lo activa el script cuando el usuario esta inactivo) */
+.badge-flotante.amb-activa {
+  background: var(--bg-secondary); border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: var(--shadow-hover), 0 0 20px rgba(59, 130, 246, 0.25);
+  transform: translateX(-12px) scale(1.02);
+}
+.badge-flotante.amb-activa i { color: var(--color-accent-text); transform: scale(1.15) rotate(-5deg); }
+
+/* Tarjetas de beneficios: iconos que laten por turnos */
+.info-box i { display: inline-block; animation: ambLatido 4s ease-in-out infinite; transform-origin: left center; }
+.beneficios-grid .info-box:nth-child(2) i { animation-delay: 1s; }
+.beneficios-grid .info-box:nth-child(3) i { animation-delay: 2s; }
+.beneficios-grid .info-box:nth-child(4) i { animation-delay: 3s; }
+@keyframes ambLatido {
+  0%, 70%, 100% { scale: 1; color: var(--text-muted); }
+  80%           { scale: 1.25; color: var(--color-accent-text); }
+}
+
+/* Vitrina: zoom lento tipo "Ken Burns" en las imagenes */
+.categoria-card img { animation: ambKenBurns 14s ease-in-out infinite alternate; }
+.vitrina-grid .categoria-card:nth-child(2) img { animation-delay: -5s; }
+.vitrina-grid .categoria-card:nth-child(3) img { animation-delay: -10s; }
+@keyframes ambKenBurns {
+  from { scale: 1; }
+  to   { scale: 1.08; }
+}
+
+/* Quien prefiera menos movimiento no ve nada de esto */
+@media (prefers-reduced-motion: reduce) {
+  .hero::before, .amb-particula, .panel-vidrio, .panel-vidrio::after,
+  .hero-texto h1 .acento, .badge-flotante,
+  .info-box i, .categoria-card img { animation: none !important; }
+  .amb-particulas { display: none; }
+}
+
 /* Modo claro: paneles de vidrio con sombra azulada en vez de negra */
 :root[data-theme="light"] .panel-vidrio {
   box-shadow: inset 0 0 20px rgba(255,255,255,0.3), 0 25px 40px rgba(30, 58, 138, 0.25), 0 0 40px rgba(37, 99, 235, 0.25);
@@ -130,11 +252,11 @@
 <section class="hero">
     <div class="container">
         <div class="hero-texto">
-            <span class="hero-badge">Vidrio inteligente &bull; Diseño sostenible</span>
+            <span class="hero-badge sg-rainbow">Vidrio inteligente &bull; Diseño sostenible</span>
             <h1>Transparencia que<br><span class="acento">transforma espacios</span></h1>
             <p>En SmartGlass, combinamos tecnología y diseño para ofrecerte soluciones en vidrio de alta calidad, personalizadas y sostenibles. Dale vida a tus proyectos con la claridad del futuro.</p>
             <div class="hero-cta">
-                <a th:href="@{/catalogo}" class="btn-hero-primario"><i class="ph ph-shopping-cart"></i> Ver catálogo</a>
+                <a th:href="@{/catalogo}" class="btn-hero-primario sg-rainbow"><i class="ph ph-shopping-cart"></i> Ver catálogo</a>
                 <a th:href="@{/vidrio-personalizado/cotizar}" class="btn-hero-secundario"><i class="ph ph-pencil-simple"></i> Vidrio personalizado</a>
             </div>
         </div>
@@ -220,6 +342,64 @@
 </footer>
 
 <script th:src="@{/js/main.js}"></script>
+<script>
+/* Animaciones ambientales del index: particulas + modo inactivo */
+(function () {
+  var reducir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reducir) return;
+
+  // 1) Particulas de luz subiendo por el hero
+  var hero = document.querySelector('.hero');
+  if (hero) {
+    var capa = document.createElement('div');
+    capa.className = 'amb-particulas';
+    capa.setAttribute('aria-hidden', 'true');
+    for (var i = 0; i < 22; i++) {
+      var p = document.createElement('span');
+      var tam = 4 + Math.random() * 10;
+      p.className = 'amb-particula';
+      p.style.width = p.style.height = tam + 'px';
+      p.style.left = (Math.random() * 100) + '%';
+      p.style.setProperty('--deriva', (Math.random() * 80 - 40) + 'px');
+      p.style.animationDuration = (9 + Math.random() * 10) + 's';
+      p.style.animationDelay = (-Math.random() * 18) + 's';
+      capa.appendChild(p);
+    }
+    hero.insertBefore(capa, hero.firstChild);
+  }
+
+  // 2) Modo inactivo: tras 5 s sin interaccion, las insignias se resaltan por turnos
+  var badges = Array.prototype.slice.call(document.querySelectorAll('.badge-flotante'));
+  if (!badges.length) return;
+  var ESPERA = 5000, PASO = 2200, temporizador = null, ciclo = null, actual = 0;
+
+  function limpiar() { badges.forEach(function (b) { b.classList.remove('amb-activa'); }); }
+  function iniciarCiclo() {
+    if (ciclo) return;
+    var avanzar = function () {
+      limpiar();
+      badges[actual % badges.length].classList.add('amb-activa');
+      actual++;
+    };
+    avanzar();
+    ciclo = setInterval(avanzar, PASO);
+  }
+  function detenerCiclo() {
+    if (ciclo) { clearInterval(ciclo); ciclo = null; }
+    limpiar();
+  }
+  function reiniciar() {
+    detenerCiclo();
+    clearTimeout(temporizador);
+    temporizador = setTimeout(iniciarCiclo, ESPERA);
+  }
+
+  ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(function (ev) {
+    window.addEventListener(ev, reiniciar, { passive: true });
+  });
+  reiniciar();
+})();
+</script>
 
 </body>
 </html>

@@ -2,215 +2,66 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
+<!--
+    Barra del panel de administracion.
+    Estilos en theme.css ("NAVEGACION ORGANIZADA"); main.js marca la pestana activa
+    y controla los menus. Un solo menu a la derecha reune el resto de acciones.
+-->
 <nav th:fragment="navbar"
      id="admin-navbar"
-     class="navbar">
-
-    <!-- Mejoras visuales dinámicas (Scroll, Responsive, Animaciones) -->
-    <style>
-        #admin-navbar {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            animation: adminNavSlideDown 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
-        }
-
-        @keyframes adminNavSlideDown {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        #admin-navbar.scrolled {
-            background: color-mix(in srgb, var(--bg-secondary) 96%, transparent) !important;
-            box-shadow: var(--shadow-main);
-            padding: 10px 40px;
-        }
-
-        #admin-navbar .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: transform 0.25s ease, text-shadow 0.25s ease;
-        }
-
-        #admin-navbar .logo img {
-            height: 30px;
-            width: auto;
-        }
-
-        #admin-navbar .logo:hover {
-            transform: translateY(-1px);
-            text-shadow: 0 0 18px rgba(59, 130, 246, 0.45);
-        }
-
-        #admin-navbar .nav-links a {
-            position: relative;
-        }
-
-        #admin-navbar .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: 2px;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: var(--color-accent);
-            transform: translateX(-50%);
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px var(--color-accent);
-        }
-
-        #admin-navbar .nav-links a:hover::after {
-            width: 60%;
-        }
-
-        .admin-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-salir {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--color-error);
-            text-decoration: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            border: 1px solid rgba(248, 113, 113, 0.3);
-            font-size: 0.85rem;
-            font-weight: 600;
-            background: transparent;
-            transition: all 0.25s ease;
-        }
-
-        .btn-salir:hover {
-            background: rgba(248, 113, 113, 0.12);
-            border-color: var(--color-error);
-            color: var(--color-error);
-        }
-
-        .admin-toggle {
-            display: none;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            font-size: 1.15rem;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .admin-toggle:hover {
-            border-color: var(--border-hover);
-            background: var(--color-accent-dim);
-        }
-
-        @media (max-width: 950px) {
-            #admin-navbar { flex-wrap: wrap; }
-            .admin-toggle { display: block; order: 2; }
-            
-            #admin-navbar .nav-links,
-            #admin-navbar .admin-actions {
-                display: none;
-                width: 100%;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-                padding: 16px 0 10px;
-                order: 3;
-            }
-            
-            #admin-navbar.mobile-open .nav-links,
-            #admin-navbar.mobile-open .admin-actions {
-                display: flex;
-                animation: adminMobileFade 0.3s ease forwards;
-            }
-            
-            #admin-navbar .admin-actions {
-                border-top: 1px solid var(--border-color);
-                padding-top: 14px;
-            }
-
-            @keyframes adminMobileFade {
-                from { opacity: 0; transform: translateY(-8px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        }
-    </style>
+     class="navbar navbar--admin"
+     data-nav="admin">
 
     <a th:href="@{/admin/dashboard}" class="logo">
         <img th:src="@{/img/logo-icono.png}" alt="">
-        SmartGlass Admin
+        <span>SmartGlass</span>
+        <span class="logo-tag">Admin</span>
     </a>
 
-    <button class="admin-toggle" aria-label="Abrir menú admin">
-        ☰
+    <button type="button" class="nav-toggle" aria-label="Abrir menú de administración" aria-expanded="false" aria-controls="nav-panel-admin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
 
-    <div class="nav-links">
-        <a th:href="@{/admin/dashboard}">Dashboard</a>
-        <a th:href="@{/admin/usuarios}">Usuarios</a>
-        <a th:href="@{/admin/pedidos}">Pedidos</a>
-        <a th:href="@{/admin/productos}">Catálogo</a>
-        <a th:href="@{/admin/resenas}">Reseñas</a>
+    <div class="nav-panel" id="nav-panel-admin">
+
+        <ul class="nav-links">
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}" data-match="/admin/dashboard">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/pedidos}" data-match="/admin/pedidos">Pedidos</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/productos}" data-match="/admin/productos">Catálogo</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/usuarios}" data-match="/admin/usuarios">Usuarios</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/resenas}" data-match="/admin/resenas">Reseñas</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <div class="nav-item has-menu nav-account">
+                <button type="button" class="nav-link nav-trigger" aria-haspopup="true" aria-expanded="false">
+                    <span class="nav-avatar" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                    </span>
+                    Administrador
+                    <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <ul class="nav-dropdown nav-dropdown--right">
+                    <li>
+                        <a th:href="@{/home}">
+                            Ver la tienda
+                            <small>Cómo la ven tus clientes</small>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/usuario}">
+                            Mi cuenta
+                            <small>Tu perfil de comprador</small>
+                        </a>
+                    </li>
+                    <li class="nav-sep" role="separator"></li>
+                    <li>
+                        <a class="is-danger" th:href="@{/logout}">Cerrar sesión</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-
-    <div class="admin-actions">
-        <button type="button" class="sg-theme-switch" role="switch" aria-checked="false" aria-label="Cambiar tema" title="Cambiar tema">
-            <span class="sg-theme-track" aria-hidden="true">
-                <span class="sg-theme-thumb">
-                    <svg class="sg-ico-moon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-                    <svg class="sg-ico-sun" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-                </span>
-            </span>
-        </button>
-
-        <a th:href="@{/home}" class="btn-volver">
-            ← Volver
-        </a>
-
-        <a th:href="@{/logout}" class="btn-salir">
-            Salir
-        </a>
-    </div>
-
-    <script>
-        (function () {
-            const navbar = document.getElementById('admin-navbar');
-            if (!navbar) return;
-
-            const handleScroll = () => {
-                if (window.scrollY > 30) {
-                    navbar.classList.add('scrolled');
-                } else {
-                    navbar.classList.remove('scrolled');
-                }
-            };
-            window.addEventListener('scroll', handleScroll, { passive: true });
-
-            const toggleBtn = navbar.querySelector('.admin-toggle');
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', () => {
-                    navbar.classList.toggle('mobile-open');
-                    toggleBtn.textContent = navbar.classList.contains('mobile-open') ? '✕' : '☰';
-                });
-            }
-
-            const links = navbar.querySelectorAll('.nav-links a, .admin-actions a');
-            links.forEach(link => {
-                link.addEventListener('click', () => {
-                    if (navbar.classList.contains('mobile-open')) {
-                        navbar.classList.remove('mobile-open');
-                        if (toggleBtn) toggleBtn.textContent = '☰';
-                    }
-                });
-            });
-        })();
-    </script>
 
 </nav>
 

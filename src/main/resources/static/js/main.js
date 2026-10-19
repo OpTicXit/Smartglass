@@ -5,6 +5,7 @@
 ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
+  inicializarNavegacion();
   inicializarSelectorDeTema();
   revelarAlEntrar();
   rebotarCarritoSiHuboExito();
@@ -136,7 +137,7 @@ function inicializarLuzDeCursorEnCards() {
    Aplica a .sg-magnetico y al link del carrito (mismo selector que ya
    usa theme.css para la transicion). Se resetea al salir el mouse. */
 function inicializarEfectoMagnetico() {
-  const elementos = document.querySelectorAll('a[href="/carrito"], .sg-magnetico');
+  const elementos = document.querySelectorAll('a[href="/carrito"]:not(.nav-cart), .sg-magnetico');
   if (!elementos.length) return;
 
   const INTENSIDAD = 0.25;
@@ -244,4 +245,131 @@ function inicializarSelectorDeTema() {
 
   aplicar(leer(), false, false);
   if (!yaEnPagina) document.body.appendChild(boton);
+}
+
+/* --- Navegacion organizada ---
+   Funciona con el <nav class="navbar" data-nav="public|admin"> de los
+   fragmentos: marca la pagina activa, abre/cierra los menus, controla el
+   menu movil y rellena la barra secundaria segun la seccion donde estes. */
+function inicializarNavegacion() {
+  const nav = document.querySelector('.navbar[data-nav]');
+  if (!nav) return;
+
+  const path = location.pathname.replace(/\/+$/, '') || '/';
+
+  // "=/ruta" = coincidencia exacta (ignora el context-path); sin "=" = contiene
+  const coincide = (patrones) => (patrones || '').split('|').some((p) => {
+    p = p.trim();
+    if (!p) return false;
+    if (p.charAt(0) === '=') {
+      const e = p.slice(1);
+      if (e === '/') return path === '/';
+      return path === e || path.endsWith(e);
+    }
+    return path.indexOf(p) !== -1;
+  });
+
+  /* Pagina activa */
+  nav.querySelectorAll('[data-match]').forEach((a) => {
+    if (!coincide(a.getAttribute('data-match'))) return;
+    a.setAttribute('aria-current', 'page');
+    const item = a.closest('.nav-item');
+    if (item && item.classList.contains('has-menu')) item.classList.add('is-active');
+  });
+
+  /* Menus desplegables */
+  const menus = Array.from(nav.querySelectorAll('.nav-item.has-menu'));
+  const cerrar = (excepto) => menus.forEach((m) => {
+    if (m === excepto) return;
+    m.classList.remove('open');
+    const t = m.querySelector(':scope > .nav-trigger');
+    if (t) t.setAttribute('aria-expanded', 'false');
+  });
+  menus.forEach((m) => {
+    const t = m.querySelector(':scope > .nav-trigger');
+    if (!t) return;
+    t.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const abierto = m.classList.toggle('open');
+      t.setAttribute('aria-expanded', String(abierto));
+      cerrar(m);
+    });
+    t.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowDown') return;
+      e.preventDefault();
+      m.classList.add('open');
+      t.setAttribute('aria-expanded', 'true');
+      const primero = m.querySelector('.nav-dropdown a');
+      if (primero) primero.focus();
+    });
+  });
+  document.addEventListener('click', (e) => { if (!nav.contains(e.target)) cerrar(null); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const abierto = menus.find((m) => m.classList.contains('open'));
+    cerrar(null);
+    if (abierto) { const t = abierto.querySelector(':scope > .nav-trigger'); if (t) t.focus(); }
+  });
+
+  /* Menu movil */
+  const toggle = nav.querySelector('.nav-toggle');
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      const abierto = nav.classList.toggle('mobile-open');
+      toggle.setAttribute('aria-expanded', String(abierto));
+    });
+    nav.querySelectorAll('.nav-panel a').forEach((a) => a.addEventListener('click', () => {
+      nav.classList.remove('mobile-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }));
+  }
+
+  /* Altura real de la barra (con o sin barra secundaria) para los elementos sticky */
+  const fijarAltura = () => document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+  fijarAltura();
+  window.addEventListener('resize', fijarAltura);
+  if (window.ResizeObserver) new ResizeObserver(fijarAltura).observe(nav);
+
+  /* Sombra al desplazarse */
+  const alScroll = () => nav.classList.toggle('scrolled', window.scrollY > 24);
+  window.addEventListener('scroll', alScroll, { passive: true });
+  alScroll();
+
+  /* Barra secundaria: opciones de la seccion actual (solo navbar publico) */
+  const sub = nav.querySelector('.subnav');
+  if (!sub) return;
+  const SECCIONES = [
+    { match: '/vidrio-personalizado', titulo: 'Vidrio personalizado', items: [
+      { k: 'cotizar', texto: 'Nueva cotización', match: '=/vidrio-personalizado/cotizar' },
+      { k: 'mis-cotizaciones', texto: 'Mis cotizaciones', match: '/mis-cotizaciones|/vidrio-personalizado/cotizacion' }
+    ] },
+    { match: '=/usuario|/checkout/mis-pedidos|/checkout/pedido', titulo: 'Mi cuenta', items: [
+      { k: 'usuario', texto: 'Resumen', match: '=/usuario' },
+      { k: 'mis-pedidos', texto: 'Mis pedidos', match: '/checkout/mis-pedidos|/checkout/pedido' },
+      { k: 'mis-cotizaciones', texto: 'Mis cotizaciones', match: '/mis-cotizaciones' }
+    ] },
+    { match: '/catalogo|/destacados|/detalle|/comparar', titulo: 'Tienda', items: [
+      { k: 'catalogo', texto: 'Catálogo', match: '/catalogo|/detalle|/comparar' },
+      { k: 'destacados', texto: 'Destacados', match: '/destacados' }
+    ] }
+  ];
+  const seccion = SECCIONES.find((s) => coincide(s.match));
+  if (!seccion) return;
+  const enlaces = seccion.items
+    .map((it) => ({ it, origen: nav.querySelector('[data-key="' + it.k + '"]') }))
+    .filter((x) => x.origen);
+  if (enlaces.length < 2) return;
+
+  const titulo = document.createElement('span');
+  titulo.className = 'subnav-title';
+  titulo.textContent = seccion.titulo;
+  sub.append(titulo);
+  enlaces.forEach(({ it, origen }) => {
+    const a = document.createElement('a');
+    a.href = origen.getAttribute('href');
+    a.textContent = it.texto;
+    if (coincide(it.match)) a.setAttribute('aria-current', 'page');
+    sub.append(a);
+  });
+  sub.hidden = false;
 }

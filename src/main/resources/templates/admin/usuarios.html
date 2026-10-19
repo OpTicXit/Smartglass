@@ -8,57 +8,175 @@
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+
+    <style>
+        /* ---------- Resumen ---------- */
+        .mini-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin: 0 0 26px; }
+        .mini-stat {
+            padding: 16px 20px; border-radius: 14px;
+            background: var(--bg-secondary); border: 1px solid var(--admin-card-border);
+            box-shadow: var(--admin-shadow-card);
+        }
+        .mini-stat .v { display: block; font-size: 1.7rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-main); line-height: 1.15; }
+        .mini-stat .l { display: block; margin-top: 4px; color: var(--text-label); font-size: 0.8rem; font-weight: 500; }
+
+        /* ---------- Tarjetas de usuario ---------- */
+        .user-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+        .user-card {
+            display: flex; flex-direction: column; gap: 16px; padding: 20px;
+            background: var(--bg-secondary); border: 1px solid var(--admin-card-border);
+            border-radius: 16px; box-shadow: var(--admin-shadow-card);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .user-card:hover { transform: translateY(-3px); border-color: var(--border-hover); box-shadow: var(--shadow-hover), var(--shadow-glow); }
+        .user-card[hidden] { display: none; }
+
+        .user-top { display: flex; align-items: center; gap: 14px; }
+        .avatar {
+            flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+            background: var(--color-accent-dim); color: var(--color-accent-text);
+            font-size: 1.1rem; font-weight: 700;
+        }
+        .user-card[data-rol="admin"] .avatar { background: var(--color-violet-dim); color: var(--color-violet); }
+        .user-id { flex: 1; min-width: 0; }
+        .user-id h3 { margin: 0; font-size: 1rem; line-height: 1.25; color: var(--text-main); overflow-wrap: anywhere; }
+        .user-username { display: block; margin-top: 2px; color: var(--text-label); font-size: 0.82rem; overflow-wrap: anywhere; }
+
+        .user-mail { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.88rem; overflow-wrap: anywhere; }
+        .user-mail svg { flex: none; width: 16px; height: 16px; color: var(--text-label); }
+
+        .user-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border-color); }
+        .user-foot a.ver { white-space: nowrap; }
+
+        @media (prefers-reduced-motion: reduce) { .user-card { transition: none; } }
+    </style>
 </head>
 <body>
 
 <!-- Navbar del Admin -->
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
-<div class="container container-narrow">
-    
-<h1 class="admin-title">Usuarios</h1>
+<div class="container">
+
+    <div class="page-head">
+        <div>
+            <h1 class="admin-title">Usuarios</h1>
+            <p class="page-sub">Consulta las cuentas registradas y administra sus roles.</p>
+        </div>
+    </div>
 
     <!-- Alerta flash (cuando se cambia el rol de un usuario) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
 
-    <!-- Tabla de usuarios -->
-    <div class="table-wrap">
-        <table class="table-admin">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="u : ${usuarios}">
-                    <td class="td-strong" th:text="${u.nombre}"></td>
-                    <td th:text="${u.username}"></td>
-                    <td th:text="${u.email}"></td>
-                    <td>
-                        <span class="badge"
-                              th:classappend="${u.tipoUsuario == 'ROLE_ADMIN'} ? 'badge-violet' : 'badge-neutral'"
-                              th:text="${u.tipoUsuario == 'ROLE_ADMIN'} ? 'Administrador' : 'Usuario'"></span>
-                    </td>
-                    <td>
-                        <a class="ver" th:href="@{/admin/usuarios/{id}(id=${u.id})}">
-                            Ver / editar
-                        </a>
-                    </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(usuarios)}">
-                    <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-label);">
-                        No hay usuarios registrados en el sistema.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="mini-stats" th:unless="${#lists.isEmpty(usuarios)}">
+        <div class="mini-stat"><span class="v" id="st-total" th:text="${#lists.size(usuarios)}">0</span><span class="l">Usuarios en total</span></div>
+        <div class="mini-stat"><span class="v" id="st-admin">–</span><span class="l">Administradores</span></div>
+        <div class="mini-stat"><span class="v" id="st-user">–</span><span class="l">Usuarios</span></div>
+    </div>
+
+    <!-- Buscador y filtro por rol -->
+    <div class="toolbar" th:unless="${#lists.isEmpty(usuarios)}">
+        <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input type="text" id="buscar" placeholder="Buscar por nombre, usuario o email…" autocomplete="off" aria-label="Buscar usuarios">
+        </div>
+        <div class="chips" role="group" aria-label="Filtrar por rol">
+            <button type="button" class="chip" data-rol="" aria-pressed="true">Todos</button>
+            <button type="button" class="chip" data-rol="admin" aria-pressed="false">Administradores</button>
+            <button type="button" class="chip" data-rol="usuario" aria-pressed="false">Usuarios</button>
+        </div>
+    </div>
+
+    <!-- Tarjetas -->
+    <div class="user-grid" id="user-grid" th:unless="${#lists.isEmpty(usuarios)}">
+        <article class="user-card" th:each="u : ${usuarios}"
+                 th:attr="data-rol=${u.tipoUsuario == 'ROLE_ADMIN'} ? 'admin' : 'usuario'">
+            <div class="user-top">
+                <div class="avatar" aria-hidden="true"
+                     th:text="${u.nombre != null and !#strings.isEmpty(u.nombre)} ? ${#strings.toUpperCase(#strings.substring(u.nombre, 0, 1))} : '?'">U</div>
+                <div class="user-id">
+                    <h3 class="u-nombre" th:text="${u.nombre}"></h3>
+                    <span class="user-username u-username" th:text="'@' + ${u.username}"></span>
+                </div>
+            </div>
+            <div class="user-mail">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+                <span class="u-email" th:text="${u.email}"></span>
+            </div>
+            <div class="user-foot">
+                <span class="badge"
+                      th:classappend="${u.tipoUsuario == 'ROLE_ADMIN'} ? 'badge-violet' : 'badge-neutral'"
+                      th:text="${u.tipoUsuario == 'ROLE_ADMIN'} ? 'Administrador' : 'Usuario'"></span>
+                <a class="ver" th:href="@{/admin/usuarios/{id}(id=${u.id})}">Ver / editar</a>
+            </div>
+        </article>
+    </div>
+
+    <div class="empty-state" id="sin-resultados" hidden>
+        <strong>Sin resultados</strong>
+        No hay usuarios que coincidan con tu búsqueda.
+    </div>
+
+    <div class="empty-state" th:if="${#lists.isEmpty(usuarios)}">
+        <strong>No hay usuarios registrados</strong>
+        Cuando alguien cree una cuenta aparecerá aquí.
     </div>
 </div>
 
 <script th:src="@{/js/main.js}"></script>
+<script>
+(function () {
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.user-card'));
+    if (!cards.length) return;
+
+    var buscar = document.getElementById('buscar');
+    var vacio = document.getElementById('sin-resultados');
+    var chips = Array.prototype.slice.call(document.querySelectorAll('.chip[data-rol]'));
+    var rolActivo = '';
+
+    function normalizar(t) {
+        return (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+    function texto(c, sel) { var e = c.querySelector(sel); return e ? e.textContent : ''; }
+
+    // Contadores del resumen y de los chips
+    var admins = cards.filter(function (c) { return c.dataset.rol === 'admin'; }).length;
+    var stAdmin = document.getElementById('st-admin');
+    var stUser = document.getElementById('st-user');
+    if (stAdmin) stAdmin.textContent = admins;
+    if (stUser) stUser.textContent = cards.length - admins;
+    var cuentas = { '': cards.length, admin: admins, usuario: cards.length - admins };
+    chips.forEach(function (ch) {
+        var s = document.createElement('span');
+        s.className = 'n';
+        s.textContent = cuentas[ch.dataset.rol];
+        ch.appendChild(s);
+    });
+
+    cards.forEach(function (c) {
+        c.dataset.busca = normalizar(texto(c, '.u-nombre') + ' ' + texto(c, '.u-username') + ' ' + texto(c, '.u-email'));
+    });
+
+    function aplicar() {
+        var q = normalizar(buscar ? buscar.value.trim() : '');
+        var visibles = 0;
+        cards.forEach(function (c) {
+            var ok = (!rolActivo || c.dataset.rol === rolActivo) && (!q || c.dataset.busca.indexOf(q) !== -1);
+            c.hidden = !ok;
+            if (ok) visibles++;
+        });
+        if (vacio) vacio.hidden = visibles !== 0;
+    }
+
+    chips.forEach(function (ch) {
+        ch.addEventListener('click', function () {
+            rolActivo = ch.dataset.rol;
+            chips.forEach(function (x) { x.setAttribute('aria-pressed', x === ch ? 'true' : 'false'); });
+            aplicar();
+        });
+    });
+    if (buscar) buscar.addEventListener('input', aplicar);
+})();
+</script>
 </body>
 </html>

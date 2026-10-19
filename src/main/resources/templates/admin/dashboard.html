@@ -23,14 +23,14 @@
     <div th:if="${mensaje}" class="flash" th:text="${mensaje}"></div>
 
     <!-- 2. Grid de KPIs (Estadísticas) -->
-    <div class="stats-grid">
+    <div class="stats-grid stats-6">
         <div class="stat-box card-panel">
-            <span class="value" th:text="'$ ' + ${#numbers.formatDecimal(stats.ingresos, 1, 'POINT', 0, 'COMMA')}"></span>
+            <span class="value" th:text="'$ ' + ${#numbers.formatDecimal(stats.ingresos, 1, 'COMMA', 0, 'POINT')}"></span>
             <span class="label">Ingresos</span>
         </div>
         <div class="stat-box card-panel">
             <span class="value" th:text="${stats.co2Total} + ' kg'"></span>
-            <span class="label">CO2 total</span>
+            <span class="label">CO₂ total</span>
         </div>
         <div class="stat-box card-panel">
             <span class="value" th:text="${stats.pendientes}"></span>

@@ -3,6 +3,7 @@ package com.smartglass.service;
 import com.smartglass.model.mongo.Carrito;
 import com.smartglass.model.mongo.CatalogoProducto;
 import com.smartglass.model.mongo.ItemCarrito;
+import com.smartglass.model.mongo.VidrioSostenible;
 import com.smartglass.repository.mongo.CarritoRepository;
 import com.smartglass.repository.mysql.UsuarioRepository;
 import org.springframework.security.core.Authentication;
@@ -14,15 +15,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Carrito de compras persistido en MongoDB (antes en Redis via
- * RedisTemplate). Ya no soporta carritos anonimos por sesion HTTP:
- * la entidad Carrito ahora se identifica por usuarioId, en linea con
- * la autenticacion JWT del proyecto. Los metodos de LECTURA
- * (getItems/getTotal/getCantidadTotal/estaVacio) devuelven un
- * carrito vacio si no hay usuario autenticado -- para no romper
- * vistas que muestran el contador del carrito a un visitante -- pero
- * los metodos de ESCRITURA (agregar/actualizar/eliminar/limpiar)
- * exigen sesion autenticada, ya que no hay donde persistirlos si no.
+ * Carrito de compras persistido en MongoDB, identificado por usuarioId
+ * (sin carritos anonimos). Lecturas devuelven carrito vacio si no hay
+ * usuario autenticado; escrituras exigen sesion.
  */
 @Service
 public class CarritoService {
@@ -57,21 +52,36 @@ public class CarritoService {
 
     public void agregarProducto(CatalogoProducto producto, int cantidad) {
         if (producto == null || cantidad <= 0) return;
-
         Carrito carrito = obtenerOCrearCarrito();
-
         Optional<ItemCarrito> itemExistente = carrito.getItems().stream()
                 .filter(item -> item.getProducto() != null
                         && producto.getId().equals(item.getProducto().getId()))
                 .findFirst();
-
         if (itemExistente.isPresent()) {
             itemExistente.get().incrementarCantidad(cantidad);
         } else {
             carrito.getItems().add(new ItemCarrito(producto, cantidad));
         }
-
         carritoRepository.save(carrito);
+    }
+
+    /**
+     * PARCHES 3: el dueno de una obra APROBADA la anade a su carrito.
+     * Se construye un producto "snapshot" embebido en el item (NO se
+     * guarda en el catalogo) para que total y CO2 del checkout
+     * coincidan con lo que la cotizacion mostro.
+     */
+    public void agregarCotizacionAprobada(VidrioSostenible vidrio) {
+        if (vidrio == null) return;
+        CatalogoProducto snapshot = new CatalogoProducto();
+        snapshot.setId(vidrio.getId());
+        snapshot.setNombre(vidrio.getTipoVidrio() + " · obra a medida");
+        snapshot.setTipo(vidrio.getTipoVidrio());
+        snapshot.setPrecio(vidrio.getPrecioEstimado());
+        snapshot.setAncho(vidrio.getAncho());
+        snapshot.setAlto(vidrio.getAlto());
+        snapshot.setEspesor(vidrio.getEspesor());
+        agregarProducto(snapshot, 1);
     }
 
     public List<ItemCarrito> getItems() {
@@ -86,14 +96,12 @@ public class CarritoService {
             eliminarProducto(productoId);
             return;
         }
-
         Carrito carrito = obtenerOCrearCarrito();
         carrito.getItems().stream()
                 .filter(item -> item.getProducto() != null
                         && productoId.equals(item.getProducto().getId()))
                 .findFirst()
                 .ifPresent(item -> item.setCantidad(cantidad));
-
         carritoRepository.save(carrito);
     }
 

@@ -28,13 +28,15 @@ import java.util.Set;
 
 /**
  * Configuracion de seguridad de SmartGlass.
- *
  * Correcciones aplicadas:
  * - Rutas con /** correctamente.
  * - Sin espacios en los matchers.
  * - /admin/** protegido con hasRole("ADMIN").
  * - CORS habilitado para React.
  * - Se mantiene formLogin + oauth2Login para no romper la app MVC actual.
+ * CAMBIO (parches de backend):
+ * - API REST de vidrios: lecturas publicas (storefront), escrituras
+ *   autenticadas y cambio de estado / borrado solo ROLE_ADMIN.
  */
 @Configuration
 @EnableWebSecurity
@@ -73,10 +75,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-
                 // Auth API publica
                 .requestMatchers("/auth/**", "/api/auth/**").permitAll()
-
                 // Publicas
                 .requestMatchers(
                     "/login",
@@ -91,10 +91,8 @@ public class SecurityConfig {
                     "/webjars/**",
                     "/favicon.ico"
                 ).permitAll()
-
                 // Admin
                 .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
-
                 // Acciones autenticadas
                 .requestMatchers(HttpMethod.POST, "/detalle/*/resenas").authenticated()
                 .requestMatchers(
@@ -110,7 +108,11 @@ public class SecurityConfig {
                     "/api/carrito/**",
                     "/api/checkout/**"
                 ).authenticated()
-
+                // API de vidrios (REST): lecturas publicas para el storefront;
+                // crear cotizacion exige sesion; cambiar estado o borrar, solo admin.
+                .requestMatchers(HttpMethod.POST, "/api/vidrios/**").authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/api/vidrios/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/vidrios/**").hasRole("ADMIN")
                 // El resto publico para no romper storefront
                 .anyRequest().permitAll()
             )
@@ -148,26 +150,21 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 
     /**
      * CORS para React.
-     *
      * Frontend React local tipico:
      * http://localhost:5173
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
         Set<String> origins = new LinkedHashSet<>();
         origins.add(allowedOrigin);
         origins.add("http://127.0.0.1:5173");
-
         configuration.setAllowedOrigins(new ArrayList<>(origins));
-
         configuration.setAllowedMethods(List.of(
             "GET",
             "POST",
@@ -176,24 +173,19 @@ public class SecurityConfig {
             "DELETE",
             "OPTIONS"
         ));
-
         configuration.setAllowedHeaders(List.of(
             "Authorization",
             "Content-Type",
             "Accept",
             "X-Requested-With"
         ));
-
         configuration.setExposedHeaders(List.of(
             "Authorization"
         ));
-
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
 }

@@ -50,42 +50,7 @@
   --admin-shadow-card: 0 4px 20px -6px rgba(30, 58, 138, 0.16), 0 2px 6px -2px rgba(30, 58, 138, 0.08);
 }
 
-/* =========================================================
-   NAVBAR
-========================================================= */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 40px;
-  background: var(--nav-bg);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.logo {
-  color: var(--color-accent-text);
-  font-weight: 700;
-  font-size: 1.3rem;
-  letter-spacing: -0.01em;
-  text-decoration: none;
-}
-
-.nav-links { display: flex; gap: 4px; }
-
-.nav-links a {
-  color: var(--text-muted);
-  text-decoration: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  background: transparent;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-.nav-links a:hover {
-  color: var(--text-main);
-  background: var(--surface-hover);
-}
+/* La navegacion del panel vive en theme.css ("NAVEGACION ORGANIZADA"). */
 
 .btn-volver {
   display: inline-flex;
@@ -127,24 +92,42 @@
   margin: 8px 0 40px;
 }
 
+/* Variante para 6 tarjetas: 3x2 en escritorio, 2x3 en tablet, 1 en movil
+   (con auto-fit quedaban 5 arriba y 1 huerfana abajo). */
+.stats-grid.stats-6 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 900px) { .stats-grid.stats-6 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .stats-grid.stats-6 { grid-template-columns: 1fr; } }
+
 .stat-box {
+  --stat-accent: var(--color-accent);
   border-radius: 16px;
   border-color: var(--admin-card-border);
   box-shadow: var(--admin-shadow-card);
-  padding: 22px 24px;
+  padding: 26px 24px 22px;
 }
 
-.stat-box:nth-child(1) { border-top-color: var(--color-success); border-top-width: 3px; }
-.stat-box:nth-child(2) { border-top-color: var(--color-info); border-top-width: 3px; }
-.stat-box:nth-child(3) { border-top-color: var(--color-warning); border-top-width: 3px; }
-.stat-box:nth-child(4) { border-top-color: var(--color-violet); border-top-width: 3px; }
-.stat-box:nth-child(5) { border-top-color: var(--color-accent); border-top-width: 3px; }
-.stat-box:nth-child(6) { border-top-color: var(--color-neutral); border-top-width: 3px; }
+/* Barra de color superior: se dibuja con ::after dentro de la tarjeta
+   (que ya recorta con overflow:hidden), asi sigue el radio de las
+   esquinas limpia en vez de afinarse como un border-top curvo. */
+.stat-box::after {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--stat-accent); z-index: 2; pointer-events: none;
+}
+.stat-box:nth-child(1) { --stat-accent: var(--color-success); }
+.stat-box:nth-child(2) { --stat-accent: var(--color-info); }
+.stat-box:nth-child(3) { --stat-accent: var(--color-warning); }
+.stat-box:nth-child(4) { --stat-accent: var(--color-violet); }
+.stat-box:nth-child(5) { --stat-accent: var(--color-accent); }
+.stat-box:nth-child(6) { --stat-accent: var(--color-neutral); }
 
 .stat-box .value {
   display: block;
-  font-size: 2.1rem;
+  /* nowrap evita que "$ 2.100.000" se parta en dos lineas; el clamp lo
+     reduce un poco en pantallas estrechas en vez de desbordar */
+  white-space: nowrap;
+  font-size: clamp(1.6rem, 3.4vw, 2.1rem);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   color: var(--text-main);
   letter-spacing: -0.02em;
   line-height: 1.15;
@@ -341,3 +324,41 @@ a.ver:hover { border-color: var(--border-hover); color: var(--color-accent-text)
 .card .row span:last-child:not(.badge) { color: var(--text-main); font-weight: 600; }
 .card .field { margin-top: 22px; }
 .card .field label { display: block; color: var(--text-label); font-size: 0.85rem; margin-bottom: 8px; }
+
+/* =========================================================
+   COMPONENTES COMPARTIDOS DE LISTADOS (catalogo, usuarios)
+   Cabecera de pagina, buscador, chips de filtro y estado vacio.
+========================================================= */
+.page-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap; gap: 16px; margin: 24px 0 24px;
+}
+.page-head .admin-title { margin: 0; }
+.page-sub { margin: 6px 0 0; color: var(--text-muted); font-size: 0.92rem; }
+
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin: 0 0 22px; }
+.search-box { position: relative; flex: 1 1 260px; max-width: 380px; }
+.search-box svg {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  width: 18px; height: 18px; color: var(--text-muted); pointer-events: none;
+}
+.search-box input[type="text"] { padding-left: 42px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  padding: 7px 14px; border-radius: 999px; border: 1px solid var(--border-color);
+  background: transparent; color: var(--text-muted);
+  font: inherit; font-size: 0.82rem; font-weight: 600; text-transform: capitalize; cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.chip:hover { color: var(--text-main); border-color: var(--border-hover); }
+.chip:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.chip[aria-pressed="true"] { background: var(--color-accent-dim); color: var(--color-accent-text); border-color: var(--border-hover); }
+.chip .n { margin-left: 6px; font-weight: 500; opacity: 0.7; }
+
+.empty-state {
+  padding: 52px 16px; text-align: center; color: var(--text-muted);
+  border: 1px dashed var(--border-color); border-radius: 14px;
+}
+.empty-state[hidden] { display: none; }
+.empty-state strong { display: block; margin-bottom: 6px; color: var(--text-main); font-size: 1.05rem; }

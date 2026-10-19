@@ -8,8 +8,6 @@
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
     <style>
-        .navbar .logo img { height: 32px; width: auto; }
-        .navbar .logo span { color: var(--color-accent-text); }
 
         .acceso-denegado {
             position: relative;
@@ -59,12 +57,7 @@
 </head>
 <body>
 
-<nav class="navbar">
-    <a th:href="@{/home}" class="logo">
-        <img th:src="@{/img/logo-icono.png}" alt="SmartGlass">
-        <span>SmartGlass</span>
-    </a>
-</nav>
+<nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
 <main class="acceso-denegado">
     <p class="codigo" aria-hidden="true">403</p>

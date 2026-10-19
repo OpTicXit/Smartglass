@@ -12,18 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
+import java.util.List;
 
-/**
- * AJUSTES:
- * - Pedido/Usuario ahora vienen de com.smartglass.model.mysql.
- * - El id de Pedido es Long (autogenerado por MySQL), ya no String
- *   (ObjectId de Mongo): se cambiaron los @PathVariable de
- *   "confirmacion/{id}" y "pedido/{id}" de String a Long.
- * - Pedido ya no tiene getUsuarioId(): ahora expone getUsuario()
- *   (relacion @ManyToOne). El chequeo de propiedad en verPedido()
- *   se actualizo para comparar p.getUsuario().getId() directamente
- *   (ya no hace falta el hack de .toString(), ambos son Long).
- */
 @Controller
 @RequestMapping("/checkout")
 public class CheckoutController {
@@ -43,35 +33,29 @@ public class CheckoutController {
         Usuario usuario = usuarioRepository.findByUsername(principal.getName()).orElse(null);
         if (usuario == null) return "redirect:/login";
         if (carritoService.estaVacio()) return "redirect:/carrito";
-
         double subtotal = carritoService.getTotal();
         double costoEnvio = pedidoService.calcularCostoEnvio(subtotal);
         double huellaCarbono = pedidoService.calcularHuellaCarbono(carritoService.getItems());
-
         model.addAttribute("usuario", usuario);
         model.addAttribute("items", carritoService.getItems());
         model.addAttribute("subtotal", subtotal);
         model.addAttribute("costoEnvio", costoEnvio);
         model.addAttribute("huellaCarbono", huellaCarbono);
         model.addAttribute("total", subtotal + costoEnvio);
-
         return "checkout";
     }
 
     @PostMapping("/procesar")
     public String procesarPedido(@RequestParam String direccionEnvio,
-        @RequestParam String ciudad,
-        @RequestParam String metodoPago,
-        @RequestParam(defaultValue = "false") boolean compensarCarbono,
-        Principal principal, HttpSession session, RedirectAttributes ra) {
-
+                                 @RequestParam String ciudad,
+                                 @RequestParam String metodoPago,
+                                 @RequestParam(defaultValue = "false") boolean compensarCarbono,
+                                 Principal principal, HttpSession session, RedirectAttributes ra) {
         Usuario usuario = usuarioRepository.findByUsername(principal.getName()).orElse(null);
         if (usuario == null) return "redirect:/login";
-
         try {
             String direccionCompleta = direccionEnvio + ", " + ciudad;
             Pedido pedido = pedidoService.crearPedidoDesdeCarrito(usuario, direccionCompleta, metodoPago, compensarCarbono);
-
             session.setAttribute("ultimoPedidoId", pedido.getId());
             return "redirect:/checkout/confirmacion/" + pedido.getId();
         } catch (Exception e) {
@@ -93,8 +77,12 @@ public class CheckoutController {
     public String misPedidos(Principal principal, Model model) {
         Usuario usuario = usuarioRepository.findByUsername(principal.getName()).orElse(null);
         if (usuario == null) return "redirect:/login";
-        model.addAttribute("pedidos", pedidoService.obtenerPedidosUsuario(usuario));
+        List<Pedido> pedidos = pedidoService.obtenerPedidosUsuario(usuario);
+        model.addAttribute("pedidos", pedidos);
         model.addAttribute("usuario", usuario);
+        // NOTA: el widget "Sostenible" lo calcula la plantilla por si sola.
+        // Cuando tengamos Pedido.java a la vista, se mueve ese calculo aca
+        // con los nombres reales de los getters (kgTotales / kgCompensados).
         return "mis-pedidos";
     }
 
@@ -102,7 +90,6 @@ public class CheckoutController {
     public String verPedido(@PathVariable Long id, Principal principal, Model model, RedirectAttributes ra) {
         Usuario usuario = usuarioRepository.findByUsername(principal.getName()).orElse(null);
         if (usuario == null) return "redirect:/login";
-
         return pedidoService.obtenerPorId(id)
                 .filter(p -> p.getUsuario() != null && p.getUsuario().getId().equals(usuario.getId()))
                 .map(p -> {

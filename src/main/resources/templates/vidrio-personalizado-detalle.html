@@ -2,180 +2,466 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script th:src="@{/js/theme-init.js}"></script>
-    <title>SmartGlass - Detalle de Cotización</title>
+    <title>SmartGlass - Tu obra</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <style>
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
-        .logo { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-weight: 700; font-size: 1.3rem; text-decoration: none; }
-        .logo img { height: 38px; width: auto; }
-        .logo span { color: var(--color-accent-text); }
-        .header-logo { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); height: 130px; width: auto; opacity: 0.95; pointer-events: none; }
-        .footer-brand { display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .footer-brand img { height: 22px; width: auto; }
-        @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; padding: 0 16px; } .header-logo { display: none; } .navbar { padding: 1rem 1.2rem; } }
-        
-        .cotizacion-header { position: relative; overflow: hidden; background: var(--color-accent-dim); padding: 40px; border-radius: 16px; margin: 30px auto; max-width: 1200px; border: 1px solid var(--color-accent); }
-        .cotizacion-header h1 { margin: 0 0 10px 0; color: var(--color-accent-text); }
+        /* =========================================================
+           SMARTGLASS — LA OBRA (detalle de cotizacion)
+           La pieza se muestra como una obra: escenario, cartela,
+           anatomia, huella y dictamen estructural.
+           ========================================================= */
 
-        .main-grid { display: grid; grid-template-columns: 1fr 350px; gap: 30px; max-width: 1200px; margin: 0 auto 50px; }
-
-        /* .tech-card: fondo/borde/radio ya los da theme.css; aqui solo
-           el padding, que si es propio de esta vista. */
-        .tech-card { padding: 25px; }
-
-        /* .co2-card se le inyecta la clase global "info-box" en el HTML
-           para el fondo/borde/radio/hover -- aqui solo queda lo que le
-           es propio: el text-align y el padding. */
-        .co2-card { padding: 30px; text-align: center; }
-        .co2-circle {
-            width: 180px; height: 180px; border-radius: 50%; border: 8px solid var(--color-success);
-            margin: 0 auto 20px; display: flex; flex-direction: column; justify-content: center;
-            /* antes: rgba(166,227,161,0.2) a mano -- ya existia esta
-               variable exacta en theme.css (pensada para esto) sin uso. */
-            box-shadow: var(--co2-glow-normal);
+        body {
+            background:
+                radial-gradient(circle at 8% 0%, var(--color-accent-dim), transparent 30%),
+                radial-gradient(circle at 95% 25%, var(--color-success-dim), transparent 22%),
+                var(--bg-primary);
         }
-        .co2-val { font-size: 2.5rem; font-weight: bold; color: var(--text-main); }
 
-        /* Barras de Materiales */
-        .material-row { margin-bottom: 20px; }
-        .material-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
-        .progress-bar { height: 10px; background: var(--bg-tertiary); border-radius: 5px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--color-accent); border-radius: 5px; }
-        .tech-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
-        
-        .btn-approve { width: 100%; padding: 15px; background: var(--color-success); color: var(--bg-primary); border-radius: 12px; font-weight: bold; cursor: pointer; border: none; margin-top: 20px; transition: 0.3s; }
-        .btn-approve:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .obra { max-width: 1320px; margin: 0 auto; padding: 36px clamp(16px, 3vw, 36px) 40px; }
+
+        .obra-cabecera { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
+        .eyebrow {
+            display: inline-flex; align-items: center; gap: 10px; margin-bottom: 10px;
+            color: var(--color-accent-text); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;
+        }
+        .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--color-accent); }
+        .obra-cabecera h1 { margin: 0; font-size: clamp(2rem, 4.6vw, 3.2rem); line-height: 1.04; letter-spacing: -0.045em; }
+        .obra-cabecera p { margin: 8px 0 0; color: var(--text-muted); font-size: 1.02rem; }
+
+        .obra-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(320px, 4fr); gap: 28px; align-items: start; }
+
+        /* ---------- Escenario ---------- */
+        .obra-stage { padding: 10px 10px 0; }
+        .obra-stage .sg-tilt { width: 100%; }
+        .obra-stage #escenario { width: 100%; max-width: 660px; min-height: 300px; margin: 0 auto; }
+        .cartela {
+            margin-top: 14px; padding: 18px 22px; border: 1px solid var(--border-color); border-radius: 18px;
+            background: var(--card-bg); backdrop-filter: blur(12px);
+        }
+        .cartela small { color: var(--text-muted); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+        .cartela strong { display: block; margin: 4px 0; color: var(--text-main); font-size: 1.25rem; letter-spacing: -0.015em; }
+        .cartela p { margin: 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.55; }
+
+        /* ---------- Panel de compra ---------- */
+        .compra { position: sticky; top: calc(var(--nav-h, 68px) + 18px); padding: 26px; border-radius: 22px; border: 1px solid var(--border-hover); box-shadow: var(--shadow-main), var(--shadow-glow); }
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+        .chip {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+            background: var(--bg-tertiary); color: var(--text-main); font-size: 0.76rem; font-weight: 800; letter-spacing: 0.03em;
+        }
+        .chip-estado { background: var(--color-warning-dim); color: var(--color-warning); text-transform: uppercase; }
+        .chip-estado.chip-aprobado { background: var(--color-success-dim); color: var(--color-success); }
+        .chip-eco { background: var(--color-success-dim); color: var(--color-success); }
+        .chip-urgente { background: var(--bg-secondary); --sg-rainbow-radius: 999px; }
+
+        .compra-label { color: var(--text-muted); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+        .compra-precio { margin: 4px 0 6px; color: var(--text-main); font-size: clamp(2.1rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+        .compra-nota { margin: 0 0 20px; color: var(--text-muted); font-size: 0.82rem; line-height: 1.5; }
+
+        .btn-aprobar {
+            display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px 20px;
+            border: 0; border-radius: 16px; cursor: pointer; color: #fff; font: inherit; font-size: 1.02rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--color-success), #0E9F6E); box-shadow: 0 10px 28px -10px var(--color-success);
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+        .btn-aprobar:hover { transform: translateY(-2px); filter: brightness(1.08); }
+        .espera { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border: 1px dashed var(--color-warning); border-radius: 16px; background: var(--color-warning-dim); }
+        .espera > span { font-size: 1.3rem; line-height: 1.3; }
+        .espera strong { display: block; color: var(--text-main); font-size: 0.95rem; }
+        .espera small { display: block; margin-top: 3px; color: var(--text-muted); font-size: 0.8rem; line-height: 1.45; }
+        .btn-aprobar:focus-visible { outline: 3px solid var(--color-accent-hover); outline-offset: 3px; }
+        .enlaces { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+        .enlaces a {
+            flex: 1; min-width: 140px; padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 12px;
+            color: var(--text-main); font-size: 0.85rem; font-weight: 700; text-align: center; text-decoration: none;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+        .enlaces a:hover { border-color: var(--border-hover); background: var(--color-accent-dim); }
+
+        /* Camino de la obra */
+        .camino { margin: 24px 0 0; padding: 20px 0 0; border-top: 1px solid var(--border-color); list-style: none; display: grid; gap: 14px; }
+        .camino li { position: relative; display: flex; align-items: center; gap: 12px; color: var(--text-muted); font-size: 0.88rem; font-weight: 600; }
+        .camino li::before {
+            content: ""; flex: none; width: 22px; height: 22px; border-radius: 50%;
+            border: 2px solid var(--border-color); background: var(--bg-primary);
+        }
+        .camino li.hecho { color: var(--text-main); }
+        .camino li.hecho::before { border-color: var(--color-success); background: var(--color-success); box-shadow: inset 0 0 0 4px var(--bg-primary); }
+        .camino li.actual { color: var(--color-accent-text); }
+        .camino li.actual::before { border-color: var(--color-accent); box-shadow: 0 0 0 4px var(--color-accent-dim); }
+
+        /* ---------- Tarjetas de detalle ---------- */
+        .detalles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 28px; }
+        .detalles .tech-card, .estructura.tech-card { padding: 26px; }
+        .tarjeta-titulo { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; color: var(--text-main); font-size: 1.05rem; letter-spacing: -0.01em; }
+        .tarjeta-titulo span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 0.95rem; }
+
+        .ficha { margin: 0; display: grid; gap: 0; }
+        .ficha div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .ficha div:last-child { border-bottom: 0; }
+        .ficha dt { color: var(--text-muted); font-size: 0.88rem; }
+        .ficha dd { margin: 0; color: var(--text-main); font-weight: 700; text-align: right; font-size: 0.92rem; }
+
+        .material { margin-bottom: 18px; }
+        .material:last-of-type { margin-bottom: 0; }
+        .material-fila { display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--text-muted); font-size: 0.88rem; }
+        .material-fila strong { color: var(--text-main); font-variant-numeric: tabular-nums; }
+        .barra { height: 10px; overflow: hidden; border-radius: 99px; background: var(--bg-tertiary); }
+        .barra i { display: block; width: 0; height: 100%; border-radius: 99px; transition: width 1.1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .barra .silice { background: var(--color-accent); }
+        .barra .sosa { background: var(--color-info); }
+        .barra .caliza { background: var(--color-success); }
+
+        .huella { text-align: center; }
+        .anillo { position: relative; width: 170px; height: 170px; margin: 0 auto 14px; }
+        .anillo svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .anillo circle { fill: none; stroke-width: 9; }
+        .anillo .pista { stroke: var(--bg-tertiary); }
+        .anillo .progreso { stroke: var(--nivel, var(--color-success)); stroke-linecap: round; stroke-dasharray: 440; stroke-dashoffset: 440; transition: stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s ease; filter: drop-shadow(0 0 6px var(--nivel, var(--color-success))); }
+        .anillo.listo .progreso { stroke-dashoffset: 40; }
+        .anillo-centro { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .anillo-centro strong { color: var(--text-main); font-size: 2.3rem; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+        .anillo-centro span { margin-top: 4px; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; }
+        .equivale { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; text-align: left; }
+        .equivale li { padding: 10px 14px; border-radius: 12px; background: var(--bg-tertiary); color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; }
+        .equivale b { color: var(--text-main); }
+        .aprox { margin: 10px 0 0; color: var(--text-muted); font-size: 0.74rem; }
+
+        .estructura { margin-top: 22px; display: grid; grid-template-columns: minmax(220px, 1fr) 2fr; gap: 28px; align-items: center; border-left: 4px solid var(--color-info); }
+        .resistencia strong { display: block; color: var(--text-main); font-size: 3rem; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+        .resistencia span { color: var(--text-muted); font-size: 0.85rem; font-weight: 700; }
+        .verificado { display: none; margin-top: 12px; padding: 5px 11px; border-radius: 999px; background: var(--color-success-dim); color: var(--color-success); font-size: 0.74rem; font-weight: 800; }
+        .verificado.visible { display: inline-flex; }
+        .dictamen { margin: 0; padding: 18px 22px; border: 1px solid var(--border-color); border-radius: 16px; background: var(--bg-tertiary); color: var(--text-main); font-size: 1rem; line-height: 1.6; font-style: italic; }
+        .dictamen small { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 0.7rem; font-style: normal; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+
+
+        /* ---------- Nivel de impacto ambiental ---------- */
+        .nivel-bloque { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin: 0 0 6px; }
+        .nivel-bloque strong { color: var(--nivel, var(--text-main)); font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+        .nivel-frase { margin: 0 0 16px; color: var(--text-main); font-size: 0.92rem; font-weight: 600; line-height: 1.4; }
+        .enlace-balance {
+            display: inline-flex; margin: 4px 0 16px; padding: 9px 16px; border: 1px solid var(--nivel); border-radius: 12px;
+            background: var(--nivel-dim); color: var(--nivel); font-size: 0.84rem; font-weight: 800; text-decoration: none;
+            transition: filter 0.2s ease, transform 0.2s ease;
+        }
+        .enlace-balance:hover { filter: brightness(1.12); transform: translateY(-1px); color: var(--nivel); }
+        .enlace-balance[hidden] { display: none; }
+
+        .alerta-obra {
+            display: flex; gap: 16px; margin-bottom: 24px; padding: 18px 22px; border: 1px solid var(--color-error); border-radius: 20px;
+            background: linear-gradient(var(--color-error-dim), var(--color-error-dim)), var(--bg-secondary);
+            box-shadow: 0 14px 34px -16px var(--color-error);
+        }
+        .alerta-obra[hidden] { display: none; }
+        .alerta-obra .alerta-icono {
+            flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px;
+            background: var(--color-error); color: #fff; font-size: 1.4rem; animation: alertaPulso 1.6s ease-in-out infinite;
+        }
+        @keyframes alertaPulso { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-error) 60%, transparent); } 50% { box-shadow: 0 0 0 12px transparent; } }
+        .alerta-obra strong { display: block; color: var(--text-main); font-size: 1.1rem; letter-spacing: -0.01em; }
+        .alerta-obra p { margin: 6px 0 0; color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; }
+        .alerta-obra p b { color: var(--text-main); }
+        .alerta-obra .btn-alerta {
+            display: inline-flex; margin-top: 14px; padding: 11px 18px; border-radius: 12px; background: var(--color-success);
+            color: var(--bg-primary); font-size: 0.88rem; font-weight: 800; text-decoration: none; transition: filter 0.2s ease, transform 0.2s ease;
+        }
+        .alerta-obra .btn-alerta:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        @media (prefers-reduced-motion: reduce) { .alerta-obra .alerta-icono { animation: none; } }
+
+        @media (max-width: 1060px) {
+            .obra-grid { grid-template-columns: 1fr; }
+            .compra { position: static; }
+            .detalles { grid-template-columns: 1fr; }
+            .estructura { grid-template-columns: 1fr; gap: 18px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .barra i, .anillo .progreso { transition: none; }
+        }
     </style>
 </head>
 <body>
 
-<nav class="navbar">
-    <a th:href="@{/usuario}" class="logo">
-        <img th:src="@{/img/logo-icono.png}" alt="SmartGlass">
-        <span>SmartGlass</span>
-    </a>
-    <div style="display:flex; gap:15px;">
-        <a th:href="@{/vidrio-personalizado/mis-cotizaciones}" style="color:var(--text-main); text-decoration:none;">← Volver a Mis Proyectos</a>
-    </div>
-</nav>
+<nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
-<div class="cotizacion-header" th:if="${vidrio != null}">
-    <img class="header-logo" th:src="@{/img/logo-icono.png}" alt="">
-    <h1>Resumen de Cotización Técnica</h1>
-    <p th:text="'Referencia única: #' + ${vidrio.id}" style="font-family: monospace; color: var(--text-muted);"></p>
-    <span th:if="${vidrio.urgente}" class="sg-rainbow" style="--sg-rainbow-radius:20px; display:inline-block; margin-top:8px; padding:5px 14px; background: var(--bg-secondary); color: var(--text-main); border-radius: 20px; font-size: 0.8rem; font-weight: bold;">⚡ Entrega urgente (+20%)</span>
-</div>
+<main class="obra" th:if="${vidrio != null}"
+      th:with="admin=${puedeAprobar != null ? puedeAprobar : (esAdmin != null ? esAdmin : false)}"
+      id="obra"
+      th:attr="data-id=${vidrio.id},data-tipo=${vidrio.tipoVidrio},data-ancho=${vidrio.ancho},data-alto=${vidrio.alto},data-espesor=${vidrio.espesor},data-forma=${vidrio.forma},data-reciclado=${vidrio.usarVidrioReciclado},data-silice=${vidrio.cantidadSilice},data-sosa=${vidrio.cantidadSosa},data-caliza=${vidrio.cantidadCaliza},data-co2=${vidrio.huellaCarbono},data-mpa=${vidrio.resistenciaEstimada}">
 
-<div class="main-grid" th:if="${vidrio != null}">
-    <div class="content-left">
-        <!-- Tarjeta de Especificaciones Original -->
-        <div class="tech-card">
-            <h3 style="margin-top:0; color: var(--color-accent-text);">Especificaciones del Vidrio</h3>
-            <div class="tech-item"><span style="color: var(--text-muted);">Tipo de Vidrio:</span> <strong style="color: var(--text-main);" th:text="${vidrio.tipoVidrio}"></strong></div>
-            <div class="tech-item"><span style="color: var(--text-muted);">Dimensiones:</span> <strong style="color: var(--text-main);" th:text="${vidrio.ancho} + ' x ' + ${vidrio.alto} + ' cm'"></strong></div>
-            <div class="tech-item"><span style="color: var(--text-muted);">Espesor Requerido:</span> <strong style="color: var(--text-main);" th:text="${vidrio.espesor} + ' mm'"></strong></div>
-            <div class="tech-item"><span style="color: var(--text-muted);">Área Total:</span> <strong style="color: var(--text-main);" th:text="${vidrio.areaTotal} + ' m²'"></strong></div>
-            
-            <h3 style="margin-top:30px; color: var(--color-accent-text);">Composición de Materiales</h3>
-            <div class="material-row">
-                <div class="material-label"><span>Sílice (Arena)</span> <span th:text="${vidrio.cantidadSilice} + ' kg'"></span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width: 72%;"></div></div>
-            </div>
-            <div class="material-row">
-                <div class="material-label"><span>Sosa y Caliza</span> <span th:text="${vidrio.cantidadSosa + vidrio.cantidadCaliza} + ' kg'"></span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width: 24%; background: var(--color-warning);"></div></div>
-            </div>
+    <header class="obra-cabecera">
+        <div>
+            <div class="eyebrow">Obra Nº <span id="refObra">—</span></div>
+            <h1>Tu obra está lista</h1>
+            <p>Esta es la pieza que diseñaste, con todo lo que sabemos de ella.</p>
         </div>
+    </header>
 
-        <!-- Tarjeta de Análisis (Python API) -->
-        <div class="tech-card" style="margin-top: 20px; border-left: 4px solid var(--color-info);">
-            <h3 style="color: var(--color-info); display: flex; align-items: center; gap: 10px; margin-top: 0;">
-                <i class="fas fa-robot"></i> Análisis Estructural
-            </h3>
-            
-            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
-                <span style="color: var(--text-muted);">Índice de Resistencia:</span>
-                <strong style="color: var(--text-main); font-size: 1.1rem;" id="resistencia-valor" th:text="${vidrio.resistenciaEstimada != null ? vidrio.resistenciaEstimada + ' MPa' : 'N/D'}">0.0 MPa</strong>
-            </div>
-            
-            <div>
-                <span style="display: block; color: var(--text-muted); margin-bottom: 8px;">Diagnóstico Técnico:</span>
-                <p style="margin: 0; color: var(--text-main); font-style: italic; background: var(--bg-tertiary); padding: 15px; border-radius: 8px; line-height: 1.5; border: 1px solid var(--border-color);"
-                   id="recomendacion-texto"
-                   th:text="${vidrio.recomendacion != null ? vidrio.recomendacion : 'Esperando análisis...'}">
-                </p>
-            </div>
+    <section class="alerta-obra" id="alertaObra" role="alert" hidden>
+        <div class="alerta-icono" aria-hidden="true">⚠</div>
+        <div>
+            <strong>Esta obra es de alto impacto ambiental</strong>
+            <p id="alertaObraTexto"></p>
+            <a th:href="@{/vidrio-personalizado/cotizar}" id="lnkBalanceAlerta" class="btn-alerta">Crear una versión balanceada</a>
         </div>
-    </div>
+    </section>
 
-    <aside class="content-right">
-        <!-- Tarjeta de CO2 -->
-        <div class="co2-card info-box">
-            <h3 style="color: var(--text-main); margin-top: 0;">Impacto Ambiental</h3>
-            <div class="co2-circle">
-                <span class="co2-val" th:text="${vidrio.huellaCarbono != null ? #numbers.formatDecimal(vidrio.huellaCarbono, 1, 1) : '0.0'}">0</span>
-                <span style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">kg CO₂e</span>
+    <div class="obra-grid">
+
+        <!-- ================= ESCENARIO ================= -->
+        <section aria-label="Tu pieza">
+            <div class="sg-stage obra-stage">
+                <div class="sg-tilt" id="inclinable">
+                    <div id="escenario"></div>
+                </div>
             </div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Huella de carbono estimada para este diseño y proceso térmico.</p>
-        </div>
 
-        <!-- Tarjeta de Precio -->
-        <div class="tech-card" style="margin-top:20px; text-align:center; border-color: var(--border-hover); box-shadow: var(--shadow-main), var(--shadow-glow);">
-            <span style="color:var(--text-muted); font-size:0.9rem; text-transform: uppercase; font-weight: bold;">Inversión Estimada</span>
-            <div style="font-size: 2.2rem; font-weight: bold; color: var(--color-success); margin: 15px 0;" th:text="${vidrio.precioEstimadoFormateado}">$0</div>
-            
-            <form th:if="${#strings.toString(vidrio.estado) == 'COTIZACION'}" th:action="@{/vidrio-personalizado/aprobar/{id}(id=${vidrio.id})}" method="post">
-                <button type="submit" class="btn-approve"><i class="fas fa-check" style="margin-right: 8px;"></i> Aprobar y Añadir al Carrito</button>
+            <div class="cartela">
+                <small>Cartela</small>
+                <strong id="cartelaTitulo">—</strong>
+                <p id="cartelaFrase"></p>
+            </div>
+        </section>
+
+        <!-- ================= PANEL DE COMPRA ================= -->
+        <aside class="compra tech-card" aria-label="Inversión y aprobación">
+
+            <div class="chips">
+                <span class="chip chip-estado" th:classappend="${#strings.toString(vidrio.estado) == 'APROBADO'} ? 'chip-aprobado'" th:text="${vidrio.estado}">COTIZACION</span>
+                <span class="chip-nivel" id="chipNivel" hidden></span>
+                <span class="chip chip-eco" th:if="${vidrio.usarVidrioReciclado}">♻ Material reciclado</span>
+                <span class="chip chip-urgente sg-rainbow" th:if="${vidrio.urgente}">⚡ Entrega urgente (+20 %)</span>
+            </div>
+
+            <div class="compra-label">Inversión estimada</div>
+            <div class="compra-precio" th:text="${vidrio.precioEstimadoFormateado}">$0</div>
+            <p class="compra-nota">Estimación paramétrica. Se confirma con la validación técnica en fábrica.</p>
+
+            <!-- Administrador: aprueba la cotizacion (el servidor tambien lo valida) -->
+            <form th:if="${admin and #strings.toString(vidrio.estado) == 'COTIZACION'}"
+                  th:action="@{/vidrio-personalizado/aprobar/{id}(id=${vidrio.id})}" method="post">
+                <button type="submit" class="btn-aprobar">Aprobar y añadir al carrito →</button>
             </form>
-        </div>
-    </aside>
-</div>
 
-<footer class="footer-main">
-    <div class="footer-brand">
-        <img th:src="@{/img/logo-icono.png}" alt="">
-        <p><span>SmartGlass</span> · Soluciones técnicas en vidrio sostenible</p>
+            <!-- Usuario: espera la aprobacion de SmartGlass -->
+            <div class="espera" th:if="${!admin and #strings.toString(vidrio.estado) == 'COTIZACION'}" role="status">
+                <span aria-hidden="true">⏳</span>
+                <div>
+                    <strong>En espera de aprobación por SmartGlass</strong>
+                    <small>Te avisaremos aquí cuando tu obra sea aprobada y puedas añadirla al carrito.</small>
+                </div>
+            </div>
+
+            <!-- Usuario con la obra ya aprobada: puede añadirla a su carrito -->
+            <form th:if="${!admin and #strings.toString(vidrio.estado) == 'APROBADO'}"
+                  th:action="@{/vidrio-personalizado/agregar-al-carrito/{id}(id=${vidrio.id})}" method="post">
+                <button type="submit" class="btn-aprobar">Añadir al carrito →</button>
+            </form>
+
+            <div class="enlaces">
+                <a th:href="@{/vidrio-personalizado/cotizar}">Crear otra obra</a>
+                <a th:href="@{/vidrio-personalizado/mis-cotizaciones}">Mis cotizaciones</a>
+            </div>
+
+            <ol class="camino" aria-label="Camino de tu obra">
+                <li class="hecho">Diseñada</li>
+                <li class="hecho">Cotizada</li>
+                <li th:class="${#strings.toString(vidrio.estado) == 'COTIZACION'} ? 'actual' : 'hecho'">Aprobada por SmartGlass</li>
+            </ol>
+        </aside>
     </div>
-</footer>
 
-<script th:inline="javascript">
-        document.addEventListener("DOMContentLoaded", function() {
-            // Sintaxis segura para evitar errores de editor
-            const payload = {
-            ancho: /*[[${vidrio.ancho}]]*/ 0,
-            alto: /*[[${vidrio.alto}]]*/ 0,
-            espesor: /*[[${vidrio.espesor}]]*/ 0
-        };
+    <!-- ================= DETALLES ================= -->
+    <div class="detalles">
 
-            const recTxt = document.getElementById("recomendacion-texto");
-            const resVal = document.getElementById("resistencia-valor");
+        <article class="tech-card">
+            <h3 class="tarjeta-titulo"><span>◧</span>Ficha técnica</h3>
+            <dl class="ficha">
+                <div><dt>Tipo de vidrio</dt><dd th:text="${vidrio.tipoVidrio}">—</dd></div>
+                <div><dt>Dimensiones</dt><dd id="fDim" th:text="${vidrio.ancho} + ' × ' + ${vidrio.alto} + ' cm'">—</dd></div>
+                <div><dt>Espesor</dt><dd id="fEsp" th:text="${vidrio.espesor} + ' mm'">—</dd></div>
+                <div><dt>Área total</dt><dd id="fArea" th:text="${vidrio.areaTotal} + ' m²'">—</dd></div>
+                <div><dt>Geometría</dt><dd th:text="${vidrio.forma}">—</dd></div>
+                <div><dt>Material reciclado</dt><dd th:text="${vidrio.usarVidrioReciclado} ? 'Sí' : 'No'">—</dd></div>
+            </dl>
+        </article>
 
-            // TU URL REAL EN RAILWAY CON HTTPS
-            const URL_API = "https://api-production-d556.up.railway.app/analizar-resistencia";
+        <article class="tech-card">
+            <h3 class="tarjeta-titulo"><span>⚗</span>Anatomía de la pieza</h3>
 
-            fetch(URL_API, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                recTxt.innerText = data.recomendacion;
-                resVal.innerText = data.resistencia + " MPa";
-            })
-            .catch(err => {
-                console.error("Error:", err);
-                // AJUSTE: antes esto borraba el diagnostico que ya habia
-                // calculado nuestro propio backend (AnalisisService) y lo
-                // reemplazaba por un mensaje de error -- peor que dejar el
-                // valor bueno que ya estaba en pantalla. Ahora solo se
-                // registra el error en consola, sin tocar el texto visible.
-            });
+            <div class="material">
+                <div class="material-fila"><span>Sílice (arena)</span><strong data-kg="silice" th:text="${vidrio.cantidadSilice} + ' kg'">0 kg</strong></div>
+                <div class="barra"><i class="silice" data-barra="silice"></i></div>
+            </div>
+            <div class="material">
+                <div class="material-fila"><span>Sosa</span><strong data-kg="sosa" th:text="${vidrio.cantidadSosa} + ' kg'">0 kg</strong></div>
+                <div class="barra"><i class="sosa" data-barra="sosa"></i></div>
+            </div>
+            <div class="material">
+                <div class="material-fila"><span>Caliza</span><strong data-kg="caliza" th:text="${vidrio.cantidadCaliza} + ' kg'">0 kg</strong></div>
+                <div class="barra"><i class="caliza" data-barra="caliza"></i></div>
+            </div>
+        </article>
+
+        <article class="tech-card huella" id="tarjetaHuella">
+            <h3 class="tarjeta-titulo" style="justify-content:center"><span>🌱</span>Huella de carbono</h3>
+
+            <div class="anillo" id="anillo">
+                <svg viewBox="0 0 160 160" aria-hidden="true">
+                    <circle class="pista" cx="80" cy="80" r="70"/>
+                    <circle class="progreso" cx="80" cy="80" r="70"/>
+                </svg>
+                <div class="anillo-centro">
+                    <strong id="co2Valor" th:text="${vidrio.huellaCarbono != null ? #numbers.formatDecimal(vidrio.huellaCarbono, 1, 'POINT', 1, 'COMMA') : '0,0'}">0.0</strong>
+                    <span>kg CO₂e</span>
+                </div>
+            </div>
+
+            <div class="nivel-bloque">
+                <span class="chip-nivel" id="huellaChip">—</span>
+                <strong id="huellaInt">—</strong>
+            </div>
+            <p class="nivel-frase" id="huellaFrase"></p>
+            <a th:href="@{/vidrio-personalizado/cotizar}" id="lnkBalance" class="enlace-balance" hidden>Ver una versión mejorada</a>
+
+            <ul class="equivale">
+                <li>Equivale a recorrer unos <b id="eqKm">—</b> en auto.</li>
+                <li>Un árbol tardaría unos <b id="eqArbol">—</b> en absorberlo.</li>
+            </ul>
+            <p class="aprox">Equivalencias aproximadas, solo como referencia.</p>
+        </article>
+    </div>
+
+    <!-- ================= ESTRUCTURA ================= -->
+    <article class="tech-card estructura">
+        <div class="resistencia">
+            <h3 class="tarjeta-titulo"><span>🛡</span>Análisis estructural</h3>
+            <strong id="resistencia-valor" th:text="${vidrio.resistenciaEstimada != null ? #numbers.formatDecimal(vidrio.resistenciaEstimada, 1, 'POINT', 1, 'COMMA') + ' MPa' : 'N/D'}">0.0 MPa</strong>
+            <span>Índice de resistencia</span>
+            <div class="verificado" id="verificado">✓ Verificado por el servicio estructural</div>
+        </div>
+
+        <p class="dictamen">
+            <small>Diagnóstico técnico</small>
+            <span id="recomendacion-texto" th:text="${vidrio.recomendacion != null ? vidrio.recomendacion : 'Esperando análisis...'}">Esperando análisis...</span>
+        </p>
+    </article>
+</main>
+
+<script th:src="@{/js/glass-preview.js}"></script>
+<script>
+(function () {
+    var raiz = document.getElementById('obra');
+    if (!raiz) return;
+    var d = raiz.dataset;
+
+    /* ---------- Referencia corta ---------- */
+    document.getElementById('refObra').textContent = String(d.id || '').slice(-6).toUpperCase() || '—';
+
+    /* ---------- La pieza ---------- */
+    var opts = {
+        tipo: d.tipo, ancho: d.ancho, alto: d.alto, espesor: d.espesor, forma: d.forma,
+        reciclado: d.reciclado === 'true'
+    };
+    SGGlass.render(document.getElementById('escenario'), opts);
+    SGGlass.tilt(document.getElementById('inclinable'));
+    var c = SGGlass.describir(opts);
+    document.getElementById('cartelaTitulo').textContent = c.titulo;
+    document.getElementById('cartelaFrase').textContent = c.frase;
+
+    /* ---------- Anatomia (barras proporcionales) ---------- */
+    var mat = { silice: parseFloat(d.silice) || 0, sosa: parseFloat(d.sosa) || 0, caliza: parseFloat(d.caliza) || 0 };
+    var total = mat.silice + mat.sosa + mat.caliza;
+    setTimeout(function () {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-barra]'), function (el) {
+            var v = mat[el.getAttribute('data-barra')];
+            el.style.width = (total ? (v / total * 100) : 0) + '%';
         });
+    }, 250);
+
+    /* ---------- Huella ---------- */
+    var co2 = parseFloat(d.co2) || 0;
+    var co2El = document.getElementById('co2Valor');
+    setTimeout(function () {
+        document.getElementById('anillo').classList.add('listo');
+        SGGlass.contar(co2El, co2, { fmt: function (v) { return SGGlass.fmtNum(v, 1); }, duracion: 1200 });
+    }, 250);
+    /* Nivel de impacto: intensidad = kg CO2e por m2 de vidrio (<=12 favorable, 12-20 moderado, >20 alto) */
+    var area = (parseFloat(d.ancho) || 0) * (parseFloat(d.alto) || 0) / 10000;
+    var intensidad = area > 0 ? co2 / area : 0;
+    var imp = SGGlass.impacto(intensidad);
+    document.getElementById('tarjetaHuella').classList.add('nivel-' + imp.nivel);
+    var chip = document.getElementById('huellaChip');
+    chip.className = 'chip-nivel nivel-' + imp.nivel;
+    chip.textContent = imp.etiqueta;
+    document.getElementById('huellaInt').textContent = SGGlass.fmtNum(intensidad, 1) + ' kg CO\u2082e/m\u00b2';
+    document.getElementById('huellaFrase').textContent = imp.frase;
+    var panelChip = document.getElementById('chipNivel');
+    panelChip.className = 'chip-nivel nivel-' + imp.nivel;
+    panelChip.textContent = 'Impacto ' + imp.etiqueta.toLowerCase();
+    panelChip.hidden = false;
+
+    if (imp.nivel !== 'favorable') {
+        // Enlace al configurador con la obra cargada y la configuracion recomendada aplicada
+        var q = new URLSearchParams({
+            ancho: d.ancho || '', alto: d.alto || '', espesor: d.espesor || '', tipo: d.tipo || '', forma: d.forma || '',
+            reciclado: d.reciclado === 'true' ? '1' : '0', balancear: '1'
+        }).toString();
+        var enlace = document.getElementById('lnkBalance');
+        enlace.href = enlace.getAttribute('href') + '?' + q;
+        enlace.hidden = false;
+        if (imp.nivel === 'alto') {
+            var a2 = document.getElementById('lnkBalanceAlerta');
+            a2.href = a2.getAttribute('href') + '?' + q;
+            var tx = document.getElementById('alertaObraTexto');
+            var b = document.createElement('b');
+            b.textContent = SGGlass.fmtNum(intensidad, 1) + ' kg CO\u2082e/m\u00b2';
+            tx.append('Su intensidad es ', b, ', por encima de 20. Podemos cargar esta misma pieza con una configuración recomendada que balancea su impacto (material reciclado, energía renovable y ajustes de espesor o tipo cuando es seguro).');
+            document.getElementById('alertaObra').hidden = false;
+        }
+    }
+
+    var eq = SGGlass.equivalencias(co2);
+    document.getElementById('eqKm').textContent = eq.km;
+    document.getElementById('eqArbol').textContent = eq.arbol;
+
+    /* Ficha y anatomia con el mismo formato (es-CO) que el configurador y la galeria */
+    document.getElementById('fDim').textContent = SGGlass.fmtAuto(d.ancho) + ' \u00d7 ' + SGGlass.fmtAuto(d.alto) + ' cm';
+    document.getElementById('fEsp').textContent = SGGlass.fmtAuto(d.espesor) + ' mm';
+    document.getElementById('fArea').textContent = SGGlass.fmtNum(area, 2) + ' m\u00b2';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-kg]'), function (el) {
+        el.textContent = SGGlass.fmtNum(mat[el.getAttribute('data-kg')], 2) + ' kg';
+    });
+
+    /* ---------- Resistencia: valor del servidor ahora, y verificacion con el servicio Python ---------- */
+    var recTxt = document.getElementById('recomendacion-texto');
+    var resVal = document.getElementById('resistencia-valor');
+    var payload = { ancho: parseFloat(d.ancho) || 0, alto: parseFloat(d.alto) || 0, espesor: parseFloat(d.espesor) || 0 };
+    var URL_API = 'https://api-production-d556.up.railway.app/analizar-resistencia';
+
+    fetch(URL_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+        if (data && data.recomendacion) recTxt.textContent = data.recomendacion;
+        if (data && data.resistencia != null) {
+            resVal.textContent = SGGlass.fmtNum(data.resistencia, 1) + ' MPa';
+            document.getElementById('verificado').classList.add('visible');
+        }
+    })
+    .catch(function (err) {
+        // Si el servicio no responde se conserva el diagnostico ya calculado por el servidor.
+        console.error('Error:', err);
+    });
+})();
 </script>
 
 <script th:src="@{/js/main.js}"></script>

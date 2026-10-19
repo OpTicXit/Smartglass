@@ -178,6 +178,142 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .btn-nav-cta:hover { background: var(--color-accent-solid-hover); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
 
+/* =========================================================
+   NAVEGACION ORGANIZADA
+   Se activa con <nav class="navbar" data-nav="public|admin"> (fragmentos
+   navbar-publico y admin/fragments/nav). main.js marca la pagina activa,
+   abre los menus y muestra la barra secundaria segun la seccion.
+========================================================= */
+.navbar[data-nav] {
+  flex-wrap: wrap; align-items: center; gap: 0 20px;
+  padding: 0 clamp(16px, 3vw, 40px);
+  animation: sgNavSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+@keyframes sgNavSlide { from { transform: translateY(-100%); opacity: 0; } to { transform: none; opacity: 1; } }
+.navbar[data-nav].scrolled { box-shadow: var(--shadow-main); }
+.navbar[data-nav] .logo { min-height: 68px; font-size: 1.22rem; white-space: nowrap; }
+.navbar[data-nav] .logo img { height: 34px; width: auto; }
+.logo-tag {
+  margin-left: 2px; padding: 3px 9px; border-radius: 999px;
+  background: var(--color-accent-dim); color: var(--color-accent-text);
+  font-size: 0.66rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+.nav-panel { display: flex; align-items: center; justify-content: space-between; flex: 1 1 auto; gap: 24px; min-width: 0; }
+.navbar[data-nav] .nav-links { display: flex; align-items: center; gap: 2px; list-style: none; margin: 0 0 0 14px; padding: 0; }
+.nav-item { position: relative; }
+
+.nav-link {
+  position: relative; display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 14px; border: 0; border-radius: 10px; background: transparent;
+  color: var(--text-muted); font: inherit; font-size: 0.92rem; font-weight: 600;
+  text-decoration: none; cursor: pointer; white-space: nowrap;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.nav-link:hover, .nav-item.open > .nav-link { color: var(--text-main); background: var(--surface-hover); }
+.nav-link:focus-visible, .nav-dropdown a:focus-visible, .subnav a:focus-visible, .nav-cart:focus-visible, .nav-toggle:focus-visible {
+  outline: 2px solid var(--color-accent); outline-offset: 2px;
+}
+.nav-link[aria-current="page"], .nav-item.is-active > .nav-link { color: var(--color-accent-text); }
+.nav-link[aria-current="page"]::after, .nav-item.is-active > .nav-link::after {
+  content: ""; position: absolute; left: 14px; right: 14px; bottom: 3px; height: 2px;
+  border-radius: 2px; background: var(--color-accent); box-shadow: 0 0 8px var(--color-accent);
+}
+.nav-chevron { width: 12px; height: 12px; flex: none; transition: transform 0.2s ease; }
+.nav-item.open > .nav-link .nav-chevron { transform: rotate(180deg); }
+
+.nav-dropdown {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 1100;
+  min-width: 250px; margin: 0; padding: 8px; list-style: none;
+  background: var(--bg-secondary); border: 1px solid var(--border-color);
+  border-radius: 14px; box-shadow: var(--shadow-main);
+  opacity: 0; visibility: hidden; transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+.nav-dropdown--right { left: auto; right: 0; }
+.nav-item.open > .nav-dropdown { opacity: 1; visibility: visible; transform: none; }
+.nav-dropdown a {
+  display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 10px;
+  color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none;
+}
+.nav-dropdown a small { color: var(--text-muted); font-size: 0.78rem; font-weight: 400; }
+.nav-dropdown a:hover, .nav-dropdown a:focus-visible { background: var(--color-accent-dim); }
+.nav-dropdown a[aria-current="page"] { background: var(--color-accent-dim); color: var(--color-accent-text); }
+.nav-dropdown a.is-danger { color: var(--color-error); }
+.nav-dropdown a.is-admin { color: var(--color-violet, var(--color-accent-text)); }
+.nav-dropdown .nav-sep { height: 1px; margin: 6px 4px; background: var(--border-color); }
+.nav-dropdown .nav-head { padding: 8px 12px 4px; color: var(--text-muted); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+.nav-cart {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px; border: 1px solid var(--border-color); border-radius: 12px;
+  color: var(--text-main); text-decoration: none; transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.nav-cart:hover { border-color: var(--border-hover); background: var(--color-accent-dim); color: var(--text-main); }
+.nav-cart svg { display: block; width: 20px; height: 20px; }
+/* La regla global a[href="/carrito"] { display: inline-block } le ganaba a .nav-cart
+   y sacaba el icono de su caja; este selector es mas especifico. */
+.navbar[data-nav] a.nav-cart { display: inline-flex; align-items: center; justify-content: center; }
+.nav-cart .cart-count {
+  position: absolute; top: -7px; right: -7px; min-width: 20px; height: 20px; padding: 0 5px;
+  display: grid; place-items: center; border-radius: 999px;
+  background: var(--color-accent-solid); color: #fff; font-size: 0.68rem; font-weight: 800;
+}
+.nav-cart .cart-count.is-empty { display: none; }
+.nav-account > .nav-link { gap: 9px; padding: 6px 12px 6px 6px; border: 1px solid var(--border-color); }
+.nav-avatar { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--color-accent-dim); color: var(--color-accent-text); }
+.nav-avatar svg { width: 16px; height: 16px; }
+.nav-account .nav-link[aria-current="page"]::after, .nav-account.is-active > .nav-link::after { display: none; }
+
+.nav-toggle {
+  display: none; margin-left: auto; width: 42px; height: 42px; place-items: center;
+  border: 1px solid var(--border-color); border-radius: 10px; background: transparent;
+  color: var(--text-main); cursor: pointer;
+}
+.nav-toggle svg { width: 20px; height: 20px; }
+
+/* Barra secundaria: aparece solo cuando la seccion tiene opciones propias */
+.subnav {
+  flex: 1 0 100%; order: 3; display: flex; align-items: center; gap: 4px;
+  min-height: 46px; margin: 0; border-top: 1px solid var(--border-color);
+  overflow-x: auto; scrollbar-width: none;
+  animation: sgSubnavIn 0.35s ease both;
+}
+@keyframes sgSubnavIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.subnav::-webkit-scrollbar { display: none; }
+.subnav[hidden] { display: none; }
+.subnav-title {
+  margin-right: 12px; padding-right: 14px; border-right: 1px solid var(--border-color);
+  color: var(--text-muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em;
+  text-transform: uppercase; white-space: nowrap;
+}
+.subnav a {
+  padding: 6px 12px; border-radius: 8px; color: var(--text-muted); font-size: 0.85rem;
+  font-weight: 600; text-decoration: none; white-space: nowrap;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.subnav a:hover { color: var(--text-main); background: var(--surface-hover); }
+.subnav a[aria-current="page"] { color: var(--color-accent-text); background: var(--color-accent-dim); }
+.subnav .subnav-spacer { margin-left: auto; }
+.subnav a.is-action { border: 1px solid var(--border-color); color: var(--color-accent-text); }
+
+@media (max-width: 950px) {
+  .nav-toggle { display: inline-grid; }
+  .nav-panel { display: none; order: 2; flex: 1 0 100%; flex-direction: column; align-items: stretch; gap: 14px; padding: 6px 0 16px; }
+  .navbar.mobile-open .nav-panel { display: flex; }
+  .navbar[data-nav] .nav-links { flex-direction: column; align-items: stretch; margin: 0; }
+  .nav-link { width: 100%; justify-content: space-between; padding: 12px 14px; }
+  .nav-dropdown { position: static; display: none; min-width: 0; padding: 2px 0 6px 12px; border: 0; background: transparent; box-shadow: none; opacity: 1; visibility: visible; transform: none; }
+  .nav-item.open > .nav-dropdown { display: block; }
+  .nav-actions { flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--border-color); }
+  .nav-link[aria-current="page"]::after, .nav-item.is-active > .nav-link::after { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .navbar[data-nav], .subnav { animation: none; }
+}
+
 /* NOTA: el CSS especifico de HERO/BENEFICIOS/VITRINA vive ahora
    en el <style> local de index.html -- es contenido exclusivo
    de esa vista, no un componente reutilizable global. */
@@ -398,7 +534,11 @@ tr:hover td { background-color: var(--surface-hover); }
 
 /* =========================================================
    SWITCH DE TEMA (lo inyecta main.js en todas las vistas)
+   Siempre fijo en la misma esquina de la pantalla (abajo a la
+   derecha): no cambia de lugar entre paginas. El body deja un
+   margen inferior para que nunca tape el final del contenido.
 ========================================================= */
+body { padding-bottom: 64px; }
 .sg-theme-switch {
   position: fixed;
   right: 20px;
@@ -415,7 +555,6 @@ tr:hover td { background-color: var(--surface-hover); }
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.navbar .sg-theme-switch { position: static; margin-left: 14px; box-shadow: none; }
 .sg-theme-switch:hover { transform: translateY(-2px); box-shadow: var(--shadow-main), var(--shadow-glow); }
 .sg-theme-switch:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 
@@ -481,3 +620,75 @@ html.sg-theme-transition *::after {
 @media (prefers-reduced-motion: reduce) {
   .sg-theme-thumb, .sg-theme-thumb svg, .sg-theme-track { transition: none; }
 }
+
+/* =========================================================
+   ESCENARIO DE VIDRIO (vista previa de la "obra")
+   Lo dibuja glass-preview.js; los colores siguen el tema.
+========================================================= */
+:root {
+  --stage-spot: rgba(59, 130, 246, 0.24);
+  --stage-top: #0B1330;
+  --stage-bottom: #070B19;
+  --stage-floor: rgba(0, 0, 0, 0.45);
+  --glass-face-a: rgba(190, 228, 255, 0.34);
+  --glass-face-b: rgba(96, 165, 250, 0.12);
+  --glass-edge-a: #3FB6C9;
+  --glass-edge-b: #14697A;
+  --glass-outline: rgba(205, 236, 255, 0.75);
+  --glass-hi: rgba(255, 255, 255, 0.6);
+  --glass-dim: #9FB4D4;
+  --glass-shadow: rgba(0, 0, 0, 0.55);
+}
+:root[data-theme="light"] {
+  --stage-spot: rgba(37, 99, 235, 0.16);
+  --stage-top: #FFFFFF;
+  --stage-bottom: #E3ECFA;
+  --stage-floor: rgba(30, 58, 138, 0.10);
+  --glass-face-a: rgba(110, 185, 235, 0.42);
+  --glass-face-b: rgba(60, 130, 210, 0.16);
+  --glass-edge-a: #2A9AAE;
+  --glass-edge-b: #0E5A69;
+  --glass-outline: rgba(24, 86, 140, 0.6);
+  --glass-hi: rgba(255, 255, 255, 0.95);
+  --glass-dim: #44537A;
+  --glass-shadow: rgba(30, 58, 138, 0.32);
+}
+.sg-stage {
+  position: relative; display: grid; place-items: center; overflow: hidden;
+  border: 1px solid var(--border-color); border-radius: 22px;
+  background:
+    radial-gradient(120% 80% at 50% 0%, var(--stage-spot), transparent 62%),
+    linear-gradient(180deg, var(--stage-top), var(--stage-bottom));
+}
+.sg-stage::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26%;
+  background: linear-gradient(180deg, transparent, var(--stage-floor)); pointer-events: none;
+}
+.sg-glass { display: block; width: 100%; height: auto; overflow: visible; }
+.sg-glass .sg-sweep { animation: sgSweep 7s ease-in-out infinite; }
+.sg-glass .sg-float { animation: sgFloat 7s ease-in-out infinite; }
+@keyframes sgSweep { 0%, 52% { transform: translateX(-280px); } 100% { transform: translateX(600px); } }
+@keyframes sgFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.sg-tilt { transition: transform 0.25s ease-out; will-change: transform; transform-style: preserve-3d; }
+@media (prefers-reduced-motion: reduce) {
+  .sg-glass .sg-sweep, .sg-glass .sg-float { animation: none; }
+  .sg-glass .sg-sweep { transform: translateX(140px); }
+  .sg-tilt { transition: none; }
+}
+
+@media print { .navbar[data-nav], .sg-theme-switch { display: none !important; } body { padding-bottom: 0; } }
+
+/* =========================================================
+   NIVEL DE IMPACTO AMBIENTAL (intensidad en kg CO2e / m2)
+   <= 12 Favorable (verde) | 12 - 20 Moderado (ambar) | > 20 Alto (rojo)
+   La clase .nivel-* define --nivel / --nivel-dim para anillos, chips y barras.
+========================================================= */
+.nivel-favorable { --nivel: var(--color-success); --nivel-dim: var(--color-success-dim); }
+.nivel-moderado  { --nivel: var(--color-warning); --nivel-dim: var(--color-warning-dim); }
+.nivel-alto      { --nivel: var(--color-error);   --nivel-dim: var(--color-error-dim); }
+.chip-nivel {
+  display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 999px;
+  background: var(--nivel-dim); color: var(--nivel); font-size: 0.74rem; font-weight: 800;
+  letter-spacing: 0.03em; white-space: nowrap;
+}
+.chip-nivel::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--nivel); box-shadow: 0 0 8px var(--nivel); }

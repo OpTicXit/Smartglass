@@ -25,106 +25,6 @@
            NAVBAR
            ========================================================= */
 
-        .navbar {
-            min-height: 72px;
-            padding: 0 4%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 25px;
-
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-
-            position: sticky;
-            top: 0;
-            z-index: 100;
-
-            backdrop-filter: blur(12px);
-        }
-
-        .brand-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-
-            color: var(--text-main);
-            text-decoration: none;
-
-            font-size: 1.1rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-
-            flex-shrink: 0;
-        }
-
-        .brand-link img {
-            width: 39px;
-            height: 39px;
-            object-fit: contain;
-        }
-
-        .brand-link span {
-            color: var(--color-accent-text);
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 7px;
-            flex-wrap: wrap;
-        }
-
-        .nav-links a {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-
-            padding: 9px 13px;
-
-            color: var(--text-main);
-            background: var(--bg-tertiary);
-
-            border: 1px solid transparent;
-            border-radius: 8px;
-
-            text-decoration: none;
-            font-size: 0.78rem;
-            font-weight: 600;
-
-            transition:
-                background 0.25s ease,
-                border-color 0.25s ease,
-                color 0.25s ease,
-                transform 0.25s ease;
-        }
-
-        .nav-links a:hover {
-            color: var(--color-accent-text);
-            border-color: var(--color-accent);
-            background: var(--color-accent-dim);
-            transform: translateY(-1px);
-        }
-
-        .nav-links .cart-link {
-            color: var(--color-accent-text);
-            background: var(--color-accent-dim);
-            border-color: var(--color-accent);
-        }
-
-        .nav-links .logout-link {
-            color: var(--text-muted);
-            background: transparent;
-            border: 1px dashed var(--border-color);
-        }
-
-        .nav-links .logout-link:hover {
-            color: var(--color-error);
-            border-color: var(--color-error);
-            background: transparent;
-        }
-
         /* =========================================================
            HERO
            ========================================================= */
@@ -537,16 +437,6 @@
 
         @media (max-width: 1050px) {
 
-            .navbar {
-                align-items: flex-start;
-                padding-top: 13px;
-                padding-bottom: 13px;
-            }
-
-            .nav-links {
-                justify-content: flex-end;
-            }
-
             .productos-grid {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
             }
@@ -557,25 +447,6 @@
         }
 
         @media (max-width: 760px) {
-
-            .navbar {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
-            }
-
-            .brand-link {
-                justify-content: center;
-            }
-
-            .nav-links {
-                justify-content: center;
-            }
-
-            .nav-links a {
-                font-size: 0.72rem;
-                padding: 8px 10px;
-            }
 
             .usuario-hero {
                 padding: 52px 18px 58px;
@@ -596,15 +467,6 @@
         }
 
         @media (max-width: 500px) {
-
-            .nav-links {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .nav-links a {
-                justify-content: center;
-            }
 
             .quick-actions {
                 grid-template-columns: 1fr;
@@ -641,48 +503,7 @@
 
 <body>
 
-<nav class="navbar">
-
-    <a href="/home" class="brand-link">
-        <img th:src="@{/img/logo-icono.png}" alt="SmartGlass">
-        <span>SmartGlass</span>
-    </a>
-
-    <div class="nav-links">
-
-        <a href="/catalogo">
-            🛍️ Tienda
-        </a>
-
-        <a href="/destacados">
-            ✦ Destacados
-        </a>
-
-        <a
-            href="/carrito"
-            class="cart-link"
-        >
-            🛒
-            <span>(
-                <span th:text="${cantidadCarrito}">0</span>
-            )</span>
-        </a>
-
-        <a href="/checkout/mis-pedidos">
-            📦 Mis Pedidos
-        </a>
-
-        <a href="/vidrio-personalizado/mis-cotizaciones">
-            📐 Mis Cotizaciones
-        </a>
-
-        <a href="/logout" class="logout-link">
-            Salir
-        </a>
-
-    </div>
-
-</nav>
+<nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
 
 <!-- =========================================================

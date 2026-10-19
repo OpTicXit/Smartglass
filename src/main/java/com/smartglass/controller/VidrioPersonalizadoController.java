@@ -4,27 +4,34 @@ import com.smartglass.dto.CotizacionVidrioRequest;
 import com.smartglass.dto.CotizacionVidrioResponse;
 import com.smartglass.dto.ErrorResponse;
 import com.smartglass.model.mongo.VidrioSostenible;
+import com.smartglass.model.mysql.Usuario;
+import com.smartglass.repository.mysql.UsuarioRepository;
 import com.smartglass.service.VidrioSostenibleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
  * Expone las cotizaciones de vidrio sostenible via REST.
- * No conoce Mongo, ni formulas de CO2/energia: solo traduce
- * HTTP <-> DTOs y delega en VidrioSostenibleService (persistencia)
- * que a su vez delega en AnalisisService (matematica).
+ * CAMBIOS (parche 2 + hallazgo de seguridad):
+ *  - PATCH /{id}/estado: pasar a APROBADO exige ROLE_ADMIN; sin rol, 403.
+ *    (Cierra la puerta trasera: hoy /api/vidrios/** cae en permitAll.)
+ *  - GET /usuario/{usuarioId}: solo el dueno o un admin (cierra el IDOR).
  */
 @RestController
 @RequestMapping("/api/vidrios")
 public class VidrioPersonalizadoController {
 
     private final VidrioSostenibleService vidrioSostenibleService;
+    private final UsuarioRepository usuarioRepository;
 
-    public VidrioPersonalizadoController(VidrioSostenibleService vidrioSostenibleService) {
+    public VidrioPersonalizadoController(VidrioSostenibleService vidrioSostenibleService,
+                                         UsuarioRepository usuarioRepository) {
         this.vidrioSostenibleService = vidrioSostenibleService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @PostMapping("/cotizar")
@@ -42,7 +49,16 @@ public class VidrioPersonalizadoController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<CotizacionVidrioResponse>> misCotizaciones(@PathVariable Long usuarioId) {
+    public ResponseEntity<?> misCotizaciones(@PathVariable Long usuarioId, Authentication auth) {
+        boolean esAdmin = PermisosAdvice.esAdmin(auth);
+        boolean esDueno = usuarioRepository.findByUsername(auth.getName())
+                .map(Usuario::getId)
+                .filter(id -> id.equals(usuarioId))
+                .isPresent();
+        if (!esAdmin && !esDueno) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorResponse("No tienes permisos para ver estas cotizaciones."));
+        }
         List<CotizacionVidrioResponse> cotizaciones = vidrioSostenibleService.obtenerPorUsuario(usuarioId).stream()
                 .map(CotizacionVidrioResponse::from)
                 .toList();
@@ -50,7 +66,13 @@ public class VidrioPersonalizadoController {
     }
 
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<?> actualizarEstado(@PathVariable String id, @RequestParam String estado) {
+    public ResponseEntity<?> actualizarEstado(@PathVariable String id,
+                                              @RequestParam String estado,
+                                              Authentication auth) {
+        if ("APROBADO".equalsIgnoreCase(estado) && !PermisosAdvice.esAdmin(auth)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorResponse("Solo un administrador puede aprobar cotizaciones."));
+        }
         return vidrioSostenibleService.actualizarEstado(id, estado)
                 .<ResponseEntity<?>>map(vidrio -> ResponseEntity.ok(CotizacionVidrioResponse.from(vidrio)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)

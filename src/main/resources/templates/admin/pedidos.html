@@ -8,6 +8,37 @@
     <link rel="stylesheet" th:href="@{/css/theme.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+
+    <style>
+        .hint-guardado { margin: -8px 0 18px; color: var(--text-muted); font-size: 0.88rem; }
+
+        /* Cambios pendientes: la fila se resalta hasta que se guarda */
+        .table-admin tbody tr.is-pendiente td { background-color: var(--color-warning-dim); }
+        .table-admin tbody tr.is-pendiente td:first-child { box-shadow: inset 3px 0 0 var(--color-warning); }
+
+        .estado-form select { transition: border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.2s ease; }
+        .estado-form.is-dirty select { border-color: var(--color-warning); }
+        .estado-msg {
+            min-width: 84px; font-size: 0.78rem; font-weight: 600; white-space: nowrap;
+            color: var(--color-warning);
+        }
+
+        /* Guardar sin cambios pendientes / mientras se envia */
+        .estado-form button:disabled { opacity: 0.45; cursor: not-allowed; }
+        .estado-form button:disabled:hover { background: var(--color-accent); }
+
+        .sg-toast {
+            position: fixed; left: 24px; bottom: 24px; z-index: 3000;
+            max-width: min(420px, calc(100vw - 48px));
+            padding: 12px 18px; border-radius: 10px;
+            font-size: 0.9rem; font-weight: 500;
+            background: var(--bg-secondary); color: var(--text-main);
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-main);
+            opacity: 0; transform: translateY(12px); pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .sg-toast.show { opacity: 1; transform: none; }
+    </style>
 </head>
 <body>
 
@@ -18,60 +49,143 @@
     
     <h1 class="admin-title">Pedidos</h1>
 
-    <!-- Alerta flash (cuando se cambia el estado de un pedido) -->
+    <!-- Alerta flash (cuando se cambia el estado de uno o varios pedidos) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
 
-    <div class="table-wrap">
-        <table class="table-admin">
-            <thead>
-                <tr>
-                    <th>Factura</th>
-                    <th>Cliente</th>
-                    <th>Fecha</th>
-                    <th>Estado</th>
-                    <th>Total</th>
-                    <th>Cambiar estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="pedido : ${pedidos}">
-                    <td class="td-strong" th:text="${pedido.numeroFactura}"></td>
-                    <td th:text="${pedido.usuario != null ? pedido.usuario.nombre : '—'}"></td>
-                    <td th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy')}"></td>
-                    <td>
-                        <span class="badge"
-                              th:classappend="${pedido.estado == 'PENDIENTE'} ? 'badge-warning' : 
-                                              (${pedido.estado == 'PROCESANDO'} ? 'badge-info' : 
-                                              (${pedido.estado == 'ENVIADO'} ? 'badge-violet' : 
-                                              (${pedido.estado == 'ENTREGADO'} ? 'badge-success' : 'badge-error')))"
-                              th:text="${pedido.estado}"></span>
-                    </td>
-                    <td th:text="${pedido.totalFormateado}"></td>
-                    <td>
-                        <form class="estado-form" 
-                              th:action="@{/admin/pedidos/{id}/estado(id=${pedido.id})}" 
-                              method="post">
-                            <select name="estado">
-                                <option value="PENDIENTE" th:selected="${pedido.estado == 'PENDIENTE'}">Pendiente</option>
-                                <option value="PROCESANDO" th:selected="${pedido.estado == 'PROCESANDO'}">Procesando</option>
-                                <option value="ENVIADO" th:selected="${pedido.estado == 'ENVIADO'}">Enviado</option>
-                                <option value="ENTREGADO" th:selected="${pedido.estado == 'ENTREGADO'}">Entregado</option>
-                                <option value="CANCELADO" th:selected="${pedido.estado == 'CANCELADO'}">Cancelado</option>
-                            </select>
-                            <button type="submit">Guardar</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(pedidos)}">
-                    <td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">
-                        No hay pedidos registrados.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <p class="hint-guardado">Cambia el estado de uno o varios pedidos y pulsa <strong>Guardar</strong> en cualquiera: se guardan todos los cambios a la vez.</p>
+
+    <!-- Un solo formulario para toda la tabla: cualquier boton Guardar envia todos los cambios -->
+    <form id="form-estados" th:action="@{/admin/pedidos/estados}" method="post">
+        <div class="table-wrap">
+            <table class="table-admin">
+                <thead>
+                    <tr>
+                        <th>Factura</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                        <th>Cambiar estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pedido : ${pedidos}">
+                        <td class="td-strong" th:text="${pedido.numeroFactura}"></td>
+                        <td th:text="${pedido.usuario != null ? pedido.usuario.nombre : '—'}"></td>
+                        <td th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy')}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${pedido.estado == 'PENDIENTE'} ? 'badge-warning' : 
+                                                  (${pedido.estado == 'PROCESANDO'} ? 'badge-info' : 
+                                                  (${pedido.estado == 'ENVIADO'} ? 'badge-violet' : 
+                                                  (${pedido.estado == 'ENTREGADO'} ? 'badge-success' : 'badge-error')))"
+                                  th:text="${pedido.estado}"></span>
+                        </td>
+                        <td th:text="${pedido.totalFormateado}"></td>
+                        <td>
+                            <div class="estado-form">
+                                <select th:name="'estado_' + ${pedido.id}" aria-label="Cambiar estado del pedido"
+                                        th:attr="data-previo=${pedido.estado}">
+                                    <option value="PENDIENTE" th:selected="${pedido.estado == 'PENDIENTE'}">Pendiente</option>
+                                    <option value="PROCESANDO" th:selected="${pedido.estado == 'PROCESANDO'}">Procesando</option>
+                                    <option value="ENVIADO" th:selected="${pedido.estado == 'ENVIADO'}">Enviado</option>
+                                    <option value="ENTREGADO" th:selected="${pedido.estado == 'ENTREGADO'}">Entregado</option>
+                                    <option value="CANCELADO" th:selected="${pedido.estado == 'CANCELADO'}">Cancelado</option>
+                                </select>
+                                <button type="submit">Guardar</button>
+                                <span class="estado-msg" role="status" aria-live="polite"></span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(pedidos)}">
+                        <td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">
+                            No hay pedidos registrados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
 </div>
 
+<div class="sg-toast" id="sg-toast" role="status" aria-live="polite"></div>
+
 <script th:src="@{/js/main.js}"></script>
+<script>
+/* Guardado en lote: elegir un estado solo lo marca como pendiente;
+   al pulsar Guardar en cualquier fila viajan TODOS los pendientes en un solo envio. */
+(function () {
+    var form = document.getElementById('form-estados');
+    var celdas = Array.prototype.slice.call(document.querySelectorAll('.estado-form'));
+    var toast = document.getElementById('sg-toast');
+    var toastTimer = null;
+    var enviando = false;
+    if (!form || !celdas.length) return;
+
+    function selectDe(celda) { return celda.querySelector('select'); }
+    function hayCambio(celda) {
+        var s = selectDe(celda);
+        return s.value !== s.getAttribute('data-previo');
+    }
+    function pendientes() { return celdas.filter(hayCambio); }
+
+    function avisar(texto) {
+        toast.textContent = texto;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2800);
+    }
+
+    function refrescar() {
+        var n = pendientes().length;
+        celdas.forEach(function (celda) {
+            var cambio = hayCambio(celda);
+            celda.closest('tr').classList.toggle('is-pendiente', cambio);
+            celda.classList.toggle('is-dirty', cambio);
+            celda.querySelector('.estado-msg').textContent = cambio ? 'Sin guardar' : '';
+            var btn = celda.querySelector('button');
+            btn.disabled = enviando || n === 0;
+            btn.textContent = n > 1 ? 'Guardar (' + n + ')' : 'Guardar';
+        });
+    }
+
+    celdas.forEach(function (celda) {
+        selectDe(celda).addEventListener('change', refrescar);
+    });
+
+    form.addEventListener('submit', function (event) {
+        if (!pendientes().length) {
+            event.preventDefault();
+            avisar('No hay cambios por guardar.');
+            return;
+        }
+        enviando = true;
+        // Solo viajan los pedidos que cambiaron (un select deshabilitado no se envia)
+        celdas.forEach(function (celda) {
+            if (!hayCambio(celda)) selectDe(celda).disabled = true;
+            var btn = celda.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = 'Guardando…';
+        });
+    });
+
+    // Si el usuario vuelve con "Atras", se deja la pagina lista otra vez
+    window.addEventListener('pageshow', function () {
+        enviando = false;
+        celdas.forEach(function (celda) { selectDe(celda).disabled = false; });
+        refrescar();
+    });
+
+    // Aviso si se intenta salir de la pagina con cambios sin guardar
+    window.addEventListener('beforeunload', function (event) {
+        if (!enviando && pendientes().length) {
+            event.preventDefault();
+            event.returnValue = '';
+        }
+    });
+
+    refrescar();
+})();
+</script>
 </body>
 </html>

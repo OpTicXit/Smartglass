@@ -6,6 +6,7 @@ import com.smartglass.model.mysql.Pedido;
 import com.smartglass.model.mysql.Usuario;
 import com.smartglass.repository.mysql.PedidoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -122,5 +123,25 @@ public class PedidoService {
             p.setEstado(estado);
             pedidoRepository.save(p);
         });
+    }
+
+    /**
+     * Cambia el estado de varios pedidos en una sola transaccion (id -> nuevo estado).
+     * Solo toca los pedidos cuyo estado realmente cambia.
+     * Devuelve cuantos pedidos se actualizaron.
+     */
+    @Transactional
+    public int actualizarEstados(Map<Long, String> cambios) {
+        int actualizados = 0;
+        for (Map.Entry<Long, String> cambio : cambios.entrySet()) {
+            Optional<Pedido> encontrado = pedidoRepository.findById(cambio.getKey());
+            if (encontrado.isPresent() && !cambio.getValue().equals(encontrado.get().getEstado())) {
+                Pedido pedido = encontrado.get();
+                pedido.setEstado(cambio.getValue());
+                pedidoRepository.save(pedido);
+                actualizados++;
+            }
+        }
+        return actualizados;
     }
 }

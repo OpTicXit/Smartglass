@@ -21,89 +21,6 @@
 
         /* ---------- NAVBAR ---------- */
 
-        .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-            min-height: 70px;
-            padding: 0.75rem clamp(1rem, 4vw, 3rem);
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            backdrop-filter: blur(12px);
-        }
-
-        .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--color-accent-text);
-            font-weight: 800;
-            font-size: 1.25rem;
-            letter-spacing: -0.03em;
-            text-decoration: none;
-            white-space: nowrap;
-        }
-
-        .logo-mark {
-            display: grid;
-            place-items: center;
-            width: 34px;
-            height: 34px;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-
-        .logo-mark img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .nav-links a {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 9px 13px;
-            border: 1px solid transparent;
-            border-radius: 9px;
-            color: var(--text-muted);
-            background: transparent;
-            text-decoration: none;
-            font-size: 0.86rem;
-            font-weight: 600;
-            transition:
-                background 0.2s ease,
-                color 0.2s ease,
-                border-color 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .nav-links a:hover {
-            color: var(--color-accent-text);
-            background: var(--bg-tertiary);
-            border-color: var(--border-color);
-            transform: translateY(-1px);
-        }
-
-        .nav-links .logout-link {
-            border: 1px dashed var(--border-color);
-            color: var(--text-muted);
-        }
-
         /* ---------- CONTENEDOR ---------- */
 
         .pedidos-container {
@@ -204,6 +121,15 @@
             font-size: 0.78rem;
             font-weight: 600;
         }
+
+        .stat-sostenible { align-items: flex-start; }
+        .sostenible-info { min-width: 0; }
+        .sostenible-sub { display: block; line-height: 1.45; }
+        .sostenible-sub b { color: var(--text-main); }
+        .como-compensar { margin-top: 8px; }
+        .como-compensar summary { cursor: pointer; color: var(--color-accent-text); font-size: 0.8rem; font-weight: 700; }
+        .como-compensar summary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        .como-compensar p { margin: 8px 0 0; color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; }
 
         /* ---------- LISTA DE PEDIDOS ---------- */
 
@@ -471,22 +397,6 @@
         /* ---------- RESPONSIVE ---------- */
 
         @media (max-width: 900px) {
-            .navbar {
-                align-items: flex-start;
-                flex-direction: column;
-                padding: 14px 20px;
-            }
-
-            .nav-links {
-                width: 100%;
-                justify-content: flex-start;
-                overflow-x: auto;
-                padding-bottom: 2px;
-            }
-
-            .nav-links a {
-                white-space: nowrap;
-            }
 
             .pedidos-container {
                 padding-top: 32px;
@@ -545,14 +455,6 @@
         }
 
         @media (max-width: 430px) {
-            .nav-links {
-                gap: 4px;
-            }
-
-            .nav-links a {
-                padding: 8px 10px;
-                font-size: 0.78rem;
-            }
 
             .producto-item {
                 gap: 10px;
@@ -571,7 +473,6 @@
         /* ---------- IMPRESIÓN ---------- */
 
         @media print {
-            .navbar,
             .btn-factura {
                 display: none !important;
             }
@@ -596,33 +497,7 @@
 
 <body>
 
-<nav class="navbar">
-    <a th:href="@{/usuario}" class="logo">
-        <span class="logo-mark">
-            <img th:src="@{/img/logo-icono.png}" alt="SmartGlass">
-        </span>
-        <span>SmartGlass</span>
-    </a>
-
-    <ul class="nav-links">
-        <li>
-            <a th:href="@{/catalogo}">Tienda</a>
-        </li>
-        <li>
-            <a th:href="@{/carrito}">🛒 Carrito</a>
-        </li>
-        <li>
-            <a th:href="@{/vidrio-personalizado/mis-cotizaciones}">
-                Mis Cotizaciones
-            </a>
-        </li>
-        <li>
-            <a th:href="@{/logout}" class="logout-link">
-                Salir
-            </a>
-        </li>
-    </ul>
-</nav>
+<nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
 <div class="pedidos-container">
 
@@ -646,12 +521,35 @@
             </div>
         </div>
 
-        <div class="stat-pedido card-panel">
+        <!-- Huella compensada: usa kgCompensados / pedidosCompensados / kgTotales del controlador
+             y, si no vienen en el modelo, los calcula aqui a partir de la lista de pedidos. -->
+        <div class="stat-pedido card-panel stat-sostenible"
+             th:with="kgT=${kgTotales != null ? kgTotales : (#aggregates.sum(pedidos.![co2Total != null ? co2Total : 0]) ?: 0)},
+                      kgC=${kgCompensados != null ? kgCompensados : (#aggregates.sum(pedidos.?[compensacionCO2 == true].![co2Total != null ? co2Total : 0]) ?: 0)},
+                      nC=${pedidosCompensados != null ? pedidosCompensados : #lists.size(pedidos.?[compensacionCO2 == true])}">
             <div class="stat-icon">🌱</div>
 
-            <div>
-                <strong>Sostenible</strong>
-                <span>Huella compensada</span>
+            <div class="sostenible-info">
+                <!-- Con huella compensada -->
+                <th:block th:if="${nC > 0}">
+                    <strong><span th:text="${#numbers.formatDecimal(kgC, 1, 'POINT', 1, 'COMMA')}">0,0</span> kg CO₂</strong>
+                    <span class="sostenible-sub">
+                        compensados en <b th:text="${nC}">0</b> <b th:text="${nC == 1 ? 'pedido' : 'pedidos'}">pedidos</b><span th:if="${kgT > 0}"> · <b th:text="${#numbers.formatDecimal(kgC * 100.0 / kgT, 1, 'POINT', 0, 'COMMA')} + ' %'">0 %</b> de tu huella total</span>
+                    </span>
+                </th:block>
+
+                <!-- Estado cero explicito -->
+                <th:block th:unless="${nC > 0}">
+                    <strong>0 kg</strong>
+                    <span class="sostenible-sub">aún no compensas huella</span>
+                    <details class="como-compensar">
+                        <summary>¿Cómo compensar?</summary>
+                        <p>
+                            Al finalizar una compra, en el paso 3 del checkout marca
+                            «Deseo compensar mi huella» (+$5.000) y SmartGlass compensa las emisiones de tu pedido.
+                        </p>
+                    </details>
+                </th:block>
             </div>
         </div>
 
