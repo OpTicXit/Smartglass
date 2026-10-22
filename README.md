@@ -468,7 +468,7 @@ SmartGlass es un proyecto desarrollado con fines académicos
 
 Su propósito es aplicar conocimientos de ingeniería de software, persistencia de datos y aprendizaje automático a un problema relacionado con la sostenibilidad en la industria del vidrio.
 
-No se especifica una licencia de software abierta en este documento. Si el proyecto se publicará para reutilización o distribución, se recomienda incorporar un archivo `LICENSE` con la licencia elegida por sus autores.
+No se especifica una licencia de software abierta en este documento.
 
 ---
 
