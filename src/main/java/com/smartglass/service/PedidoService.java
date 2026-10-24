@@ -1,6 +1,7 @@
 package com.smartglass.service;
 
 import com.smartglass.model.mongo.ItemCarrito;
+import com.smartglass.model.mongo.VidrioSostenible;
 import com.smartglass.model.mysql.DetallePedido;
 import com.smartglass.model.mysql.Pedido;
 import com.smartglass.model.mysql.Usuario;
@@ -15,11 +16,15 @@ import java.util.Optional;
 
 /**
  * NOTA: se actualizaron los imports de Pedido/DetallePedido/Usuario
- * a com.smartglass.model.mysql (movidos en un paso anterior de este
- * refactor) y el de PedidoRepository a com.smartglass.repository.mysql
- * (Pedido ahora es una entidad JPA, no un documento Mongo).
- * El calculo de huella de carbono ya NO vive aqui: se delega en
- * AnalisisService para que exista una sola fuente de verdad.
+ * a com.smartglass.model.mysql y el de PedidoRepository a
+ * com.smartglass.repository.mysql (Pedido es una entidad JPA).
+ * El calculo de huella por item de CATALOGO vive en AnalisisService.
+ *
+ * F12: las obras a medida aprobadas entran al carrito como snapshot cuyo
+ * id es el de la cotizacion (VidrioSostenible). Para esos items la huella
+ * es la ALMACENADA en la cotizacion (x cantidad), no un recalculo con los
+ * factores de catalogo: asi cotizacion, checkout y factura muestran el
+ * mismo CO2. Los items de catalogo siguen usando AnalisisService.
  */
 @Service
 public class PedidoService {
@@ -27,13 +32,16 @@ public class PedidoService {
     private final PedidoRepository pedidoRepository;
     private final CarritoService carritoService;
     private final AnalisisService analisisService;
+    private final VidrioSostenibleService vidrioSostenibleService;
 
     public PedidoService(PedidoRepository pedidoRepository,
                           CarritoService carritoService,
-                          AnalisisService analisisService) {
+                          AnalisisService analisisService,
+                          VidrioSostenibleService vidrioSostenibleService) {
         this.pedidoRepository = pedidoRepository;
         this.carritoService = carritoService;
         this.analisisService = analisisService;
+        this.vidrioSostenibleService = vidrioSostenibleService;
     }
 
     // --- METODOS DE CALCULO PARA EL CHECKOUT ---
@@ -47,12 +55,19 @@ public class PedidoService {
     }
 
     /**
-     * Calcula la huella de carbono total de los items en el carrito,
-     * delegando el calculo por item en AnalisisService.
+     * Calcula la huella de carbono total de los items en el carrito.
+     * Obra a medida (id de una cotizacion existente) -> huella almacenada x cantidad.
+     * Producto de catalogo -> AnalisisService.calcularHuellaCarbonoItem.
      */
     public double calcularHuellaCarbono(List<ItemCarrito> items) {
         double totalCO2 = items.stream().mapToDouble(item -> {
             var producto = item.getProducto();
+            Optional<VidrioSostenible> obra = producto.getId() == null
+                    ? Optional.empty()
+                    : vidrioSostenibleService.obtenerPorId(producto.getId());
+            if (obra.isPresent()) {
+                return obra.get().getHuellaCarbono() * item.getCantidad();
+            }
             return analisisService.calcularHuellaCarbonoItem(
                     producto.getAncho(),
                     producto.getAlto(),
@@ -87,6 +102,10 @@ public class PedidoService {
         pedido.setHuellaCarbono(calcularHuellaCarbono(items));
 
         Pedido guardado = pedidoRepository.save(pedido);
+        // F29: con el id ya asignado por MySQL se genera el numero oficial SG-AAAA-000000
+        // (antes la factura se quedaba con el provisional TMP-XXXXXXXX).
+        guardado.generarNumeroFacturaOficial();
+        guardado = pedidoRepository.save(guardado);
         carritoService.limpiar();
         return guardado;
     }

@@ -689,7 +689,7 @@
 
         <p>
             Factura generada electrónicamente. Huella de carbono estimada de este pedido:
-            <strong class="carbono-value" th:text="${pedido.huellaCarbono} + ' kg CO₂e'"></strong>.
+            <strong class="carbono-value" th:text="${#numbers.formatDecimal(pedido.huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'"></strong>.
         </p>
 
         <div class="no-print factura-actions">

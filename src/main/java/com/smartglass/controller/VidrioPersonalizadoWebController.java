@@ -16,18 +16,25 @@ import java.util.List;
 /**
  * Flujo MVC de cotizaciones de vidrio a medida (mis-cotizaciones.html,
  * vidrio-personalizado-detalle.html, vidrio-personalizado-form.html).
- * Distinto de VidrioPersonalizadoController (la API REST bajo
- * /api/vidrios) -- este es el equivalente en HTML/formularios.
+ * Distinto de VidrioPersonalizadoController (API REST bajo /api/vidrios).
  *
- * CAMBIOS (parches de backend):
- *  - aprobar: exige ROLE_ADMIN (PermisosAdvice.esAdmin); un usuario normal
- *    recibe flash de error y el estado NO cambia.
- *  - nuevo /agregar-al-carrito/{id}: el dueno de una obra APROBADA la anade
- *    a su carrito desde el detalle (parche 3).
+ * CAMBIOS (auditoria de fugas):
+ * - F9: NINGUN metodo declara @ModelAttribute("usuario") Usuario como
+ *   parametro. Con {id} (ObjectId de Mongo) Spring intentaba bindear la
+ *   variable de ruta a Usuario.id (Long) -> 400. Ademas, bindear request
+ *   params sobre la entidad Usuario es un riesgo de mass-assignment. El
+ *   usuario se lee del Model (lo publica VistaGlobalAttributesAdvice).
+ * - F8: verCotizacion solo para el dueno o un admin.
+ * - F10: aprobar solo admin y solo desde COTIZACION; re-aprobar una
+ *   RECHAZADA es exclusivo del panel /admin/cotizaciones.
+ * - F7: eliminar: dueno solo COTIZACION/RECHAZADA; admin cualquiera.
+ * - agregar-al-carrito: dueno + estado APROBADO.
  */
 @Controller
 @RequestMapping("/vidrio-personalizado")
 public class VidrioPersonalizadoWebController {
+
+    private static final String REDIRECT_MIS_COTIZACIONES = "redirect:/vidrio-personalizado/mis-cotizaciones";
 
     private final VidrioSostenibleService vidrioSostenibleService;
     private final CarritoService carritoService;
@@ -38,28 +45,48 @@ public class VidrioPersonalizadoWebController {
         this.carritoService = carritoService;
     }
 
+    /** Usuario logueado, tal como lo publica el advice global en el Model (null si no esta). */
+    private Usuario usuarioActual(Model model) {
+        Object u = model.getAttribute("usuario");
+        return (u instanceof Usuario) ? (Usuario) u : null;
+    }
+
+    private static boolean esDueno(VidrioSostenible v, Usuario usuario) {
+        return v.getUsuarioId() != null && usuario != null && v.getUsuarioId().equals(usuario.getId());
+    }
+
     @GetMapping("/mis-cotizaciones")
-    public String misCotizaciones(@ModelAttribute("usuario") Usuario usuario, Model model) {
+    public String misCotizaciones(Model model) {
+        Usuario usuario = usuarioActual(model);
+        if (usuario == null) return "redirect:/login";
         List<VidrioSostenible> cotizaciones = vidrioSostenibleService.obtenerPorUsuario(usuario.getId());
-        long pendientes = cotizaciones.stream().filter(c -> "COTIZACION".equals(c.getEstado())).count();
-        long aprobadas = cotizaciones.stream().filter(c -> "APROBADO".equals(c.getEstado())).count();
+        long pendientes = cotizaciones.stream().filter(c -> VidrioSostenibleService.COTIZACION.equals(c.getEstado())).count();
+        long aprobadas = cotizaciones.stream().filter(c -> VidrioSostenibleService.APROBADO.equals(c.getEstado())).count();
+        long rechazadas = cotizaciones.stream().filter(c -> VidrioSostenibleService.RECHAZADA.equals(c.getEstado())).count();
         double huellaTotal = cotizaciones.stream().mapToDouble(VidrioSostenible::getHuellaCarbono).sum();
         model.addAttribute("cotizaciones", cotizaciones);
         model.addAttribute("totalCots", cotizaciones.size());
         model.addAttribute("pendientes", pendientes);
         model.addAttribute("aprobadas", aprobadas);
+        model.addAttribute("rechazadas", rechazadas);
         model.addAttribute("huellaTotal", Math.round(huellaTotal * 100.0) / 100.0);
         return "mis-cotizaciones";
     }
 
+    /** F8: solo el dueno o un admin abren el detalle. */
     @GetMapping("/cotizacion/{id}")
-    public String verCotizacion(@PathVariable String id, Model model) {
+    public String verCotizacion(@PathVariable String id, Model model, Authentication auth) {
+        Usuario usuario = usuarioActual(model);
+        if (usuario == null) return "redirect:/login";
+        boolean admin = PermisosAdvice.esAdmin(auth);
         return vidrioSostenibleService.obtenerPorId(id)
+                .filter(v -> admin || esDueno(v, usuario))
                 .map(vidrio -> {
                     model.addAttribute("vidrio", vidrio);
+                    model.addAttribute("esDueno", esDueno(vidrio, usuario));
                     return "vidrio-personalizado-detalle";
                 })
-                .orElse("redirect:/vidrio-personalizado/mis-cotizaciones");
+                .orElse(REDIRECT_MIS_COTIZACIONES);
     }
 
     @GetMapping("/cotizar")
@@ -68,35 +95,68 @@ public class VidrioPersonalizadoWebController {
     }
 
     @PostMapping("/cotizar")
-    public String cotizar(@ModelAttribute("usuario") Usuario usuario,
-                          CotizacionVidrioRequest request) {
-        request.setUsuarioId(usuario.getId());
+    public String cotizar(CotizacionVidrioRequest request, Model model) {
+        Usuario usuario = usuarioActual(model);
+        if (usuario == null) return "redirect:/login";
+        request.setUsuarioId(usuario.getId()); // el dueno lo define la sesion, no el formulario
         VidrioSostenible creado = vidrioSostenibleService.generarCotizacion(request);
         return "redirect:/vidrio-personalizado/cotizacion/" + creado.getId();
     }
 
-    /** PARCHES 1: aprobar es accion de administrador. */
+    /** F10: solo admin y solo COTIZACION -> APROBADO; la re-aprobacion es del panel. */
     @PostMapping("/aprobar/{id}")
     public String aprobar(@PathVariable String id, Authentication auth, RedirectAttributes ra) {
         if (!PermisosAdvice.esAdmin(auth)) {
             ra.addFlashAttribute("mensaje", "Solo un administrador puede aprobar cotizaciones.");
             ra.addFlashAttribute("tipoMensaje", "error");
-            return "redirect:/vidrio-personalizado/mis-cotizaciones"; // sin tocar el estado
+            return REDIRECT_MIS_COTIZACIONES;
         }
-        vidrioSostenibleService.actualizarEstado(id, "APROBADO");
-        ra.addFlashAttribute("mensaje", "Cotización aprobada.");
-        ra.addFlashAttribute("tipoMensaje", "success");
-        return "redirect:/vidrio-personalizado/mis-cotizaciones";
+        VidrioSostenible v = vidrioSostenibleService.obtenerPorId(id).orElse(null);
+        if (v == null) {
+            ra.addFlashAttribute("mensaje", "La cotización no existe.");
+            ra.addFlashAttribute("tipoMensaje", "error");
+        } else if (!VidrioSostenibleService.COTIZACION.equals(v.getEstado())) {
+            ra.addFlashAttribute("mensaje", "Esta cotización ya fue gestionada. La re-aprobación se hace desde el panel de admin.");
+            ra.addFlashAttribute("tipoMensaje", "error");
+        } else {
+            vidrioSostenibleService.cambiarEstado(id, VidrioSostenibleService.APROBADO);
+            ra.addFlashAttribute("mensaje", "Cotización aprobada.");
+            ra.addFlashAttribute("tipoMensaje", "success");
+        }
+        return REDIRECT_MIS_COTIZACIONES;
     }
 
-    /** PARCHES 3: el dueno anade su obra APROBADA al carrito. */
-    @PostMapping("/agregar-al-carrito/{id}")
-    public String agregarAlCarrito(@PathVariable String id,
-                                   @ModelAttribute("usuario") Usuario usuario,
-                                   RedirectAttributes ra) {
+    /** F7: dueno solo COTIZACION o RECHAZADA. Admin: cualquiera. */
+    @PostMapping("/eliminar/{id}")
+    public String eliminar(@PathVariable String id, Model model,
+                           Authentication auth, RedirectAttributes ra) {
+        Usuario usuario = usuarioActual(model);
+        if (usuario == null) return "redirect:/login";
+        boolean admin = PermisosAdvice.esAdmin(auth);
         return vidrioSostenibleService.obtenerPorId(id)
-                .filter(vidrio -> usuario.getId().equals(vidrio.getUsuarioId()))
-                .filter(vidrio -> "APROBADO".equals(vidrio.getEstado()))
+                .filter(v -> admin || esDueno(v, usuario))
+                .filter(v -> admin || !VidrioSostenibleService.APROBADO.equals(v.getEstado()))
+                .map(v -> {
+                    vidrioSostenibleService.eliminarPorId(v.getId());
+                    ra.addFlashAttribute("mensaje", "Cotización eliminada.");
+                    ra.addFlashAttribute("tipoMensaje", "success");
+                    return REDIRECT_MIS_COTIZACIONES;
+                })
+                .orElseGet(() -> {
+                    ra.addFlashAttribute("mensaje", "No puedes eliminar esta cotización.");
+                    ra.addFlashAttribute("tipoMensaje", "error");
+                    return REDIRECT_MIS_COTIZACIONES;
+                });
+    }
+
+    /** El dueno anade su obra APROBADA al carrito (una RECHAZADA o ajena no entra). */
+    @PostMapping("/agregar-al-carrito/{id}")
+    public String agregarAlCarrito(@PathVariable String id, Model model, RedirectAttributes ra) {
+        Usuario usuario = usuarioActual(model);
+        if (usuario == null) return "redirect:/login";
+        return vidrioSostenibleService.obtenerPorId(id)
+                .filter(vidrio -> esDueno(vidrio, usuario))
+                .filter(vidrio -> VidrioSostenibleService.APROBADO.equals(vidrio.getEstado()))
                 .map(vidrio -> {
                     carritoService.agregarCotizacionAprobada(vidrio);
                     ra.addFlashAttribute("mensaje", "Obra añadida al carrito.");
@@ -106,13 +166,7 @@ public class VidrioPersonalizadoWebController {
                 .orElseGet(() -> {
                     ra.addFlashAttribute("mensaje", "La obra no existe o aún no está aprobada.");
                     ra.addFlashAttribute("tipoMensaje", "error");
-                    return "redirect:/vidrio-personalizado/mis-cotizaciones";
+                    return REDIRECT_MIS_COTIZACIONES;
                 });
-    }
-
-    @PostMapping("/eliminar/{id}")
-    public String eliminar(@PathVariable String id) {
-        vidrioSostenibleService.eliminarPorId(id);
-        return "redirect:/vidrio-personalizado/mis-cotizaciones";
     }
 }

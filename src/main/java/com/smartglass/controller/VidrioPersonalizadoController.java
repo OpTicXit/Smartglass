@@ -13,13 +13,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Expone las cotizaciones de vidrio sostenible via REST.
- * CAMBIOS (parche 2 + hallazgo de seguridad):
- *  - PATCH /{id}/estado: pasar a APROBADO exige ROLE_ADMIN; sin rol, 403.
- *    (Cierra la puerta trasera: hoy /api/vidrios/** cae en permitAll.)
- *  - GET /usuario/{usuarioId}: solo el dueno o un admin (cierra el IDOR).
+ * CAMBIOS de esta ronda (cierre de holes):
+ * - Toda la API exige sesion: sin autenticacion -> 401.
+ * - POST /cotizar: el usuarioId sale de la sesion, no del body (anti-spoofing).
+ * - GET /{id} y GET /usuario/{usuarioId}: solo dueno o admin (anti-IDOR).
+ * - PATCH /{id}/estado: transiciones via cambiarEstado; pasar a APROBADO o
+ *   RECHAZADA exige ROLE_ADMIN (403); transicion ilegal -> 409.
+ * - Rutas limpias (la copia anterior tenia espacios en @PatchMapping y un
+ *   "& &" que no compilaba).
  */
 @RestController
 @RequestMapping("/api/vidrios")
@@ -34,27 +39,46 @@ public class VidrioPersonalizadoController {
         this.usuarioRepository = usuarioRepository;
     }
 
+    private Optional<Usuario> usuarioActual(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            return Optional.empty();
+        }
+        return usuarioRepository.findByUsername(auth.getName());
+    }
+
     @PostMapping("/cotizar")
-    public ResponseEntity<CotizacionVidrioResponse> cotizar(@RequestBody CotizacionVidrioRequest request) {
-        VidrioSostenible vidrio = vidrioSostenibleService.generarCotizacion(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(CotizacionVidrioResponse.from(vidrio));
+    public ResponseEntity<?> cotizar(@RequestBody CotizacionVidrioRequest request, Authentication auth) {
+        return usuarioActual(auth).<ResponseEntity<?>>map(u -> {
+            request.setUsuarioId(u.getId()); // el dueno lo define la sesion, no el body
+            VidrioSostenible vidrio = vidrioSostenibleService.generarCotizacion(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(CotizacionVidrioResponse.from(vidrio));
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse("Debes iniciar sesion para crear una cotizacion.")));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> obtener(@PathVariable String id) {
+    public ResponseEntity<?> obtener(@PathVariable String id, Authentication auth) {
+        Optional<Usuario> u = usuarioActual(auth);
+        if (u.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Autenticacion requerida."));
+        }
         return vidrioSostenibleService.obtenerPorId(id)
-                .<ResponseEntity<?>>map(vidrio -> ResponseEntity.ok(CotizacionVidrioResponse.from(vidrio)))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .filter(v -> u.get().getId().equals(v.getUsuarioId()) || PermisosAdvice.esAdmin(auth))
+                .<ResponseEntity<?>>map(v -> ResponseEntity.ok(CotizacionVidrioResponse.from(v)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new ErrorResponse("No existe una cotizacion con id " + id)));
     }
 
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<?> misCotizaciones(@PathVariable Long usuarioId, Authentication auth) {
+        Optional<Usuario> u = usuarioActual(auth);
+        if (u.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Autenticacion requerida."));
+        }
         boolean esAdmin = PermisosAdvice.esAdmin(auth);
-        boolean esDueno = usuarioRepository.findByUsername(auth.getName())
-                .map(Usuario::getId)
-                .filter(id -> id.equals(usuarioId))
-                .isPresent();
+        boolean esDueno = u.get().getId().equals(usuarioId);
         if (!esAdmin && !esDueno) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new ErrorResponse("No tienes permisos para ver estas cotizaciones."));
@@ -69,13 +93,27 @@ public class VidrioPersonalizadoController {
     public ResponseEntity<?> actualizarEstado(@PathVariable String id,
                                               @RequestParam String estado,
                                               Authentication auth) {
-        if ("APROBADO".equalsIgnoreCase(estado) && !PermisosAdvice.esAdmin(auth)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new ErrorResponse("Solo un administrador puede aprobar cotizaciones."));
+        Optional<Usuario> u = usuarioActual(auth);
+        if (u.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Autenticacion requerida."));
         }
-        return vidrioSostenibleService.actualizarEstado(id, estado)
-                .<ResponseEntity<?>>map(vidrio -> ResponseEntity.ok(CotizacionVidrioResponse.from(vidrio)))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ErrorResponse("No existe una cotizacion con id " + id)));
+        String objetivo = estado == null ? "" : estado.toUpperCase();
+        boolean esTransicionDeGestion = VidrioSostenibleService.APROBADO.equals(objetivo)
+                || VidrioSostenibleService.RECHAZADA.equals(objetivo);
+        if (esTransicionDeGestion && !PermisosAdvice.esAdmin(auth)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorResponse("Solo un administrador puede gestionar el estado."));
+        }
+        return switch (vidrioSostenibleService.cambiarEstado(id, objetivo)) {
+            case NO_ENCONTRADA -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("No existe una cotizacion con id " + id));
+            case TRANSICION_INVALIDA -> ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse("Transicion de estado no permitida: " + objetivo));
+            case OK -> vidrioSostenibleService.obtenerPorId(id)
+                    .<ResponseEntity<?>>map(v -> ResponseEntity.ok(CotizacionVidrioResponse.from(v)))
+                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(new ErrorResponse("No existe una cotizacion con id " + id)));
+        };
     }
 }

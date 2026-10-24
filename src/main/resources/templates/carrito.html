@@ -177,7 +177,7 @@
 
                 <div class="item-info">
                     <h3 th:text="${item.producto.nombre}">Nombre de Vidrio</h3>
-                    <span class="codigo" th:text="'Código: ' + ${item.producto.codigo}">SKU-000</span>
+                    <span class="codigo" th:if="${item.producto.codigo != null}" th:text="'Código: ' + ${item.producto.codigo}">SKU-000</span>
                     <p class="precio-unitario" th:text="'Precio unitario: $' + ${item.producto.precioFormateado}">$0.00</p>
                 </div>
 

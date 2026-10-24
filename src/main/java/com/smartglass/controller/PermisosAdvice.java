@@ -1,34 +1,53 @@
 package com.smartglass.controller;
 
+import com.smartglass.service.VidrioSostenibleService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
- * Permisos que las plantillas necesitan saber.
- *
- * "puedeAprobar" es true solo para ROLE_ADMIN. Las vistas (mis-cotizaciones y el
- * detalle de la obra) lo usan para mostrar u ocultar el boton "Aprobar".
- * IMPORTANTE: ocultar el boton NO protege nada; el POST de aprobacion se valida
- * en el servidor con {@link #esAdmin(Authentication)} (ver backend-parches.md).
- *
- * Se calcula desde las autoridades de Spring Security, asi que no depende del
- * nombre del campo de rol en la entidad Usuario.
+ * Permisos y datos globales para las vistas Thymeleaf.
+ * - esAdmin(auth): helper estatico usado por los controllers.
+ * - puedeAprobar / esAdmin: banderas para las plantillas.
+ * - cotizacionesPendientes: badge del nav del admin. Solo consulta
+ *   Mongo en rutas /admin/**, para no gastar una query en cada
+ *   request (incluida la API REST).
  */
 @ControllerAdvice
 public class PermisosAdvice {
 
-    private static final String ROL_ADMIN = "ROLE_ADMIN";
+    private final VidrioSostenibleService vidrioSostenibleService;
 
-    /** true si el usuario autenticado tiene ROLE_ADMIN. */
+    public PermisosAdvice(VidrioSostenibleService vidrioSostenibleService) {
+        this.vidrioSostenibleService = vidrioSostenibleService;
+    }
+
     public static boolean esAdmin(Authentication auth) {
         return auth != null
                 && auth.isAuthenticated()
-                && auth.getAuthorities().stream().anyMatch(a -> ROL_ADMIN.equals(a.getAuthority()));
+                && !"anonymousUser".equals(auth.getPrincipal())
+                && auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
     }
 
     @ModelAttribute("puedeAprobar")
     public boolean puedeAprobar(Authentication auth) {
         return esAdmin(auth);
     }
+
+    @ModelAttribute("esAdmin")
+    public boolean esAdminVistas(Authentication auth) {
+        return esAdmin(auth);
+    }
+
+    @ModelAttribute("cotizacionesPendientes")
+    public long cotizacionesPendientes(Authentication auth, HttpServletRequest request) {
+        if (!esAdmin(auth)) return 0L;
+        String uri = request.getRequestURI();
+        if (uri == null || !uri.startsWith("/admin")) return 0L;
+        return vidrioSostenibleService.contarPorEstado(VidrioSostenibleService.COTIZACION);
+    }
+
+    // OPCIONAL: solo si alguna vista lee ${uriActual}; el nav usa data-match, no lo requiere.
+    // @ModelAttribute("uriActual") public String uriActual(HttpServletRequest r) { return r.getRequestURI(); }
 }

@@ -16,9 +16,12 @@ public class ResultadoAnalisisVidrio {
     private double cantidadSosa;
     private double cantidadCaliza;
     private double cantidadAlumina;
+    private double cantidadOtros;
     private double precioEstimado;
     private double resistenciaEstimada;
     private String recomendacion;
+    // F45: true si el area salio del poligono del corte personalizado (false = caja envolvente)
+    private boolean corteAplicado;
 
     public double getAreaTotal() { return areaTotal; }
     public void setAreaTotal(double areaTotal) { this.areaTotal = areaTotal; }
@@ -44,6 +47,9 @@ public class ResultadoAnalisisVidrio {
     public double getCantidadAlumina() { return cantidadAlumina; }
     public void setCantidadAlumina(double cantidadAlumina) { this.cantidadAlumina = cantidadAlumina; }
 
+    public double getCantidadOtros() { return cantidadOtros; }
+    public void setCantidadOtros(double cantidadOtros) { this.cantidadOtros = cantidadOtros; }
+
     public double getPrecioEstimado() { return precioEstimado; }
     public void setPrecioEstimado(double precioEstimado) { this.precioEstimado = precioEstimado; }
 
@@ -52,4 +58,7 @@ public class ResultadoAnalisisVidrio {
 
     public String getRecomendacion() { return recomendacion; }
     public void setRecomendacion(String recomendacion) { this.recomendacion = recomendacion; }
+
+    public boolean isCorteAplicado() { return corteAplicado; }
+    public void setCorteAplicado(boolean corteAplicado) { this.corteAplicado = corteAplicado; }
 }

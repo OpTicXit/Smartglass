@@ -65,12 +65,22 @@ public class CheckoutController {
         }
     }
 
+    /** CORREGIDO: solo el dueno del pedido ve la confirmacion (antes cualquier usuario logueado, por id). */
     @GetMapping("/confirmacion/{id}")
-    public String verConfirmacion(@PathVariable Long id, Principal principal, Model model) {
-        return pedidoService.obtenerPorId(id).map(p -> {
-            model.addAttribute("pedido", p);
-            return "pedido-confirmacion";
-        }).orElse("redirect:/usuario");
+    public String verConfirmacion(@PathVariable Long id, Principal principal, Model model, RedirectAttributes ra) {
+        Usuario usuario = usuarioRepository.findByUsername(principal.getName()).orElse(null);
+        if (usuario == null) return "redirect:/login";
+        return pedidoService.obtenerPorId(id)
+                .filter(p -> p.getUsuario() != null && p.getUsuario().getId().equals(usuario.getId()))
+                .map(p -> {
+                    model.addAttribute("pedido", p);
+                    return "pedido-confirmacion";
+                })
+                .orElseGet(() -> {
+                    ra.addFlashAttribute("mensaje", "No tienes permisos para ver este pedido.");
+                    ra.addFlashAttribute("tipoMensaje", "error");
+                    return "redirect:/checkout/mis-pedidos";
+                });
     }
 
     @GetMapping("/mis-pedidos")
@@ -78,11 +88,19 @@ public class CheckoutController {
         Usuario usuario = usuarioRepository.findByUsername(principal.getName()).orElse(null);
         if (usuario == null) return "redirect:/login";
         List<Pedido> pedidos = pedidoService.obtenerPedidosUsuario(usuario);
+
+        // Widget "Sostenible" (nombres reales de Pedido: huellaCarbono / compensacionCarbono)
+        List<Pedido> compensados = pedidos.stream().filter(Pedido::isCompensacionCarbono).toList();
+        double kgTotales = pedidos.stream().mapToDouble(Pedido::getHuellaCarbono).sum();
+        double kgCompensados = compensados.stream().mapToDouble(Pedido::getHuellaCarbono).sum();
+        double pctCompensado = kgTotales > 0 ? (kgCompensados / kgTotales) * 100.0 : 0.0;
+
         model.addAttribute("pedidos", pedidos);
         model.addAttribute("usuario", usuario);
-        // NOTA: el widget "Sostenible" lo calcula la plantilla por si sola.
-        // Cuando tengamos Pedido.java a la vista, se mueve ese calculo aca
-        // con los nombres reales de los getters (kgTotales / kgCompensados).
+        model.addAttribute("kgTotales", redondear(kgTotales));
+        model.addAttribute("kgCompensados", redondear(kgCompensados));
+        model.addAttribute("pedidosCompensados", compensados.size());
+        model.addAttribute("pctCompensado", Math.round(pctCompensado));
         return "mis-pedidos";
     }
 
@@ -102,5 +120,9 @@ public class CheckoutController {
                     ra.addFlashAttribute("tipoMensaje", "error");
                     return "redirect:/checkout/mis-pedidos";
                 });
+    }
+
+    private double redondear(double v) {
+        return Math.round(v * 100.0) / 100.0;
     }
 }

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <script th:src="@{/js/theme-init.js}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartGlass - Cotizaciones (Admin)</title>
+    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        /* =========================================================
+           PANEL DE APROBACION DE COTIZACIONES (solo ROLE_ADMIN)
+           Todas las cotizaciones de todos los clientes. Sin edicion,
+           sin carrito, sin pagos: solo aprobar o rechazar.
+           ========================================================= */
+        .container { max-width: 1240px; }
+        .cot-sub { margin: -14px 0 24px; color: var(--text-muted); font-size: 0.92rem; }
+        .admin-title .badge { margin-left: 10px; vertical-align: middle; }
+
+        .flash-error { border-color: rgba(185, 28, 28, 0.35); background: var(--color-error-dim); color: var(--color-error); }
+
+        /* ---------- Filtros por estado ---------- */
+        .filtros { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; }
+        .filtros a {
+            display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px;
+            border: 1px solid var(--border-color); border-radius: 999px; background: var(--bg-secondary);
+            color: var(--text-muted); font-size: 0.88rem; font-weight: 700; text-decoration: none;
+            transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+        }
+        .filtros a:hover { border-color: var(--border-hover); color: var(--text-main); }
+        .filtros a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        .filtros a.activo { border-color: var(--color-accent); background: var(--color-accent-dim); color: var(--color-accent-text); }
+        .filtros .n {
+            min-width: 22px; padding: 1px 7px; border-radius: 999px; background: var(--bg-tertiary);
+            color: var(--text-main); font-size: 0.74rem; text-align: center; font-variant-numeric: tabular-nums;
+        }
+        .filtros a.activo .n { background: var(--color-accent); color: #fff; }
+
+        /* ---------- Tabla ---------- */
+        .cot-tabla td { vertical-align: middle; }
+        /* columnas mas compactas para que la tabla entre completa en 1440 px sin scroll interno */
+        .cot-tabla th, .cot-tabla td { padding-left: 12px; padding-right: 12px; }
+        .cot-tabla th:first-child, .cot-tabla td:first-child { padding-left: 18px; }
+        .cot-tabla th:last-child, .cot-tabla td:last-child { padding-right: 18px; }
+        .cot-obra { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .cot-mini { flex: none; width: 76px; border-radius: 12px; }
+        .cot-obra-txt { display: grid; gap: 2px; min-width: 0; }
+        .cot-obra-txt strong { color: var(--text-main); font-size: 0.95rem; }
+        .cot-medidas { color: var(--text-muted); font-size: 0.82rem; line-height: 1.35; }
+        .cot-ref { color: var(--text-label); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+        .cot-ref b { font-weight: 800; }
+
+        /* F24: PROCESO (.metrica-proceso, con color) y PIEZA (.metrica-pieza, neutro): estilos en admin.css */
+        .cot-co2 { display: grid; gap: 6px; justify-items: start; white-space: nowrap; }
+        .cot-tabla td.precio { color: var(--text-main); font-weight: 700; white-space: nowrap; }
+        .cot-tabla td.fecha { white-space: nowrap; }
+
+        .acciones { white-space: nowrap; }
+        .acciones-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+        .acciones-fila form { margin: 0; }
+        .btn-aprobar-admin {
+            padding: 7px 16px; border: 0; border-radius: 8px; background: var(--color-success);
+            color: var(--bg-primary); font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+            transition: filter 0.2s ease;
+        }
+        .btn-aprobar-admin:hover { filter: brightness(1.1); }
+        .btn-aprobar-admin:focus-visible, .btn-eliminar:focus-visible, a.ver:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+        .vacio { padding: 44px 20px; text-align: center; color: var(--text-muted); }
+        .vacio a { color: var(--color-accent-text); font-weight: 700; }
+
+        /* ---------- Movil: la tabla pasa a tarjetas ---------- */
+        @media (max-width: 820px) {
+            .cot-tabla, .cot-tabla tbody, .cot-tabla tr, .cot-tabla td { display: block; }
+            .cot-tabla thead { display: none; }
+            .table-wrap { border: 0; background: transparent; overflow: visible; }
+            .cot-tabla tr {
+                margin-bottom: 14px; padding: 16px; border: 1px solid var(--admin-card-border);
+                border-radius: 16px; background: var(--bg-secondary); box-shadow: var(--admin-shadow-card);
+            }
+            .cot-tabla td { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 0; border: 0; }
+            .cot-tabla td::before {
+                content: attr(data-label); flex: none; color: var(--text-label); font-size: 0.7rem;
+                font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+            }
+            .cot-tabla td.obra-celda { display: block; padding-top: 0; }
+            .cot-tabla td.obra-celda::before { display: none; }
+            .cot-tabla td.acciones { display: block; padding-bottom: 0; }
+            .cot-tabla td.acciones::before { display: block; margin-bottom: 8px; }
+            .cot-co2 { justify-items: end; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar del Admin -->
+<div th:replace="~{admin/fragments/nav :: navbar}"></div>
+
+<div class="container">
+
+    <h1 class="admin-title">
+        Cotizaciones
+        <span class="badge badge-neutral" th:text="${conteos['TODAS']}">0</span>
+    </h1>
+    <p class="cot-sub">Revisa las obras de todos los clientes y apruébalas o recházalas.</p>
+
+    <!-- Mensaje flash -->
+    <div th:if="${mensaje}" th:class="'flash ' + (${tipoMensaje == 'error'} ? 'flash-error' : '')" role="status" th:text="${mensaje}">Mensaje</div>
+
+    <!-- Filtros por estado -->
+    <nav class="filtros" aria-label="Filtrar por estado">
+        <a th:href="@{/admin/cotizaciones}" th:classappend="${filtro == 'TODAS'} ? 'activo'">Todas <span class="n" th:text="${conteos['TODAS']}">0</span></a>
+        <a th:href="@{/admin/cotizaciones(estado='COTIZACION')}" th:classappend="${filtro == 'COTIZACION'} ? 'activo'">Pendientes <span class="n" th:text="${conteos['COTIZACION']}">0</span></a>
+        <a th:href="@{/admin/cotizaciones(estado='APROBADO')}" th:classappend="${filtro == 'APROBADO'} ? 'activo'">Aprobadas <span class="n" th:text="${conteos['APROBADO']}">0</span></a>
+        <a th:href="@{/admin/cotizaciones(estado='RECHAZADA')}" th:classappend="${filtro == 'RECHAZADA'} ? 'activo'">Rechazadas <span class="n" th:text="${conteos['RECHAZADA']}">0</span></a>
+    </nav>
+
+    <div class="table-wrap">
+        <table class="table-admin cot-tabla">
+            <thead>
+                <tr>
+                    <th>Obra</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Impacto ambiental</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="f : ${filas}"
+                    th:attr="data-id=${f.id},data-tipo=${f.tipo},data-ancho=${f.ancho},data-alto=${f.alto},data-espesor=${f.espesor},data-forma=${f.forma},data-reciclado=${f.reciclado}">
+
+                    <td class="obra-celda" data-label="Obra">
+                        <div class="cot-obra">
+                            <div class="cot-mini sg-stage" aria-hidden="true"></div>
+                            <div class="cot-obra-txt">
+                                <strong data-tipo-txt th:text="${f.tipo}">Templado</strong>
+                                <span class="cot-medidas" data-medidas th:text="${f.ancho} + ' × ' + ${f.alto} + ' cm · ' + ${f.espesor} + ' mm'">105 × 105 cm · 7 mm</span>
+                                <span class="cot-ref">Obra Nº <b data-ref th:text="${f.id}">000000</b></span>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="td-strong" data-label="Cliente" th:text="${f.cliente}">Cliente</td>
+                    <td class="fecha" data-label="Fecha" th:text="${f.fecha}">01/01/2026 00:00</td>
+
+                    <td data-label="Impacto">
+                        <div class="cot-co2">
+                            <!-- PROCESO: nivel e intensidad vienen de la entidad (fila.nivel / fila.intensidad); no se recalculan aqui. Unico dato con color de juicio. -->
+                            <span class="metrica-proceso chip-nivel" th:if="${f.intensidad > 0}"
+                                  th:classappend="'nivel-' + ${#strings.toLowerCase(f.nivel)}"
+                                  th:text="'Proceso · ' + (${f.nivel == 'FAVORABLE'} ? 'Favorable' : (${f.nivel == 'MODERADO'} ? 'Moderado' : 'Alto')) + ' · ' + ${#numbers.formatDecimal(f.intensidad, 1, 'POINT', 1, 'COMMA')} + ' kg/m²'">Proceso</span>
+                            <!-- PIEZA: absoluto, neutro, sin juicio -->
+                            <span class="metrica-pieza"
+                                  th:text="'Esta pieza: ' + ${#numbers.formatDecimal(f.co2, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">—</span>
+                        </div>
+                    </td>
+
+                    <td class="precio" data-label="Precio" th:text="${f.precio}">$0</td>
+
+                    <td data-label="Estado">
+                        <span class="badge"
+                              th:classappend="${f.estado == 'COTIZACION'} ? 'badge-warning' : (${f.estado == 'APROBADO'} ? 'badge-success' : 'badge-error')"
+                              th:text="${f.estado == 'COTIZACION'} ? 'Pendiente' : (${f.estado == 'APROBADO'} ? 'Aprobada' : 'Rechazada')">Pendiente</span>
+                    </td>
+
+                    <td class="acciones" data-label="Acciones">
+                        <div class="acciones-fila">
+                            <a class="ver" th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${f.id})}">Ver</a>
+
+                            <!-- Aprobar: desde Pendiente o para re-aprobar una Rechazada -->
+                            <form th:if="${f.estado != 'APROBADO'}" th:action="@{/admin/cotizaciones/{id}/aprobar(id=${f.id})}" method="post">
+                                <input type="hidden" name="estado" th:value="${filtro}">
+                                <button type="submit" class="btn-aprobar-admin">Aprobar</button>
+                            </form>
+
+                            <!-- Rechazar: solo desde Pendiente -->
+                            <form th:if="${f.estado == 'COTIZACION'}" th:action="@{/admin/cotizaciones/{id}/rechazar(id=${f.id})}" method="post"
+                                  onsubmit="return confirm('¿Rechazar esta cotización? El cliente verá que no fue aprobada.')">
+                                <input type="hidden" name="estado" th:value="${filtro}">
+                                <button type="submit" class="btn-eliminar">Rechazar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Estado vacio (con o sin filtro) -->
+        <div class="vacio" th:if="${#lists.isEmpty(filas)}">
+            <span th:if="${filtro == 'TODAS'}">Todavía no hay cotizaciones en el sistema.</span>
+            <span th:unless="${filtro == 'TODAS'}">
+                No hay cotizaciones con este estado.
+                <a th:href="@{/admin/cotizaciones}">Ver todas</a>
+            </span>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/glass-preview.js}"></script>
+<script>
+(function () {
+    /* Filtro activo: se anuncia a lectores de pantalla */
+    var activo = document.querySelector('.filtros a.activo');
+    if (activo) activo.setAttribute('aria-current', 'page');
+
+    Array.prototype.forEach.call(document.querySelectorAll('.cot-tabla tbody tr[data-id]'), function (fila) {
+        var d = fila.dataset;
+
+        /* Miniatura de la obra */
+        SGGlass.render(fila.querySelector('.cot-mini'), {
+            tipo: d.tipo, ancho: d.ancho, alto: d.alto, espesor: d.espesor, forma: d.forma,
+            reciclado: d.reciclado === 'true', mini: true
+        });
+
+        /* Textos con el mismo formato (es-CO) que el configurador, el detalle y la galeria */
+        fila.querySelector('[data-tipo-txt]').textContent = SGGlass.nombreTipo(d.tipo);
+        fila.querySelector('[data-medidas]').textContent =
+            SGGlass.fmtAuto(d.ancho) + ' \u00d7 ' + SGGlass.fmtAuto(d.alto) + ' cm \u00b7 ' + SGGlass.fmtAuto(d.espesor) + ' mm \u00b7 ' + (d.forma || '');
+        fila.querySelector('[data-ref]').textContent = String(d.id || '').slice(-6).toUpperCase();
+
+    });
+})();
+</script>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

@@ -29,14 +29,14 @@ import java.util.stream.Collectors;
  * - Se mantiene el metodo generateToken(String) por compatibilidad.
  */
 @Component
-public class JwtPorvider {
+public class JwtProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(JwtPorvider.class);
+    private static final Logger log = LoggerFactory.getLogger(JwtProvider.class);
 
     private final SecretKey secretKey;
     private final long expirationMs;
 
-    public JwtPorvider(
+    public JwtProvider(
             @Value("${smartglass.jwt.secret}") String secret,
             @Value("${smartglass.jwt.expiration-ms:86400000}") long expirationMs
     ) {

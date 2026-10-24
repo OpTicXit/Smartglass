@@ -508,7 +508,7 @@
 
         <div class="info-group">
             <label>Huella de Carbono</label>
-            <span th:text="${pedido.huellaCarbono} + ' kg CO₂e'"></span>
+            <span th:text="${#numbers.formatDecimal(pedido.huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'"></span>
         </div>
 
         <div class="info-group">

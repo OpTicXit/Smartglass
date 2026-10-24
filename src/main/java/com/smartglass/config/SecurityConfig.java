@@ -1,12 +1,14 @@
 package com.smartglass.config;
 
 import com.smartglass.security.JwtAuthenticationFilter;
+import com.smartglass.security.RateLimitFilter;
 import com.smartglass.service.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
@@ -28,15 +31,16 @@ import java.util.Set;
 
 /**
  * Configuracion de seguridad de SmartGlass.
- * Correcciones aplicadas:
- * - Rutas con /** correctamente.
- * - Sin espacios en los matchers.
- * - /admin/** protegido con hasRole("ADMIN").
- * - CORS habilitado para React.
- * - Se mantiene formLogin + oauth2Login para no romper la app MVC actual.
- * CAMBIO (parches de backend):
- * - API REST de vidrios: lecturas publicas (storefront), escrituras
- *   autenticadas y cambio de estado / borrado solo ROLE_ADMIN.
+ * - /admin/** y /api/admin/** con hasRole("ADMIN").
+ * - API REST de vidrios: GET y POST autenticados; PATCH/DELETE solo ROLE_ADMIN.
+ *   Las lecturas GET ademas se filtran por dueno/admin dentro del controller
+ *   (F5): las DOS capas son necesarias, una sin la otra deja hueco.
+ * - NO hay regla para POST /vidrio-personalizado/aprobar/**: el guard del
+ *   controller da un flash amigable; una regla aqui mostraria 403.
+ * - CORS habilitado para React; formLogin + oauth2Login se mantienen.
+ * F41: RateLimitFilter (429 + Retry-After) tras la autenticacion; ver su javadoc.
+ * CAMBIO: las rutas /api/** sin sesion responden 401 (antes redirigian a
+ * /login con 302, porque el entry point por defecto es el del formLogin).
  */
 @Configuration
 @EnableWebSecurity
@@ -48,6 +52,18 @@ public class SecurityConfig {
 
     @Value("${smartglass.cors.allowed-origin:http://localhost:5173}")
     private String allowedOrigin;
+
+    // F41: limites por minuto del RateLimitFilter (configurables en application.properties)
+    @Value("${smartglass.ratelimit.anonimo-por-minuto:30}")
+    private int rlAnonimo;
+    @Value("${smartglass.ratelimit.usuario-por-minuto:120}")
+    private int rlUsuario;
+    @Value("${smartglass.ratelimit.admin-por-minuto:300}")
+    private int rlAdmin;
+    @Value("${smartglass.ratelimit.sensible-por-minuto:10}")
+    private int rlSensible;
+    @Value("${smartglass.ratelimit.confiar-forwarded-for:false}")
+    private boolean rlConfiarForwardedFor;
 
     public SecurityConfig(
             CustomSuccessHandler customSuccessHandler,
@@ -71,6 +87,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // F41: NO es un bean (Spring Boot lo registraria tambien como filtro de servlet, antes de autenticar)
+        RateLimitFilter rateLimitFilter = new RateLimitFilter(
+                rlAnonimo, rlUsuario, rlAdmin, rlSensible, rlConfiarForwardedFor);
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -108,8 +127,8 @@ public class SecurityConfig {
                     "/api/carrito/**",
                     "/api/checkout/**"
                 ).authenticated()
-                // API de vidrios (REST): lecturas publicas para el storefront;
-                // crear cotizacion exige sesion; cambiar estado o borrar, solo admin.
+                // API de vidrios (REST)
+                .requestMatchers(HttpMethod.GET, "/api/vidrios/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/vidrios/**").authenticated()
                 .requestMatchers(HttpMethod.PATCH, "/api/vidrios/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/vidrios/**").hasRole("ADMIN")
@@ -145,19 +164,22 @@ public class SecurityConfig {
             )
             .exceptionHandling(exception -> exception
                 .accessDeniedPage("/error/403")
+                // API REST sin sesion -> 401 (no redirect al login HTML)
+                .defaultAuthenticationEntryPointFor(
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                    PathPatternRequestMatcher.withDefaults().matcher("/api/**")
+                )
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            // F41: despues de la autenticacion (JWT/sesion) para distinguir usuario, admin y anonimo
+            .addFilterAfter(rateLimitFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
-    /**
-     * CORS para React.
-     * Frontend React local tipico:
-     * http://localhost:5173
-     */
+    /** CORS para React (http://localhost:5173 por defecto). */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -165,23 +187,9 @@ public class SecurityConfig {
         origins.add(allowedOrigin);
         origins.add("http://127.0.0.1:5173");
         configuration.setAllowedOrigins(new ArrayList<>(origins));
-        configuration.setAllowedMethods(List.of(
-            "GET",
-            "POST",
-            "PUT",
-            "PATCH",
-            "DELETE",
-            "OPTIONS"
-        ));
-        configuration.setAllowedHeaders(List.of(
-            "Authorization",
-            "Content-Type",
-            "Accept",
-            "X-Requested-With"
-        ));
-        configuration.setExposedHeaders(List.of(
-            "Authorization"
-        ));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+        configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

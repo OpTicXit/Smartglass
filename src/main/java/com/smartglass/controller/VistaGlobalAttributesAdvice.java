@@ -30,7 +30,8 @@ import java.util.Optional;
     CheckoutController.class,
     UsuarioDashboardController.class,
     VidrioPersonalizadoWebController.class,
-    AdminController.class
+    AdminController.class,
+    AdminCotizacionesController.class
 })
 public class VistaGlobalAttributesAdvice {
 

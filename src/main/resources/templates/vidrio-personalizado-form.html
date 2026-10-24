@@ -55,7 +55,7 @@
         .medida { padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 14px; background: var(--card-bg); }
         .medida span { display: block; color: var(--text-muted); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; }
         .medida strong { display: block; margin-top: 2px; color: var(--text-main); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
-        .medida strong.co2 { color: var(--color-warning); }
+        .medida strong.co2 { color: var(--text-main); } /* F24: el absoluto no lleva color de juicio */
 
         .precio-caja {
             padding: 18px 22px; border: 1px solid var(--border-hover); border-radius: 18px;
@@ -322,12 +322,12 @@
             <div class="medidas">
                 <div class="medida"><span>Área</span><strong id="areaText">1.10 m²</strong></div>
                 <div class="medida"><span>Peso</span><strong id="pesoText">19.3 kg</strong></div>
-                <div class="medida"><span>CO₂e</span><strong id="co2Text" class="co2 co2-value">9.8 kg</strong></div>
+                <div class="medida"><span>CO₂e de la pieza</span><strong id="co2Text" class="co2 co2-value">9.8 kg</strong></div>
             </div>
 
             <div class="termometro nivel-favorable" id="termometro">
                 <div class="termo-cab">
-                    <span>Intensidad ambiental</span>
+                    <span>Proceso · intensidad ambiental</span>
                     <span class="chip-nivel" id="termoChip">Favorable</span>
                 </div>
                 <div class="termo-valor"><strong id="termoValor">0.0</strong><small>kg CO₂e/m²</small></div>

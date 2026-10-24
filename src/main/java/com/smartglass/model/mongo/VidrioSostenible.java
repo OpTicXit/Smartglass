@@ -3,8 +3,11 @@ package com.smartglass.model.mongo;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.smartglass.dto.PuntoCorte;
+
 import java.time.LocalDateTime;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -40,7 +43,7 @@ public class VidrioSostenible {
     private String forma;
     private String tratamiento;
     private String color;
-    private int cantidadCapas;
+    private int cantidadCapas = 1; // F27
     private boolean requiereCorteEspecial;
     private double areaTotal;
     private double pesoEstimado;
@@ -59,6 +62,7 @@ public class VidrioSostenible {
     private double cantidadSosa;
     private double cantidadCaliza;
     private double cantidadAlumina;
+    private double cantidadOtros;
     private double energiaRequerida;
     private boolean usarVidrioReciclado;
     private int porcentajeReciclado;
@@ -70,6 +74,10 @@ public class VidrioSostenible {
     private String recomendacion;
     private LocalDateTime fechaCreacion;
     private String estado;
+
+    // F45: corte personalizado (nullable; solo existe si forma = "Personalizada" y el poligono fue valido)
+    private List<PuntoCorte> puntosPersonalizados;
+    private Double areaPoligonal;   // m2, calculada por AnalisisService y guardada para no recalcular en cada vista
 
     public VidrioSostenible() {
         this.fechaCreacion = LocalDateTime.now();
@@ -104,6 +112,21 @@ public class VidrioSostenible {
         if (intensidad <= UMBRAL_FAVORABLE) return "FAVORABLE";
         if (intensidad <= UMBRAL_MODERADO) return "MODERADO";
         return "ALTO";
+    }
+
+    /**
+     * Kg de vidrio reciclado (calcin) de la pieza: 15% del peso cuando se
+     * usa material reciclado. Getter transitorio (no se persiste). Con la
+     * materia virgen y "otros oxidos", la suma de la anatomia = pesoEstimado.
+     */
+    public double getVidrioRecicladoKg() {
+        if (!usarVidrioReciclado || pesoEstimado <= 0) return 0.0;
+        return Math.round(pesoEstimado * 0.15 * 100.0) / 100.0;
+    }
+
+    /** F45: vertices como "x,y;x,y" para el atributo data-puntos del detalle (no se persiste; no depende del locale). */
+    public String getPuntosTexto() {
+        return PuntoCorte.aTexto(puntosPersonalizados);
     }
 
     // --- Getters y Setters ---
@@ -153,6 +176,8 @@ public class VidrioSostenible {
     public void setCantidadCaliza(double v) { this.cantidadCaliza = v; }
     public double getCantidadAlumina() { return cantidadAlumina; }
     public void setCantidadAlumina(double v) { this.cantidadAlumina = v; }
+    public double getCantidadOtros() { return cantidadOtros; }
+    public void setCantidadOtros(double v) { this.cantidadOtros = v; }
     public double getEnergiaRequerida() { return energiaRequerida; }
     public void setEnergiaRequerida(double v) { this.energiaRequerida = v; }
     public boolean isUsarVidrioReciclado() { return usarVidrioReciclado; }
@@ -173,4 +198,8 @@ public class VidrioSostenible {
     public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+    public List<PuntoCorte> getPuntosPersonalizados() { return puntosPersonalizados; }
+    public void setPuntosPersonalizados(List<PuntoCorte> puntosPersonalizados) { this.puntosPersonalizados = puntosPersonalizados; }
+    public Double getAreaPoligonal() { return areaPoligonal; }
+    public void setAreaPoligonal(Double areaPoligonal) { this.areaPoligonal = areaPoligonal; }
 }

@@ -5,7 +5,14 @@
 <!--
     Barra del panel de administracion.
     Estilos en theme.css ("NAVEGACION ORGANIZADA"); main.js marca la pestana activa
-    y controla los menus. Un solo menu a la derecha reune el resto de acciones.
+    y controla los menus via data-match. Un solo menu a la derecha reune el resto
+    de acciones.
+    
+    CAMBIO de esta ronda:
+    - Item "Cotizaciones" en la lista principal entre Dashboard y Pedidos,
+      con badge de pendientes (cotizacionesPendientes publica PermisosAdvice).
+    - Estado activo por data-match (mismo patron que los demas items), NO por
+      #request.requestURI (Thymeleaf 3.1 ya no lo expone en expresiones).
 -->
 <nav th:fragment="navbar"
      id="admin-navbar"
@@ -26,6 +33,17 @@
 
         <ul class="nav-links">
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}" data-match="/admin/dashboard">Dashboard</a></li>
+
+            <!-- NUEVO: panel de aprobacion de cotizaciones -->
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/admin/cotizaciones}" data-match="/admin/cotizaciones">
+                    Cotizaciones
+                    <span class="nav-badge"
+                          th:if="${cotizacionesPendientes != null and cotizacionesPendientes > 0}"
+                          th:text="${cotizacionesPendientes}">0</span>
+                </a>
+            </li>
+
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/pedidos}" data-match="/admin/pedidos">Pedidos</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/productos}" data-match="/admin/productos">Catálogo</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/usuarios}" data-match="/admin/usuarios">Usuarios</a></li>

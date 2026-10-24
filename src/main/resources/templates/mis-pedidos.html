@@ -122,6 +122,29 @@
             font-weight: 600;
         }
 
+        /* F20 · Número héroe del KPI sostenible.
+           La regla genérica `.stat-pedido span` (0.78rem) pisaba el <span>
+           del número, por eso 645,5 se veía chico y "kg CO₂" (texto directo
+           del <strong>) grande. Se excluye con clase propia y se le da a la
+           unidad un tamaño chico explícito. */
+        .stat-pedido .kpi-valor {
+            display: flex;
+            align-items: baseline;
+            gap: 0.35rem;
+        }
+        .stat-pedido .kpi-num {
+            font-size: inherit;
+            font-weight: inherit;
+            color: inherit;
+            font-variant-numeric: tabular-nums;
+        }
+        .stat-pedido .kpi-unidad {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.02em;
+        }
+
         .stat-sostenible { align-items: flex-start; }
         .sostenible-info { min-width: 0; }
         .sostenible-sub { display: block; line-height: 1.45; }
@@ -521,20 +544,25 @@
             </div>
         </div>
 
-        <!-- Huella compensada: usa kgCompensados / pedidosCompensados / kgTotales del controlador
-             y, si no vienen en el modelo, los calcula aqui a partir de la lista de pedidos. -->
+        <!-- Huella compensada: usa kgTotales / kgCompensados / pedidosCompensados / pctCompensado que
+             arma CheckoutController.misPedidos y, si no vienen en el modelo, los calcula aqui con los
+             nombres reales de Pedido (huellaCarbono, compensacionCarbono). -->
         <div class="stat-pedido card-panel stat-sostenible"
-             th:with="kgT=${kgTotales != null ? kgTotales : (#aggregates.sum(pedidos.![co2Total != null ? co2Total : 0]) ?: 0)},
-                      kgC=${kgCompensados != null ? kgCompensados : (#aggregates.sum(pedidos.?[compensacionCO2 == true].![co2Total != null ? co2Total : 0]) ?: 0)},
-                      nC=${pedidosCompensados != null ? pedidosCompensados : #lists.size(pedidos.?[compensacionCO2 == true])}">
+             th:with="kgT=${kgTotales != null ? kgTotales : (#aggregates.sum(pedidos.![huellaCarbono]) ?: 0)},
+                      kgC=${kgCompensados != null ? kgCompensados : (#aggregates.sum(pedidos.?[compensacionCarbono].![huellaCarbono]) ?: 0)},
+                      nC=${pedidosCompensados != null ? pedidosCompensados : #lists.size(pedidos.?[compensacionCarbono])},
+                      pct=${pctCompensado != null ? pctCompensado : (kgT > 0 ? kgC * 100.0 / kgT : 0)}">
             <div class="stat-icon">🌱</div>
 
             <div class="sostenible-info">
                 <!-- Con huella compensada -->
                 <th:block th:if="${nC > 0}">
-                    <strong><span th:text="${#numbers.formatDecimal(kgC, 1, 'POINT', 1, 'COMMA')}">0,0</span> kg CO₂</strong>
+                    <strong class="kpi-valor">
+                        <span class="kpi-num" th:text="${#numbers.formatDecimal(kgC, 1, 'POINT', 1, 'COMMA')}">0,0</span>
+                        <small class="kpi-unidad">kg CO₂</small>
+                    </strong>
                     <span class="sostenible-sub">
-                        compensados en <b th:text="${nC}">0</b> <b th:text="${nC == 1 ? 'pedido' : 'pedidos'}">pedidos</b><span th:if="${kgT > 0}"> · <b th:text="${#numbers.formatDecimal(kgC * 100.0 / kgT, 1, 'POINT', 0, 'COMMA')} + ' %'">0 %</b> de tu huella total</span>
+                        compensados en <b th:text="${nC}">0</b> <b th:text="${nC == 1 ? 'pedido' : 'pedidos'}">pedidos</b><span th:if="${kgT > 0}"> · <b th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 0, 'COMMA')} + ' %'">0 %</b> de tu huella total</span>
                     </span>
                 </th:block>
 
@@ -624,7 +652,7 @@
                     th:each="detalle : ${pedido.detalles}">
 
                     <img
-                        th:src="@{/img/{img}(img=${detalle.imagenProducto})}"
+                        th:src="${detalle.imagenProducto != null} ? @{/img/{img}(img=${detalle.imagenProducto})} : @{/img/logo-icono.png}"
                         alt="Producto">
 
                     <div class="producto-info">

@@ -1,5 +1,7 @@
 package com.smartglass.dto;
 
+import java.util.List;
+
 public class CotizacionVidrioRequest {
 
     private Long usuarioId;
@@ -10,7 +12,7 @@ public class CotizacionVidrioRequest {
     private String forma;
     private String tratamiento;
     private String color;
-    private int cantidadCapas;
+    private int cantidadCapas = 1; // F27: una pieza simple tiene 1 capa
     private boolean requiereCorteEspecial;
     private String notasAdicionales;
 
@@ -26,6 +28,10 @@ public class CotizacionVidrioRequest {
     private boolean energiaRenovable;
     private boolean compensarCarbono;
     private boolean urgente;
+
+    // F45: vertices del corte personalizado (solo se usan si forma = "Personalizada").
+    // La validacion vive en AnalisisService (cae a bbox si son invalidos), no en anotaciones del DTO.
+    private List<PuntoCorte> puntosPersonalizados;
 
     public CotizacionVidrioRequest() {
     }
@@ -86,4 +92,10 @@ public class CotizacionVidrioRequest {
 
     public boolean isUrgente() { return urgente; }
     public void setUrgente(boolean urgente) { this.urgente = urgente; }
+
+    public List<PuntoCorte> getPuntosPersonalizados() { return puntosPersonalizados; }
+    public void setPuntosPersonalizados(List<PuntoCorte> puntosPersonalizados) { this.puntosPersonalizados = puntosPersonalizados; }
+
+    /** Entrada del formulario HTML: campo oculto "puntosTexto" con "x,y;x,y;..." (formato de PuntoCorte). */
+    public void setPuntosTexto(String puntosTexto) { this.puntosPersonalizados = PuntoCorte.desdeTexto(puntosTexto); }
 }

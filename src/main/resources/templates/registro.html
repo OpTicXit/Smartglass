@@ -5,6 +5,8 @@
     <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Registro</title>
     <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <!-- F43: selector de pais para el telefono (version fija) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
     <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
 
     <style>
@@ -305,6 +307,35 @@
             }
         }
 
+
+        /* ---------- F43: validacion de registro ---------- */
+        .hint { min-height: 1.1em; font-size: 0.78rem; line-height: 1.4; color: var(--text-muted); }
+        .hint.error { color: var(--color-error); }
+        .hint.ok { color: var(--color-success); }
+        .hint button {
+            border: 0; background: transparent; padding: 0; font: inherit; font-weight: 700;
+            color: var(--color-accent-text); text-decoration: underline; cursor: pointer;
+        }
+        .login-form input.invalido { border-color: var(--color-error); }
+
+        .pw-lista { list-style: none; margin: 2px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
+        .pw-lista li { font-size: 0.76rem; color: var(--text-muted); }
+        .pw-lista li::before { content: "○ "; }
+        .pw-lista li.cumple { color: var(--color-success); }
+        .pw-lista li.cumple::before { content: "✓ "; }
+
+        /* Campo trampa: fuera de pantalla (no display:none, que algunos bots detectan) */
+        .campo-trampa { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+        /* intl-tel-input con la paleta de la app */
+        .iti { width: 100%; }
+        .iti__country-list { background: var(--bg-secondary); color: var(--text-main); border: 1px solid var(--border-color); }
+        .iti__country.iti__highlight, .iti__country:hover { background: var(--bg-tertiary); }
+        .iti__divider { border-bottom-color: var(--border-color); }
+        .iti__selected-dial-code { color: var(--text-main); }
+        .iti--separate-dial-code .iti__selected-flag { background: transparent; }
+        .iti__dial-code { color: var(--text-muted); }
+
         /* Respeto por usuarios que reducen movimiento */
         @media (prefers-reduced-motion: reduce) {
             .login-form input,
@@ -351,7 +382,7 @@
             </p>
         </div>
 
-        <form class="login-form" th:action="@{/registro}" method="POST">
+        <form class="login-form" id="formRegistro" th:action="@{/registro}" method="POST">
 
             <div class="form-field">
                 <label for="nombre">Nombre completo</label>
@@ -360,6 +391,11 @@
                     id="nombre"
                     name="nombre"
                     placeholder="Nombre completo"
+                    autocomplete="name"
+                    minlength="2"
+                    maxlength="100"
+                    pattern="[A-Za-zÁÉÍÓÚÑÜáéíóúñü' \-]{2,100}"
+                    title="Solo letras, espacios, apóstrofo y guion"
                     required>
             </div>
 
@@ -370,7 +406,12 @@
                     id="email"
                     name="email"
                     placeholder="Correo electrónico"
+                    autocomplete="email"
+                    autocapitalize="none"
+                    spellcheck="false"
+                    maxlength="254"
                     required>
+                <div class="hint" id="emailHint" aria-live="polite"></div>
             </div>
 
             <div class="form-field">
@@ -379,8 +420,10 @@
                     type="tel"
                     id="telefono"
                     name="telefono"
-                    placeholder="Teléfono"
+                    placeholder="300 123 4567"
+                    autocomplete="tel"
                     required>
+                <div class="hint" id="telHint" aria-live="polite"></div>
             </div>
 
             <div class="form-field">
@@ -390,7 +433,15 @@
                     id="username"
                     name="username"
                     placeholder="Usuario (Login)"
+                    autocomplete="username"
+                    autocapitalize="none"
+                    spellcheck="false"
+                    minlength="3"
+                    maxlength="20"
+                    pattern="[a-z0-9._\-]{3,20}"
+                    title="De 3 a 20 caracteres: letras minúsculas, números, punto, guion o guion bajo"
                     required>
+                <div class="hint" id="userHint" aria-live="polite"></div>
             </div>
 
             <div class="form-field">
@@ -400,15 +451,49 @@
                     id="password"
                     name="password"
                     placeholder="Contraseña"
+                    autocomplete="new-password"
+                    minlength="8"
+                    maxlength="72"
                     required>
+                <ul class="pw-lista" id="pwLista" aria-live="polite">
+                    <li data-regla="largo">8 caracteres o más</li>
+                    <li data-regla="mayus">Una mayúscula</li>
+                    <li data-regla="minus">Una minúscula</li>
+                    <li data-regla="digito">Un número</li>
+                    <li data-regla="espacios">Sin espacios</li>
+                    <li data-regla="distinta">Distinta del correo y del usuario</li>
+                </ul>
+            </div>
+
+            <div class="form-field">
+                <label for="confirmPassword">Confirmar contraseña</label>
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Repite la contraseña"
+                    autocomplete="new-password"
+                    maxlength="72"
+                    required>
+                <div class="hint" id="confHint" aria-live="polite"></div>
+            </div>
+
+            <!-- Campo trampa (honeypot): una persona no lo ve ni lo llena -->
+            <div class="campo-trampa" aria-hidden="true">
+                <label for="website">Sitio web</label>
+                <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
             </div>
 
             <div class="form-action">
                 <button type="submit" class="btn-submit">Registrarse</button>
             </div>
 
-            <div th:if="${error}" class="alert-error">
+            <div th:if="${error}" class="alert-error" role="alert">
                 ❌ <span th:text="${error}">El usuario o correo ya existe</span>
+            </div>
+
+            <div th:if="${param.limite != null}" class="alert-error" role="alert">
+                ❌ <span>Demasiados intentos seguidos. Espera un minuto e inténtalo de nuevo.</span>
             </div>
 
             <div class="links-container">
@@ -425,6 +510,168 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+<script th:inline="javascript">
+(function () {
+    'use strict';
+    var URL_DISPONIBLE = /*[[@{/registro/disponible}]]*/ '/registro/disponible';
+    var UTILS = 'https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js';
+
+    var form = document.getElementById('formRegistro');
+    var nombre = document.getElementById('nombre');
+    var email = document.getElementById('email');
+    var tel = document.getElementById('telefono');
+    var user = document.getElementById('username');
+    var pass = document.getElementById('password');
+    var conf = document.getElementById('confirmPassword');
+    var emailHint = document.getElementById('emailHint');
+    var telHint = document.getElementById('telHint');
+    var userHint = document.getElementById('userHint');
+    var confHint = document.getElementById('confHint');
+
+    function pintar(el, texto, clase) {
+        el.textContent = texto || '';
+        el.className = 'hint' + (clase ? ' ' + clase : '');
+    }
+
+    /* ---------- Telefono: pais por defecto Colombia, sin consultar la IP a terceros ---------- */
+    var iti = null;
+    if (window.intlTelInput) {
+        iti = window.intlTelInput(tel, {
+            initialCountry: 'co',
+            separateDialCode: true,
+            preferredCountries: ['co', 'us', 'mx', 'es'],
+            utilsScript: UTILS
+        });
+    }
+    function telefonoValido() {
+        if (!iti) return true;                       // sin libreria: valida el servidor
+        var r = iti.isValidNumber();                 // null = utils.js aun no cargo: valida el servidor
+        return r === null || r === true;
+    }
+
+    /* ---------- Correo: sugerencia de erratas (no bloquea) ---------- */
+    var DOMINIOS = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'icloud.com', 'live.com',
+                    'msn.com', 'aol.com', 'proton.me', 'protonmail.com', 'yahoo.es', 'hotmail.es', 'outlook.es'];
+    function levenshtein(a, b) {
+        var fila = [], i, j;
+        for (j = 0; j <= b.length; j++) fila[j] = j;
+        for (i = 1; i <= a.length; i++) {
+            var previo = fila[0]; fila[0] = i;
+            for (j = 1; j <= b.length; j++) {
+                var guardado = fila[j];
+                fila[j] = Math.min(fila[j] + 1, fila[j - 1] + 1, previo + (a[i - 1] === b[j - 1] ? 0 : 1));
+                previo = guardado;
+            }
+        }
+        return fila[b.length];
+    }
+    function sugerencia(valor) {
+        var v = String(valor || '').trim().toLowerCase();
+        var arroba = v.lastIndexOf('@');
+        if (arroba < 1) return null;
+        var dominio = v.slice(arroba + 1);
+        if (!dominio || DOMINIOS.indexOf(dominio) !== -1) return null;
+        var mejor = null, mejorD = 3;
+        DOMINIOS.forEach(function (d) {
+            var dist = levenshtein(dominio, d);
+            if (dist > 0 && dist < mejorD) { mejor = d; mejorD = dist; }
+        });
+        return mejor ? v.slice(0, arroba + 1) + mejor : null;
+    }
+    function mostrarSugerencia() {
+        var s = sugerencia(email.value);
+        if (!s) { pintar(emailHint, ''); return; }
+        pintar(emailHint, '');
+        emailHint.appendChild(document.createTextNode('¿Quisiste decir '));
+        var boton = document.createElement('button');
+        boton.type = 'button';
+        boton.textContent = s;
+        boton.addEventListener('click', function () { email.value = s; pintar(emailHint, ''); comprobarDisponibilidad(); });
+        emailHint.appendChild(boton);
+        emailHint.appendChild(document.createTextNode('?'));
+    }
+    email.addEventListener('input', mostrarSugerencia);
+
+    /* ---------- Disponibilidad en vivo (on-blur) ---------- */
+    var ultimaConsulta = 0;
+    function comprobarDisponibilidad() {
+        var e = email.value.trim().toLowerCase(), u = user.value.trim().toLowerCase();
+        if (!e && !u) return;
+        var ahora = Date.now();
+        if (ahora - ultimaConsulta < 700) return;    // throttle del lado cliente; el servidor tambien limita
+        ultimaConsulta = ahora;
+        var q = new URLSearchParams();
+        if (e) q.set('email', e);
+        if (u) q.set('username', u);
+        fetch(URL_DISPONIBLE + '?' + q.toString(), { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+                if (!d) return;
+                if (e && d.emailDisponible === false) { pintar(emailHint, d.emailMensaje, 'error'); email.classList.add('invalido'); }
+                else if (e && d.emailDisponible === true) { email.classList.remove('invalido'); if (!sugerencia(e)) pintar(emailHint, ''); }
+                if (u && d.usernameDisponible === false) { pintar(userHint, d.usernameMensaje, 'error'); user.classList.add('invalido'); }
+                else if (u && d.usernameDisponible === true) { user.classList.remove('invalido'); pintar(userHint, 'Usuario disponible', 'ok'); }
+            })
+            .catch(function () { /* sin red: valida el servidor al enviar */ });
+    }
+    email.addEventListener('blur', comprobarDisponibilidad);
+    user.addEventListener('blur', comprobarDisponibilidad);
+    user.addEventListener('input', function () { user.value = user.value.toLowerCase(); user.classList.remove('invalido'); pintar(userHint, ''); });
+
+    /* ---------- Contrasena: checklist en vivo ---------- */
+    function reglas() {
+        var p = pass.value;
+        var e = email.value.trim().toLowerCase(), u = user.value.trim().toLowerCase();
+        return {
+            largo: p.length >= 8,
+            mayus: /[A-ZÁÉÍÓÚÑÜ]/.test(p),
+            minus: /[a-záéíóúñü]/.test(p),
+            digito: /[0-9]/.test(p),
+            espacios: p.length > 0 && !/\s/.test(p),
+            distinta: p.length > 0 && p.toLowerCase() !== e && p.toLowerCase() !== u
+        };
+    }
+    function pintarChecklist() {
+        var r = reglas(), todas = true;
+        Array.prototype.forEach.call(document.querySelectorAll('#pwLista li'), function (li) {
+            var ok = !!r[li.getAttribute('data-regla')];
+            li.classList.toggle('cumple', ok);
+            todas = todas && ok;
+        });
+        return todas;
+    }
+    function pintarConfirmacion() {
+        if (!conf.value) { pintar(confHint, ''); conf.classList.remove('invalido'); return true; }
+        var igual = conf.value === pass.value;
+        pintar(confHint, igual ? 'Las contraseñas coinciden' : 'Las contraseñas no coinciden', igual ? 'ok' : 'error');
+        conf.classList.toggle('invalido', !igual);
+        return igual;
+    }
+    pass.addEventListener('input', function () { pintarChecklist(); pintarConfirmacion(); });
+    conf.addEventListener('input', pintarConfirmacion);
+    email.addEventListener('input', pintarChecklist);
+    user.addEventListener('input', pintarChecklist);
+
+    /* ---------- Envio ---------- */
+    form.addEventListener('submit', function (ev) {
+        var problema = null;
+        if (!telefonoValido()) {
+            problema = 'Revisa el teléfono: debe ser válido para el país elegido.';
+            pintar(telHint, problema, 'error');
+            tel.classList.add('invalido');
+        } else {
+            pintar(telHint, '');
+            tel.classList.remove('invalido');
+            /* E.164 (+573001234567) hacia el servidor; si utils.js no cargo se envia lo escrito */
+            if (iti && iti.isValidNumber() === true) tel.value = iti.getNumber();
+        }
+        if (!pintarChecklist()) problema = problema || 'La contraseña no cumple todas las reglas.';
+        if (!pintarConfirmacion()) problema = problema || 'Las contraseñas no coinciden.';
+        if (problema) { ev.preventDefault(); }
+    });
+})();
+</script>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>
