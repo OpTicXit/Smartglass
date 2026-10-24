@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    Panel izquierdo de login y registro: "como se hace el vidrio", en 5 etapas.
+    Uso: <aside th:replace="~{fragments/auth-visual :: panel}"></aside>
+         (va DESPUES del <main> en el HTML para que el teclado llegue primero al
+          formulario; el CSS lo coloca a la izquierda).
+    - main.js (inicializarEvolucionVidrio) avanza las etapas, genera los granos
+      de arena y maneja pausa y pasos. Sin JS se ve la etapa 5 con su texto.
+    - Estilos en theme.css ("Evolucion del vidrio"). Con prefers-reduced-motion
+      o el modo fotosensible no avanza solo: se elige el paso a mano.
+    - Es solo ilustrativo: no usa ni toca los calculos del contrato.
+-->
+<aside th:fragment="panel" class="auth-visual" aria-labelledby="evo-titulo">
+    <a th:href="@{/home}" class="auth-marca" tabindex="-1" aria-hidden="true">
+        <img th:src="@{/img/logo-icono.png}" alt="">
+        SmartGlass
+    </a>
+
+    <figure class="evolucion" data-evolucion data-etapa="5">
+        <svg class="evo-svg" viewBox="0 0 400 320" role="img" aria-labelledby="evo-titulo evo-texto">
+            <defs>
+                <radialGradient id="evo-fundido" cx="45%" cy="40%" r="65%">
+                    <stop offset="0" class="evo-f1"/>
+                    <stop offset="0.55" class="evo-f2"/>
+                    <stop offset="1" class="evo-f3"/>
+                </radialGradient>
+                <linearGradient id="evo-frio" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" class="evo-c1"/>
+                    <stop offset="1" class="evo-c2"/>
+                </linearGradient>
+                <linearGradient id="evo-cara" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" class="evo-c1"/>
+                    <stop offset="0.6" class="evo-c3"/>
+                    <stop offset="1" class="evo-c2"/>
+                </linearGradient>
+                <linearGradient id="evo-luz" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0" class="evo-l0"/>
+                    <stop offset="0.5" class="evo-l1"/>
+                    <stop offset="1" class="evo-l0"/>
+                </linearGradient>
+                <clipPath id="evo-recorte"><rect x="145" y="48" width="110" height="200" rx="3"/></clipPath>
+            </defs>
+
+            <!-- 1. Materia prima: granos de arena, sosa, caliza y vidrio reciclado (los crea main.js) -->
+            <g class="evo-arena"></g>
+
+            <!-- 2. Fusion: ondas de calor -->
+            <g class="evo-calor">
+                <path d="M172 168 q6 -10 0 -20 q-6 -10 0 -20"/>
+                <path d="M200 160 q6 -10 0 -20 q-6 -10 0 -20 q6 -10 0 -20"/>
+                <path d="M228 168 q6 -10 0 -20 q-6 -10 0 -20"/>
+            </g>
+
+            <!-- 3 y 4. Bano de estano sobre el que flota la lamina -->
+            <rect class="evo-estano" x="40" y="258" width="320" height="8" rx="4"/>
+
+            <!-- La masa: gota fundida (2) que se estira en lamina (3) y se enfria (4) -->
+            <g class="evo-masa">
+                <rect class="evo-masa-fria" x="150" y="190" width="100" height="100" rx="50"/>
+                <rect class="evo-masa-caliente" x="150" y="190" width="100" height="100" rx="50"/>
+            </g>
+
+            <!-- 4. Templado: chorros de aire frio arriba y abajo de la lamina -->
+            <g class="evo-chorros">
+                <path d="M90 214 v24 M140 214 v24 M200 214 v24 M260 214 v24 M310 214 v24"/>
+                <path d="M90 300 v-24 M140 300 v-24 M200 300 v-24 M260 300 v-24 M310 300 v-24"/>
+            </g>
+
+            <!-- 5. Tu pieza: el panel terminado, con canto y un reflejo -->
+            <g class="evo-panel">
+                <rect class="evo-sombra" x="150" y="252" width="100" height="10" rx="5"/>
+                <rect class="evo-canto" x="252" y="52" width="8" height="196" rx="2"/>
+                <rect class="evo-cara" x="145" y="48" width="110" height="200" rx="3"/>
+                <g clip-path="url(#evo-recorte)">
+                    <rect class="evo-barrido" x="60" y="40" width="46" height="220" fill="url(#evo-luz)"/>
+                </g>
+            </g>
+        </svg>
+
+        <figcaption class="evo-texto">
+            <p class="evo-paso" id="evo-paso">Paso 5 de 5</p>
+            <h2 id="evo-titulo">Tu pieza</h2>
+            <p id="evo-texto">Cortada a tu medida, con su precio y su huella de carbono a la vista antes de pedirla.</p>
+        </figcaption>
+
+        <div class="evo-controles">
+            <ol class="evo-pasos" aria-label="Etapas de fabricación del vidrio">
+                <li><button type="button" data-evo-paso="1" aria-label="Paso 1: materia prima"
+                            data-titulo="Materia prima"
+                            data-texto="Arena de sílice, sosa y caliza, con hasta un 40 % de vidrio reciclado.">1</button></li>
+                <li><button type="button" data-evo-paso="2" aria-label="Paso 2: fusión"
+                            data-titulo="Fusión a 1.500 °C"
+                            data-texto="La mezcla se funde en el horno hasta volverse un líquido incandescente.">2</button></li>
+                <li><button type="button" data-evo-paso="3" aria-label="Paso 3: flotado"
+                            data-titulo="Flotado sobre estaño"
+                            data-texto="El vidrio fundido se extiende sobre estaño líquido y queda perfectamente plano.">3</button></li>
+                <li><button type="button" data-evo-paso="4" aria-label="Paso 4: templado"
+                            data-titulo="Templado"
+                            data-texto="Calor y aire frío a presión lo hacen hasta cinco veces más resistente.">4</button></li>
+                <li><button type="button" data-evo-paso="5" aria-label="Paso 5: tu pieza" aria-current="step"
+                            data-titulo="Tu pieza"
+                            data-texto="Cortada a tu medida, con su precio y su huella de carbono a la vista antes de pedirla.">5</button></li>
+            </ol>
+            <button type="button" class="evo-pausa" data-evo-pausa aria-pressed="false" hidden>
+                <i class="ph ph-pause" aria-hidden="true"></i>
+                <span class="visually-hidden">Pausar animación</span>
+            </button>
+        </div>
+    </figure>
+</aside>
+
+</body>
+</html>

@@ -1,668 +1,116 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
-    <script th:src="@{/js/theme-init.js}"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>SmartGlass - Catálogo</title>
-
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
-        /* =========================================================
-           SMARTGLASS - CATÁLOGO
-           ========================================================= */
-
-        body {
-            min-height: 100vh;
-            background: var(--color-background);
-        }
-
-        /* =========================================================
-           HEADER DEL CATÁLOGO
-           ========================================================= */
-
-        .catalogo-header {
-            position: relative;
-            padding: 48px 0 30px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .catalogo-header::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 180px;
-            height: 1px;
-            background: var(--color-accent);
-            box-shadow: 0 0 20px var(--color-accent);
-        }
-
-        .catalogo-header .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-
-            color: var(--color-accent-text);
-
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-        }
-
-        .catalogo-header .eyebrow::before {
-            content: "";
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--color-accent);
-            box-shadow: 0 0 0 5px var(--color-accent-dim);
-        }
-
-        .catalogo-header h1 {
-            max-width: 700px;
-
-            margin: 10px 0 8px;
-
-            color: var(--text-main);
-
-            font-size: clamp(2rem, 4vw, 2.7rem);
-            line-height: 1.12;
-            letter-spacing: -0.04em;
-        }
-
-        .catalogo-subtitle {
-            max-width: 650px;
-
-            margin: 0 0 25px;
-
-            color: var(--text-muted);
-
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        /* =========================================================
-           BUSCADOR
-           ========================================================= */
-
+        /* ---------- Buscador ---------- */
         .buscador-catalogo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            width: min(100%, 570px);
-
-            padding: 5px 6px 5px 17px;
-
-            background: var(--bg-secondary);
-
-            border: 1px solid var(--border-color);
-            border-radius: 11px;
-
-            transition:
-                border-color 0.25s ease,
-                box-shadow 0.25s ease;
+            display: flex; align-items: center; gap: 10px; width: min(100%, 520px); margin-top: 22px;
+            padding: 5px 5px 5px 16px; background: var(--input-bg);
+            border: 1px solid var(--border-color); border-radius: var(--r-md);
+            transition: border-color var(--dur) ease, box-shadow var(--dur) ease;
         }
-
-        .buscador-catalogo:focus-within {
-            border-color: var(--color-accent);
-            box-shadow: 0 0 0 3px var(--color-accent-dim);
-        }
-
-        .buscador-catalogo i {
-            flex-shrink: 0;
-
-            color: var(--text-muted);
-            font-size: 1.1rem;
-        }
-
-        .buscador-catalogo input {
-            flex: 1;
-            min-width: 0;
-
-            border: none;
-            outline: none;
-
-            background: transparent;
-
-            color: var(--text-main);
-
-            font-family: var(--font-primary);
-            font-size: 0.88rem;
-        }
-
-        .buscador-catalogo input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .buscador-catalogo input:focus {
-            outline: none;
-            box-shadow: none;
-        }
-
-        .buscador-catalogo button {
-            flex-shrink: 0;
-
-            border: none;
-            border-radius: 8px;
-
-            padding: 10px 18px;
-
-            background: var(--color-accent-solid);
-            color: var(--text-on-accent);
-
-            font-size: 0.8rem;
-            font-weight: 700;
-
-            cursor: pointer;
-
-            transition:
-                filter 0.25s ease,
-                transform 0.25s ease;
-        }
-
-        .buscador-catalogo button:hover {
-            filter: brightness(1.08);
-            transform: translateY(-1px);
-        }
-
-        /* =========================================================
-           RESULTADOS
-           ========================================================= */
-
-        .catalogo-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-
-            min-height: 54px;
-        }
-
-        .resultados-info {
-            margin: 0;
-
-            color: var(--text-muted);
-
-            font-size: 0.82rem;
-        }
-
-        .resultados-info strong {
-            color: var(--text-main);
-            font-weight: 700;
-        }
-
-        .catalogo-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-
-            color: var(--text-muted);
-
-            font-size: 0.74rem;
-        }
-
-        .catalogo-status::before {
-            content: "";
-
-            width: 7px;
-            height: 7px;
-
-            border-radius: 50%;
-
-            background: var(--color-success);
-        }
-
-        /* =========================================================
-           GRID DE PRODUCTOS
-           ========================================================= */
-
-        .productos-grid {
-            display: grid;
-
-            grid-template-columns:
-                repeat(auto-fill, minmax(270px, 1fr));
-
-            gap: 20px;
-
-            padding: 20px 0 90px;
-        }
-
-        /* =========================================================
-           TARJETA
-           ========================================================= */
-
-        .producto-card {
-            display: flex;
-            flex-direction: column;
-
-            overflow: hidden;
-
-            padding: 0;
-
-            border-radius: 13px;
-
-            transition:
-                transform 0.3s ease,
-                border-color 0.3s ease;
-        }
-
-        .producto-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--color-accent);
-        }
-
-        /* =========================================================
-           IMAGEN
-           ========================================================= */
-
-        .producto-img-wrapper {
-            position: relative;
-
-            width: 100%;
-            height: 210px;
-
-            overflow: hidden;
-
-            background: var(--bg-tertiary);
-        }
-
-        .producto-img-wrapper img {
-            width: 100%;
-            height: 100%;
-
-            object-fit: cover;
-
-            transition:
-                transform 0.55s ease,
-                filter 0.35s ease;
-        }
-
-        .producto-card:hover .producto-img-wrapper img {
-            transform: scale(1.055);
-        }
-
-        .producto-img-wrapper::after {
-            content: "";
-
-            position: absolute;
-            inset: 0;
-
-            pointer-events: none;
-
-            background:
-                linear-gradient(
-                    to bottom,
-                    transparent 55%,
-                    rgba(0, 0, 0, 0.22)
-                );
-        }
-
-        .producto-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-
-            z-index: 2;
-
-            padding: 5px 9px;
-
-            background: var(--bg-secondary);
-            color: var(--color-accent-text);
-
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-        }
-
-        /* =========================================================
-           CUERPO
-           ========================================================= */
-
-        .producto-body {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-
-            padding: 19px;
-        }
-
-        .producto-body h3 {
-            margin: 0 0 8px;
-
-            color: var(--text-main);
-
-            font-size: 1rem;
-            line-height: 1.3;
-        }
-
-        .producto-body p {
-            display: -webkit-box;
-
-            min-height: 40px;
-
-            margin: 0 0 17px;
-
-            overflow: hidden;
-
-            color: var(--text-muted);
-
-            font-size: 0.79rem;
-            line-height: 1.55;
-
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
-        /* =========================================================
-           PRECIO
-           ========================================================= */
-
-        .producto-precio {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 10px;
-
-            padding-top: 14px;
-
-            border-top: 1px solid var(--border-color);
-        }
-
-        .precio-label {
-            color: var(--text-muted);
-
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .producto-precio strong {
-            color: var(--color-accent-text);
-
-            font-size: 1.25rem;
-            line-height: 1;
-        }
-
-        /* =========================================================
-           ACCIONES
-           ========================================================= */
-
-        .producto-acciones {
-            display: flex;
-            flex-direction: column;
-
-            gap: 8px;
-
-            margin-top: 15px;
-        }
-
-        .producto-acciones .btn {
-            min-height: 39px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-
-            border-radius: 8px;
-
-            font-size: 0.77rem;
-            font-weight: 700;
-
-            text-decoration: none;
-        }
-
-        .producto-acciones form {
-            margin: 0;
-        }
-
-        .producto-acciones button {
-            min-height: 39px;
-        }
-
-        /* =========================================================
-           COMPARADOR
-           ========================================================= */
-
+        .buscador-catalogo:focus-within { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-accent-dim); }
+        .buscador-catalogo > i { color: var(--text-muted); font-size: 1.15rem; }
+        .buscador-catalogo input { flex: 1; min-width: 0; min-height: 40px; padding: 0; border: 0; background: transparent; box-shadow: none; }
+        .buscador-catalogo input:focus { box-shadow: none; background: transparent; }
+        .buscador-catalogo .limpiar { color: var(--text-muted); font-size: 0.84rem; padding: 0 6px; }
+        .buscador-catalogo .limpiar:hover { color: var(--text-main); }
+
+        .catalogo-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+        .resultados-info { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+        .resultados-info strong { color: var(--text-main); }
+        .resultados-ayuda { color: var(--text-subtle); font-size: 0.84rem; display: inline-flex; align-items: center; gap: 6px; }
+
+        /* ---------- Grid y tarjeta ---------- */
+        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+
+        .producto-card { display: flex; flex-direction: column; padding: 0; border-radius: var(--r-lg); }
+        .producto-card.is-comparando { border-color: var(--border-hover); box-shadow: var(--shadow-main), 0 0 0 1px var(--color-accent); }
+
+        .producto-img-wrapper { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg-tertiary); }
+        .producto-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease-out); }
+        .producto-card:hover .producto-img-wrapper img { transform: scale(1.05); }
+        .producto-img-wrapper::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, transparent 60%, var(--media-scrim-soft)); }
+
+        /* Interruptor "Comparar" sobre la imagen */
         .comparar-check {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-
-            margin-top: 14px;
-
-            color: var(--text-muted);
-
-            font-size: 0.73rem;
-
-            cursor: pointer;
-
-            user-select: none;
+            position: absolute; top: 12px; right: 12px; z-index: 3; display: inline-flex; align-items: center; gap: 7px;
+            margin: 0; padding: 6px 11px 6px 9px; border-radius: 999px; cursor: pointer; user-select: none;
+            background: var(--media-chip); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--on-media-line); color: var(--on-media); font-size: 0.78rem; font-weight: 600;
+            transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease;
         }
+        .comparar-check:hover { border-color: color-mix(in srgb, var(--on-media) 40%, transparent); }
+        .comparar-check input { width: 15px; height: 15px; margin: 0; cursor: pointer; }
+        .comparar-check:has(input:checked) { background: var(--color-accent-solid); border-color: transparent; }
+        .comparar-check:has(input:disabled) { opacity: 0.55; cursor: not-allowed; }
+        .comparar-check:has(input:focus-visible) { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 
-        .comparar-check input {
-            width: 17px;
-            height: 17px;
-
-            margin: 0;
-
-            accent-color: var(--color-accent);
-
-            cursor: pointer;
+        .producto-body { position: relative; z-index: 2; display: flex; flex-direction: column; flex-grow: 1; padding: 18px 18px 20px; }
+        .producto-body h3 { margin: 0 0 6px; font-size: 1.08rem; }
+        .producto-body h3 a { color: var(--text-main); }
+        .producto-body h3 a:hover { color: var(--color-accent-text); }
+        .producto-body p {
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+            margin: 0 0 18px; color: var(--text-muted); font-size: 0.86rem; line-height: 1.55;
         }
+        .producto-pie { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); }
+        .producto-precio { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+        .producto-acciones { display: flex; gap: 8px; }
+        .producto-acciones form { margin: 0; }
 
-        .comparar-check:hover {
-            color: var(--text-main);
-        }
-
-        /* =========================================================
-           ESTADO VACÍO
-           ========================================================= */
-
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            min-height: 360px;
-
-            padding: 60px 20px;
-
-            text-align: center;
-        }
-
-        .empty-icon {
-            width: 72px;
-            height: 72px;
-
-            display: grid;
-            place-items: center;
-
-            margin-bottom: 18px;
-
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-
-            background: var(--bg-secondary);
-
-            color: var(--text-muted);
-
-            font-size: 2rem;
-        }
-
-        .empty-state p {
-            max-width: 500px;
-
-            margin: 0;
-
-            color: var(--text-muted);
-
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .empty-state p span {
-            color: var(--text-main);
-            font-weight: 700;
-        }
-
-        /* =========================================================
-           BARRA FLOTANTE DEL COMPARADOR
-           ========================================================= */
-
+        /* ---------- Barra flotante del comparador ---------- */
         .barra-comparador {
-            display: none;
-
-            position: fixed;
-
-            left: 50%;
-            bottom: 22px;
-
-            z-index: 2000;
-
-            transform: translateX(-50%);
-
-            align-items: center;
-            gap: 20px;
-
-            min-width: min(480px, calc(100% - 30px));
-
-            padding: 13px 15px 13px 19px;
-
-            background: var(--bg-secondary);
-
-            border: 1px solid var(--color-accent);
-            border-radius: 13px;
-
-            box-shadow:
-                var(--shadow-glow),
-                var(--shadow-hover);
-
-            backdrop-filter: blur(16px);
+            display: none; position: fixed; left: 50%; bottom: 22px; z-index: 2000; transform: translateX(-50%);
+            align-items: center; gap: 16px; width: min(560px, calc(100% - 32px)); padding: 12px 12px 12px 18px;
+            background: var(--card-solid); border: 1px solid var(--border-hover); border-radius: var(--r-lg);
+            box-shadow: var(--shadow-hover), var(--shadow-glow); animation: barraEntra 0.35s var(--ease-out) both;
         }
+        @keyframes barraEntra { from { opacity: 0; transform: translate(-50%, 14px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        .barra-comparador .texto { flex: 1; min-width: 0; display: grid; line-height: 1.3; }
+        .barra-comparador .texto strong { font-size: 0.95rem; }
+        .barra-comparador .texto span { color: var(--text-muted); font-size: 0.8rem; }
 
-        .barra-comparador span {
-            flex: 1;
-
-            color: var(--text-main);
-
-            font-size: 0.8rem;
-            white-space: nowrap;
-        }
-
-        .barra-comparador span strong {
-            color: var(--color-accent-text);
-            font-size: 1rem;
-        }
-
-        .barra-comparador .btn {
-            flex-shrink: 0;
-
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-        }
-
-        /* =========================================================
-           RESPONSIVE
-           ========================================================= */
-
-        @media (max-width: 900px) {
-
-            .catalogo-header {
-                padding-top: 35px;
-            }
-
-            .productos-grid {
-                grid-template-columns:
-                    repeat(auto-fill, minmax(230px, 1fr));
-            }
-        }
-
-        @media (max-width: 768px) {
-
-            .catalogo-header h1 {
-                font-size: 1.8rem;
-            }
-
-            .catalogo-toolbar {
-                align-items: flex-start;
-                flex-direction: column;
-                justify-content: center;
-
-                padding: 12px 0;
-            }
-
-            .catalogo-status {
-                display: none;
-            }
-
-            .productos-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 14px;
-
-                padding-top: 12px;
-            }
-
-            .producto-img-wrapper {
-                height: 175px;
-            }
-
-            .producto-body {
-                padding: 15px;
-            }
-        }
-
-        @media (max-width: 560px) {
-
-            .catalogo-header {
-                padding-top: 28px;
-            }
-
-            .buscador-catalogo {
-                max-width: 100%;
-            }
-
-            .buscador-catalogo button {
-                padding: 10px 13px;
-            }
-
-            .productos-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .producto-img-wrapper {
-                height: 215px;
-            }
-
-            .barra-comparador {
-                gap: 10px;
-                padding-left: 14px;
-            }
-
-            .barra-comparador span {
-                white-space: normal;
-            }
-        }
-
-        /* En pantallas angostas la barra del comparador ocupa casi todo el ancho:
-           se sube para no quedar debajo del switch de tema. */
         @media (max-width: 700px) {
             .barra-comparador { bottom: 76px; }
+            .resultados-ayuda { display: none; }
         }
+        @media (max-width: 560px) {
+            .productos-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ---------- T2: filtros de categoria y tamano ---------- */
+        .filtros { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin: -8px 0 22px; }
+        .filtro-grupo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+        .filtro {
+            display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 14px; border-radius: var(--r-pill);
+            border: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem; font-weight: 600;
+            transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease, background-color var(--dur-fast) ease;
+        }
+        .filtro:hover { color: var(--text-main); border-color: var(--border-hover); }
+        .filtro[aria-current="page"] { background: var(--color-accent-dim); border-color: var(--border-hover); color: var(--color-accent-text); }
+        .filtro .n { min-width: 22px; padding: 1px 7px; border-radius: var(--r-pill); background: var(--surface-hover); color: var(--text-subtle); font-size: 0.75rem; text-align: center; }
+        .filtro[aria-current="page"] .n { background: color-mix(in srgb, var(--color-accent) 20%, transparent); color: var(--color-accent-text); }
+        .filtro-sm { min-height: 34px; padding: 0 12px; font-size: 0.84rem; }
+        .filtro-titulo { margin-right: 4px; color: var(--text-subtle); font-size: 0.84rem; font-weight: 600; }
+
+        /* Insignia de escultura y foto pendiente (F18: isotipo, nunca hueco roto) */
+        .producto-badge {
+            position: absolute; left: 12px; bottom: 12px; z-index: 2; padding: 4px 10px; border-radius: var(--r-pill);
+            background: color-mix(in srgb, var(--bg-primary) 78%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--border-strong); color: var(--text-main); font-size: 0.76rem; font-weight: 650;
+        }
+        .img-pendiente {
+            display: grid; place-items: center;
+            background: radial-gradient(120% 80% at 50% 0%, var(--stage-spot), transparent 62%), linear-gradient(180deg, var(--stage-top), var(--stage-bottom));
+        }
+        .img-pendiente img { width: 34%; height: auto; object-fit: contain; opacity: 0.85; filter: drop-shadow(0 8px 18px var(--glass-shadow)); }
+        .producto-card:hover .img-pendiente img { transform: none; }
+        .foto-pendiente { position: absolute; top: 12px; left: 12px; z-index: 2; color: var(--text-subtle); font-size: 0.74rem; font-weight: 600; }
     </style>
 </head>
 
@@ -670,250 +118,139 @@
 
 <nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
-
 <main class="container">
 
-    <!-- =====================================================
-         CABECERA
-         ===================================================== -->
+    <header class="page-intro" th:with="esEsc=${categoria == 'escultura'}">
+        <div>
+            <h1 th:text="${esEsc} ? 'Esculturas de vidrio' : 'Explora vidrios y esculturas'">Explora vidrios y esculturas</h1>
+            <p class="lead" th:text="${esEsc} ? 'Piezas de autor en vidrio fundido, soplado y tallado, en tres tamaños: para tu mesa, tu sala o un hall de doble altura.' : 'Vidrio plano para tus proyectos y esculturas de autor. Consulta cada pieza, agrégala al carrito o compara hasta tres antes de decidir.'">
+                Vidrio plano para tus proyectos y esculturas de autor.
+            </p>
 
-    <header class="catalogo-header">
-
-        <span class="eyebrow">
-            Catálogo completo
-        </span>
-
-        <h1>
-            Explora nuestra línea de vidrios
-        </h1>
-
-        <p class="catalogo-subtitle">
-            Encuentra la solución adecuada para tu proyecto,
-            consulta sus características y agrega tus productos
-            favoritos al carrito o a una comparación.
-        </p>
-
-
-        <form
-            class="buscador-catalogo"
-            action="/catalogo"
-            method="get"
-        >
-
-            <i class="ph ph-magnifying-glass"></i>
-
-            <input
-                type="text"
-                name="q"
-                placeholder="Buscar por nombre..."
-                th:value="${query}"
-            >
-
-            <button type="submit">
-                Buscar
-            </button>
-
-        </form>
-
+            <form class="buscador-catalogo" th:action="@{/catalogo}" method="get" role="search" data-no-loading>
+                <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                <label for="q" class="visually-hidden">Buscar productos</label>
+                <input type="search" id="q" name="q" placeholder="Buscar por nombre…" th:value="${query}" autocomplete="off">
+                <input type="hidden" name="categoria" th:value="${categoria}" th:if="${!#strings.isEmpty(categoria)}">
+                <input type="hidden" name="tamano" th:value="${tamano}" th:if="${!#strings.isEmpty(tamano)}">
+                <a th:if="${query != null and !query.isEmpty()}" th:href="@{/catalogo(categoria=${categoria},tamano=${tamano})}" class="limpiar">Limpiar</a>
+                <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+            </form>
+        </div>
     </header>
 
+    <!-- T2: filtros por categoria y, en esculturas, por tamano (enlaces GET: se pueden compartir) -->
+    <nav class="filtros" aria-label="Filtrar catálogo"
+         th:with="nEsc=${conteoCategorias != null and conteoCategorias['escultura'] != null ? conteoCategorias['escultura'] : 0},
+                  nPlano=${conteoCategorias != null and conteoCategorias['vidrio-plano'] != null ? conteoCategorias['vidrio-plano'] : 0}">
+        <div class="filtro-grupo" role="list">
+            <a role="listitem" class="filtro" th:href="@{/catalogo(q=${query})}"
+               th:attr="aria-current=${#strings.isEmpty(categoria) ? 'page' : null}">Todo
+               <span class="n" th:text="${nEsc + nPlano}">0</span></a>
+            <a role="listitem" class="filtro" th:href="@{/catalogo(q=${query},categoria='vidrio-plano')}"
+               th:attr="aria-current=${categoria == 'vidrio-plano' ? 'page' : null}"><i class="ph ph-square-split-vertical" aria-hidden="true"></i> Vidrio plano
+               <span class="n" th:text="${nPlano}">0</span></a>
+            <a role="listitem" class="filtro" th:href="@{/catalogo(q=${query},categoria='escultura')}"
+               th:attr="aria-current=${categoria == 'escultura' ? 'page' : null}"><i class="ph ph-sketch-logo" aria-hidden="true"></i> Esculturas
+               <span class="n" th:text="${nEsc}">0</span></a>
+        </div>
+        <div class="filtro-grupo filtro-tamano" role="list" th:if="${categoria == 'escultura'}" aria-label="Tamaño">
+            <span class="filtro-titulo" aria-hidden="true">Tamaño</span>
+            <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura')}"
+               th:attr="aria-current=${#strings.isEmpty(tamano) ? 'page' : null}">Todos</a>
+            <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='grande')}"
+               th:attr="aria-current=${tamano == 'grande' ? 'page' : null}">Grande</a>
+            <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='mediana')}"
+               th:attr="aria-current=${tamano == 'mediana' ? 'page' : null}">Mediana</a>
+            <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='pequena')}"
+               th:attr="aria-current=${tamano == 'pequena' ? 'page' : null}">Pequeña</a>
+        </div>
+    </nav>
 
-    <!-- =====================================================
-         INFORMACIÓN DE RESULTADOS
-         ===================================================== -->
-
-    <div class="catalogo-toolbar">
-
-        <p
-            class="resultados-info"
-            th:if="${not #lists.isEmpty(productos)}"
-        >
-            <strong th:text="${#lists.size(productos)}">
-                0
-            </strong>
-            producto(s) encontrados
+    <div class="catalogo-toolbar" th:if="${not #lists.isEmpty(productos)}">
+        <p class="resultados-info">
+            <strong th:text="${#lists.size(productos)}">0</strong>
+            <span th:text="${#lists.size(productos) == 1 ? 'producto' : 'productos'}">productos</span>
+            <th:block th:if="${query != null and !query.isEmpty()}">para «<span th:text="${query}">búsqueda</span>»</th:block>
         </p>
-
-        <span
-            class="catalogo-status"
-            th:if="${not #lists.isEmpty(productos)}"
-        >
-            Catálogo disponible
-        </span>
-
+        <span class="resultados-ayuda"><i class="ph ph-scales" aria-hidden="true"></i> Marca «Comparar» en 2 o 3 productos</span>
     </div>
 
+    <section class="productos-grid" th:if="${not #lists.isEmpty(productos)}" aria-label="Productos">
 
-    <!-- =====================================================
-         PRODUCTOS
-         ===================================================== -->
+        <article class="producto-card" th:each="producto : ${productos}">
 
-    <section
-        class="productos-grid"
-        th:if="${not #lists.isEmpty(productos)}"
-    >
+            <a class="producto-img-wrapper" th:href="@{/detalle/{id}(id=${producto.id})}" tabindex="-1" aria-hidden="true"
+               th:classappend="${producto.imagenPendiente} ? 'img-pendiente'">
+                <img th:src="@{${producto.imagenUrl}}" th:alt="${producto.nombre}" alt="" loading="lazy">
+                <span class="foto-pendiente" th:if="${producto.imagenPendiente}">Foto en preparación</span>
+                <span class="producto-badge" th:if="${producto.escultura}"
+                      th:text="${producto.tamanoEtiqueta != null} ? 'Escultura ' + ${#strings.toLowerCase(producto.tamanoEtiqueta)} : 'Escultura'">Escultura grande</span>
+            </a>
 
-        <article
-            class="producto-card"
-            th:each="producto : ${productos}"
-        >
-
-            <div class="producto-img-wrapper">
-
-                <span class="producto-badge">
-                    SmartGlass
-                </span>
-
-                <img
-                    th:src="${producto.imagen != null ? '/img/' + producto.imagen : '/img/default-glass.jpg'}"
-                    th:alt="${producto.nombre}"
-                >
-
-            </div>
-
+            <label class="comparar-check">
+                <input type="checkbox" class="chk-comparar" th:value="${producto.id}"
+                       th:attr="aria-label=${'Comparar ' + producto.nombre}">
+                Comparar
+            </label>
 
             <div class="producto-body">
+                <h3><a th:href="@{/detalle/{id}(id=${producto.id})}" th:text="${producto.nombre}">Producto</a></h3>
+                <p th:text="${producto.descripcionCorta}">Descripción del producto</p>
 
-                <h3 th:text="${producto.nombre}">
-                    Producto
-                </h3>
+                <div class="producto-pie">
+                    <span class="producto-precio" th:text="'$' + ${producto.precioFormateado}">$0</span>
 
-                <p th:text="${producto.descripcionCorta}">
-                    Descripción del producto
-                </p>
-
-
-                <div class="producto-precio">
-
-                    <div>
-                        <div class="precio-label">
-                            Precio
-                        </div>
-
-                        <strong
-                            th:text="'$' + ${producto.precioFormateado}"
-                        >
-                            $0
-                        </strong>
+                    <div class="producto-acciones">
+                        <a th:href="@{/detalle/{id}(id=${producto.id})}" class="btn btn-secondary btn-sm">Ver ficha</a>
+                        <form th:if="${usuarioLogueado}" th:action="@{/carrito/agregar}" method="post">
+                            <input type="hidden" name="productoId" th:value="${producto.id}">
+                            <button type="submit" class="btn btn-primary btn-sm btn-icon"
+                                    th:attr="aria-label=${'Agregar ' + producto.nombre + ' al carrito'}" title="Agregar al carrito">
+                                <i class="ph ph-shopping-cart-simple" aria-hidden="true"></i>
+                            </button>
+                        </form>
                     </div>
-
                 </div>
-
-
-                <div class="producto-acciones">
-
-                    <a
-                        th:href="@{/detalle/{id}(id=${producto.id})}"
-                        class="btn btn-secondary"
-                    >
-                        <i class="ph ph-file-text"></i>
-                        Ver ficha técnica
-                    </a>
-
-
-                    <form
-                        th:if="${usuarioLogueado}"
-                        th:action="@{/carrito/agregar}"
-                        method="post"
-                    >
-
-                        <input
-                            type="hidden"
-                            name="productoId"
-                            th:value="${producto.id}"
-                        >
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                            style="width:100%;"
-                        >
-                            <i class="ph ph-shopping-cart-simple"></i>
-                            Agregar al carrito
-                        </button>
-
-                    </form>
-
-                </div>
-
-
-                <label class="comparar-check">
-
-                    <input
-                        type="checkbox"
-                        class="chk-comparar"
-                        th:value="${producto.id}"
-                    >
-
-                    <span>
-                        Agregar a comparación
-                    </span>
-
-                </label>
-
             </div>
-
         </article>
 
     </section>
 
-
-    <!-- =====================================================
-         ESTADO VACÍO
-         ===================================================== -->
-
-    <div
-        class="empty-state"
-        th:if="${#lists.isEmpty(productos)}"
-    >
-
-        <div class="empty-icon">
-            <i class="ph ph-package"></i>
-        </div>
-
-        <p
-            th:if="${query != null and !query.isEmpty()}"
-        >
-            No encontramos productos para
-            "<span th:text="${query}"></span>".
-        </p>
-
-        <p
-            th:unless="${query != null and !query.isEmpty()}"
-        >
-            Todavía no hay productos en el catálogo.
-        </p>
-
+    <div class="empty" th:if="${#lists.isEmpty(productos)}">
+        <div class="empty-icon"><i class="ph ph-magnifying-glass" aria-hidden="true"></i></div>
+        <th:block th:if="${query != null and !query.isEmpty()}">
+            <h2>Sin resultados para «<span th:text="${query}">búsqueda</span>»</h2>
+            <p>Prueba con otro nombre o revisa la ortografía.</p>
+            <a th:href="@{/catalogo}" class="btn btn-secondary">Ver todo el catálogo</a>
+        </th:block>
+        <th:block th:if="${(query == null or query.isEmpty()) and (!#strings.isEmpty(categoria) or !#strings.isEmpty(tamano))}">
+            <h2>No hay piezas con ese filtro</h2>
+            <p>Prueba con otro tamaño o mira todo el catálogo.</p>
+            <a th:href="@{/catalogo}" class="btn btn-secondary">Ver todo el catálogo</a>
+        </th:block>
+        <th:block th:if="${(query == null or query.isEmpty()) and #strings.isEmpty(categoria) and #strings.isEmpty(tamano)}">
+            <h2>El catálogo está vacío</h2>
+            <p>Todavía no hay productos publicados. Mientras tanto, puedes diseñar una pieza a medida.</p>
+            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary">Diseñar a medida</a>
+        </th:block>
     </div>
 
 </main>
 
-
-<!-- =========================================================
-     BARRA DEL COMPARADOR
-     ========================================================= -->
-
-<div
-    id="barra-comparador"
-    class="barra-comparador"
->
-
-    <span>
-        <strong id="comparador-count">0</strong>
-        producto(s) seleccionados
-    </span>
-
-    <button
-        id="btn-comparar"
-        type="button"
-        class="btn btn-primary"
-    >
-        <i class="ph ph-scales"></i>
-        Comparar
+<!-- Barra del comparador (la controla main.js) -->
+<div id="barra-comparador" class="barra-comparador" role="region" aria-label="Comparador">
+    <div class="texto">
+        <strong><span id="comparador-count">0</span> seleccionados</strong>
+        <span data-comparador-ayuda>Elige al menos 2 para comparar</span>
+    </div>
+    <button id="btn-comparar-limpiar" type="button" class="btn btn-ghost btn-sm">Quitar</button>
+    <button id="btn-comparar" type="button" class="btn btn-primary btn-sm">
+        <i class="ph ph-scales" aria-hidden="true"></i> Comparar
     </button>
-
 </div>
 
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script th:src="@{/js/main.js}"></script>
 

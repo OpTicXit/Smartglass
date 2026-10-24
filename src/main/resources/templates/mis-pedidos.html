@@ -2,545 +2,68 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <script th:src="@{/js/theme-init.js}"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
-
-    <title>SmartGlass - Mis Pedidos</title>
-
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <title>SmartGlass - Mis pedidos</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
-        /* =========================================================
-           SMARTGLASS · MIS PEDIDOS
-           ========================================================= */
-
-        body {
-            min-height: 100vh;
-        }
-
-        /* ---------- NAVBAR ---------- */
-
-        /* ---------- CONTENEDOR ---------- */
-
-        .pedidos-container {
-            width: min(1180px, calc(100% - 32px));
-            margin: 0 auto;
-            padding: 46px 0 70px;
-        }
-
-        /* ---------- HEADER ---------- */
-
-        .page-header {
-            position: relative;
-            margin-bottom: 30px;
-            padding: 4px 0 24px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .page-header::before {
-            content: "CENTRO DE PEDIDOS";
-            display: block;
-            margin-bottom: 10px;
-            color: var(--color-accent-text);
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.14em;
-        }
-
-        .page-header h1 {
-            margin: 0 0 8px;
-            color: var(--text-main);
-            font-size: clamp(2rem, 4vw, 2.75rem);
-            line-height: 1.05;
-            letter-spacing: -0.045em;
-        }
-
-        .page-header p {
-            max-width: 680px;
-            margin: 0;
-            color: var(--text-muted);
-            font-size: 0.98rem;
-            line-height: 1.6;
-        }
-
-        /* ---------- ESTADÍSTICAS ---------- */
-
-        .estadisticas-pedidos {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-            margin-bottom: 34px;
-        }
-
-        .stat-pedido {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            min-height: 105px;
-            padding: 20px;
-            overflow: hidden;
-        }
-
-        .stat-pedido::after {
-            content: "";
-            position: absolute;
-            right: -35px;
-            bottom: -45px;
-            width: 120px;
-            height: 120px;
-            border: 1px solid var(--border-color);
-            border-radius: 50%;
-            opacity: 0.55;
-        }
-
-        .stat-icon {
-            display: grid;
-            place-items: center;
-            width: 48px;
-            height: 48px;
-            flex-shrink: 0;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--bg-tertiary);
-            color: var(--color-accent-text);
-            font-size: 1.35rem;
-        }
-
-        .stat-pedido strong {
-            display: block;
-            margin-bottom: 3px;
-            color: var(--text-main);
-            font-size: 1.65rem;
-            line-height: 1;
-        }
-
-        .stat-pedido span {
-            color: var(--text-muted);
-            font-size: 0.78rem;
-            font-weight: 600;
-        }
-
-        /* F20 · Número héroe del KPI sostenible.
-           La regla genérica `.stat-pedido span` (0.78rem) pisaba el <span>
-           del número, por eso 645,5 se veía chico y "kg CO₂" (texto directo
-           del <strong>) grande. Se excluye con clase propia y se le da a la
-           unidad un tamaño chico explícito. */
-        .stat-pedido .kpi-valor {
-            display: flex;
-            align-items: baseline;
-            gap: 0.35rem;
-        }
-        .stat-pedido .kpi-num {
-            font-size: inherit;
-            font-weight: inherit;
-            color: inherit;
-            font-variant-numeric: tabular-nums;
-        }
-        .stat-pedido .kpi-unidad {
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 0.02em;
-        }
-
-        .stat-sostenible { align-items: flex-start; }
-        .sostenible-info { min-width: 0; }
-        .sostenible-sub { display: block; line-height: 1.45; }
+        /* ---------- Resumen ---------- */
+        .estadisticas-pedidos { display: grid; grid-template-columns: minmax(200px, 1fr) 2fr; gap: 14px; margin-bottom: 28px; }
+        .stat-pedido { display: flex; align-items: flex-start; gap: 16px; padding: 20px 22px; }
+        .stat-pedido > * { position: relative; z-index: 2; }
+        .stat-icon { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 12px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 1.35rem; }
+        /* F24: kg compensados = absoluto, sin color de semaforo */
+        .stat-pedido strong { display: block; font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+        .stat-pedido strong small { font-family: var(--font-primary); font-size: 0.9rem; font-weight: 600; letter-spacing: 0; color: var(--text-muted); }
+        .stat-pedido > div > span, .sostenible-sub { color: var(--text-muted); font-size: 0.88rem; }
         .sostenible-sub b { color: var(--text-main); }
-        .como-compensar { margin-top: 8px; }
-        .como-compensar summary { cursor: pointer; color: var(--color-accent-text); font-size: 0.8rem; font-weight: 700; }
-        .como-compensar summary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-        .como-compensar p { margin: 8px 0 0; color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; }
+        .como-compensar { margin-top: 8px; font-size: 0.86rem; }
+        .como-compensar summary { color: var(--color-accent-text); font-weight: 600; cursor: pointer; }
+        .como-compensar p { max-width: 60ch; margin: 8px 0 0; color: var(--text-muted); }
 
-        /* ---------- LISTA DE PEDIDOS ---------- */
+        /* ---------- Lista ---------- */
+        .pedidos-lista { display: grid; gap: 16px; }
+        .pedido-card { padding: 0; border-radius: var(--r-lg); }
+        .pedido-card > * { position: relative; z-index: 2; }
+        .pedido-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--border-color); }
+        .pedido-header h2 { margin: 0; font-size: 1.1rem; }
+        .pedido-date { color: var(--text-muted); font-size: 0.85rem; }
 
-        .pedidos-lista {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+        .pedido-productos { margin: 0; padding: 8px 22px; list-style: none; }
+        .producto-item { display: grid; grid-template-columns: 52px 1fr auto; gap: 14px; align-items: center; padding: 10px 0; }
+        .producto-item + .producto-item { border-top: 1px dashed var(--border-color); }
+        .producto-item img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--r-sm); background: var(--bg-tertiary); }
+        .producto-info strong { display: block; font-size: 0.95rem; font-weight: 600; }
+        .producto-info span { color: var(--text-muted); font-size: 0.84rem; }
+        .producto-subtotal { font-weight: 600; font-variant-numeric: tabular-nums; }
 
-        .pedido-card {
-            margin: 0;
-            overflow: hidden;
-        }
+        .pedido-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 22px; border-top: 1px solid var(--border-color); background: var(--surface-hover); }
+        .total-label { display: block; color: var(--text-muted); font-size: 0.82rem; }
+        .total-badge { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 
-        .pedido-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            padding: 19px 22px;
-            background: var(--bg-tertiary);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .pedido-reference {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .pedido-icon {
-            display: grid;
-            place-items: center;
-            width: 40px;
-            height: 40px;
-            flex-shrink: 0;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            background: var(--bg-secondary);
-            color: var(--color-accent-text);
-            font-size: 1rem;
-        }
-
-        .pedido-header h3 {
-            margin: 0 0 5px;
-            color: var(--text-main);
-            font-size: 1rem;
-            font-weight: 750;
-        }
-
-        .pedido-date {
-            color: var(--text-muted);
-            font-size: 0.78rem;
-        }
-
-        .pedido-estado {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 105px;
-            padding: 6px 12px;
-            border-radius: 999px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        .estado-pendiente {
-            background: var(--color-warning-dim);
-            color: var(--color-warning);
-            border: 1px solid var(--color-warning);
-        }
-
-        .estado-completado {
-            background: var(--color-success-dim);
-            color: var(--color-success);
-            border: 1px solid var(--color-success);
-        }
-
-        /* ---------- PRODUCTOS ---------- */
-
-        .pedido-productos {
-            display: flex;
-            flex-direction: column;
-            gap: 9px;
-            padding: 20px 22px;
-        }
-
-        .productos-label {
-            margin: 0 0 3px;
-            color: var(--text-muted);
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        .producto-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            min-height: 70px;
-            margin: 0;
-            padding: 10px 12px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            transition:
-                border-color 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .producto-item:hover {
-            border-color: var(--color-accent);
-            transform: translateX(2px);
-        }
-
-        .producto-item img {
-            width: 54px;
-            height: 54px;
-            flex-shrink: 0;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            object-fit: cover;
-            background: var(--bg-secondary);
-        }
-
-        .producto-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .producto-info strong {
-            display: block;
-            overflow: hidden;
-            margin-bottom: 5px;
-            color: var(--text-main);
-            font-size: 0.9rem;
-            font-weight: 700;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .producto-info span {
-            color: var(--text-muted);
-            font-size: 0.78rem;
-        }
-
-        .producto-subtotal {
-            flex-shrink: 0;
-            color: var(--color-accent-text);
-            font-size: 0.88rem;
-            font-weight: 800;
-        }
-
-        /* ---------- FOOTER DEL PEDIDO ---------- */
-
-        .pedido-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 17px 22px;
-            background: var(--bg-tertiary);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .total-label {
-            display: block;
-            margin-bottom: 4px;
-            color: var(--text-muted);
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .total-badge {
-            display: inline-flex;
-            align-items: baseline;
-            gap: 5px;
-            padding: 0;
-            color: var(--text-main);
-            background: transparent;
-            border: 0;
-            border-radius: 0;
-            font-size: 1.05rem;
-            font-weight: 800;
-        }
-
-        .btn-factura {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px 16px;
-            background: var(--color-info);
-            color: var(--bg-primary);
-            border: 1px solid var(--color-info);
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.82rem;
-            font-weight: 750;
-            transition:
-                filter 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .btn-factura:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
-        }
-
-        /* ---------- ESTADO VACÍO ---------- */
-
-        .empty-orders {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 360px;
-            padding: 40px 20px;
-        }
-
-        .empty-orders-inner {
-            width: min(500px, 100%);
-            padding: 38px 28px;
-            text-align: center;
-        }
-
-        .empty-icon {
-            display: grid;
-            place-items: center;
-            width: 68px;
-            height: 68px;
-            margin: 0 auto 20px;
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            background: var(--bg-tertiary);
-            color: var(--color-accent-text);
-            font-size: 1.65rem;
-        }
-
-        .empty-orders h2 {
-            margin: 0 0 8px;
-            color: var(--text-main);
-            font-size: 1.3rem;
-        }
-
-        .empty-orders p {
-            max-width: 420px;
-            margin: 0 auto;
-            color: var(--text-muted);
-            font-size: 0.88rem;
-            line-height: 1.6;
-        }
-
-        .empty-orders .btn-factura {
-            margin-top: 22px;
-            background: var(--color-accent);
-            color: var(--bg-primary);
-            border-color: var(--color-accent);
-        }
-
-        /* ---------- RESPONSIVE ---------- */
-
-        @media (max-width: 900px) {
-
-            .pedidos-container {
-                padding-top: 32px;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .pedidos-container {
-                width: min(100% - 20px, 1180px);
-                padding-bottom: 45px;
-            }
-
-            .estadisticas-pedidos {
-                grid-template-columns: 1fr;
-            }
-
-            .page-header {
-                margin-bottom: 22px;
-            }
-
-            .page-header h1 {
-                font-size: 2rem;
-            }
-
-            .pedido-header {
-                align-items: flex-start;
-                flex-direction: column;
-                padding: 16px;
-            }
-
-            .pedido-estado {
-                align-self: flex-start;
-            }
-
-            .pedido-productos {
-                padding: 16px;
-            }
-
-            .producto-item {
-                align-items: flex-start;
-            }
-
-            .producto-subtotal {
-                align-self: center;
-            }
-
-            .pedido-footer {
-                align-items: stretch;
-                flex-direction: column;
-                padding: 16px;
-            }
-
-            .btn-factura {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 430px) {
-
-            .producto-item {
-                gap: 10px;
-            }
-
-            .producto-item img {
-                width: 46px;
-                height: 46px;
-            }
-
-            .producto-subtotal {
-                font-size: 0.8rem;
-            }
-        }
-
-        /* ---------- IMPRESIÓN ---------- */
-
-        @media print {
-            .btn-factura {
-                display: none !important;
-            }
-
-            .pedidos-container {
-                width: 100%;
-                max-width: none;
-                padding: 0;
-            }
-
-            .pedido-card {
-                break-inside: avoid;
-                box-shadow: none !important;
-            }
-
-            .page-header {
-                border-bottom: 1px solid #ccc;
-            }
-        }
+        @media (max-width: 720px) { .estadisticas-pedidos { grid-template-columns: 1fr; } }
     </style>
 </head>
-
 <body>
 
 <nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
-<div class="pedidos-container">
+<main class="container">
 
-    <header class="page-header">
-        <h1>Mis Pedidos</h1>
-        <p>
-            Consulta el historial de tus adquisiciones y accede
-            rápidamente a la documentación de cada pedido.
-        </p>
+    <header class="page-intro">
+        <div>
+            <h1>Mis pedidos</h1>
+            <p class="lead">El historial de tus compras, con el estado de cada pedido y su factura.</p>
+        </div>
     </header>
 
-    <!-- Estadísticas -->
+    <!-- Estadisticas -->
     <div class="estadisticas-pedidos" th:if="${not #lists.isEmpty(pedidos)}">
 
         <div class="stat-pedido card-panel">
-            <div class="stat-icon">📊</div>
-
+            <span class="stat-icon"><i class="ph ph-receipt" aria-hidden="true"></i></span>
             <div>
                 <strong th:text="${#lists.size(pedidos)}">0</strong>
-                <span>Total Realizados</span>
+                <span>Pedidos realizados</span>
             </div>
         </div>
 
@@ -552,26 +75,26 @@
                       kgC=${kgCompensados != null ? kgCompensados : (#aggregates.sum(pedidos.?[compensacionCarbono].![huellaCarbono]) ?: 0)},
                       nC=${pedidosCompensados != null ? pedidosCompensados : #lists.size(pedidos.?[compensacionCarbono])},
                       pct=${pctCompensado != null ? pctCompensado : (kgT > 0 ? kgC * 100.0 / kgT : 0)}">
-            <div class="stat-icon">🌱</div>
+            <span class="stat-icon"><i class="ph ph-leaf" aria-hidden="true"></i></span>
 
             <div class="sostenible-info">
                 <!-- Con huella compensada -->
                 <th:block th:if="${nC > 0}">
                     <strong class="kpi-valor">
                         <span class="kpi-num" th:text="${#numbers.formatDecimal(kgC, 1, 'POINT', 1, 'COMMA')}">0,0</span>
-                        <small class="kpi-unidad">kg CO₂</small>
+                        <small class="kpi-unidad">kg CO₂ compensados</small>
                     </strong>
                     <span class="sostenible-sub">
-                        compensados en <b th:text="${nC}">0</b> <b th:text="${nC == 1 ? 'pedido' : 'pedidos'}">pedidos</b><span th:if="${kgT > 0}"> · <b th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 0, 'COMMA')} + ' %'">0 %</b> de tu huella total</span>
+                        en <b th:text="${nC}">0</b> <b th:text="${nC == 1 ? 'pedido' : 'pedidos'}">pedidos</b><span th:if="${kgT > 0}">, el <b th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 0, 'COMMA')} + ' %'">0 %</b> de tu huella total</span>
                     </span>
                 </th:block>
 
                 <!-- Estado cero explicito -->
                 <th:block th:unless="${nC > 0}">
-                    <strong>0 kg</strong>
-                    <span class="sostenible-sub">aún no compensas huella</span>
+                    <strong>0 <small>kg CO₂ compensados</small></strong>
+                    <span class="sostenible-sub">Todavía no compensas la huella de tus pedidos.</span>
                     <details class="como-compensar">
-                        <summary>¿Cómo compensar?</summary>
+                        <summary>¿Cómo compensarla?</summary>
                         <p>
                             Al finalizar una compra, en el paso 3 del checkout marca
                             «Deseo compensar mi huella» (+$5.000) y SmartGlass compensa las emisiones de tu pedido.
@@ -583,127 +106,56 @@
 
     </div>
 
-    <!-- Estado sin pedidos -->
-    <div th:if="${#lists.isEmpty(pedidos)}" class="empty-orders">
-
-        <div class="empty-orders-inner">
-
-            <div class="empty-icon">📦</div>
-
-            <h2>No has realizado pedidos todavía.</h2>
-
-            <p>
-                Cuando realices una compra en SmartGlass,
-                aquí podrás consultar todos sus detalles y facturas.
-            </p>
-
-            <a th:href="@{/catalogo}" class="btn-factura">
-                Explorar Catálogo
-            </a>
-
-        </div>
-
+    <!-- Sin pedidos -->
+    <div th:if="${#lists.isEmpty(pedidos)}" class="empty">
+        <div class="empty-icon"><i class="ph ph-package" aria-hidden="true"></i></div>
+        <h2>Aún no tienes pedidos</h2>
+        <p>Cuando compres en SmartGlass, aquí verás el estado de cada pedido y podrás descargar su factura.</p>
+        <a th:href="@{/catalogo}" class="btn btn-primary">Explorar el catálogo</a>
     </div>
 
     <!-- Lista de pedidos -->
     <div th:unless="${#lists.isEmpty(pedidos)}" class="pedidos-lista">
 
-        <div class="pedido-card card-panel" th:each="pedido : ${pedidos}">
+        <article class="pedido-card card-panel" th:each="pedido : ${pedidos}">
 
-            <!-- Encabezado del pedido -->
-            <div class="pedido-header">
-
-                <div class="pedido-reference">
-
-                    <div class="pedido-icon">
-                        📦
-                    </div>
-
-                    <div>
-                        <h3>
-                            Pedido #<span th:text="${pedido.id}"></span>
-                        </h3>
-
-                        <span
-                            class="pedido-date"
-                            th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">
-                        </span>
-                    </div>
-
-                </div>
-
-                <div
-                    th:class="'pedido-estado estado-' + ${#strings.toLowerCase(pedido.estado)}"
-                    th:text="${pedido.estado}">
-                    ESTADO
-                </div>
-
-            </div>
-
-            <!-- Productos -->
-            <div class="pedido-productos">
-
-                <p class="productos-label">
-                    Productos del pedido
-                </p>
-
-                <div
-                    class="producto-item"
-                    th:each="detalle : ${pedido.detalles}">
-
-                    <img
-                        th:src="${detalle.imagenProducto != null} ? @{/img/{img}(img=${detalle.imagenProducto})} : @{/img/logo-icono.png}"
-                        alt="Producto">
-
-                    <div class="producto-info">
-
-                        <strong
-                            th:text="${detalle.nombreProducto}">
-                        </strong>
-
-                        <span
-                            th:text="${detalle.cantidad} + ' unidades'">
-                        </span>
-
-                    </div>
-
-                    <div
-                        class="producto-subtotal"
-                        th:text="${detalle.subtotalFormateado}">
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- Total y factura -->
-            <div class="pedido-footer">
-
+            <header class="pedido-header">
                 <div>
-                    <span class="total-label">
-                        Total del pedido
-                    </span>
-
-                    <div class="total-badge">
-                        <span th:text="${pedido.totalFormateado}"></span>
-                    </div>
+                    <h2>Pedido #<span th:text="${pedido.id}">0</span></h2>
+                    <time class="pedido-date" th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</time>
                 </div>
+                <span th:class="'tag estado-' + ${#strings.toLowerCase(pedido.estado)}" class="tag" th:text="${pedido.estado}">ESTADO</span>
+            </header>
 
-                <a
-                    th:href="@{/checkout/pedido/{id}(id=${pedido.id})}"
-                    class="btn-factura">
-                    📄 Ver Factura
+            <ul class="pedido-productos" aria-label="Productos del pedido">
+                <li class="producto-item" th:each="detalle : ${pedido.detalles}">
+                    <img th:src="${detalle.imagenProducto != null} ? @{/img/{img}(img=${detalle.imagenProducto})} : @{/img/logo-icono.png}"
+                         alt="" loading="lazy">
+                    <div class="producto-info">
+                        <strong th:text="${detalle.nombreProducto}">Producto</strong>
+                        <span th:text="${detalle.cantidad} + (${detalle.cantidad == 1} ? ' unidad' : ' unidades')">1 unidad</span>
+                    </div>
+                    <div class="producto-subtotal" th:text="${detalle.subtotalFormateado}">$0</div>
+                </li>
+            </ul>
+
+            <footer class="pedido-footer">
+                <div>
+                    <span class="total-label">Total del pedido</span>
+                    <span class="total-badge" th:text="${pedido.totalFormateado}">$0</span>
+                </div>
+                <a th:href="@{/checkout/pedido/{id}(id=${pedido.id})}" class="btn btn-secondary">
+                    <i class="ph ph-file-text" aria-hidden="true"></i> Ver factura
                 </a>
-
-            </div>
-
-        </div>
+            </footer>
+        </article>
 
     </div>
 
-</div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script th:src="@{/js/main.js}"></script>
-
 </body>
 </html>

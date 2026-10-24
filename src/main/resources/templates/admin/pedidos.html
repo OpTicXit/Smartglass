@@ -2,12 +2,9 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Pedidos (Admin)</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
 
     <style>
         .hint-guardado { margin: -8px 0 18px; color: var(--text-muted); font-size: 0.88rem; }
@@ -98,7 +95,7 @@
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(pedidos)}">
-                        <td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">
+                        <td colspan="6" class="td-vacio">
                             No hay pedidos registrados.
                         </td>
                     </tr>

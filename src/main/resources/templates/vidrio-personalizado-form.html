@@ -2,11 +2,8 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Atelier: diseña tu obra</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
         /* =========================================================
@@ -15,23 +12,10 @@
            Los nombres de los campos del formulario no cambian.
            ========================================================= */
 
-        body {
-            background:
-                radial-gradient(circle at 8% 0%, var(--color-accent-dim), transparent 30%),
-                radial-gradient(circle at 92% 18%, var(--color-success-dim), transparent 24%),
-                var(--bg-primary);
-        }
-
-        .atelier { max-width: 1320px; margin: 0 auto; padding: 38px clamp(16px, 3vw, 36px) 40px; }
+        .atelier { width: 100%; max-width: 1320px; margin: 0 auto; padding: 38px clamp(16px, 3vw, 36px) 40px; }
 
         /* ---------- Encabezado ---------- */
         .atelier-hero { max-width: 760px; margin-bottom: 30px; }
-        .eyebrow {
-            display: inline-flex; align-items: center; gap: 10px; margin-bottom: 12px;
-            color: var(--color-accent-text); font-size: 0.74rem; font-weight: 800;
-            letter-spacing: 0.16em; text-transform: uppercase;
-        }
-        .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--color-accent); }
         .atelier-hero h1 { margin: 0 0 12px; font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.02; letter-spacing: -0.045em; }
         .atelier-hero p { margin: 0; color: var(--text-muted); font-size: 1.05rem; line-height: 1.65; max-width: 620px; }
 
@@ -47,13 +31,13 @@
             padding: 16px 20px; border: 1px solid var(--border-color); border-radius: 16px;
             background: var(--card-bg); backdrop-filter: blur(12px);
         }
-        .cartela small { color: var(--text-muted); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+        .cartela small { color: var(--text-muted); font-size: 0.7rem; font-weight: 700; letter-spacing: 0; }
         .cartela strong { display: block; margin: 4px 0 4px; color: var(--text-main); font-size: 1.15rem; letter-spacing: -0.01em; }
         .cartela p { margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
 
         .medidas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .medida { padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 14px; background: var(--card-bg); }
-        .medida span { display: block; color: var(--text-muted); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; }
+        .medida span { display: block; color: var(--text-muted); font-size: 0.72rem; font-weight: 700; letter-spacing: 0; }
         .medida strong { display: block; margin-top: 2px; color: var(--text-main); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
         .medida strong.co2 { color: var(--text-main); } /* F24: el absoluto no lleva color de juicio */
 
@@ -62,8 +46,8 @@
             background: linear-gradient(135deg, var(--color-accent-dim), var(--card-bg));
             box-shadow: var(--shadow-glow);
         }
-        .precio-caja span { color: var(--text-muted); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
-        .precio-grande { margin-top: 2px; color: var(--text-main); font-size: clamp(2rem, 4vw, 2.7rem); font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+        .precio-caja span { color: var(--text-muted); font-size: 0.74rem; font-weight: 700; letter-spacing: 0; }
+        .precio-grande { margin-top: 2px; color: var(--text-main); font-size: clamp(2rem, 4vw, 2.7rem); font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
         .ahorro { margin-top: 6px; color: var(--color-success); font-size: 0.85rem; font-weight: 700; }
         .ahorro[hidden] { display: none; }
         .nota { margin: 10px 0 0; color: var(--text-muted); font-size: 0.78rem; line-height: 1.5; }
@@ -77,7 +61,7 @@
         .cap-num {
             display: grid; place-items: center; flex: none; width: 46px; height: 46px; border-radius: 14px;
             background: var(--color-accent-dim); color: var(--color-accent-text);
-            font-family: Georgia, 'Times New Roman', serif; font-size: 1.15rem; font-weight: 700; font-style: italic;
+            font-family: var(--font-display); font-size: 1.15rem; font-weight: 700;
         }
         .cap-head h2 { margin: 0 0 2px; font-size: 1.25rem; letter-spacing: -0.02em; }
         .cap-head p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
@@ -113,7 +97,7 @@
         .medida-campo label { grid-column: 1 / -1; margin-bottom: -6px; color: var(--text-main); font-size: 0.86rem; font-weight: 700; }
         .num-unidad { position: relative; }
         .num-unidad input { padding-right: 44px; font-weight: 700; font-variant-numeric: tabular-nums; }
-        .num-unidad span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.06em; }
+        .num-unidad span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.7rem; font-weight: 700; letter-spacing: 0; }
         input[type="range"] {
             --p: 50%; width: 100%; height: 6px; padding: 0; border: 0; border-radius: 99px; outline: none; cursor: pointer;
             -webkit-appearance: none; appearance: none; backdrop-filter: none;
@@ -122,7 +106,7 @@
         input[type="range"]:focus { box-shadow: none; background: linear-gradient(90deg, var(--color-accent) var(--p), var(--bg-tertiary) var(--p)); }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--bg-secondary);
-            background: var(--color-accent); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35); transition: transform 0.15s ease;
+            background: var(--color-accent); box-shadow: var(--shadow-control); transition: transform 0.15s ease;
         }
         input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
         input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--bg-secondary); background: var(--color-accent); }
@@ -150,18 +134,18 @@
         .urgente input { width: 20px; height: 20px; flex: none; accent-color: var(--color-accent); }
         .urgente > span:nth-of-type(1) { flex: 1; color: var(--text-main); font-size: 0.95rem; line-height: 1.4; }
         .urgente small { display: block; margin-top: 2px; color: var(--text-muted); font-size: 0.8rem; }
-        .chip-premium { padding: 4px 10px; border-radius: 999px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em; white-space: nowrap; }
+        .chip-premium { padding: 4px 10px; border-radius: 999px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 0.72rem; font-weight: 700; letter-spacing: 0; white-space: nowrap; }
 
         /* Boton principal */
         .btn-forjar {
             display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; margin-top: 8px; padding: 18px 24px;
-            border: 0; border-radius: 18px; cursor: pointer; color: #fff; font: inherit;
-            background: linear-gradient(135deg, var(--color-accent-solid), #4F46E5);
+            border: 0; border-radius: 18px; cursor: pointer; color: var(--on-accent-solid); font: inherit;
+            background: linear-gradient(135deg, var(--color-accent-solid), var(--color-indigo));
             box-shadow: var(--shadow-glow); transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .btn-forjar strong { font-size: 1.1rem; letter-spacing: -0.01em; }
         .btn-forjar span { font-size: 0.82rem; opacity: 0.92; }
-        .btn-forjar:hover { transform: translateY(-2px); box-shadow: 0 0 34px rgba(79, 70, 229, 0.45); }
+        .btn-forjar:hover { transform: translateY(-2px); box-shadow: 0 0 34px var(--color-indigo-glow); }
         .btn-forjar:disabled { opacity: 0.7; cursor: wait; transform: none; }
         .btn-forjar:focus-visible { outline: 3px solid var(--color-accent-hover); outline-offset: 3px; }
 
@@ -179,7 +163,7 @@
         /* ---------- Termometro ambiental (intensidad kg CO2e / m2) ---------- */
         .termometro { padding: 16px 20px; border: 1px solid var(--border-color); border-radius: 18px; background: var(--card-bg); backdrop-filter: blur(12px); }
         .termo-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-        .termo-cab > span:first-child { color: var(--text-muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+        .termo-cab > span:first-child { color: var(--text-muted); font-size: 0.72rem; font-weight: 700; letter-spacing: 0; }
         .termo-valor { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
         .termo-valor strong { color: var(--nivel); font-size: 1.9rem; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; transition: color 0.4s ease; }
         .termo-valor small { color: var(--text-muted); font-size: 0.8rem; font-weight: 700; }
@@ -196,7 +180,7 @@
         #termoFrase { margin: 0; color: var(--text-main); font-size: 0.9rem; font-weight: 600; line-height: 1.4; }
         .termo-ver {
             margin-top: 12px; padding: 9px 14px; width: 100%; border: 1px solid var(--nivel); border-radius: 12px;
-            background: var(--nivel-dim); color: var(--nivel); font: inherit; font-size: 0.84rem; font-weight: 800; cursor: pointer;
+            background: var(--nivel-dim); color: var(--nivel); font: inherit; font-size: 0.84rem; font-weight: 700; cursor: pointer;
             transition: filter 0.2s ease;
         }
         .termo-ver:hover { filter: brightness(1.12); }
@@ -214,7 +198,7 @@
         @keyframes alertaEntra { from { opacity: 0; transform: translateY(-10px) scale(0.98); } to { opacity: 1; transform: none; } }
         .alerta-icono {
             flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px;
-            background: var(--nivel); color: #fff; font-size: 1.4rem;
+            background: var(--nivel); color: var(--on-nivel, var(--on-error)); font-size: 1.4rem;
         }
         .nivel-alto .alerta-icono { animation: alertaPulso 1.6s ease-in-out infinite; }
         @keyframes alertaPulso { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--nivel) 60%, transparent); } 50% { box-shadow: 0 0 0 12px transparent; } }
@@ -224,13 +208,13 @@
         .alerta-cuerpo p b { color: var(--text-main); }
         .alerta-cambios { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
         .alerta-cambios li { display: flex; gap: 8px; color: var(--text-main); font-size: 0.88rem; line-height: 1.4; }
-        .alerta-cambios li::before { content: "\2713"; flex: none; color: var(--color-success); font-weight: 800; }
+        .alerta-cambios li::before { content: "\2713"; flex: none; color: var(--color-success); font-weight: 700; }
         .alerta-resultado { margin: 12px 0 0; padding: 10px 14px; border-radius: 12px; background: var(--bg-tertiary); color: var(--text-main); font-size: 0.9rem; font-weight: 700; }
         .alerta-resultado:empty { display: none; }
         .alerta-resultado b { color: var(--nivel); }
         .alerta-acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
         .btn-alerta, .btn-alerta-sec {
-            padding: 10px 16px; border-radius: 12px; font: inherit; font-size: 0.86rem; font-weight: 800; cursor: pointer;
+            padding: 10px 16px; border-radius: 12px; font: inherit; font-size: 0.86rem; font-weight: 700; cursor: pointer;
             transition: transform 0.2s ease, filter 0.2s ease;
         }
         .btn-alerta { border: 0; background: var(--color-success); color: var(--bg-primary); }
@@ -247,7 +231,7 @@
             width: min(520px, 92vw); padding: 28px; border: 1px solid var(--color-error); border-radius: 22px;
             background: var(--bg-secondary); color: var(--text-main); box-shadow: var(--shadow-main), 0 0 60px -20px var(--color-error);
         }
-        .dlg-impacto::backdrop { background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(6px); }
+        .dlg-impacto::backdrop { background: var(--backdrop); backdrop-filter: blur(6px); }
         .dlg-impacto h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-size: 1.25rem; letter-spacing: -0.02em; }
         .dlg-impacto p { margin: 0 0 10px; color: var(--text-muted); line-height: 1.55; }
         .dlg-impacto .alerta-cambios { margin: 12px 0 18px; }
@@ -300,8 +284,7 @@
 <main class="atelier">
 
     <header class="atelier-hero">
-        <div class="eyebrow">Atelier SmartGlass</div>
-        <h1>Diseña tu obra</h1>
+                <h1>Diseña tu obra</h1>
         <p>
             Cada decisión transforma la pieza que ves. Cuando la sientas tuya,
             la llevamos a fábrica y te mostramos su huella, su resistencia y su precio.
@@ -365,7 +348,7 @@
             </div>
 
             <section class="alerta-impacto nivel-alto" id="alertaImpacto" role="alert" hidden>
-                <div class="alerta-icono" aria-hidden="true">⚠</div>
+                <div class="alerta-icono" aria-hidden="true"><i class="ph-fill ph-warning"></i></div>
                 <div class="alerta-cuerpo">
                     <strong id="alertaTitulo">Configuración de alto impacto</strong>
                     <p id="alertaTexto"></p>
@@ -497,7 +480,7 @@
                     <!-- F45: vertices del corte ("x,y;x,y;..."); Spring los enlaza con CotizacionVidrioRequest.setPuntosTexto -->
                     <input type="hidden" name="puntosTexto" id="puntosTexto" value="">
                     <div class="corte-acciones" id="corteAcciones" hidden>
-                        <button type="button" class="btn btn-secondary" id="btnEditarCorte" data-sg-corte>✎ Editar mi corte</button>
+                        <button type="button" class="btn btn-secondary" id="btnEditarCorte" data-sg-corte><i class="ph ph-pencil-simple" aria-hidden="true"></i> Editar mi corte</button>
                         <p class="hint" id="corteResumen" aria-live="polite"></p>
                     </div>
                 </div>
@@ -565,7 +548,7 @@
                 <label class="urgente sg-rainbow">
                     <input type="checkbox" name="urgente" id="urgente">
                     <span>Entrega urgente / prioritaria<small>Suma un 20 % al precio.</small></span>
-                    <span class="chip-premium">★ Premium</span>
+                    <span class="chip-premium">Premium</span>
                 </label>
             </section>
 
@@ -579,7 +562,7 @@
 
 <!-- Confirmacion al enviar una configuracion de alto impacto -->
 <dialog class="dlg-impacto nivel-alto" id="dlgImpacto" aria-labelledby="dlgTitulo">
-    <h3 id="dlgTitulo"><span aria-hidden="true">⚠</span> Antes de continuar</h3>
+    <h3 id="dlgTitulo"><i class="ph-fill ph-warning" aria-hidden="true"></i> Antes de continuar</h3>
     <p id="dlgTexto"></p>
     <ul class="alerta-cambios" id="dlgCambios"></ul>
     <p class="alerta-resultado" id="dlgResultado"></p>
@@ -981,6 +964,8 @@
     });
 })();
 </script>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script th:src="@{/js/main.js}"></script>
 </body>

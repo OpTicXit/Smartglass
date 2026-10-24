@@ -1,696 +1,125 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
-    <script th:src="@{/js/theme-init.js}"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>SmartGlass - Panel de Usuario</title>
-
-    <link rel="stylesheet" href="/css/theme.css">
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+    <title>SmartGlass - Mi cuenta</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
-        /* =========================================================
-           SMARTGLASS - PANEL DE USUARIO
-           ========================================================= */
+        .saludo h1 span { color: var(--color-accent-text); }
 
-        body {
-            min-height: 100vh;
-            background: var(--color-background);
+        /* ---------- Accesos ---------- */
+        .accesos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 0 0 clamp(48px, 7vw, 72px); padding: 0; list-style: none; }
+        .acceso {
+            position: relative; display: flex; flex-direction: column; gap: 14px; height: 100%; padding: 20px;
+            border: 1px solid var(--border-color); border-radius: var(--r-lg); background: var(--card-bg);
+            box-shadow: var(--shadow-main), var(--glass-edge); color: var(--text-main);
+            transition: border-color var(--dur) ease, transform var(--dur) var(--ease-out), box-shadow var(--dur) ease;
         }
-
-        /* =========================================================
-           NAVBAR
-           ========================================================= */
-
-        /* =========================================================
-           HERO
-           ========================================================= */
-
-        .usuario-hero {
-            position: relative;
-            overflow: hidden;
-
-            padding: 68px 20px 62px;
-
-            border-bottom: 1px solid var(--border-color);
-
-            background:
-                radial-gradient(
-                    circle at 50% 0%,
-                    var(--color-accent-dim),
-                    transparent 48%
-                ),
-                var(--bg-tertiary);
-
-            text-align: center;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            max-width: 760px;
-            margin: 0 auto;
-        }
-
-        .hero-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-
-            margin-bottom: 15px;
-
-            color: var(--color-accent-text);
-
-            font-size: 0.73rem;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-        }
-
-        .hero-label::before {
-            content: "";
-            width: 7px;
-            height: 7px;
-
-            border-radius: 50%;
-            background: var(--color-accent);
-
-            box-shadow: 0 0 0 5px var(--color-accent-dim);
-        }
-
-        .usuario-hero h2 {
-            margin: 0;
-
-            color: var(--text-main);
-
-            font-size: clamp(2rem, 5vw, 3.2rem);
-            line-height: 1.1;
-            letter-spacing: -0.045em;
-        }
-
-        .usuario-hero h2 span {
-            color: var(--color-accent-text);
-        }
-
-        .usuario-hero p {
-            max-width: 610px;
-            margin: 16px auto 0;
-
-            color: var(--text-muted);
-
-            font-size: 0.98rem;
-            line-height: 1.65;
-        }
-
-        /* =========================================================
-           ACCESOS RÁPIDOS
-           ========================================================= */
-
-        .quick-actions {
-            width: min(1180px, 92%);
-            margin: -30px auto 45px;
-
-            position: relative;
-            z-index: 5;
-
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-        }
-
-        .quick-action {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-
-            padding: 17px;
-
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-
-            color: var(--text-main);
-            text-decoration: none;
-
-            transition:
-                border-color 0.25s ease,
-                transform 0.25s ease,
-                background 0.25s ease;
-        }
-
-        .quick-action:hover {
-            border-color: var(--color-accent);
-            background: var(--color-accent-dim);
-            transform: translateY(-3px);
-        }
-
-        .quick-icon {
-            width: 39px;
-            height: 39px;
-            flex: 0 0 39px;
-
-            display: grid;
-            place-items: center;
-
-            border-radius: 9px;
-
-            background: var(--color-accent-dim);
-            color: var(--color-accent-text);
-
-            font-size: 1rem;
-        }
-
-        .quick-info {
-            min-width: 0;
-        }
-
-        .quick-info strong {
-            display: block;
-
-            color: var(--text-main);
-
-            font-size: 0.82rem;
-            line-height: 1.2;
-        }
-
-        .quick-info span {
-            display: block;
-
-            margin-top: 4px;
-
-            color: var(--text-muted);
-
-            font-size: 0.7rem;
-        }
-
-        /* =========================================================
-           CATÁLOGO
-           ========================================================= */
-
-        .catalogo-container {
-            width: min(1180px, 92%);
-            margin: 0 auto;
-            padding-bottom: 70px;
-        }
-
-        .catalogo-header {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 20px;
-
-            margin-bottom: 25px;
-            padding-bottom: 17px;
-
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .catalogo-heading {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .catalogo-eyebrow {
-            color: var(--color-accent-text);
-
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        .catalogo-header h3 {
-            margin: 0;
-
-            color: var(--text-main);
-
-            font-size: 1.45rem;
-            letter-spacing: -0.025em;
-        }
-
-        .catalogo-header p {
-            margin: 0;
-
-            color: var(--text-muted);
-
-            font-size: 0.78rem;
-        }
-
-        .link-ver-mas {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-
-            padding: 9px 13px;
-
-            color: var(--color-accent-text);
-
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-
-            text-decoration: none;
-
-            font-size: 0.8rem;
-            font-weight: 700;
-
-            white-space: nowrap;
-
-            transition: 0.25s ease;
-        }
-
-        .link-ver-mas:hover {
-            border-color: var(--color-accent);
-            background: var(--color-accent-dim);
-        }
-
-        /* =========================================================
-           PRODUCTOS
-           ========================================================= */
-
-        .productos-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 18px;
-        }
-
-        .producto-card {
-            overflow: hidden;
-
-            padding-bottom: 19px;
-
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 13px;
-
-            text-align: center;
-
-            transition:
-                border-color 0.3s ease,
-                transform 0.3s ease,
-                box-shadow 0.3s ease;
-        }
-
-        .producto-card:hover {
-            border-color: var(--color-accent);
-            transform: translateY(-4px);
-        }
-
-        .producto-img-container {
-            position: relative;
-
-            width: 100%;
-            height: 205px;
-
-            overflow: hidden;
-
-            margin-bottom: 16px;
-
-            background: var(--bg-tertiary);
-        }
-
-        .producto-img-container img {
-            width: 100%;
-            height: 100%;
-
-            object-fit: cover;
-
-            transition:
-                transform 0.5s ease,
-                filter 0.5s ease;
-        }
-
-        .producto-card:hover .producto-img-container img {
-            filter: brightness(0.52);
-            transform: scale(1.06);
-        }
-
-        .producto-img-container::after {
-            content: "";
-
-            position: absolute;
-            inset: 0;
-
-            background: linear-gradient(
-                to top,
-                rgba(0, 0, 0, 0.22),
-                transparent 45%
-            );
-
-            pointer-events: none;
-        }
-
-        .ver-mas-overlay {
-            position: absolute;
-
-            top: 50%;
-            left: 50%;
-
-            z-index: 2;
-
-            transform: translate(-50%, -45%);
-
-            opacity: 0;
-
-            transition:
-                opacity 0.3s ease,
-                transform 0.3s ease;
-        }
-
-        .producto-card:hover .ver-mas-overlay {
-            opacity: 1;
-            transform: translate(-50%, -50%);
-        }
-
-        .btn-view {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-
-            padding: 10px 19px;
-
-            background: var(--color-accent);
-            color: var(--bg-primary);
-
-            border-radius: 8px;
-
-            text-decoration: none;
-
-            font-size: 0.78rem;
-            font-weight: 800;
-
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.22);
-        }
-
-        .producto-card h4 {
-            margin: 0 0 7px;
-            padding: 0 14px;
-
-            color: var(--text-main);
-
-            font-size: 0.94rem;
-            font-weight: 700;
-
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .detalle {
-            min-height: 36px;
-
-            margin: 0 0 13px;
-            padding: 0 14px;
-
-            color: var(--text-muted);
-
-            font-size: 0.76rem;
-            line-height: 1.5;
-
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .precio-badge {
-            display: inline-block;
-
-            padding: 5px 11px;
-
-            color: var(--color-accent-text);
-
-            background: var(--color-accent-dim);
-
-            border-radius: 7px;
-
-            font-size: 1rem;
-            font-weight: 800;
-        }
-
-        /* =========================================================
-           RESPONSIVE
-           ========================================================= */
-
-        @media (max-width: 1050px) {
-
-            .productos-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-
-            .quick-actions {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 760px) {
-
-            .usuario-hero {
-                padding: 52px 18px 58px;
-            }
-
-            .quick-actions {
-                margin-top: -25px;
-            }
-
-            .productos-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .catalogo-header {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-        }
-
-        @media (max-width: 500px) {
-
-            .quick-actions {
-                grid-template-columns: 1fr;
-            }
-
-            .productos-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .producto-img-container {
-                height: 220px;
-            }
-
-            .catalogo-container {
-                width: 90%;
-            }
-        }
-
-        /* =========================================================
-           ACCESIBILIDAD
-           ========================================================= */
-
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                scroll-behavior: auto !important;
-                transition-duration: 0.01ms !important;
-                animation-duration: 0.01ms !important;
-            }
-        }
+        .acceso:hover { color: var(--text-main); border-color: var(--border-hover); transform: translateY(-3px); box-shadow: var(--shadow-hover), var(--shadow-glow); }
+        .acceso-icono { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 1.35rem; }
+        .acceso strong { display: block; font-size: 1rem; }
+        .acceso span { color: var(--text-muted); font-size: 0.86rem; }
+        .acceso .contador { position: absolute; top: 18px; right: 18px; min-width: 26px; height: 26px; padding: 0 8px; display: grid; place-items: center; border-radius: 999px; background: var(--color-accent-solid); color: var(--on-accent-solid); font-size: 0.78rem; font-weight: 700; }
+        .acceso .flecha { position: absolute; right: 18px; bottom: 18px; color: var(--text-subtle); transition: transform var(--dur) var(--ease-out), color var(--dur) ease; }
+        .acceso:hover .flecha { color: var(--color-accent-text); transform: translateX(3px); }
+
+        /* ---------- Destacados ---------- */
+        .productos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+        .producto-card { display: flex; flex-direction: column; padding: 0; border-radius: var(--r-lg); }
+        .producto-img-container { display: block; aspect-ratio: 4 / 3; overflow: hidden; background: var(--bg-tertiary); }
+        .producto-img-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease-out); }
+        .producto-card:hover .producto-img-container img { transform: scale(1.05); }
+        .producto-img-container.img-pendiente { display: grid; place-items: center; }
+        .producto-img-container.img-pendiente img { width: 34%; height: auto; }
+        .producto-card:hover .producto-img-container.img-pendiente img { transform: none; }
+        .producto-cuerpo { position: relative; z-index: 2; display: flex; flex-direction: column; flex: 1; padding: 16px 16px 18px; }
+        .producto-cuerpo h3 { margin: 0 0 4px; font-size: 1rem; }
+        .producto-cuerpo h3 a { color: var(--text-main); }
+        .producto-cuerpo h3 a:hover { color: var(--color-accent-text); }
+        .producto-cuerpo .detalle { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0 0 14px; color: var(--text-muted); font-size: 0.84rem; }
+        .precio-badge { margin-top: auto; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+        @media (max-width: 1000px) { .accesos, .productos-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 520px) { .accesos, .productos-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
-
 <body>
 
 <nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
+<main class="container">
 
-<!-- =========================================================
-     HERO
-     ========================================================= -->
-
-<section class="usuario-hero">
-
-    <div class="hero-content">
-
-        <div class="hero-label">
-            Panel de cliente
+    <header class="page-intro page-intro--plain saludo">
+        <div>
+            <h1>Hola, <span th:text="${usuario.nombre}">Usuario</span></h1>
+            <p class="lead">Desde aquí gestionas tus compras, tus cotizaciones a medida y tus pedidos.</p>
         </div>
+    </header>
 
-        <h2>
-            Bienvenido,
-            <span th:text="${usuario.nombre}">
-                Usuario
-            </span>
-        </h2>
-
-        <p>
-            Explora soluciones de vidrio, descubre productos destacados
-            y gestiona tus pedidos y proyectos personalizados desde un
-            solo lugar.
-        </p>
-
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     ACCESOS RÁPIDOS
-     ========================================================= -->
-
-<section class="quick-actions">
-
-    <a href="/catalogo" class="quick-action">
-
-        <div class="quick-icon">
-            🛍️
-        </div>
-
-        <div class="quick-info">
-            <strong>Explorar tienda</strong>
-            <span>Ver catálogo completo</span>
-        </div>
-
-    </a>
-
-
-    <a href="/carrito" class="quick-action">
-
-        <div class="quick-icon">
-            🛒
-        </div>
-
-        <div class="quick-info">
-            <strong>Mi carrito</strong>
-            <span>
-                <span th:text="${cantidadCarrito}">0</span>
-                productos
-            </span>
-        </div>
-
-    </a>
-
-
-    <a href="/checkout/mis-pedidos" class="quick-action">
-
-        <div class="quick-icon">
-            📦
-        </div>
-
-        <div class="quick-info">
-            <strong>Mis pedidos</strong>
-            <span>Consultar compras</span>
-        </div>
-
-    </a>
-
-
-    <a href="/vidrio-personalizado/mis-cotizaciones" class="quick-action">
-
-        <div class="quick-icon">
-            📐
-        </div>
-
-        <div class="quick-info">
-            <strong>Mis cotizaciones</strong>
-            <span>Gestionar proyectos</span>
-        </div>
-
-    </a>
-
-</section>
-
-
-<!-- =========================================================
-     PRODUCTOS DESTACADOS
-     ========================================================= -->
-
-<section class="catalogo-container">
-
-    <div class="catalogo-header">
-
-        <div class="catalogo-heading">
-
-            <span class="catalogo-eyebrow">
-                Selección SmartGlass
-            </span>
-
-            <h3>
-                Novedades y Destacados
-            </h3>
-
-            <p>
-                Descubre algunos de nuestros productos disponibles.
-            </p>
-
-        </div>
-
-        <a href="/destacados" class="link-ver-mas">
-            Ver todos →
-        </a>
-
-    </div>
-
-
-    <div class="productos-grid">
-
-        <div
-            class="producto-card"
-            th:each="producto, iterStat : ${destacados}"
-            th:if="${iterStat.index < 8}"
-        >
-
-            <div class="producto-img-container">
-
-                <img
-                    th:src="@{/img/{img}(img=${producto.imagen})}"
-                    th:alt="${producto.nombre}"
-                >
-
-                <div class="ver-mas-overlay">
-
-                    <a
-                        th:href="@{/detalle/{id}(id=${producto.id})}"
-                        class="btn-view"
-                    >
-                        Ver detalles
-                    </a>
-
+    <ul class="accesos">
+        <li>
+            <a th:href="@{/catalogo}" class="acceso">
+                <span class="acceso-icono"><i class="ph ph-storefront" aria-hidden="true"></i></span>
+                <div><strong>Explorar tienda</strong><span>Ver el catálogo completo</span></div>
+                <i class="ph ph-arrow-right flecha" aria-hidden="true"></i>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/carrito}" class="acceso">
+                <span class="acceso-icono"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i></span>
+                <span class="contador" th:if="${cantidadCarrito != null and cantidadCarrito > 0}" th:text="${cantidadCarrito}">0</span>
+                <div>
+                    <strong>Mi carrito</strong>
+                    <span th:text="${cantidadCarrito != null and cantidadCarrito > 0} ? ${cantidadCarrito} + ' producto(s) esperando' : 'Aún está vacío'">Aún está vacío</span>
                 </div>
+                <i class="ph ph-arrow-right flecha" aria-hidden="true"></i>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/checkout/mis-pedidos}" class="acceso">
+                <span class="acceso-icono"><i class="ph ph-package" aria-hidden="true"></i></span>
+                <div><strong>Mis pedidos</strong><span>Seguimiento y facturas</span></div>
+                <i class="ph ph-arrow-right flecha" aria-hidden="true"></i>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/vidrio-personalizado/mis-cotizaciones}" class="acceso">
+                <span class="acceso-icono"><i class="ph ph-pencil-ruler" aria-hidden="true"></i></span>
+                <div><strong>Mis cotizaciones</strong><span>Tus piezas a medida</span></div>
+                <i class="ph ph-arrow-right flecha" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
 
+    <section aria-labelledby="titulo-destacados">
+        <div class="section-title">
+            <div>
+                <h2 id="titulo-destacados">Novedades y destacados</h2>
+                <p>Algunos de nuestros productos disponibles.</p>
             </div>
-
-
-            <h4 th:text="${producto.nombre}">
-                Vidrio
-            </h4>
-
-
-            <p
-                class="detalle"
-                th:text="${producto.descripcionCorta}"
-            >
-                Desc
-            </p>
-
-
-            <div
-                class="precio-badge"
-                th:text="'$' + ${producto.precioFormateado}"
-            >
-                $0
-            </div>
-
+            <a th:href="@{/destacados}" class="btn btn-ghost btn-sm">Ver todos <i class="ph ph-arrow-right" aria-hidden="true"></i></a>
         </div>
 
-    </div>
+        <div class="productos-grid">
+            <article class="producto-card" th:each="producto, iterStat : ${destacados}" th:if="${iterStat.index < 8}">
+                <a class="producto-img-container" th:href="@{/detalle/{id}(id=${producto.id})}" tabindex="-1" aria-hidden="true"
+                   th:classappend="${producto.imagenPendiente} ? 'img-pendiente'">
+                    <img th:src="@{${producto.imagenUrl}}" alt="" loading="lazy">
+                </a>
+                <div class="producto-cuerpo">
+                    <h3><a th:href="@{/detalle/{id}(id=${producto.id})}" th:text="${producto.nombre}">Vidrio</a></h3>
+                    <p class="detalle" th:text="${producto.descripcionCorta}">Descripción</p>
+                    <div class="precio-badge" th:text="'$' + ${producto.precioFormateado}">$0</div>
+                </div>
+            </article>
+        </div>
+    </section>
 
-</section>
+</main>
 
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script th:src="@{/js/main.js}"></script>
-
 </body>
 </html>

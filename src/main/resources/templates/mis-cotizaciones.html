@@ -2,62 +2,28 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Mis cotizaciones</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
-        /* =========================================================
-           SMARTGLASS — GALERIA DE OBRAS (mis cotizaciones)
-           Todas las tarjetas comparten la misma estructura de filas,
-           asi los textos, el precio y los botones quedan alineados.
-           ========================================================= */
+        /* Galeria de obras: todas las tarjetas comparten la misma estructura
+           de filas, asi los textos, el precio y los botones quedan alineados. */
+        .resumen { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0 0 28px; padding: 0; list-style: none; border: 1px solid var(--border-color); border-radius: var(--r-lg); background: var(--card-bg-soft); box-shadow: var(--glass-edge); }
+        .resumen-item { padding: 18px 22px; }
+        .resumen-item + .resumen-item { border-left: 1px solid var(--border-color); }
+        .resumen-item strong { display: block; font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+        .resumen-item span { color: var(--text-muted); font-size: 0.85rem; }
 
-        body {
-            background:
-                radial-gradient(circle at 8% 0%, var(--color-accent-dim), transparent 30%),
-                radial-gradient(circle at 95% 22%, var(--color-success-dim), transparent 22%),
-                var(--bg-primary);
-        }
-
-        .galeria { max-width: 1320px; margin: 0 auto; padding: 36px clamp(16px, 3vw, 36px) 40px; }
-
-        .galeria-cabecera { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 26px; }
-        .eyebrow {
-            display: inline-flex; align-items: center; gap: 10px; margin-bottom: 10px;
-            color: var(--color-accent-text); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;
-        }
-        .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--color-accent); }
-        .galeria-cabecera h1 { margin: 0; font-size: clamp(2rem, 4.6vw, 3.2rem); line-height: 1.04; letter-spacing: -0.045em; }
-        .galeria-cabecera p { margin: 8px 0 0; color: var(--text-muted); font-size: 1.02rem; }
-
-        .btn-nueva {
-            display: inline-flex; align-items: center; gap: 8px; padding: 14px 24px; border-radius: 14px;
-            background: var(--color-accent-solid); color: #fff; font-weight: 800; text-decoration: none;
-            box-shadow: var(--shadow-glow); transition: transform 0.2s ease, background-color 0.2s ease;
-        }
-        .btn-nueva:hover { background: var(--color-accent-solid-hover); color: #fff; transform: translateY(-2px); }
-        .btn-nueva:focus-visible { outline: 3px solid var(--color-accent-hover); outline-offset: 3px; }
-
-        .aviso { margin-bottom: 22px; padding: 14px 18px; border: 1px solid var(--color-success); border-radius: 14px; background: var(--color-success-dim); color: var(--text-main); font-size: 0.95rem; font-weight: 600; }
-        .aviso-error { border-color: var(--color-error); background: var(--color-error-dim); }
-        .resumen { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 30px; }
-        .resumen-item { padding: 18px 20px; border: 1px solid var(--border-color); border-radius: 16px; background: var(--card-bg); backdrop-filter: blur(12px); }
-        .resumen-item strong { display: block; color: var(--text-main); font-size: 1.9rem; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-        .resumen-item span { color: var(--text-muted); font-size: 0.82rem; font-weight: 700; }
-
-        .obras { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 22px; align-items: stretch; }
+        .obras { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; align-items: stretch; }
 
         /* Tarjeta: imagen | cuerpo (se estira) | acciones */
         .obra-card {
             display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; padding: 0;
-            border: 1px solid var(--border-color); border-radius: 22px; background: var(--card-bg);
-            backdrop-filter: blur(12px); box-shadow: var(--shadow-main);
-            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            border: 1px solid var(--border-color); border-radius: var(--r-xl); background: var(--card-bg);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: var(--shadow-main), var(--glass-edge);
+            transition: transform var(--dur) var(--ease-out), border-color var(--dur) ease, box-shadow var(--dur) ease;
         }
-        .obra-card:hover { transform: translateY(-4px); border-color: var(--border-hover); box-shadow: var(--shadow-hover), var(--shadow-glow); }
+        .obra-card:hover { transform: translateY(-3px); border-color: var(--border-hover); box-shadow: var(--shadow-hover), var(--shadow-glow); }
 
         .obra-vista { position: relative; border: 0; border-radius: 0; border-bottom: 1px solid var(--border-color); }
         .obra-mini { width: 100%; }
@@ -65,48 +31,37 @@
         .obra-vista .chip-nivel { position: absolute; top: 14px; left: 14px; z-index: 2; background: color-mix(in srgb, var(--nivel-dim) 100%, var(--bg-secondary)); }
         .obra-vista .chip-nivel[hidden] { display: none; }
 
-        .obra-cuerpo { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 20px 22px 14px; }
-        .obra-titulo { margin: 0; overflow: hidden; font-size: 1.15rem; line-height: 1.25; letter-spacing: -0.01em; text-overflow: ellipsis; white-space: nowrap; }
-        .obra-ref { color: var(--text-muted); font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+        .obra-cuerpo { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 20px 22px 14px; }
+        .obra-titulo { margin: 0; overflow: hidden; font-size: 1.15rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+        .obra-ref { color: var(--text-subtle); font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
         .obra-medidas { margin: 4px 0 0; overflow: hidden; color: var(--text-muted); font-size: 0.9rem; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
         .obra-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; min-height: 26px; }
-        .obra-espera { color: var(--color-warning); font-size: 0.82rem; font-weight: 700; }
-        .obra-rechazo { color: var(--color-error); font-size: 0.82rem; font-weight: 700; line-height: 1.4; }
-        .obra-eco { color: var(--color-success); font-size: 0.82rem; font-weight: 700; }
-        .obra-precio { margin-top: auto; padding-top: 10px; color: var(--text-main); font-size: 1.55rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
-        .obra-precio small { display: block; margin-bottom: 2px; color: var(--text-muted); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+        .obra-meta span { display: inline-flex; align-items: center; gap: 5px; font-size: 0.82rem; font-weight: 600; line-height: 1.4; }
+        .obra-espera { color: var(--color-warning); }
+        .obra-rechazo { color: var(--color-error); }
+        .obra-eco { color: var(--color-success); }
+        .obra-precio { margin-top: auto; padding-top: 10px; font-family: var(--font-display); font-size: 1.55rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; font-variant-numeric: tabular-nums; }
+        .obra-precio small { display: block; margin-bottom: 2px; color: var(--text-muted); font-family: var(--font-primary); font-size: 0.8rem; font-weight: 500; letter-spacing: 0; }
 
-        .badge-estado { padding: 5px 12px; border-radius: 999px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; }
-        .estado-cotizacion { background: color-mix(in srgb, var(--color-warning-dim) 100%, var(--bg-secondary)); color: var(--color-warning); }
-        .estado-rechazada { background: color-mix(in srgb, var(--color-error-dim) 100%, var(--bg-secondary)); color: var(--color-error); }
-        .estado-aprobado { background: color-mix(in srgb, var(--color-success-dim) 100%, var(--bg-secondary)); color: var(--color-success); }
+        .badge-estado { padding: 5px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; background: color-mix(in srgb, var(--tone-dim) 100%, var(--bg-secondary)); color: var(--tone); }
 
         .obra-acciones { display: flex; gap: 8px; padding: 0 22px 22px; }
         .obra-acciones form { margin: 0; display: contents; }
-        .obra-acciones .btn-mini { flex: 1 1 0; width: auto; }
-        .obra-acciones .btn-borrar { flex: none; width: 44px; }
-        .btn-mini {
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 44px; padding: 0 14px;
-            border: 1px solid var(--border-color); border-radius: 12px; background: transparent; color: var(--text-main);
-            font: inherit; font-size: 0.85rem; font-weight: 700; line-height: 1; text-decoration: none; cursor: pointer;
-            transition: border-color 0.2s ease, background-color 0.2s ease;
-        }
-        .btn-mini:hover { border-color: var(--border-hover); background: var(--color-accent-dim); }
-        .btn-mini:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-        .btn-aprobar { border-color: transparent; background: var(--color-success); color: var(--bg-primary); }
-        .btn-aprobar:hover { background: var(--color-success); filter: brightness(1.1); }
-        .btn-carrito { border-color: transparent; background: var(--color-accent-solid); color: #fff; }
-        .btn-carrito:hover { background: var(--color-accent-solid-hover); }
-        .btn-borrar { padding: 0; border-color: rgba(185, 28, 28, 0.35); color: var(--color-error); font-size: 1rem; }
-        .btn-borrar:hover { background: var(--color-error-dim); border-color: var(--color-error); }
+        .obra-acciones .btn { flex: 1 1 0; }
+        .obra-acciones .btn-borrar { flex: none; }
 
         /* Estado vacio: una invitacion a crear la primera obra */
-        .vacio { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: center; padding: 30px; border: 1px solid var(--border-color); border-radius: 26px; background: var(--card-bg); }
-        .vacio h2 { margin: 0 0 10px; font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.03em; }
-        .vacio p { margin: 0 0 22px; color: var(--text-muted); line-height: 1.6; }
+        .vacio { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: center; padding: clamp(20px, 3vw, 32px); border: 1px solid var(--border-color); border-radius: var(--r-xl); background: var(--card-bg-soft); }
+        .vacio h2 { margin: 0 0 10px; font-size: var(--fs-3xl); }
+        .vacio p { max-width: 46ch; margin: 0 0 22px; color: var(--text-muted); }
 
+        @media (max-width: 860px) {
+            .resumen { grid-template-columns: 1fr 1fr; }
+            .resumen-item:nth-child(3) { border-left: 0; }
+            .resumen-item:nth-child(n+3) { border-top: 1px solid var(--border-color); }
+        }
         @media (max-width: 760px) {
-            .vacio { grid-template-columns: 1fr; padding: 20px; }
+            .vacio { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -114,28 +69,30 @@
 
 <nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
-<main class="galeria" th:with="admin=${puedeAprobar != null ? puedeAprobar : (esAdmin != null ? esAdmin : false)}">
+<main class="container" th:with="admin=${puedeAprobar != null ? puedeAprobar : (esAdmin != null ? esAdmin : false)}">
 
-    <header class="galeria-cabecera">
+    <header class="page-intro">
         <div>
-            <div class="eyebrow">Tu galería</div>
             <h1>Mis cotizaciones</h1>
-            <p>Cada cotización es una obra a medida. Revísalas, apruébalas o crea una nueva.</p>
+            <p class="lead">Cada cotización es una pieza a medida. Revísalas, añade las aprobadas al carrito o diseña una nueva.</p>
         </div>
-        <a th:href="@{/vidrio-personalizado/cotizar}" class="btn-nueva">+ Crear una nueva obra</a>
+        <div class="page-intro-actions">
+            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary"><i class="ph ph-plus" aria-hidden="true"></i> Nueva cotización</a>
+        </div>
     </header>
 
     <!-- Mensaje flash (p. ej. cuando un usuario intenta aprobar sin ser administrador) -->
-    <div th:if="${mensaje}" th:class="'aviso aviso-' + ${tipoMensaje != null ? tipoMensaje : 'success'}" role="status">
+    <div th:if="${mensaje}" class="alert" th:classappend="${tipoMensaje == 'error'} ? 'alert--error' : 'alert--success'" role="status">
+        <i th:class="${tipoMensaje == 'error'} ? 'ph ph-warning-circle' : 'ph ph-check-circle'" aria-hidden="true"></i>
         <span th:text="${mensaje}">Mensaje</span>
     </div>
 
-    <div class="resumen" th:if="${not #lists.isEmpty(cotizaciones)}">
-        <div class="resumen-item"><strong th:text="${totalCots}">0</strong><span>Obras en total</span></div>
-        <div class="resumen-item"><strong th:text="${pendientes}">0</strong><span>Pendientes de aprobar</span></div>
-        <div class="resumen-item"><strong th:text="${aprobadas}">0</strong><span>Aprobadas</span></div>
-        <div class="resumen-item"><strong th:text="${huellaTotal} + ' kg'">0</strong><span>CO₂ estimado</span></div>
-    </div>
+    <ul class="resumen" th:if="${not #lists.isEmpty(cotizaciones)}">
+        <li class="resumen-item"><strong th:text="${totalCots}">0</strong><span>Cotizaciones</span></li>
+        <li class="resumen-item"><strong th:text="${pendientes}">0</strong><span>Pendientes de aprobar</span></li>
+        <li class="resumen-item"><strong th:text="${aprobadas}">0</strong><span>Aprobadas</span></li>
+        <li class="resumen-item"><strong th:text="${huellaTotal} + ' kg'">0</strong><span>CO₂ estimado</span></li>
+    </ul>
 
     <!-- Estado vacio -->
     <section class="vacio" th:if="${#lists.isEmpty(cotizaciones)}">
@@ -145,7 +102,7 @@
                 Diseña una pieza de vidrio a medida y mírala tomar forma mientras eliges:
                 tipo, proporciones, acabados y hasta su huella de carbono.
             </p>
-            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn-nueva">Empezar a diseñar</a>
+            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler" aria-hidden="true"></i> Empezar a diseñar</a>
         </div>
         <div class="sg-stage"><div class="obra-mini" id="demoVacio"></div></div>
     </section>
@@ -172,28 +129,29 @@
                 </p>
 
                 <div class="obra-meta">
-                    <span class="obra-eco" th:if="${cot.usarVidrioReciclado}">♻ Contiene material reciclado</span>
-                    <span class="obra-espera" th:if="${!admin and cot.estado == 'COTIZACION'}">⏳ En espera de aprobación por SmartGlass</span>
-                    <span class="obra-rechazo" th:if="${cot.estado == 'RECHAZADA'}">Tu obra no fue aprobada. Puedes eliminarla o crear una nueva.</span>
+                    <span class="obra-eco" th:if="${cot.usarVidrioReciclado}"><i class="ph ph-recycle" aria-hidden="true"></i> Contiene vidrio reciclado</span>
+                    <span class="obra-espera" th:if="${!admin and cot.estado == 'COTIZACION'}"><i class="ph ph-hourglass-medium" aria-hidden="true"></i> En revisión por SmartGlass</span>
+                    <span class="obra-rechazo" th:if="${cot.estado == 'RECHAZADA'}"><i class="ph ph-x-circle" aria-hidden="true"></i> No fue aprobada. Puedes eliminarla o crear una nueva.</span>
                 </div>
 
                 <div class="obra-precio"><small>Inversión estimada</small><span th:text="${cot.precioEstimadoFormateado}"></span></div>
             </div>
 
             <div class="obra-acciones">
-                <a th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${cot.id})}" class="btn-mini ver">Ver obra</a>
+                <a th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${cot.id})}" class="btn btn-secondary btn-sm">Ver detalle</a>
 
                 <form th:if="${admin and cot.estado == 'COTIZACION'}" th:action="@{/vidrio-personalizado/aprobar/{id}(id=${cot.id})}" method="post">
-                    <button type="submit" class="btn-mini btn-aprobar">✓ Aprobar</button>
+                    <button type="submit" class="btn btn-success btn-sm"><i class="ph ph-check" aria-hidden="true"></i> Aprobar</button>
                 </form>
 
                 <!-- Obra aprobada: su dueño la añade al carrito (nunca una rechazada ni una pendiente) -->
                 <form th:if="${cot.estado == 'APROBADO'}" th:action="@{/vidrio-personalizado/agregar-al-carrito/{id}(id=${cot.id})}" method="post">
-                    <button type="submit" class="btn-mini btn-carrito">🛒 Añadir al carrito</button>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i> Añadir al carrito</button>
                 </form>
 
-                <form th:if="${cot.estado == 'COTIZACION' or cot.estado == 'RECHAZADA'}" th:action="@{/vidrio-personalizado/eliminar/{id}(id=${cot.id})}" method="post" onsubmit="return confirm('¿Eliminar esta cotización?')">
-                    <button type="submit" class="btn-mini btn-borrar" title="Eliminar cotización" aria-label="Eliminar cotización">🗑</button>
+                <form th:if="${cot.estado == 'COTIZACION' or cot.estado == 'RECHAZADA'}" th:action="@{/vidrio-personalizado/eliminar/{id}(id=${cot.id})}" method="post"
+                      data-confirm-title="¿Eliminar esta cotización?" data-confirm="La pieza y su diseño se borrarán de tu galería." data-confirm-ok="Eliminar">
+                    <button type="submit" class="btn btn-danger btn-sm btn-icon btn-borrar" title="Eliminar cotización" aria-label="Eliminar cotización"><i class="ph ph-trash" aria-hidden="true"></i></button>
                 </form>
             </div>
         </article>
@@ -214,7 +172,7 @@
 
         /* Textos en un formato uniforme: nombre legible, referencia corta y medidas sin ceros de mas */
         card.querySelector('[data-titulo]').textContent = SGGlass.nombreTipo(d.tipo);
-        card.querySelector('[data-ref]').textContent = 'Obra personalizada \u00b7 N\u00ba ' + String(d.id || '').slice(-6).toUpperCase();
+        card.querySelector('[data-ref]').textContent = 'Pieza a medida, N\u00ba ' + String(d.id || '').slice(-6).toUpperCase();
         card.querySelector('[data-medidas]').textContent =
             SGGlass.fmtAuto(d.ancho) + ' × ' + SGGlass.fmtAuto(d.alto) + ' cm · ' + SGGlass.fmtAuto(d.espesor) + ' mm · ' + (d.forma || '');
 
@@ -235,6 +193,8 @@
     if (demo) SGGlass.render(demo, { tipo: 'Templado', ancho: 120, alto: 90, espesor: 8, forma: 'Rectangular', reciclado: true, mini: true });
 })();
 </script>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script th:src="@{/js/main.js}"></script>
 </body>

@@ -72,7 +72,7 @@ CONTENEDOR Y TITULO
 .container { max-width: 1200px; margin: 40px auto; padding: 0 24px; }
 .container-narrow { max-width: 1000px; }
 .container-sm { max-width: 500px; }
-.admin-title { font-size: 1.6rem; font-weight: 700; color: var(--text-main); margin: 24px 0 28px; }
+.admin-title { font-size: var(--fs-3xl, 2rem); font-weight: 700; color: var(--text-main); margin: 24px 0 28px; }
 
 /* =========================================================
 TARJETAS KPI (dashboard)
@@ -116,6 +116,7 @@ identicas.
 .stat-box:nth-child(6) { --stat-accent: var(--color-neutral); }
 .stat-box .value {
     display: block;
+    font-family: var(--font-display);
     /* nowrap evita que "$ 2.100.000" se parta en dos lineas; el clamp lo
        reduce un poco en pantallas estrechas en vez de desbordar */
     white-space: nowrap;
@@ -148,10 +149,9 @@ table.table-admin { width: 100%; border-collapse: collapse; font-size: 0.92rem; 
     text-align: left;
     padding: 14px 20px;
     color: var(--text-label);
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.01em;
     border-bottom: 1px solid var(--admin-card-border);
     white-space: nowrap;
 }
@@ -173,15 +173,15 @@ table.table-admin { width: 100%; border-collapse: collapse; font-size: 0.92rem; 
 .estado-form button {
     padding: 8px 16px;
     border-radius: 8px;
-    background: var(--color-accent);
-    color: var(--bg-primary);
+    background: var(--color-accent-solid);
+    color: #fff;
     font-weight: 600;
     font-size: 0.8rem;
     border: none;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
-.estado-form button:hover { background: var(--color-accent-hover); }
+.estado-form button:hover { background: var(--color-accent-solid-hover); }
 
 /* =========================================================
 BADGES (estados de pedido, roles de usuario, estados de
@@ -235,8 +235,8 @@ a.ver:hover { border-color: var(--border-hover); color: var(--color-accent-text)
 
 .btn-crear {
     padding: 12px 28px;
-    background: var(--color-accent);
-    color: var(--bg-primary);
+    background: var(--color-accent-solid);
+    color: #fff;
     border: none;
     border-radius: 10px;
     font-weight: 700;
@@ -244,14 +244,14 @@ a.ver:hover { border-color: var(--border-hover); color: var(--color-accent-text)
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
-.btn-crear:hover { background: var(--color-accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-glow); }
+.btn-crear:hover { background: var(--color-accent-solid-hover); transform: translateY(-1px); box-shadow: var(--shadow-glow); }
 
 .btn-guardar {
     width: 100%;
     margin-top: 16px;
     padding: 12px;
-    background: var(--color-accent);
-    color: var(--bg-primary);
+    background: var(--color-accent-solid);
+    color: #fff;
     border: none;
     border-radius: 10px;
     font-weight: 700;
@@ -259,7 +259,7 @@ a.ver:hover { border-color: var(--border-hover); color: var(--color-accent-text)
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
-.btn-guardar:hover { background: var(--color-accent-hover); transform: translateY(-1px); }
+.btn-guardar:hover { background: var(--color-accent-solid-hover); transform: translateY(-1px); }
 
 /* =========================================================
 ALERTAS (flash)
@@ -268,25 +268,34 @@ que ya la usan sin modificador; los tipos nuevos se activan
 con .flash-error / .flash-info segun tipoMensaje.
 ========================================================= */
 .flash {
-    padding: 12px 18px;
-    border-radius: 10px;
+    --tone: var(--color-success);
+    --tone-dim: var(--color-success-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--r-sm, 8px);
     margin: 20px 0;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     font-weight: 500;
-    background: var(--color-success-dim);
-    border: 1px solid rgba(52, 211, 153, 0.3);
-    color: var(--color-success);
+    background: var(--tone-dim);
+    border: 1px solid color-mix(in srgb, var(--tone) 32%, transparent);
+    border-left-width: 3px;
+    color: var(--text-main);
+    animation: flashEntra 0.35s var(--ease-out, ease) both;
 }
-.flash-error {
-    background: var(--color-error-dim);
-    border-color: rgba(248, 113, 113, 0.3);
-    color: var(--color-error);
+.flash::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tone);
+    box-shadow: 0 0 8px var(--tone);
 }
-.flash-info {
-    background: var(--color-info-dim);
-    border-color: rgba(96, 165, 250, 0.3);
-    color: var(--color-info);
-}
+.flash-error { --tone: var(--color-error); --tone-dim: var(--color-error-dim); }
+.flash-info { --tone: var(--color-info); --tone-dim: var(--color-info-dim); }
+@keyframes flashEntra { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
 /* =========================================================
 TARJETA "crear producto" (productos.html)
@@ -377,8 +386,8 @@ resaltado del item activo.
     padding: .1em .45em;
     margin-left: .4em;
     border-radius: 999px;
-    background: var(--color-accent);
-    color: var(--bg-primary);
+    background: var(--color-accent-solid);
+    color: #fff;
     font-size: .72em;
     font-weight: 700;
     text-align: center;
@@ -453,3 +462,9 @@ PIEZA = huella absoluta, neutra, sin juicio.
 .metrica-proceso { color: var(--nivel, var(--text-main)); font-weight: 800; }
 .metrica-pieza { color: var(--text-muted); font-size: 0.8rem; font-weight: 600; }
 .metrica-valor { font-weight: 700; }
+/* =========================================================
+T3: clases que reemplazan estilos en linea del panel
+========================================================= */
+.admin-subtitle { margin: 0 0 16px; color: var(--text-main); font-size: var(--fs-xl, 1.375rem); }
+.table-admin td.td-vacio { padding: 28px 20px; color: var(--text-muted); text-align: center; }
+.form-row.form-row--1 { grid-template-columns: 1fr; }

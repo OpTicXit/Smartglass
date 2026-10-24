@@ -2,12 +2,9 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Catálogo (Admin)</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
 
     <style>
         /* ---------- Rejilla de productos ---------- */
@@ -27,7 +24,7 @@
             background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
         }
         .prod-media .ph { width: 42px; height: 42px; color: var(--text-muted); opacity: 0.55; }
-        .prod-media .ph-txt { color: var(--text-muted); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; }
+        .prod-media .ph-txt { color: var(--text-muted); font-size: 0.72rem; font-weight: 600; letter-spacing: 0; opacity: 0.7; }
         .prod-media img {
             position: absolute; inset: 0; width: 100%; height: 100%;
             object-fit: cover; transition: transform 0.5s ease;
@@ -36,9 +33,9 @@
         .prod-tipo {
             position: absolute; top: 10px; left: 10px; z-index: 2;
             padding: 4px 11px; border-radius: 999px;
-            background: rgba(7, 11, 25, 0.72); backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: capitalize;
+            background: var(--media-chip); backdrop-filter: blur(8px);
+            border: 1px solid var(--on-media-line);
+            color: var(--on-media); font-size: 0.7rem; font-weight: 700; letter-spacing: 0; text-transform: capitalize;
         }
 
         .prod-body { flex: 1; padding: 16px 18px 6px; }
@@ -46,7 +43,7 @@
             margin: 0 0 6px; font-size: 1rem; line-height: 1.3; color: var(--text-main);
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
-        .prod-code { color: var(--text-label); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; }
+        .prod-code { color: var(--text-label); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; }
         .prod-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 18px 18px; }
         .prod-precio { color: var(--color-accent-text); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
         .prod-foot form { margin: 0; }
@@ -56,9 +53,9 @@
             padding: 0; width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 32px);
             background: var(--bg-secondary); color: var(--text-main);
             border: 1px solid var(--border-color); border-radius: 20px;
-            box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.7); overflow: hidden;
+            box-shadow: var(--shadow-hover); overflow: hidden;
         }
-        dialog.modal::backdrop { background: rgba(3, 6, 16, 0.65); backdrop-filter: blur(4px); }
+        dialog.modal::backdrop { background: var(--backdrop); backdrop-filter: blur(4px); }
         dialog.modal[open] { animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes modalIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: none; } }
 
@@ -77,7 +74,7 @@
         .modal-foot .btn-crear, .modal-foot .btn-volver { cursor: pointer; }
         .modal-foot .btn-crear:disabled { opacity: 0.6; cursor: progress; transform: none; box-shadow: none; }
 
-        .sec-titulo { margin: 4px 0 12px; color: var(--text-label); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+        .sec-titulo { margin: 4px 0 12px; color: var(--text-label); font-size: 0.72rem; font-weight: 700; letter-spacing: 0; }
         .req { color: var(--color-error); }
 
         /* ---------- Subida de foto ---------- */
@@ -168,7 +165,7 @@
                 <strong class="prod-precio" th:text="'$ ' + ${p.precioFormateado}"></strong>
                 <form th:action="@{/admin/productos/{id}/eliminar(id=${p.id})}"
                       method="post"
-                      onsubmit="return confirm('¿Eliminar este producto del catálogo?')">
+                      data-confirm-title="¿Eliminar este producto del catálogo?" data-confirm="Dejará de mostrarse en la tienda. Esta acción no se puede deshacer." data-confirm-ok="Eliminar">
                     <button type="submit" class="btn-eliminar">Eliminar</button>
                 </form>
             </div>
@@ -274,7 +271,7 @@
                 </div>
             </div>
 
-            <div class="form-row" style="grid-template-columns: 1fr;">
+            <div class="form-row form-row--1">
                 <div>
                     <label for="descripcion">Descripción</label>
                     <textarea id="descripcion" name="descripcion" rows="3"></textarea>

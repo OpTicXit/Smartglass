@@ -2,404 +2,309 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Vidrio inteligente y sostenible</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <!-- Cambiamos temporalmente a Phosphor Icons (o usarás FontAwesome) para los iconos finos del mockup -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+    <meta name="description" content="Vidrio a medida para arquitectura e interiores, con precio y huella de carbono calculados al instante.">
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
-        .container { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+        /* Solo lo exclusivo del inicio: hero con paneles de vidrio, franja de
+           beneficios, vitrina de lineas y la muestra del configurador. */
 
-        /* NOTA: el navbar (.navbar/.nav-links/.nav-acciones/.btn-nav-cta)
-           ya NO se redefine aqui -- vive en theme.css porque es un
-           componente global reutilizable en todas las vistas, no algo
-           exclusivo del landing. Aqui solo queda lo que SI es exclusivo
-           de index.html: el hero con los paneles de vidrio, los badges
-           flotantes, la franja de beneficios y la vitrina de categorias. */
+        /* ---------- HERO ---------- */
+        .hero { position: relative; overflow: hidden; padding: clamp(48px, 8vw, 104px) 0 clamp(56px, 8vw, 96px); }
+        .hero::before {
+            content: ""; position: absolute; inset: -20% -10% auto auto; width: 760px; height: 760px; pointer-events: none;
+            background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 20%, transparent) 0%, transparent 62%);
+        }
+        .hero .container { position: relative; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 40px; align-items: center; }
 
-/* =========================================================
-   HERO SECTION Y REFRACCIÓN DE VIDRIO
-========================================================= */
-.hero {
-  position: relative; padding: 100px 0 120px;
-  background: radial-gradient(circle at 65% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
-}
-.hero .container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; }
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: transparent; border: 1px solid var(--border-color);
-  color: var(--text-muted); font-size: 0.7rem; font-weight: 600;
-  letter-spacing: 0.1em; text-transform: uppercase; padding: 6px 14px; border-radius: 30px; margin-bottom: 20px;
-}
-.hero-texto h1 { font-size: 3.5rem; line-height: 1.1; margin: 0 0 20px; font-weight: 700; }
-.hero-texto h1 .acento { color: var(--color-accent-text); }
-.hero-texto p { font-size: 1rem; line-height: 1.6; color: var(--text-muted); max-width: 480px; margin: 0 0 35px; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px; margin-bottom: 22px; padding: 7px 16px;
+            border-radius: 999px; background: var(--card-bg); color: var(--text-muted);
+            font-size: 0.84rem; font-weight: 550;
+        }
+        .hero-badge i { color: var(--color-success); }
+        .hero-texto h1 { margin: 0 0 22px; font-size: var(--fs-4xl); line-height: 0.98; letter-spacing: -0.045em; }
+        .hero-texto h1 span { display: block; color: var(--color-accent-text); }
+        .hero-texto p { max-width: 46ch; margin: 0 0 34px; color: var(--text-muted); font-size: 1.08rem; line-height: 1.65; }
+        .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+        .hero-cta .btn { border-radius: 999px; }
+        .hero-cta .sg-rainbow { --sg-rainbow-radius: 999px; box-shadow: none; }
 
-.hero-cta { display: flex; gap: 15px; }
-.btn-hero-primario {
-  background: var(--color-accent-solid); color: white; padding: 12px 28px;
-  border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.95rem;
-  display: flex; align-items: center; gap: 8px;
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); transition: all 0.3s ease;
-}
-.btn-hero-primario:hover { background: var(--color-accent-solid-hover); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
-.btn-hero-secundario {
-  background: transparent; color: var(--text-main); padding: 12px 28px;
-  border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.95rem;
-  border: 1px solid color-mix(in srgb, var(--text-main) 25%, transparent); display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
-}
-.btn-hero-secundario:hover { background: var(--color-accent-dim); border-color: var(--color-accent); }
+        .hero-datos { display: flex; flex-wrap: wrap; gap: 28px; margin: 44px 0 0; padding: 0; list-style: none; }
+        .hero-datos li { display: grid; gap: 2px; }
+        .hero-datos strong { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; }
+        .hero-datos span { color: var(--text-muted); font-size: 0.84rem; }
 
-/* Paneles de Montaña (Cristal) */
-.hero-visual { position: relative; height: 500px; display: flex; justify-content: center; align-items: center; }
-.panel-vidrio {
-  position: absolute; width: 140px; height: 380px;
-  background-image: url('/img/hero-mountains.jpg'); 
-  background-size: 800px auto; background-repeat: no-repeat;
-  border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 4px;
-  box-shadow: inset 0 0 20px rgba(255,255,255,0.2), 0 25px 40px rgba(0,0,0,0.8), 0 0 40px rgba(59, 130, 246, 0.3);
-  -webkit-box-reflect: below 2px linear-gradient(transparent, transparent 70%, rgba(255,255,255,0.2));
-}
-.panel-vidrio.p1 { transform: perspective(1000px) rotateY(25deg) translateX(-110px) translateY(-20px); background-position: calc(50% + 110px) center; z-index: 1; filter: brightness(0.8) contrast(1.2); }
-.panel-vidrio.p2 { width: 170px; height: 420px; z-index: 2; background-position: center center; border: 2px solid rgba(255, 255, 255, 0.6); box-shadow: 0 0 60px rgba(59, 130, 246, 0.5); }
-.panel-vidrio.p3 { transform: perspective(1000px) rotateY(-25deg) translateX(110px) translateY(10px); background-position: calc(50% - 110px) center; z-index: 1; filter: brightness(0.9) contrast(1.1); }
+        /* Paneles de vidrio: la imagen se "refracta" en tres hojas */
+        .hero-visual { position: relative; height: 520px; display: flex; justify-content: center; align-items: center; perspective: 1200px; }
+        .panel-vidrio {
+            position: absolute; width: 140px; height: 380px; overflow: hidden;
+            background-image: url('/img/hero-mountains.jpg'); background-size: 800px auto; background-repeat: no-repeat;
+            border: 1px solid color-mix(in srgb, var(--on-media) 40%, transparent); border-radius: 4px;
+            box-shadow: inset 0 0 20px color-mix(in srgb, var(--on-media) 20%, transparent), 0 25px 40px var(--glass-shadow), 0 0 40px color-mix(in srgb, var(--color-accent) 30%, transparent);
+            -webkit-box-reflect: below 2px linear-gradient(transparent, transparent 70%, color-mix(in srgb, var(--on-media) 20%, transparent));
+            animation: panelEntra 1.1s var(--ease-out) both, panelFlota 8s ease-in-out 1.2s infinite;
+        }
+        .panel-vidrio.p1 { transform: rotateY(25deg) translateX(-150px) translateY(-20px); background-position: calc(50% + 110px) center; z-index: 1; filter: brightness(0.8) contrast(1.2); animation-delay: 0.15s, 1.35s; }
+        .panel-vidrio.p2 { width: 170px; height: 420px; z-index: 2; background-position: center center; border: 2px solid color-mix(in srgb, var(--on-media) 60%, transparent); box-shadow: 0 0 60px color-mix(in srgb, var(--color-accent) 50%, transparent); }
+        .panel-vidrio.p3 { transform: rotateY(-25deg) translateX(150px) translateY(10px); background-position: calc(50% - 110px) center; z-index: 1; filter: brightness(0.9) contrast(1.1); animation-delay: 0.3s, 1.5s; }
+        .panel-vidrio::after {
+            content: ""; position: absolute; inset: -20% -60%; pointer-events: none;
+            background: linear-gradient(105deg, transparent 40%, color-mix(in srgb, var(--on-media) 45%, transparent) 50%, transparent 60%);
+            translate: -100% 0; animation: destello 1.4s ease-in-out 0.9s both;
+        }
+        @keyframes panelEntra { from { opacity: 0; translate: 0 60px; } to { opacity: 1; translate: 0 0; } }
+        @keyframes panelFlota { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+        @keyframes destello { from { translate: -100% 0; } to { translate: 100% 0; } }
+        :root[data-theme="light"] .panel-vidrio { box-shadow: inset 0 0 20px color-mix(in srgb, var(--on-media) 30%, transparent), 0 25px 40px var(--glass-shadow), 0 0 40px color-mix(in srgb, var(--color-accent) 25%, transparent); }
 
-/* Insignias Flotantes Animadas */
-.hero-flotantes { position: absolute; right: -50px; top: 15%; display: flex; flex-direction: column; gap: 15px; z-index: 3; }
-.badge-flotante { 
-  width: 220px; padding: 12px 16px; display: flex; align-items: center; gap: 15px; 
-  background: var(--card-bg); backdrop-filter: blur(10px);
-  border: 1px solid var(--border-color); border-radius: 12px;
-  cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.badge-flotante:hover {
-  transform: translateX(-12px) scale(1.02);
-  background: var(--bg-secondary);
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: var(--shadow-hover), 0 0 20px rgba(59, 130, 246, 0.25);
-}
-.badge-flotante i { font-size: 1.5rem; color: var(--text-muted); transition: color 0.3s ease, transform 0.4s ease; }
-.badge-flotante:hover i { color: var(--color-accent-text); transform: scale(1.15) rotate(-5deg); }
-.badge-flotante h4 { margin: 0 0 2px; font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
-.badge-flotante p { margin: 0; font-size: 0.7rem; color: var(--text-muted); }
+        /* Fichas flotantes con las tres propiedades del material */
+        .hero-flotantes { position: absolute; right: -36px; top: 58%; display: grid; gap: 12px; z-index: 3; }
+        .badge-flotante {
+            width: 216px; padding: 12px 16px; display: flex; align-items: center; gap: 14px;
+            background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color); border-radius: var(--r-md); box-shadow: var(--shadow-main), var(--glass-edge);
+            animation: fichaEntra 0.8s var(--ease-out) both;
+        }
+        .badge-flotante:nth-child(1) { animation-delay: 0.7s; }
+        .badge-flotante:nth-child(2) { animation-delay: 0.82s; }
+        .badge-flotante:nth-child(3) { animation-delay: 0.94s; }
+        @keyframes fichaEntra { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+        .badge-flotante i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 1.15rem; flex: none; }
+        .badge-flotante h2 { margin: 0; font-family: var(--font-primary); font-size: 0.88rem; font-weight: 650; letter-spacing: 0; }
+        .badge-flotante p { margin: 0; color: var(--text-muted); font-size: 0.76rem; }
 
-/* =========================================================
-   SECCIONES: BENEFICIOS Y VITRINA
-========================================================= */
-.beneficios { padding: 40px 0 80px; }
-.beneficios-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-.info-box { padding: 25px; display: flex; flex-direction: column; gap: 15px; }
-.info-box i { font-size: 1.8rem; color: var(--text-muted); transition: color 0.3s; }
-.info-box:hover i { color: var(--color-accent-text); }
-.info-box h4 { margin: 0; font-size: 0.95rem; }
-.info-box p { margin: 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+        /* ---------- BENEFICIOS: una sola franja, no cuatro tarjetas ---------- */
+        .beneficios-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; padding: 0; list-style: none;
+            border: 1px solid var(--border-color); border-radius: var(--r-lg); background: var(--card-bg-soft);
+            box-shadow: var(--glass-edge);
+        }
+        .beneficios-grid li { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; padding: 24px; }
+        .beneficios-grid li + li { border-left: 1px solid var(--border-color); }
+        .beneficios-grid i { grid-row: span 2; color: var(--color-accent-text); font-size: 1.6rem; line-height: 1.2; }
+        .beneficios-grid h2 { margin: 0; font-family: var(--font-primary); font-size: 0.98rem; font-weight: 650; letter-spacing: 0; }
+        .beneficios-grid p { margin: 0; color: var(--text-muted); font-size: 0.86rem; line-height: 1.5; }
 
-.vitrina { padding: 60px 0 100px; }
-.vitrina-header { text-align: center; margin-bottom: 40px; }
-.vitrina-header span { color: var(--color-accent-text); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-.vitrina-header h2 { font-size: 2rem; margin: 10px 0; }
-.vitrina-header p { color: var(--text-muted); font-size: 0.9rem; max-width: 600px; margin: 0 auto; }
+        /* ---------- VITRINA ---------- */
+        .vitrina { padding: clamp(64px, 9vw, 112px) 0 0; }
+        .vitrina-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 40px; margin-bottom: 28px; }
+        .vitrina-header h2 { margin: 0; max-width: 18ch; font-size: var(--fs-3xl); }
+        .vitrina-header p { max-width: 44ch; margin: 0; color: var(--text-muted); }
 
-.vitrina-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.categoria-card { height: 280px; border-radius: 12px; overflow: hidden; display: block; position: relative; }
-.categoria-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: 0.5s; }
-.categoria-card:hover img { opacity: 1; transform: scale(1.05); }
-.categoria-overlay { 
-  position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; 
-  display: flex; justify-content: space-between; align-items: center;
-  background: linear-gradient(to top, rgba(7,11,25,0.9), transparent);
-}
-.categoria-overlay span { font-weight: 600; font-size: 0.95rem; color: white; }
-.categoria-overlay i { color: white; opacity: 0.5; transition: 0.3s; }
-.categoria-card:hover .categoria-overlay i { opacity: 1; transform: translateX(5px); }
+        .vitrina-grid { display: grid; grid-template-columns: 1.3fr 1fr; grid-template-rows: repeat(2, 250px); gap: 18px; }
+        .categoria-card { position: relative; display: block; overflow: hidden; border-radius: var(--r-lg); border: 1px solid var(--border-color); color: var(--on-media); isolation: isolate; }
+        .categoria-card:first-child { grid-row: span 2; }
+        .categoria-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.82; transition: transform 0.9s var(--ease-out), opacity 0.4s ease; }
+        .categoria-card:hover img { opacity: 1; transform: scale(1.04); }
+        .categoria-overlay {
+            position: absolute; inset: auto 0 0 0; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+            padding: 22px 24px; background: linear-gradient(to top, var(--media-scrim), var(--media-scrim-soft) 65%, transparent);
+        }
+        .categoria-overlay h3 { margin: 0 0 4px; color: var(--on-media); font-size: 1.3rem; }
+        .categoria-overlay p { margin: 0; color: var(--on-media-muted); font-size: 0.88rem; }
+        .categoria-overlay i {
+            display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%;
+            border: 1px solid var(--on-media-line); color: var(--on-media); transition: background-color 0.3s ease, transform 0.3s var(--ease-out);
+        }
+        .categoria-card:hover .categoria-overlay i { background: var(--color-accent-solid); border-color: transparent; transform: translateX(3px); }
+        .categoria-card:focus-visible { outline-offset: 4px; }
 
+        /* ---------- A MEDIDA: muestra del configurador ---------- */
+        .a-medida { padding: clamp(64px, 9vw, 112px) 0 0; }
+        .a-medida-panel {
+            display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(24px, 4vw, 56px); align-items: center;
+            padding: clamp(24px, 4vw, 48px); border: 1px solid var(--border-color); border-radius: var(--r-xl);
+            background: var(--card-bg-soft); box-shadow: var(--glass-edge);
+        }
+        .a-medida h2 { margin: 0 0 14px; font-size: var(--fs-3xl); }
+        .a-medida-texto > p { max-width: 46ch; margin: 0 0 24px; color: var(--text-muted); }
+        .tipos { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; padding: 0; list-style: none; }
+        .tipos button {
+            padding: 8px 14px; border: 1px solid var(--border-color); border-radius: 999px; background: transparent;
+            color: var(--text-muted); font-size: 0.86rem; font-weight: 600; cursor: pointer;
+            transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease, background-color var(--dur-fast) ease;
+        }
+        .tipos button:hover { color: var(--text-main); border-color: var(--border-hover); }
+        .tipos button[aria-pressed="true"] { background: var(--color-accent-dim); border-color: var(--border-hover); color: var(--color-accent-text); }
+        .tipo-frase { min-height: 3.2em; margin: 0 0 26px; color: var(--text-main); font-size: 0.98rem; }
+        .a-medida .sg-stage { aspect-ratio: 440 / 340; }
+        .a-medida .sg-stage > div { width: 100%; }
 
-
-/* =========================================================
-   ANIMACIONES AMBIENTALES (la pagina "respira" aunque nadie la toque)
-   Se usan las propiedades individuales translate/scale para que
-   se combinen con los transform de hover/perspectiva ya existentes.
-========================================================= */
-
-/* Resplandor del hero que respira y se desplaza */
-.hero { overflow: hidden; }
-.hero::before {
-  content: ""; position: absolute; width: 620px; height: 620px; top: 50%; left: 62%;
-  margin: -310px 0 0 -310px; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, transparent 62%);
-  animation: ambDrift 14s ease-in-out infinite alternate;
-}
-.hero .container { position: relative; z-index: 2; }
-@keyframes ambDrift {
-  0%   { translate: -90px -40px; scale: 0.85; opacity: 0.6; }
-  50%  { translate: 40px 50px;  scale: 1.1;  opacity: 1; }
-  100% { translate: 110px -30px; scale: 0.95; opacity: 0.7; }
-}
-
-/* Particulas de luz que suben lentamente (las crea el script de abajo) */
-.amb-particulas { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
-.amb-particula {
-  position: absolute; bottom: -20px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(147, 197, 253, 0.9), rgba(59, 130, 246, 0) 70%);
-  opacity: 0; animation: ambSubir linear infinite;
-}
-@keyframes ambSubir {
-  0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }
-  12%  { opacity: 0.8; }
-  50%  { transform: translate(var(--deriva, 30px), -300px) scale(1); }
-  100% { transform: translate(calc(var(--deriva, 30px) * -1), -640px) scale(0.7); opacity: 0; }
-}
-:root[data-theme="light"] .amb-particula {
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.55), rgba(37, 99, 235, 0) 70%);
-}
-
-/* Paneles de vidrio: flotan y reciben un destello que los recorre */
-.panel-vidrio { animation: ambFlotar 7s ease-in-out infinite; overflow: hidden; }
-.panel-vidrio.p1 { animation-delay: -2s; }
-.panel-vidrio.p3 { animation-delay: -4s; }
-.panel-vidrio.p2 { animation-duration: 8s; }
-@keyframes ambFlotar {
-  0%, 100% { translate: 0 0; }
-  50%      { translate: 0 -14px; }
-}
-.panel-vidrio::after {
-  content: ""; position: absolute; inset: -20% -60%; pointer-events: none;
-  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.45) 50%, transparent 60%);
-  translate: -100% 0; animation: ambDestello 6s ease-in-out infinite;
-}
-.panel-vidrio.p1::after { animation-delay: 0s; }
-.panel-vidrio.p2::after { animation-delay: 0.5s; }
-.panel-vidrio.p3::after { animation-delay: 1s; }
-@keyframes ambDestello {
-  0%, 55% { translate: -100% 0; }
-  100%    { translate: 100% 0; }
-}
-
-/* Titular: el acento tiene un brillo que se desliza */
-.hero-texto h1 .acento {
-  background: linear-gradient(100deg, var(--color-accent-text) 0%, #BFDBFE 40%, var(--color-accent-text) 80%);
-  background-size: 220% auto; -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; animation: ambBrillo 5s linear infinite;
-}
-:root[data-theme="light"] .hero-texto h1 .acento {
-  background-image: linear-gradient(100deg, #1D4ED8 0%, #38BDF8 40%, #1D4ED8 80%);
-}
-@keyframes ambBrillo { to { background-position: -220% center; } }
-
-/* Efecto arcoiris (.sg-rainbow de theme.css) en el CTA principal y la insignia del hero.
-   El radio coincide con el de cada elemento (30px, forma de pastilla). */
-.btn-hero-primario.sg-rainbow, .hero-badge.sg-rainbow { --sg-rainbow-radius: 30px; }
-.hero-badge.sg-rainbow { padding: 7px 16px; border-color: transparent; }
-/* El arcoiris ya aporta el brillo animado: se quita el pulso para no duplicar efectos */
-.btn-hero-primario.sg-rainbow { box-shadow: none; }
-.btn-hero-primario.sg-rainbow:hover { box-shadow: none; }
-
-/* Insignias flotantes: vaiven escalonado */
-.badge-flotante { animation: ambVaiven 5s ease-in-out infinite; }
-.badge-flotante:nth-child(2) { animation-delay: -1.6s; }
-.badge-flotante:nth-child(3) { animation-delay: -3.2s; }
-@keyframes ambVaiven {
-  0%, 100% { translate: 0 0; }
-  50%      { translate: 0 -8px; }
-}
-/* Resalte rotativo (lo activa el script cuando el usuario esta inactivo) */
-.badge-flotante.amb-activa {
-  background: var(--bg-secondary); border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: var(--shadow-hover), 0 0 20px rgba(59, 130, 246, 0.25);
-  transform: translateX(-12px) scale(1.02);
-}
-.badge-flotante.amb-activa i { color: var(--color-accent-text); transform: scale(1.15) rotate(-5deg); }
-
-/* Tarjetas de beneficios: iconos que laten por turnos */
-.info-box i { display: inline-block; animation: ambLatido 4s ease-in-out infinite; transform-origin: left center; }
-.beneficios-grid .info-box:nth-child(2) i { animation-delay: 1s; }
-.beneficios-grid .info-box:nth-child(3) i { animation-delay: 2s; }
-.beneficios-grid .info-box:nth-child(4) i { animation-delay: 3s; }
-@keyframes ambLatido {
-  0%, 70%, 100% { scale: 1; color: var(--text-muted); }
-  80%           { scale: 1.25; color: var(--color-accent-text); }
-}
-
-/* Vitrina: zoom lento tipo "Ken Burns" en las imagenes */
-.categoria-card img { animation: ambKenBurns 14s ease-in-out infinite alternate; }
-.vitrina-grid .categoria-card:nth-child(2) img { animation-delay: -5s; }
-.vitrina-grid .categoria-card:nth-child(3) img { animation-delay: -10s; }
-@keyframes ambKenBurns {
-  from { scale: 1; }
-  to   { scale: 1.08; }
-}
-
-/* Quien prefiera menos movimiento no ve nada de esto */
-@media (prefers-reduced-motion: reduce) {
-  .hero::before, .amb-particula, .panel-vidrio, .panel-vidrio::after,
-  .hero-texto h1 .acento, .badge-flotante,
-  .info-box i, .categoria-card img { animation: none !important; }
-  .amb-particulas { display: none; }
-}
-
-/* Modo claro: paneles de vidrio con sombra azulada en vez de negra */
-:root[data-theme="light"] .panel-vidrio {
-  box-shadow: inset 0 0 20px rgba(255,255,255,0.3), 0 25px 40px rgba(30, 58, 138, 0.25), 0 0 40px rgba(37, 99, 235, 0.25);
-}
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 1100px) { .hero-flotantes { right: 0; } }
+        @media (max-width: 900px) {
+            .hero .container, .a-medida-panel { grid-template-columns: 1fr; }
+            .hero-visual { height: 460px; }
+            .hero-flotantes { display: none; }
+            .beneficios-grid { grid-template-columns: 1fr 1fr; }
+            .beneficios-grid li:nth-child(3) { border-left: 0; }
+            .beneficios-grid li:nth-child(n+3) { border-top: 1px solid var(--border-color); }
+        }
+        @media (max-width: 640px) {
+            .vitrina-grid { grid-template-columns: 1fr; grid-template-rows: repeat(3, 220px); }
+            .categoria-card:first-child { grid-row: auto; }
+            .beneficios-grid { grid-template-columns: 1fr; }
+            .beneficios-grid li + li { border-left: 0; border-top: 1px solid var(--border-color); }
+            .hero-visual { height: 400px; transform: scale(0.85); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .panel-vidrio, .panel-vidrio::after, .badge-flotante { animation: none !important; }
+        }
     </style>
 </head>
 <body>
 
 <nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
-<section class="hero">
-    <div class="container">
-        <div class="hero-texto">
-            <span class="hero-badge sg-rainbow">Vidrio inteligente &bull; Diseño sostenible</span>
-            <h1>Transparencia que<br><span class="acento">transforma espacios</span></h1>
-            <p>En SmartGlass, combinamos tecnología y diseño para ofrecerte soluciones en vidrio de alta calidad, personalizadas y sostenibles. Dale vida a tus proyectos con la claridad del futuro.</p>
-            <div class="hero-cta">
-                <a th:href="@{/catalogo}" class="btn-hero-primario sg-rainbow"><i class="ph ph-shopping-cart"></i> Ver catálogo</a>
-                <a th:href="@{/vidrio-personalizado/cotizar}" class="btn-hero-secundario"><i class="ph ph-pencil-simple"></i> Vidrio personalizado</a>
+<main>
+    <section class="hero">
+        <div class="container">
+            <div class="hero-texto">
+                <span class="hero-badge sg-rainbow"><i class="ph ph-leaf"></i> Vidrio con su huella de carbono a la vista</span>
+                <h1>Transparencia que <span>transforma espacios</span></h1>
+                <p>Vidrio de alta calidad para tus proyectos, a medida o de catálogo. Diseña tu pieza y conoce su precio y su impacto ambiental antes de pedirla.</p>
+                <div class="hero-cta">
+                    <a th:href="@{/catalogo}" class="btn btn-primary btn-lg sg-rainbow"><i class="ph ph-storefront"></i> Ver catálogo</a>
+                    <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-secondary btn-lg"><i class="ph ph-pencil-ruler"></i> Diseñar a medida</a>
+                </div>
+                <ul class="hero-datos">
+                    <li><strong>98,2 %</strong><span>claridad óptica</span></li>
+                    <li><strong>-15 %</strong><span>desperdicio de corte</span></li>
+                    <li><strong>ISO 14001</strong><span>gestión ambiental</span></li>
+                </ul>
+            </div>
+
+            <div class="hero-visual" aria-hidden="true">
+                <div class="panel-vidrio p1"></div>
+                <div class="panel-vidrio p2"></div>
+                <div class="panel-vidrio p3"></div>
+
+                <div class="hero-flotantes">
+                    <div class="badge-flotante">
+                        <i class="ph ph-leaf"></i>
+                        <div><h2>Sostenible</h2><p>Hasta 40 % de vidrio reciclado</p></div>
+                    </div>
+                    <div class="badge-flotante">
+                        <i class="ph ph-shield-check"></i>
+                        <div><h2>Resistente</h2><p>Templado y laminado de seguridad</p></div>
+                    </div>
+                    <div class="badge-flotante">
+                        <i class="ph ph-sun"></i>
+                        <div><h2>Alta claridad</h2><p>Máxima transparencia</p></div>
+                    </div>
+                </div>
             </div>
         </div>
+    </section>
 
-        <div class="hero-visual">
-            <div class="panel-vidrio p1"></div>
-            <div class="panel-vidrio p2"></div>
-            <div class="panel-vidrio p3"></div>
-
-            <div class="hero-flotantes">
-                <div class="badge-flotante">
-                    <i class="ph ph-leaf"></i>
-                    <div><h4>Sostenible</h4><p>Menor impacto ambiental</p></div>
-                </div>
-                <div class="badge-flotante">
-                    <i class="ph ph-shield-check"></i>
-                    <div><h4>Resistente</h4><p>Durabilidad garantizada</p></div>
-                </div>
-                <div class="badge-flotante">
-                    <i class="ph ph-sparkle"></i>
-                    <div><h4>Alta claridad</h4><p>Máxima transparencia</p></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="beneficios">
-    <div class="container">
-        <div class="beneficios-grid">
-            <div class="info-box">
+    <section class="container" aria-label="Por qué SmartGlass">
+        <ul class="beneficios-grid">
+            <li>
                 <i class="ph ph-drop"></i>
-                <h4>Materiales de alta calidad</h4>
+                <h2>Materiales certificados</h2>
                 <p>Vidrio de primera línea con estándares internacionales.</p>
-            </div>
-            <div class="info-box">
-                <i class="ph ph-shield-chevron"></i>
-                <h4>Personalización total</h4>
-                <p>Adaptamos cada pieza a tus necesidades y proyecto.</p>
-            </div>
-            <div class="info-box">
+            </li>
+            <li>
+                <i class="ph ph-ruler"></i>
+                <h2>Corte a tu medida</h2>
+                <p>Cualquier forma, espesor y acabado para tu proyecto.</p>
+            </li>
+            <li>
                 <i class="ph ph-truck"></i>
-                <h4>Envíos seguros</h4>
-                <p>Tu pedido llega en perfectas condiciones.</p>
+                <h2>Envío protegido</h2>
+                <p>Tu pedido llega embalado y en perfectas condiciones.</p>
+            </li>
+            <li>
+                <i class="ph ph-headset"></i>
+                <h2>Asesoría técnica</h2>
+                <p>Te acompañamos desde la cotización hasta la entrega.</p>
+            </li>
+        </ul>
+    </section>
+
+    <section class="vitrina">
+        <div class="container">
+            <div class="vitrina-header">
+                <h2>Soluciones en vidrio para cada proyecto</h2>
+                <p>Productos que combinan estética, desempeño térmico y menor impacto ambiental.</p>
             </div>
-            <div class="info-box">
-                <i class="ph ph-headphones"></i>
-                <h4>Soporte especializado</h4>
-                <p>Te acompañamos en todo el proceso.</p>
+            <div class="vitrina-grid">
+                <a th:href="@{/catalogo}" class="categoria-card">
+                    <img src="/img/vidrio19.jpg" alt="" loading="lazy">
+                    <div class="categoria-overlay">
+                        <div><h3>Vidrio arquitectónico</h3><p>Fachadas, ventanería y control solar</p></div>
+                        <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                    </div>
+                </a>
+                <a th:href="@{/catalogo}" class="categoria-card">
+                    <img src="/img/vidrio8.jpg" alt="" loading="lazy">
+                    <div class="categoria-overlay">
+                        <div><h3>Vidrio interior</h3><p>Divisiones, baños y espejos</p></div>
+                        <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                    </div>
+                </a>
+                <a th:href="@{/catalogo}" class="categoria-card">
+                    <img src="/img/vidrio5.jpg" alt="" loading="lazy">
+                    <div class="categoria-overlay">
+                        <div><h3>Vidrio exterior</h3><p>Barandas, cubiertas y pérgolas</p></div>
+                        <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                    </div>
+                </a>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="vitrina">
-    <div class="container">
-        <div class="vitrina-header">
-            <span>Nuestros productos</span>
-            <h2>Soluciones en vidrio para cada proyecto</h2>
-            <p>Descubre nuestra línea de productos diseñados para combinar estética, funcionalidad y sostenibilidad.</p>
+    <section class="a-medida">
+        <div class="container">
+            <div class="a-medida-panel">
+                <div class="a-medida-texto">
+                    <h2>Diseña tu pieza y mírala tomar forma</h2>
+                    <p>Elige el tipo de vidrio, las medidas, el espesor y el acabado. Ves el precio y la huella de CO₂ mientras decides, y nosotros la fabricamos.</p>
+                    <ul class="tipos" role="group" aria-label="Tipo de vidrio de ejemplo">
+                        <li><button type="button" data-tipo="Templado" aria-pressed="true">Templado</button></li>
+                        <li><button type="button" data-tipo="Laminado" aria-pressed="false">Laminado</button></li>
+                        <li><button type="button" data-tipo="Insulado" aria-pressed="false">Insulado</button></li>
+                        <li><button type="button" data-tipo="Inteligente" aria-pressed="false">Inteligente</button></li>
+                        <li><button type="button" data-tipo="Fotovoltaico" aria-pressed="false">Fotovoltaico</button></li>
+                    </ul>
+                    <p class="tipo-frase" id="tipoFrase" aria-live="polite">Templado: hasta cinco veces más resistente, listo para el uso diario.</p>
+                    <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler"></i> Empezar a diseñar</a>
+                </div>
+                <div class="sg-stage"><div id="muestraVidrio" role="img" aria-label="Vista previa de una pieza de vidrio templado"></div></div>
+            </div>
         </div>
-        <div class="vitrina-grid">
-            <a th:href="@{/catalogo}" class="categoria-card">
-                <img src="/img/vidrio19.jpg" alt="Vidrio arquitectónico">
-                <div class="categoria-overlay"><span>Vidrio arquitectónico</span> <i class="ph ph-arrow-right"></i></div>
-            </a>
-            <a th:href="@{/catalogo}" class="categoria-card">
-                <img src="/img/vidrio8.jpg" alt="Vidrio interior">
-                <div class="categoria-overlay"><span>Vidrio interior</span> <i class="ph ph-arrow-right"></i></div>
-            </a>
-            <a th:href="@{/catalogo}" class="categoria-card">
-                <img src="/img/vidrio5.jpg" alt="Vidrio exterior">
-                <div class="categoria-overlay"><span>Vidrio exterior</span> <i class="ph ph-arrow-right"></i></div>
-            </a>
-        </div>
-    </div>
-</section>
+    </section>
+</main>
 
-<footer class="footer-main">
-    <div class="container">
-        <p>&copy; 2026 SmartGlass — Todos los derechos reservados</p>
-    </div>
-</footer>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script th:src="@{/js/main.js}"></script>
+<script th:src="@{/js/glass-preview.js}"></script>
 <script>
-/* Animaciones ambientales del index: particulas + modo inactivo */
+/* Muestra del configurador: cada boton redibuja la pieza con otro tipo de vidrio */
 (function () {
-  var reducir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reducir) return;
+    var lienzo = document.getElementById('muestraVidrio');
+    if (!lienzo || !window.SGGlass) return;
+    var frase = document.getElementById('tipoFrase');
+    var botones = document.querySelectorAll('.tipos [data-tipo]');
+    var base = { ancho: 120, alto: 160, espesor: 8, forma: 'Rectangular', reciclado: true };
 
-  // 1) Particulas de luz subiendo por el hero
-  var hero = document.querySelector('.hero');
-  if (hero) {
-    var capa = document.createElement('div');
-    capa.className = 'amb-particulas';
-    capa.setAttribute('aria-hidden', 'true');
-    for (var i = 0; i < 22; i++) {
-      var p = document.createElement('span');
-      var tam = 4 + Math.random() * 10;
-      p.className = 'amb-particula';
-      p.style.width = p.style.height = tam + 'px';
-      p.style.left = (Math.random() * 100) + '%';
-      p.style.setProperty('--deriva', (Math.random() * 80 - 40) + 'px');
-      p.style.animationDuration = (9 + Math.random() * 10) + 's';
-      p.style.animationDelay = (-Math.random() * 18) + 's';
-      capa.appendChild(p);
+    function dibujar(tipo) {
+        var op = Object.assign({ tipo: tipo }, base);
+        SGGlass.render(lienzo, op);
+        frase.textContent = SGGlass.describir(op).frase;
+        lienzo.setAttribute('aria-label', 'Vista previa de una pieza de vidrio ' + SGGlass.nombreTipo(tipo).toLowerCase());
+        botones.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-tipo') === tipo)); });
     }
-    hero.insertBefore(capa, hero.firstChild);
-  }
-
-  // 2) Modo inactivo: tras 5 s sin interaccion, las insignias se resaltan por turnos
-  var badges = Array.prototype.slice.call(document.querySelectorAll('.badge-flotante'));
-  if (!badges.length) return;
-  var ESPERA = 5000, PASO = 2200, temporizador = null, ciclo = null, actual = 0;
-
-  function limpiar() { badges.forEach(function (b) { b.classList.remove('amb-activa'); }); }
-  function iniciarCiclo() {
-    if (ciclo) return;
-    var avanzar = function () {
-      limpiar();
-      badges[actual % badges.length].classList.add('amb-activa');
-      actual++;
-    };
-    avanzar();
-    ciclo = setInterval(avanzar, PASO);
-  }
-  function detenerCiclo() {
-    if (ciclo) { clearInterval(ciclo); ciclo = null; }
-    limpiar();
-  }
-  function reiniciar() {
-    detenerCiclo();
-    clearTimeout(temporizador);
-    temporizador = setTimeout(iniciarCiclo, ESPERA);
-  }
-
-  ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(function (ev) {
-    window.addEventListener(ev, reiniciar, { passive: true });
-  });
-  reiniciar();
+    botones.forEach(function (b) {
+        b.addEventListener('click', function () { dibujar(b.getAttribute('data-tipo')); });
+    });
+    dibujar('Templado');
+    SGGlass.tilt(lienzo);
 })();
 </script>
+<script th:src="@{/js/main.js}"></script>
 
 </body>
 </html>

@@ -2,11 +2,8 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <script th:src="@{/js/theme-init.js}"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartGlass - Reseñas (Admin)</title>
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <style>
         .container { max-width: 1200px; }
@@ -87,7 +84,7 @@
         .rv-card h3 { min-height: 2.6em; margin: 0; color: var(--text-main); font-size: 1rem; line-height: 1.3; }
 
         .rv-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--text-muted); font-size: 0.82rem; }
-        .rv-avg { color: var(--color-warning); font-weight: 700; letter-spacing: 0.05em; white-space: nowrap; }
+        .rv-avg { color: var(--color-warning); font-weight: 700; letter-spacing: 0; white-space: nowrap; }
 
         .rv-bar { display: flex; height: 6px; overflow: hidden; border-radius: 99px; background: var(--bg-tertiary); }
         .rv-bar i { display: block; height: 100%; }
@@ -116,7 +113,7 @@
             box-shadow: var(--admin-shadow-card);
         }
 
-        .rv-big { color: var(--text-main); font-size: 2.7rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+        .rv-big { color: var(--text-main); font-size: 2.7rem; font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
         .rv-big-stars { margin-top: 6px; color: var(--color-star); font-size: 1.05rem; letter-spacing: 3px; }
         .rv-big-count { margin-top: 4px; color: var(--text-muted); font-size: 0.82rem; }
 
@@ -162,7 +159,7 @@
         }
 
         .rv-tabla td.comentario { min-width: 240px; max-width: 460px; line-height: 1.55; }
-        .rv-tabla .estrellas { color: var(--color-star); font-weight: 600; letter-spacing: 0.05em; white-space: nowrap; }
+        .rv-tabla .estrellas { color: var(--color-star); font-weight: 600; letter-spacing: 0; white-space: nowrap; }
         .rv-tabla tr.baja td:first-child { box-shadow: inset 3px 0 0 var(--color-error); }
         .rv-tabla td.fecha { color: var(--text-muted); font-size: 0.85rem; white-space: nowrap; }
         .rv-tabla td.accion { text-align: right; width: 1%; white-space: nowrap; }
@@ -482,8 +479,11 @@
                 cuerpo.replaceChildren.apply(cuerpo, pagina.map(function (d) {
                     var f = d.form.cloneNode(true);
                     f.append(h('button', { type: 'submit', class: 'btn-eliminar', text: 'Eliminar' }));
-                    f.addEventListener('submit', function (e) {
-                        if (!confirm('¿Eliminar esta reseña?')) { e.preventDefault(); return; }
+                    // main.js pide la confirmacion (data-confirm) antes de que llegue este submit
+                    f.setAttribute('data-confirm-title', '¿Eliminar esta reseña?');
+                    f.setAttribute('data-confirm', 'El comentario dejará de mostrarse en la ficha del producto.');
+                    f.setAttribute('data-confirm-ok', 'Eliminar');
+                    f.addEventListener('submit', function () {
                         try { sessionStorage.setItem(CLAVE_SEL, JSON.stringify({ p: g.id, pag: sel.pag, filtro: sel.filtro, q: sel.q })); } catch (x) {}
                     });
                     return h('tr', { class: d.n <= 2 ? 'baja' : false },

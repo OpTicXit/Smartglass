@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    Pie de pagina publico. Uso: <footer th:replace="~{fragments/footer :: footer}"></footer>
+    Estilos en theme.css (".site-footer").
+-->
+<footer th:fragment="footer" class="site-footer">
+    <div class="container site-footer-inner">
+        <div>
+            <a th:href="@{/home}" class="footer-brand">
+                <img th:src="@{/img/logo-icono.png}" alt="">
+                SmartGlass
+            </a>
+            <p class="footer-claim">Vidrio a medida para arquitectura e interiores, con la huella de carbono de cada pieza a la vista.</p>
+        </div>
+
+        <nav aria-labelledby="footer-tienda">
+            <h2 id="footer-tienda">Tienda</h2>
+            <ul>
+                <li><a th:href="@{/catalogo}">Catálogo</a></li>
+                <li><a th:href="@{/destacados}">Destacados</a></li>
+                <li><a th:href="@{/carrito}">Carrito</a></li>
+            </ul>
+        </nav>
+
+        <nav aria-labelledby="footer-medida">
+            <h2 id="footer-medida">A medida</h2>
+            <ul>
+                <li><a th:href="@{/vidrio-personalizado/cotizar}">Diseñar una pieza</a></li>
+                <li><a th:href="@{/vidrio-personalizado/mis-cotizaciones}">Mis cotizaciones</a></li>
+                <li><a th:href="@{/checkout/mis-pedidos}">Mis pedidos</a></li>
+            </ul>
+        </nav>
+
+        <nav aria-labelledby="footer-empresa">
+            <h2 id="footer-empresa">SmartGlass</h2>
+            <ul>
+                <li><a th:href="@{/acerca}">Acerca de</a></li>
+                <li><a th:href="@{/usuario}">Mi cuenta</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="container site-footer-bottom">
+        <span>&copy; 2026 SmartGlass S.A.S. Todos los derechos reservados.</span>
+        <span>Cartagena, Colombia</span>
+    </div>
+</footer>
+
+</body>
+</html>

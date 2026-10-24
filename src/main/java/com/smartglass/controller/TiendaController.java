@@ -43,9 +43,16 @@ public class TiendaController {
     }
 
     @GetMapping("/catalogo")
-    public String verCatalogo(@RequestParam(required = false) String q, Model model) {
-        model.addAttribute("productos", productoService.buscarPorNombre(q));
+    public String verCatalogo(@RequestParam(required = false) String q,
+                              @RequestParam(required = false) String categoria,
+                              @RequestParam(required = false) String tamano,
+                              Model model) {
+        // T2: filtros por categoria (vidrio-plano | escultura) y tamano (grande | mediana | pequena)
+        model.addAttribute("productos", productoService.buscar(q, categoria, tamano));
         model.addAttribute("query", q);
+        model.addAttribute("categoria", categoria == null ? "" : categoria);
+        model.addAttribute("tamano", tamano == null ? "" : tamano);
+        model.addAttribute("conteoCategorias", productoService.contarPorCategoria());
         return "catalogo";
     }
 

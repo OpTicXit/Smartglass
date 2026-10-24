@@ -49,6 +49,11 @@ public class Usuario implements Serializable {
     @Column(name = "provider_id", length = 60)
     private String providerId;            // "sub" de Google
 
+    // T1 accesibilidad: null = normal; "daltotonico", "fotosensible" o ambos
+    // separados por coma. Nullable: ddl-auto=update agrega la columna sin migracion.
+    @Column(name = "preferencia_accesibilidad", length = 30)
+    private String preferenciaAccesibilidad;
+
     public Usuario() {
     }
 
@@ -90,4 +95,7 @@ public class Usuario implements Serializable {
 
     public String getProviderId() { return providerId; }
     public void setProviderId(String providerId) { this.providerId = providerId; }
+
+    public String getPreferenciaAccesibilidad() { return preferenciaAccesibilidad; }
+    public void setPreferenciaAccesibilidad(String preferenciaAccesibilidad) { this.preferenciaAccesibilidad = preferenciaAccesibilidad; }
 }

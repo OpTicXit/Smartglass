@@ -2,334 +2,75 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <script th:src="@{/js/theme-init.js}"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartGlass - Iniciar Sesión</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
-
-    <style>
-        .login-page {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: calc(100vh - 64px);
-            padding: 20px;
-            background: radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 65%);
-        }
-
-        .card-panel-login {
-            padding: 40px 32px;
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-        }
-
-        /* Header de la tarjeta e integración del Logo */
-        .login-brand {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 28px;
-        }
-
-        .brand-logo-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            margin-bottom: 8px;
-            transition: transform 0.3s ease;
-        }
-        .brand-logo-link:hover {
-            transform: translateY(-2px);
-        }
-
-        .login-logo {
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-            filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.4));
-        }
-
-        .brand-title {
-            font-size: 1.65rem;
-            font-weight: 800;
-            color: var(--text-main);
-            letter-spacing: -0.02em;
-        }
-
-        .login-subtitle {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin: 0;
-        }
-
-        /* Formulario e Inputs estilizados con Íconos */
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .input-group {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-group i {
-            position: absolute;
-            left: 14px;
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            pointer-events: none;
-            transition: color 0.3s ease;
-        }
-
-        .input-group input {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 12px 14px 12px 44px;
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: var(--text-main);
-            font-size: 0.95rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--color-accent);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-        }
-
-        .input-group input:focus ~ i,
-        .input-group input:focus + i {
-            color: var(--color-accent-text);
-        }
-
-        .btn-submit {
-            background: var(--color-accent-solid);
-            color: var(--text-on-accent);
-            padding: 12px;
-            font-size: 1rem;
-            font-weight: 700;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 4px;
-        }
-
-        .btn-submit:hover {
-            background: var(--color-accent-solid-hover);
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
-        }
-
-        /* Separador visual */
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            color: var(--text-muted);
-            margin: 6px 0;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .divider:not(:empty)::before { margin-right: .8em; }
-        .divider:not(:empty)::after { margin-left: .8em; }
-
-        /* Botón de Google manteniendo guías oficiales de la marca */
-        .btn-google {
-            background: #ffffff;
-            color: #3c4043;
-            padding: 11px 16px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            border-radius: 10px;
-            transition: background 0.2s ease, box-shadow 0.2s ease;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            border: 1px solid #dadce0;
-        }
-
-        .btn-google:hover {
-            background: #f8f9fa;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-            color: #202124;
-            text-decoration: none;
-        }
-
-        .btn-google img {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* Mensajes de Alerta */
-        .alert-banner {
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-top: 12px;
-            font-size: 0.88rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .alert-error {
-            background: rgba(239, 68, 68, 0.12);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: var(--color-error);
-        }
-
-        .alert-info {
-            background: rgba(59, 130, 246, 0.12);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            color: var(--color-info);
-        }
-
-        .alert-success {
-            background: rgba(16, 185, 129, 0.12);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--color-success);
-        }
-
-        /* Enlaces de navegación inferior */
-        .links-container {
-            margin-top: 24px;
-            padding-top: 18px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .links-container a {
-            color: var(--color-accent-text);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: color 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .links-container a.back-link {
-            color: var(--text-muted);
-        }
-
-        .links-container a:hover {
-            color: var(--color-accent-hover);
-            text-decoration: underline;
-        }
-
-        .links-container a.back-link:hover {
-            color: var(--text-main);
-        }
-
-        /* El logo completo trae fondo oscuro incluido: en modo claro se
-           reemplaza por icono + nombre. */
-        .logo-wordmark {
-            display: none;
-            align-items: center;
-            gap: 12px;
-            color: var(--text-main);
-            font-size: 1.7rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-        }
-        .logo-wordmark img { width: 46px; height: auto; }
-        :root[data-theme="light"] .login-logo-full { display: none; }
-        :root[data-theme="light"] .logo-wordmark { display: inline-flex; }
-    </style>
+    <title>SmartGlass - Iniciar sesión</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 </head>
 <body>
 
-<div class="login-page">
-    <div class="login-container card-panel card-panel-login">
-        
-        <!-- Header con el logo oficial SmartGlass -->
-<div class="login-brand">
-    <a th:href="@{/home}" class="brand-logo-link" title="Volver al inicio">
-        <img th:src="@{/img/logo-full.png}" src="/img/logo-full.png" alt="SmartGlass" class="login-logo-full">
-        <span class="logo-wordmark"><img th:src="@{/img/logo-icono.png}" src="/img/logo-icono.png" alt="">SmartGlass</span>
-    </a>
-    <p class="login-subtitle">Ingresa a tu cuenta para continuar</p>
-</div>
-
-        <form class="login-form" th:action="@{/login}" method="POST">
-            <div class="input-group">
-                <i class="ph ph-user"></i>
-                <input type="text" name="username" placeholder="Usuario o Correo" required autocomplete="username">
-            </div>
-
-            <div class="input-group">
-                <i class="ph ph-lock-key"></i>
-                <input type="password" name="password" placeholder="Contraseña" required autocomplete="current-password">
-            </div>
-
-            <button type="submit" class="btn-submit sg-magnetico">
-                <i class="ph ph-sign-in" style="font-size: 1.15rem;"></i> Ingresar
-            </button>
-
-            <div class="divider">O</div>
-
-            <a th:href="@{/oauth2/authorization/google}" class="btn-google sg-magnetico">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
-                Continuar con Google
+<div class="auth">
+    <main class="auth-panel">
+        <div class="auth-fragmentos" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="auth-card">
+            <a th:href="@{/home}" class="auth-marca">
+                <img th:src="@{/img/logo-icono.png}" alt="">
+                SmartGlass
             </a>
 
-            <!-- Alertas dinámicas -->
-            <div th:if="${param.error}" class="alert-banner alert-error">
-                <i class="ph ph-warning-circle"></i>
-                <span>Usuario o contraseña incorrectos</span>
-            </div>
-            
-            <div th:if="${param.bloqueado}" class="alert-banner alert-error">
-                <i class="ph ph-warning-circle"></i>
-                <span>Demasiados intentos seguidos. Espera un minuto y vuelve a intentar.</span>
-            </div>
+            <h1>Te damos la bienvenida</h1>
+            <p class="lead">Ingresa a tu cuenta para continuar.</p>
 
-            <div th:if="${param.logout}" class="alert-banner alert-info">
-                <i class="ph ph-info"></i>
-                <span>Has cerrado sesión exitosamente</span>
+            <div th:if="${param.error}" class="alert alert--error" role="alert" data-persistente>
+                <i class="ph ph-warning-circle" aria-hidden="true"></i>
+                <span>Usuario o contraseña incorrectos. Revisa los datos e inténtalo de nuevo.</span>
             </div>
-
-            <div th:if="${mensaje}" class="alert-banner alert-success">
-                <i class="ph ph-check-circle"></i>
+            <div th:if="${param.bloqueado}" class="alert alert--error" role="alert" data-persistente>
+                <i class="ph ph-clock-countdown" aria-hidden="true"></i>
+                <span>Demasiados intentos seguidos. Espera un minuto y vuelve a intentarlo.</span>
+            </div>
+            <div th:if="${param.logout}" class="alert alert--info" role="status">
+                <i class="ph ph-sign-out" aria-hidden="true"></i>
+                <span>Cerraste sesión correctamente.</span>
+            </div>
+            <div th:if="${mensaje}" class="alert alert--success" role="status">
+                <i class="ph ph-check-circle" aria-hidden="true"></i>
                 <span th:text="${mensaje}">Operación realizada</span>
             </div>
 
-            <div class="links-container">
-                <a th:href="@{/registro}">
-                    <i class="ph ph-user-plus"></i> ¿No tienes cuenta? Regístrate aquí
-                </a>
-                <a th:href="@{/home}" class="back-link">
-                    <i class="ph ph-arrow-left"></i> Volver a la página principal
-                </a>
-            </div>
-        </form>
-    </div>
+            <form class="auth-form" th:action="@{/login}" method="POST">
+                <div class="form-group">
+                    <label for="username">Usuario o correo</label>
+                    <div class="input-icono">
+                        <i class="ph ph-user" aria-hidden="true"></i>
+                        <input type="text" id="username" name="username" required autocomplete="username" autocapitalize="none" spellcheck="false" autofocus>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <div class="input-password">
+                        <input type="password" id="password" name="password" required autocomplete="current-password">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    <i class="ph ph-sign-in" aria-hidden="true"></i> Ingresar
+                </button>
+            </form>
+
+            <div class="auth-sep">o</div>
+
+            <a th:href="@{/oauth2/authorization/google}" class="btn btn-google btn-lg btn-block">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="" data-sin-respaldo>
+                Continuar con Google
+            </a>
+
+            <p class="auth-pie">¿No tienes cuenta? <a th:href="@{/registro}">Crea una</a></p>
+            <p class="auth-pie mt-1"><a th:href="@{/home}" class="text-muted"><i class="ph ph-arrow-left" aria-hidden="true"></i> Volver al inicio</a></p>
+        </div>
+    </main>
+
+    <!-- Panel izquierdo: como se hace el vidrio (va despues del formulario en el orden de tabulacion) -->
+    <aside th:replace="~{fragments/auth-visual :: panel}"></aside>
 </div>
 
 <script th:src="@{/js/main.js}"></script>

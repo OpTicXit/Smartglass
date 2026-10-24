@@ -2,133 +2,90 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <script th:src="@{/js/theme-init.js}"></script>
-    <title th:text="'SmartGlass - ' + ${producto.nombre}">SmartGlass - Detalle del Producto</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
-    
+    <title th:text="'SmartGlass - ' + ${producto.nombre}">SmartGlass - Detalle del producto</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+
     <style>
-        /* Personalidad propia de la vista de detalle: layout de alta
-           presencia para la ficha del producto + seccion social de reseñas. */
+        /* ---------- Ficha ---------- */
+        .detalle-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(24px, 4vw, 56px); align-items: start; margin: 8px 0 72px; }
 
-        .nav-back {
-            display: inline-flex; align-items: center; gap: 8px;
-            color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
-            margin: 28px 0 16px; transition: color 0.3s ease, transform 0.2s ease;
-        }
-        .nav-back:hover { color: var(--color-accent-text); transform: translateX(-3px); }
-
-        /* Contenedor principal de producto (Layout Grid de 3 columnas) */
-        .detalle-grid {
-            display: grid;
-            grid-template-columns: 80px 1fr 1.1fr;
-            gap: 32px;
-            margin-bottom: 60px;
-            padding: 32px;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-main);
-        }
-
-        /* Columna 1: Miniaturas */
-        .miniaturas { display: flex; flex-direction: column; gap: 12px; }
-        .miniaturas img {
-            width: 80px; height: 80px; object-fit: cover;
-            border-radius: 8px; border: 2px solid transparent;
-            cursor: pointer; transition: border-color 0.3s ease, transform 0.2s ease;
-        }
-        .miniaturas img:hover, .miniaturas img.active {
-            border-color: var(--color-accent); transform: scale(1.03);
-        }
-
-        /* Columna 2: Imagen Principal */
         .imagen-principal {
-            width: 100%; height: 480px; overflow: hidden;
-            border-radius: 12px; border: 1px solid var(--border-color);
-            background: var(--bg-tertiary);
+            position: sticky; top: calc(var(--nav-h, 68px) + 20px);
+            aspect-ratio: 1 / 1; overflow: hidden; border-radius: var(--r-xl);
+            border: 1px solid var(--border-color); background: var(--bg-tertiary); box-shadow: var(--shadow-main);
         }
-        .imagen-principal img {
-            width: 100%; height: 100%; object-fit: cover;
-            transition: transform 0.5s ease;
+        .imagen-principal img { width: 100%; height: 100%; object-fit: cover; }
+        /* T2: galeria y foto pendiente (F18: isotipo sobre escenario, nunca hueco roto) */
+        .galeria-producto { position: sticky; top: calc(var(--nav-h, 68px) + 20px); display: grid; gap: 12px; }
+        .galeria-producto .imagen-principal { position: relative; top: auto; }
+        .imagen-principal.img-pendiente {
+            display: grid; place-items: center;
+            background: radial-gradient(120% 80% at 50% 0%, var(--stage-spot), transparent 62%), linear-gradient(180deg, var(--stage-top), var(--stage-bottom));
         }
-        .imagen-principal:hover img { transform: scale(1.03); }
+        .imagen-principal.img-pendiente img { width: 30%; height: auto; object-fit: contain; opacity: 0.85; filter: drop-shadow(0 10px 22px var(--glass-shadow)); }
+        .foto-pendiente { position: absolute; left: 16px; bottom: 16px; color: var(--text-subtle); font-size: 0.82rem; font-weight: 600; }
+        .miniaturas { display: flex; gap: 10px; margin: 0; padding: 0; list-style: none; }
+        .miniaturas button {
+            display: block; width: 76px; height: 76px; padding: 0; overflow: hidden; cursor: pointer;
+            border: 2px solid var(--border-color); border-radius: var(--r-md); background: var(--bg-tertiary);
+            transition: border-color var(--dur-fast) ease;
+        }
+        .miniaturas button:hover { border-color: var(--border-hover); }
+        .miniaturas button[aria-pressed="true"] { border-color: var(--color-accent); }
+        .miniaturas img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Columna 3: Información e Interacción */
-        .info-producto { display: flex; flex-direction: column; }
-        .info-producto h1 { font-size: 2.2rem; color: var(--text-main); margin-bottom: 8px; }
-        .info-producto .codigo-badge {
-            display: inline-block; color: var(--text-muted); font-size: 0.85rem; font-family: monospace;
-            background: var(--surface-hover); padding: 4px 10px; border-radius: 6px;
-            border: 1px solid var(--border-color); margin-bottom: 20px; width: fit-content;
-        }
-        .info-producto .precio { font-size: 2.2rem; color: var(--color-accent-text); font-weight: 700; margin-bottom: 24px; }
+        .info-producto h1 { margin: 0 0 12px; font-size: var(--fs-3xl); }
+        .info-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-bottom: 24px; color: var(--text-muted); font-size: 0.88rem; }
+        .info-meta a { color: var(--text-muted); }
+        .info-meta a:hover { color: var(--text-main); }
+        .codigo-badge { padding: 3px 9px; border-radius: var(--r-xs); background: var(--surface-hover); border: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 0.8rem; }
+        .estrellas { color: var(--color-star); letter-spacing: 2px; }
 
-        /* Controles de Compra */
-        .selector-cantidad { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-        .btn-qty {
-            width: 42px; height: 42px; border-radius: 8px;
-            background: var(--bg-tertiary); color: var(--text-main);
-            font-size: 1.2rem; border: 1px solid var(--border-color); cursor: pointer;
-            transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;
-        }
-        .btn-qty:hover {
-            background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-accent-text);
-        }
-        .input-qty {
-            width: 64px; text-align: center; font-size: 1.1rem; font-weight: 600;
-            padding: 8px 0; background: var(--input-bg); border: 1px solid var(--border-color);
-            border-radius: 8px; color: var(--text-main);
-        }
+        .info-producto .precio { margin: 0 0 6px; font-family: var(--font-display); font-size: clamp(2rem, 3vw, 2.6rem); font-weight: 700; letter-spacing: -0.03em; }
+        .precio-nota { margin: 0 0 26px; color: var(--text-subtle); font-size: 0.84rem; }
 
-        .btn-agregar-main { width: 100%; padding: 14px; font-size: 1.05rem; }
+        .compra { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+        .compra .btn { flex: 1 1 220px; }
+        .compra-login { border-style: dashed; }
 
-        /* Ficha Técnica */
-        .especificaciones { margin-top: 28px; }
-        .especificaciones h3 {
-            font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.08em;
-            color: var(--text-main); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-        }
-        .especificaciones h3 i { color: var(--color-accent-text); }
-        .especificaciones ul { list-style: none; padding: 0; margin: 0; }
-        .especificaciones li {
-            padding: 10px 0; border-bottom: 1px solid var(--border-color);
-            color: var(--text-muted); font-size: 0.9rem; display: flex; justify-content: space-between;
-        }
-        .especificaciones li:last-child { border-bottom: none; }
-        .especificaciones li span.valor { color: var(--text-main); font-weight: 500; }
+        .especificaciones { margin-top: 32px; }
+        .especificaciones h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: var(--fs-lg); }
+        .especificaciones h2 i { color: var(--color-accent-text); }
 
-        /* Seccion de Reseñas */
-        .resenas-section { margin-bottom: 80px; }
-        .resenas-header {
-            display: flex; align-items: center; gap: 24px;
-            margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border-color);
-        }
-        .promedio-box {
-            text-align: center; padding: 16px 24px;
-            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px;
-        }
-        .promedio-valor { font-size: 2.5rem; font-weight: 700; color: var(--color-accent-text); line-height: 1; margin-bottom: 4px; }
-        .estrellas { color: var(--color-star); font-size: 1.1rem; letter-spacing: 2px; }
+        /* ---------- Reseñas ---------- */
+        .resenas-section { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: clamp(24px, 4vw, 48px); align-items: start; padding-top: 48px; border-top: 1px solid var(--border-color); }
+        .resenas-resumen { position: sticky; top: calc(var(--nav-h, 68px) + 20px); }
+        .resenas-resumen h2 { margin: 0 0 18px; font-size: var(--fs-xl); }
+        .promedio-box { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .promedio-valor { font-family: var(--font-display); font-size: 3.2rem; font-weight: 700; line-height: 1; letter-spacing: -0.04em; }
+        .promedio-box .estrellas { display: block; font-size: 1.15rem; }
+        .promedio-box small { color: var(--text-muted); font-size: 0.85rem; }
 
-        .resena-card { margin-bottom: 16px; }
-        .resena-card .resena-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .resena-card .resena-autor { color: var(--text-main); font-weight: 600; font-size: 0.95rem; }
-        .resena-card .resena-fecha { color: var(--text-muted); font-size: 0.8rem; }
-        .resena-card p { margin: 0; color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; }
+        .resenas-lista { display: grid; gap: 14px; }
+        .resena-card { padding: 20px 22px; }
+        .resena-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+        .resena-autor { display: flex; align-items: center; gap: 10px; color: var(--text-main); font-weight: 600; }
+        .resena-avatar { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
+        .resena-card p { position: relative; z-index: 2; margin: 0; color: var(--text-muted); font-size: 0.93rem; }
+        .resena-fecha { display: block; margin-top: 10px; color: var(--text-subtle); font-size: 0.8rem; }
 
-        .form-resena {
-            border: 1px dashed var(--color-accent) !important;
-            background: rgba(59, 130, 246, 0.03); margin-top: 28px;
-        }
+        .form-resena h3 { margin: 0 0 16px; font-size: var(--fs-lg); }
+        .form-resena legend { margin-bottom: 8px; padding: 0; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
+        .form-resena fieldset { margin: 0 0 18px; padding: 0; border: 0; }
 
-        @media (max-width: 850px) {
-            .detalle-grid { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
-            .miniaturas { flex-direction: row; order: 2; }
-            .imagen-principal { height: 350px; }
-            .resenas-header { flex-direction: column; align-items: flex-start; }
+        /* Calificacion con estrellas: radios en orden inverso para poder iluminar "hasta aqui" */
+        .rating { display: inline-flex; flex-direction: row-reverse; gap: 4px; }
+        .rating input { position: absolute; opacity: 0; pointer-events: none; }
+        .rating label { margin: 0; cursor: pointer; color: var(--border-strong); font-size: 1.7rem; line-height: 1; transition: color var(--dur-fast) ease, transform var(--dur-fast) ease; }
+        .rating label:hover, .rating label:hover ~ label, .rating input:checked ~ label { color: var(--color-star); }
+        .rating label:hover { transform: scale(1.12); }
+        .rating input:focus-visible + label { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 4px; }
+        .rating-texto { margin-left: 10px; color: var(--text-muted); font-size: 0.86rem; }
+
+        @media (max-width: 900px) {
+            .detalle-grid, .resenas-section { grid-template-columns: 1fr; }
+            .imagen-principal, .resenas-resumen, .galeria-producto { position: static; }
+            .imagen-principal { aspect-ratio: 4 / 3; }
         }
     </style>
 </head>
@@ -137,144 +94,179 @@
 <nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
 <main class="container">
-    <a th:href="@{/catalogo}" class="nav-back">
-        <i class="ph ph-arrow-left"></i> Volver al catálogo
-    </a>
+    <a th:href="@{/catalogo}" class="back-link"><i class="ph ph-arrow-left" aria-hidden="true"></i> Volver al catálogo</a>
 
     <section class="detalle-grid">
-        <!-- Miniaturas de producto -->
-        <div class="miniaturas">
-            <img th:src="@{/img/{img}(img=${producto.imagen})}" class="active" th:alt="${producto.nombre}" />
-        </div>
-
-        <!-- Imagen principal -->
-        <div class="imagen-principal">
-            <img th:src="@{/img/{img}(img=${producto.imagen})}" th:alt="${producto.nombre}" />
-        </div>
-
-        <!-- Información e interacción del producto -->
-        <div class="info-producto">
-            <h1 th:text="${producto.nombre}">Nombre del Producto</h1>
-            <span class="codigo-badge" th:text="'Código: ' + ${producto.codigo}">SKU-000</span>
-            <div class="precio" th:text="'$' + ${producto.precioFormateado}">$0.00</div>
-
-            <div th:if="${usuarioLogueado}">
-                <form th:action="@{/carrito/agregar}" method="post">
-                    <input type="hidden" name="productoId" th:value="${producto.id}">
-                    <div class="selector-cantidad">
-                        <button type="button" class="btn-qty" onclick="cambiarCantidad(-1)"><i class="ph ph-minus"></i></button>
-                        <input type="number" id="cantidad" name="cantidad" value="1" min="1" readonly class="input-qty">
-                        <button type="button" class="btn-qty" onclick="cambiarCantidad(1)"><i class="ph ph-plus"></i></button>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-agregar-main">
-                        <i class="ph ph-shopping-cart-simple"></i> Añadir al Carrito
-                    </button>
-                </form>
+        <div class="galeria-producto" data-galeria>
+            <div class="imagen-principal" th:classappend="${producto.imagenPendiente} ? 'img-pendiente'">
+                <img th:src="@{${producto.imagenUrl}}" th:alt="${producto.nombre}" alt="" data-galeria-principal>
+                <span class="foto-pendiente" th:if="${producto.imagenPendiente}">Foto en preparación</span>
             </div>
+            <!-- T2: miniaturas solo si hay galeria real (archivos que existen) -->
+            <ul class="miniaturas" th:if="${#lists.size(producto.imagenesUrl) > 1}" aria-label="Otras vistas">
+                <li th:each="url, it : ${producto.imagenesUrl}">
+                    <button type="button" data-galeria-miniatura th:attr="data-src=@{${url}},aria-label=${'Vista ' + it.count + ' de ' + it.size},aria-pressed=${it.first}">
+                        <img th:src="@{${url}}" alt="" loading="lazy">
+                    </button>
+                </li>
+            </ul>
+        </div>
 
-            <div th:unless="${usuarioLogueado}" style="margin-bottom: 24px;">
-                <a th:href="@{/login}" class="btn btn-secondary" style="width: 100%; justify-content: center; border-style: dashed;">
-                    <i class="ph ph-lock-key"></i> Inicia sesión para comprar
+        <div class="info-producto">
+            <h1 th:text="${producto.nombre}">Nombre del producto</h1>
+
+            <div class="info-meta">
+                <span class="codigo-badge" th:text="${producto.codigo}">SKU-000</span>
+                <a href="#resenas">
+                    <span class="estrellas" th:text="${estrellasPromedio}" aria-hidden="true">☆☆☆☆☆</span>
+                    <span th:text="${promedioCalificacion} + ' · ' + ${#lists.size(resenas)} + ' reseña(s)'">0.0 · 0 reseñas</span>
                 </a>
             </div>
 
-            <!-- Ficha Técnica integrada en la columna de info -->
-            <div class="especificaciones info-box">
-                <h3><i class="ph ph-sliders-horizontal"></i> Ficha Técnica</h3>
-                <ul>
-                    <li>
-                        <span>Tipo de vidrio</span>
-                        <span class="valor" th:text="${producto.tipo}">Templado</span>
-                    </li>
-                    <li>
-                        <span>Dimensiones</span>
-                        <span class="valor" th:text="${producto.ancho} + ' x ' + ${producto.alto} + ' cm'">0x0 cm</span>
-                    </li>
-                    <li>
-                        <span>Espesor</span>
-                        <span class="valor" th:text="${producto.espesor} + ' mm'">0 mm</span>
-                    </li>
+            <p class="precio" th:text="'$' + ${producto.precioFormateado}">$0</p>
+            <p class="precio-nota">Impuestos incluidos. Envío calculado al finalizar la compra.</p>
+
+            <form th:if="${usuarioLogueado}" th:action="@{/carrito/agregar}" method="post" class="compra">
+                <input type="hidden" name="productoId" th:value="${producto.id}">
+                <div class="stepper" data-stepper>
+                    <button type="button" data-step="-1" aria-label="Quitar una unidad"><i class="ph ph-minus" aria-hidden="true"></i></button>
+                    <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="99" aria-label="Cantidad" inputmode="numeric">
+                    <button type="button" data-step="1" aria-label="Agregar una unidad"><i class="ph ph-plus" aria-hidden="true"></i></button>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="ph ph-shopping-cart-simple" aria-hidden="true"></i> Añadir al carrito
+                </button>
+            </form>
+
+            <div th:unless="${usuarioLogueado}" class="compra">
+                <a th:href="@{/login}" class="btn btn-secondary btn-lg compra-login">
+                    <i class="ph ph-lock-key" aria-hidden="true"></i> Inicia sesión para comprar
+                </a>
+            </div>
+
+            <div class="especificaciones">
+                <h2><i class="ph ph-sliders-horizontal" aria-hidden="true"></i> Ficha técnica</h2>
+                <ul class="kv" th:unless="${producto.escultura}">
+                    <li><span>Tipo de vidrio</span><span th:text="${producto.tipo}">Templado</span></li>
+                    <li><span>Dimensiones</span><span th:text="${producto.ancho} + ' × ' + ${producto.alto} + ' cm'">0 × 0 cm</span></li>
+                    <li><span>Espesor</span><span th:text="${producto.espesor} + ' mm'">0 mm</span></li>
+                    <li><span>Código</span><span th:text="${producto.codigo}">SKU-000</span></li>
+                </ul>
+                <!-- T2: esculturas -->
+                <ul class="kv" th:if="${producto.escultura}">
+                    <li><span>Pieza</span><span>Escultura de vidrio</span></li>
+                    <li th:if="${producto.tamanoEtiqueta != null}"><span>Tamaño</span><span th:text="${producto.tamanoEtiqueta}">Grande</span></li>
+                    <li><span>Medidas aproximadas</span><span th:text="${#numbers.formatDecimal(producto.ancho, 1, 'POINT', 0, 'COMMA')} + ' × ' + ${#numbers.formatDecimal(producto.alto, 1, 'POINT', 0, 'COMMA')} + ' cm'">0 × 0 cm</span></li>
+                    <li><span>Código</span><span th:text="${producto.codigo}">ESC-000</span></li>
                 </ul>
             </div>
         </div>
     </section>
 
-    <!-- Sección de Opiniones y Reseñas -->
-    <section class="resenas-section">
-        <div class="resenas-header">
+    <section class="resenas-section" id="resenas" aria-labelledby="titulo-resenas">
+        <div class="resenas-resumen">
+            <h2 id="titulo-resenas">Opiniones de clientes</h2>
             <div class="promedio-box">
-                <div class="promedio-valor" th:text="${promedioCalificacion}">0.0</div>
-                <div class="estrellas" th:text="${estrellasPromedio}">☆☆☆☆☆</div>
-            </div>
-            <div>
-                <h2 style="margin: 0; font-size: 1.5rem;">Opiniones de clientes</h2>
-                <p style="margin: 4px 0 0; color: var(--text-muted); font-size: 0.9rem;"
-                   th:text="${#lists.size(resenas)} + ' reseña(s) registradas'">0 reseñas</p>
-            </div>
-        </div>
-
-        <!-- Lista de Reseñas -->
-        <div class="resena-card card-panel" th:each="r : ${resenas}">
-            <div class="resena-header">
-                <span class="resena-autor" th:text="${r.nombreUsuario}">Cliente</span>
-                <span class="estrellas" th:text="${r.estrellas}">★★★★★</span>
-            </div>
-            <p th:text="${r.comentario}">Comentario del usuario...</p>
-            <div style="margin-top: 8px; text-align: right;">
-                <span class="resena-fecha" th:text="${#temporals.format(r.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
-            </div>
-        </div>
-
-        <div th:if="${#lists.isEmpty(resenas)}" class="card-panel" style="text-align: center; color: var(--text-muted); padding: 32px;">
-            <i class="ph ph-chat-teardrop-dots" style="font-size: 2.5rem; display: block; margin-bottom: 8px; color: var(--text-muted); opacity: 0.6;"></i>
-            Todavía no hay reseñas para este producto. ¡Sé el primero en opinar!
-        </div>
-
-        <!-- Formulario para agregar / editar reseña -->
-        <div class="form-resena card-panel" th:if="${usuarioLogueado}">
-            <h3 style="margin: 0 0 12px; font-size: 1.1rem;" th:text="${miResena != null} ? 'Actualiza tu reseña' : 'Deja tu reseña'"></h3>
-            <form th:action="@{/detalle/{id}/resenas(id=${producto.id})}" method="post">
-                <div class="form-group">
-                    <label for="calificacion">Calificación:</label>
-                    <select name="calificacion" id="calificacion">
-                        <option value="5" th:selected="${miResena != null and miResena.calificacion == 5}">★★★★★ (5 - Excelente)</option>
-                        <option value="4" th:selected="${miResena != null and miResena.calificacion == 4}">★★★★☆ (4 - Muy Bueno)</option>
-                        <option value="3" th:selected="${miResena == null or miResena.calificacion == 3}">★★★☆☆ (3 - Bueno)</option>
-                        <option value="2" th:selected="${miResena != null and miResena.calificacion == 2}">★★☆☆☆ (2 - Regular)</option>
-                        <option value="1" th:selected="${miResena != null and miResena.calificacion == 1}">★☆☆☆☆ (1 - Deficiente)</option>
-                    </select>
+                <span class="promedio-valor" th:text="${promedioCalificacion}">0.0</span>
+                <div>
+                    <span class="estrellas" th:text="${estrellasPromedio}">☆☆☆☆☆</span>
+                    <small th:text="${#lists.size(resenas)} + ' reseña(s)'">0 reseñas</small>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="comentario">Tu comentario:</label>
-                    <textarea name="comentario" id="comentario" rows="3" placeholder="¿Qué te pareció la calidad y el acabado de este vidrio?"
-                              th:text="${miResena != null ? miResena.comentario : ''}"></textarea>
-                </div>
+            <div class="form-resena surface" th:if="${usuarioLogueado}">
+                <h3 th:text="${miResena != null} ? 'Actualiza tu reseña' : 'Deja tu reseña'">Deja tu reseña</h3>
+                <form th:action="@{/detalle/{id}/resenas(id=${producto.id})}" method="post">
+                    <fieldset>
+                        <legend>Calificación</legend>
+                        <div class="cluster">
+                            <div class="rating">
+                                <input type="radio" id="cal5" name="calificacion" value="5" th:checked="${miResena != null and miResena.calificacion == 5}">
+                                <label for="cal5" title="5 - Excelente">★<span class="visually-hidden">5 - Excelente</span></label>
+                                <input type="radio" id="cal4" name="calificacion" value="4" th:checked="${miResena != null and miResena.calificacion == 4}">
+                                <label for="cal4" title="4 - Muy bueno">★<span class="visually-hidden">4 - Muy bueno</span></label>
+                                <input type="radio" id="cal3" name="calificacion" value="3" th:checked="${miResena == null or miResena.calificacion == 3}" checked>
+                                <label for="cal3" title="3 - Bueno">★<span class="visually-hidden">3 - Bueno</span></label>
+                                <input type="radio" id="cal2" name="calificacion" value="2" th:checked="${miResena != null and miResena.calificacion == 2}">
+                                <label for="cal2" title="2 - Regular">★<span class="visually-hidden">2 - Regular</span></label>
+                                <input type="radio" id="cal1" name="calificacion" value="1" th:checked="${miResena != null and miResena.calificacion == 1}">
+                                <label for="cal1" title="1 - Deficiente">★<span class="visually-hidden">1 - Deficiente</span></label>
+                            </div>
+                            <span class="rating-texto" id="ratingTexto" aria-hidden="true">Bueno</span>
+                        </div>
+                    </fieldset>
 
-                <button type="submit" class="btn btn-primary">
-                    <i class="ph ph-paper-plane-tilt"></i>
-                    <span th:text="${miResena != null} ? 'Actualizar reseña' : 'Publicar reseña'">Publicar</span>
-                </button>
-            </form>
+                    <div class="form-group">
+                        <label for="comentario">Tu comentario</label>
+                        <textarea name="comentario" id="comentario" rows="4" maxlength="1000"
+                                  placeholder="¿Qué te pareció la calidad y el acabado de este vidrio?"
+                                  th:text="${miResena != null ? miResena.comentario : ''}"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>
+                        <span th:text="${miResena != null} ? 'Actualizar reseña' : 'Publicar reseña'">Publicar reseña</span>
+                    </button>
+                </form>
+            </div>
+
+            <p th:unless="${usuarioLogueado}" class="text-muted">
+                <a th:href="@{/login}">Inicia sesión</a> para dejar tu opinión sobre este producto.
+            </p>
         </div>
 
-        <p th:unless="${usuarioLogueado}" style="color: var(--text-muted); margin-top: 20px;">
-            <a th:href="@{/login}" style="color: var(--color-accent-text); font-weight: 600;">Inicia sesión</a> para dejar tu opinión sobre este producto.
-        </p>
+        <div class="resenas-lista">
+            <article class="resena-card card-panel" th:each="r : ${resenas}">
+                <div class="resena-header">
+                    <span class="resena-autor">
+                        <span class="resena-avatar" aria-hidden="true" th:text="${#strings.isEmpty(r.nombreUsuario) ? '?' : #strings.substring(r.nombreUsuario, 0, 1)}">C</span>
+                        <span th:text="${r.nombreUsuario}">Cliente</span>
+                    </span>
+                    <span class="estrellas" th:text="${r.estrellas}">★★★★★</span>
+                </div>
+                <p th:text="${r.comentario}">Comentario del usuario…</p>
+                <time class="resena-fecha" th:text="${#temporals.format(r.fecha, 'dd/MM/yyyy')}">01/01/2026</time>
+            </article>
+
+            <div th:if="${#lists.isEmpty(resenas)}" class="empty">
+                <div class="empty-icon"><i class="ph ph-chat-teardrop-dots" aria-hidden="true"></i></div>
+                <h3>Todavía no hay reseñas</h3>
+                <p>Cuéntale a otros clientes cómo te fue con este vidrio.</p>
+            </div>
+        </div>
     </section>
 </main>
 
-<script>
-    function cambiarCantidad(valor) {
-        const input = document.getElementById('cantidad');
-        if (!input) return;
-        let actual = parseInt(input.value) || 1;
-        if (actual + valor >= 1) {
-            input.value = actual + valor;
-        }
-    }
-</script>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
+<script>
+/* T2: galeria del detalle (solo existe si hay vistas extra) */
+(function () {
+    var principal = document.querySelector('[data-galeria-principal]');
+    var minis = document.querySelectorAll('[data-galeria-miniatura]');
+    if (!principal || !minis.length) return;
+    minis.forEach(function (b) {
+        b.addEventListener('click', function () {
+            principal.src = b.getAttribute('data-src');
+            minis.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        });
+    });
+})();
+
+/* Texto de la calificacion elegida junto a las estrellas */
+(function () {
+    var texto = document.getElementById('ratingTexto');
+    if (!texto) return;
+    var NOMBRES = { 1: 'Deficiente', 2: 'Regular', 3: 'Bueno', 4: 'Muy bueno', 5: 'Excelente' };
+    var radios = document.querySelectorAll('.rating input');
+    function pintar() {
+        var sel = document.querySelector('.rating input:checked');
+        texto.textContent = sel ? NOMBRES[sel.value] : '';
+    }
+    radios.forEach(function (r) { r.addEventListener('change', pintar); });
+    pintar();
+})();
+</script>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

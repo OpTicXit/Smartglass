@@ -2,12 +2,9 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script th:src="@{/js/theme-init.js}"></script>
     <title>SmartGlass - Panel Admin</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
 </head>
 <body>
 
@@ -51,7 +48,7 @@
     </div>
 
     <!-- 3. Tabla de Últimos Pedidos -->
-    <h3 style="color: var(--text-main); margin-bottom: 16px;">Últimos pedidos</h3>
+    <h2 class="admin-subtitle">Últimos pedidos</h2>
     <div class="table-wrap">
         <table class="table-admin">
             <thead>
@@ -75,7 +72,7 @@
                     <td th:text="${pedido.totalFormateado}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(stats.pedidos)}">
-                    <td colspan="3" style="text-align: center; padding: 20px;">No hay pedidos recientes.</td>
+                    <td colspan="3" class="td-vacio">No hay pedidos recientes.</td>
                 </tr>
             </tbody>
         </table>

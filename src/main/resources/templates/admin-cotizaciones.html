@@ -2,11 +2,8 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <script th:src="@{/js/theme-init.js}"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartGlass - Cotizaciones (Admin)</title>
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <style>
         /* =========================================================
@@ -18,7 +15,7 @@
         .cot-sub { margin: -14px 0 24px; color: var(--text-muted); font-size: 0.92rem; }
         .admin-title .badge { margin-left: 10px; vertical-align: middle; }
 
-        .flash-error { border-color: rgba(185, 28, 28, 0.35); background: var(--color-error-dim); color: var(--color-error); }
+        .flash-error { border-color: color-mix(in srgb, var(--color-error) 35%, transparent); background: var(--color-error-dim); color: var(--color-error); }
 
         /* ---------- Filtros por estado ---------- */
         .filtros { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; }
@@ -35,7 +32,7 @@
             min-width: 22px; padding: 1px 7px; border-radius: 999px; background: var(--bg-tertiary);
             color: var(--text-main); font-size: 0.74rem; text-align: center; font-variant-numeric: tabular-nums;
         }
-        .filtros a.activo .n { background: var(--color-accent); color: #fff; }
+        .filtros a.activo .n { background: var(--color-accent-solid); color: var(--on-accent-solid); }
 
         /* ---------- Tabla ---------- */
         .cot-tabla td { vertical-align: middle; }
@@ -48,8 +45,8 @@
         .cot-obra-txt { display: grid; gap: 2px; min-width: 0; }
         .cot-obra-txt strong { color: var(--text-main); font-size: 0.95rem; }
         .cot-medidas { color: var(--text-muted); font-size: 0.82rem; line-height: 1.35; }
-        .cot-ref { color: var(--text-label); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-        .cot-ref b { font-weight: 800; }
+        .cot-ref { color: var(--text-label); font-size: 0.7rem; font-weight: 700; letter-spacing: 0; }
+        .cot-ref b { font-weight: 700; }
 
         /* F24: PROCESO (.metrica-proceso, con color) y PIEZA (.metrica-pieza, neutro): estilos en admin.css */
         .cot-co2 { display: grid; gap: 6px; justify-items: start; white-space: nowrap; }
@@ -82,7 +79,7 @@
             .cot-tabla td { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 0; border: 0; }
             .cot-tabla td::before {
                 content: attr(data-label); flex: none; color: var(--text-label); font-size: 0.7rem;
-                font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+                font-weight: 700; letter-spacing: 0;
             }
             .cot-tabla td.obra-celda { display: block; padding-top: 0; }
             .cot-tabla td.obra-celda::before { display: none; }
@@ -179,7 +176,7 @@
 
                             <!-- Rechazar: solo desde Pendiente -->
                             <form th:if="${f.estado == 'COTIZACION'}" th:action="@{/admin/cotizaciones/{id}/rechazar(id=${f.id})}" method="post"
-                                  onsubmit="return confirm('¿Rechazar esta cotización? El cliente verá que no fue aprobada.')">
+                                  data-confirm-title="¿Rechazar esta cotización?" data-confirm="El cliente verá que no fue aprobada." data-confirm-ok="Rechazar">
                                 <input type="hidden" name="estado" th:value="${filtro}">
                                 <button type="submit" class="btn-eliminar">Rechazar</button>
                             </form>

@@ -2,410 +2,62 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script th:src="@{/js/theme-init.js}"></script>
-    <title>SmartGlass - Comparar Productos</title>
-
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>SmartGlass - Comparar productos</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
-        /* =========================================================
-           BASE
-           ========================================================= */
-        body {
-            min-height: 100vh;
-            background:
-                radial-gradient(circle at 85% 0%, var(--color-accent-dim), transparent 30%),
-                var(--color-background);
+        .comparacion { padding: 0; overflow: hidden; border-radius: var(--r-lg); }
+        .comparacion::before { display: none; }
+
+        .comparacion-barra {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+            padding: 14px 20px; border-bottom: 1px solid var(--border-color); background: var(--surface-hover);
         }
+        .comparacion-barra h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--font-primary); font-size: 0.95rem; font-weight: 650; letter-spacing: 0; }
+        .comparacion-barra h2 i { color: var(--color-accent-text); }
 
-        /* =========================================================
-           NAVBAR
-           ========================================================= */
-
-        /* =========================================================
-           CONTENEDOR Y ENCABEZADO
-           ========================================================= */
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 52px 32px 96px;
-        }
-
-        .page-header {
-            position: relative;
-            margin-bottom: 36px;
-            padding: 38px 42px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            border-radius: 22px;
-            background: linear-gradient(135deg, var(--color-accent-dim), var(--bg-secondary));
-            box-shadow: var(--shadow-card);
-        }
-
-        .page-header::after {
-            content: "";
-            position: absolute;
-            width: 260px;
-            height: 260px;
-            right: -110px;
-            top: -130px;
-            border: 1px solid var(--color-accent);
-            border-radius: 50%;
-            opacity: 0.18;
-        }
-
-        .header-content { position: relative; z-index: 2; }
-
-        .eyebrow {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            margin-bottom: 12px;
-            color: var(--color-accent-text);
-            font-size: 0.78rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-        }
-
-        .page-header h1 {
-            margin: 0;
-            color: var(--text-main);
-            font-size: clamp(1.9rem, 3.4vw, 2.7rem);
-            letter-spacing: -0.04em;
-        }
-
-        .page-header-description {
-            max-width: 640px;
-            margin: 12px 0 0;
-            color: var(--text-muted);
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-
-        .product-count {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            margin-top: 20px;
-            padding: 8px 13px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            background: var(--bg-primary);
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        .product-count span { color: var(--color-accent-text); font-weight: 800; }
-
-        /* =========================================================
-           COMPARADOR
-           ========================================================= */
-        .comparison-wrapper {
-            position: relative;
-            padding: 0;
-            border: 1px solid var(--border-color);
-            border-radius: 22px;
-            background: var(--bg-secondary);
-            box-shadow: var(--shadow-card);
-            overflow: hidden;
-        }
-
-        .comparison-topbar {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            padding: 18px 28px;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--bg-tertiary);
-        }
-
-        .comparison-topbar-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-main);
-            font-size: 0.95rem;
-            font-weight: 700;
-        }
-
-        .comparison-topbar-title i { color: var(--color-accent-text); }
-
-        /* Switch "solo diferencias" */
-        .toggle-dif {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            margin: 0;
-            color: var(--text-main);
-            font-size: 0.86rem;
-            font-weight: 600;
-            cursor: pointer;
-            user-select: none;
-        }
-
+        /* Interruptor "solo diferencias" */
+        .toggle-dif { display: inline-flex; align-items: center; gap: 10px; margin: 0; color: var(--text-muted); font-size: 0.88rem; font-weight: 550; cursor: pointer; }
         .toggle-dif input { position: absolute; opacity: 0; pointer-events: none; }
+        .toggle-ui { position: relative; width: 38px; height: 22px; border-radius: 999px; background: var(--bg-tertiary); border: 1px solid var(--border-strong); transition: background-color var(--dur) ease; }
+        .toggle-ui::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--text-muted); transition: transform var(--dur) var(--ease-spring), background-color var(--dur) ease; }
+        .toggle-dif input:checked + .toggle-ui { background: var(--color-accent-solid); border-color: transparent; }
+        .toggle-dif input:checked + .toggle-ui::after { transform: translateX(16px); background: var(--on-accent-solid); }
+        .toggle-dif input:focus-visible + .toggle-ui { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 
-        .toggle-ui {
-            position: relative;
-            width: 42px;
-            height: 24px;
-            border-radius: 999px;
-            background: var(--border-color);
-            transition: background 0.25s ease;
-        }
+        .comparador-scroll { overflow-x: auto; }
+        .comparador-grid { display: grid; min-width: min-content; }
 
-        .toggle-ui::after {
-            content: "";
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #fff;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-            transition: transform 0.25s ease;
-        }
+        .label-columna, .producto-columna { display: grid; grid-template-rows: subgrid; grid-row: span 10; }
+        .label-columna { position: sticky; left: 0; z-index: 2; background: var(--card-solid); border-right: 1px solid var(--border-color); }
+        .producto-columna + .producto-columna { border-left: 1px solid var(--border-color); }
 
-        .toggle-dif input:checked + .toggle-ui { background: var(--color-accent); }
-        .toggle-dif input:checked + .toggle-ui::after { transform: translateX(18px); }
-        .toggle-dif input:focus-visible + .toggle-ui { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+        .fila, .fila-label, .label-vacia { padding: 14px 20px; border-bottom: 1px solid var(--border-color); transition: background-color var(--dur-fast) ease; }
+        .fila-label { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.86rem; font-weight: 600; }
+        .fila-label i { color: var(--color-accent-text); font-size: 1.05rem; }
+        .fila { color: var(--text-main); font-size: 0.93rem; font-variant-numeric: tabular-nums; }
+        .fila.hover, .fila-label.hover { background: var(--color-accent-dim); }
+        .fila.oculta, .fila-label.oculta { display: none; }
+        .description-value { color: var(--text-muted); font-size: 0.88rem; line-height: 1.55; }
+        .label-vacia { border-bottom-color: transparent; }
 
-        .comparador-scroll {
-            width: 100%;
-            overflow-x: auto;
-            scrollbar-width: thin;
-        }
-
-        .comparador-grid {
-            display: grid;
-            gap: 0;
-            min-width: 640px;
-        }
-
-        /* Cada columna reutiliza las 10 filas del grid padre (subgrid):
-           imagen, cabecera y cada dato quedan alineados entre productos
-           y con la columna de etiquetas. */
-        @supports (grid-template-rows: subgrid) {
-            .comparador-grid { grid-template-rows: repeat(10, auto); }
-            .label-columna, .producto-columna {
-                display: grid;
-                grid-row: span 10;
-                grid-template-rows: subgrid;
-            }
-        }
-
-        @supports not (grid-template-rows: subgrid) {
-            .label-columna { display: none; }
-            .comparador-grid { grid-template-columns: none !important; display: flex; }
-            .producto-columna { flex: 1 1 280px; }
-        }
-
-        /* =========================================================
-           COLUMNA DE ETIQUETAS (fija al desplazar)
-           ========================================================= */
-        .label-columna {
-            position: sticky;
-            left: 0;
-            z-index: 3;
-            background: var(--bg-tertiary);
-            border-right: 1px solid var(--border-color);
-        }
-
-        .label-columna .fila-label {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            padding: 22px 24px;
-            color: var(--text-muted);
-            font-size: 0.78rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .label-columna .fila-label i {
-            width: 18px;
-            text-align: center;
-            color: var(--color-accent-text);
-            font-size: 0.9rem;
-        }
-
-        .label-vacia { border-top: none !important; }
-
-        /* =========================================================
-           COLUMNA DE PRODUCTO
-           ========================================================= */
-        .producto-columna {
-            position: relative;
-            min-width: 0;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border-color);
-        }
-
-        .producto-columna:last-child { border-right: none; }
-
-        .producto-image {
-            position: relative;
-            overflow: hidden;
-            background: var(--bg-tertiary);
-        }
-
-        .producto-image img {
-            display: block;
-            width: 100%;
-            height: 240px;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .producto-columna:hover .producto-image img { transform: scale(1.04); }
-
-        .producto-columna .header {
-            padding: 28px 26px 26px;
-            text-align: center;
-        }
-
-        .producto-columna h3 {
-            margin: 0 0 12px;
-            color: var(--text-main);
-            font-size: 1.15rem;
-            line-height: 1.3;
-        }
-
-        .producto-columna .precio {
-            color: var(--color-accent-text);
-            font-size: 1.65rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-        }
-
-        .chips {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 8px;
-            min-height: 0;
-            margin-top: 14px;
-        }
-
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 11px;
-            border-radius: 999px;
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.03em;
-        }
-
+        .producto-image { aspect-ratio: 4 / 3; margin: 16px 16px 0; overflow: hidden; border-radius: var(--r-md); background: var(--bg-tertiary); }
+        .producto-image img { width: 100%; height: 100%; object-fit: cover; }
+        .producto-columna .header { padding: 14px 20px 16px; border-bottom: 1px solid var(--border-color); }
+        .producto-columna .header h3 { margin: 0 0 4px; font-size: 1.1rem; }
+        .producto-columna .precio { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
+        .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; min-height: 24px; }
+        .chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 0.75rem; font-weight: 650; }
         .chip-precio { background: var(--color-success-dim); color: var(--color-success); }
         .chip-rating { background: var(--color-warning-dim); color: var(--color-warning); }
 
-        /* =========================================================
-           FILAS DE DATOS
-           ========================================================= */
-        .fila {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            min-height: 70px;
-            padding: 22px 26px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-main);
-            text-align: center;
-            font-size: 1rem;
-            line-height: 1.5;
-            word-break: break-word;
-            transition: background 0.2s ease;
-        }
+        .estrellas { color: var(--color-star); letter-spacing: 1px; }
+        .review-count { display: block; color: var(--text-subtle); font-size: 0.8rem; }
+        .accion { padding: 16px 20px 20px; }
 
-        .fila-alt { background: color-mix(in srgb, var(--bg-tertiary) 45%, transparent); }
-        .label-columna .fila-alt { background: color-mix(in srgb, var(--bg-primary) 55%, var(--bg-tertiary)); }
-
-        .fila.hover, .label-columna .fila-label.hover { background: var(--color-accent-dim); }
-
-        .estrellas { color: var(--color-star); font-size: 1.1rem; letter-spacing: 3px; }
-        .review-count { color: var(--text-muted); font-size: 0.82rem; }
-
-        .description-value {
-            align-items: flex-start;
-            text-align: left;
-            color: var(--text-muted);
-            font-size: 0.92rem;
-            line-height: 1.65;
-        }
-
-        .oculta { display: none !important; }
-
-        /* =========================================================
-           ACCIÓN
-           ========================================================= */
-        .accion {
-            padding: 24px 26px 30px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .btn-ver {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 14px 18px;
-            border: 1px solid var(--color-accent);
-            border-radius: 12px;
-            color: var(--color-accent-text);
-            font-size: 0.92rem;
-            font-weight: 700;
-            text-decoration: none;
-            transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
-        }
-
-        .btn-ver:hover {
-            background: var(--color-accent-solid);
-            color: var(--text-on-accent);
-            transform: translateY(-2px);
-        }
-
-        /* =========================================================
-           RESPONSIVE
-           ========================================================= */
-        @media (max-width: 900px) {
-            .container { padding: 32px 16px 70px; }
-            .page-header { padding: 28px 24px; }
-            .label-columna .fila-label { padding: 22px 14px; font-size: 0.7rem; }
-            .label-columna .fila-label i { display: none; }
-            .fila { padding: 20px 16px; }
-        }
-
-        @media (max-width: 600px) {
-            .page-header h1 { font-size: 1.7rem; }
-        } .btn-ver:focus-visible{
-            outline: 2px solid var(--color-accent);
-            outline-offset: 3px;
-        }
-
-        /* =========================================================
-           IMPRESIÓN
-           ========================================================= */
-        @media print {
-            body { background: #fff !important; } .toggle-dif, .accion { display: none; }
-            .container { max-width: none; padding: 15px 0; }
-            .page-header, .comparison-wrapper { box-shadow: none !important; border-color: #ccc !important; }
-            .comparador-scroll { overflow: visible; }
-            .comparador-grid { min-width: 0; }
-            .producto-image img { height: 140px; }
-            .label-columna { position: static; }
+        @media (max-width: 640px) {
+            .fila, .fila-label, .label-vacia { padding: 12px 14px; }
+            .fila-label i { display: none; }
         }
     </style>
 </head>
@@ -413,40 +65,23 @@
 
 <nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
-<div class="container">
+<main class="container">
 
-    <!-- ENCABEZADO -->
-    <header class="page-header">
-        <div class="header-content">
-            <div class="eyebrow">
-                <i class="fas fa-scale-balanced"></i>
-                Comparador SmartGlass
-            </div>
-
+    <header class="page-intro">
+        <div>
             <h1>Comparar productos</h1>
-
-            <p class="page-header-description">
-                Analiza las características de cada producto antes de
-                seleccionar la opción que mejor se adapte a tu proyecto.
-            </p>
-
-            <div class="product-count">
-                <i class="fas fa-layer-group"></i>
-                <span th:text="${#lists.size(items)}"></span>
-                de 3 productos posibles
-            </div>
+            <p class="lead">Revisa las características lado a lado antes de elegir la opción que mejor se adapta a tu proyecto.</p>
+        </div>
+        <div class="page-intro-actions">
+            <a th:href="@{/catalogo}" class="btn btn-secondary"><i class="ph ph-plus" aria-hidden="true"></i> Cambiar selección</a>
         </div>
     </header>
 
-    <!-- COMPARADOR -->
-    <section class="comparison-wrapper card-panel sg-reveal">
-
-        <div class="comparison-topbar">
-            <div class="comparison-topbar-title">
-                <i class="fas fa-table-columns"></i>
-                Comparativa técnica
-            </div>
-
+    <section class="comparacion card-panel" aria-labelledby="titulo-comparativa">
+        <div class="comparacion-barra">
+            <h2 id="titulo-comparativa"><i class="ph ph-columns" aria-hidden="true"></i>
+                <span th:text="${#lists.size(items)} + ' de 3 productos'">3 de 3 productos</span>
+            </h2>
             <label class="toggle-dif">
                 <input type="checkbox" id="soloDif">
                 <span class="toggle-ui" aria-hidden="true"></span>
@@ -456,64 +91,57 @@
 
         <div class="comparador-scroll">
             <div class="comparador-grid"
-                 th:style="'grid-template-columns: minmax(150px, 190px) repeat(' + ${#lists.size(items)} + ', minmax(260px, 1fr));'">
+                 th:style="'grid-template-columns: minmax(140px, 180px) repeat(' + ${#lists.size(items)} + ', minmax(240px, 1fr));'"
+                 style="grid-template-columns: minmax(140px, 180px) repeat(3, minmax(240px, 1fr));">
 
                 <!-- Columna fija de etiquetas -->
                 <div class="label-columna" aria-hidden="true">
                     <div class="label-vacia"></div>
                     <div class="label-vacia"></div>
-                    <div class="fila-label" data-fila="calificacion"><i class="fas fa-star"></i>Calificación</div>
-                    <div class="fila-label fila-alt" data-fila="tipo"><i class="fas fa-layer-group"></i>Tipo</div>
-                    <div class="fila-label" data-fila="ancho"><i class="fas fa-arrows-left-right"></i>Ancho</div>
-                    <div class="fila-label fila-alt" data-fila="alto"><i class="fas fa-arrows-up-down"></i>Alto</div>
-                    <div class="fila-label" data-fila="espesor"><i class="fas fa-ruler-vertical"></i>Espesor</div>
-                    <div class="fila-label fila-alt" data-fila="codigo"><i class="fas fa-barcode"></i>Código</div>
-                    <div class="fila-label" data-fila="descripcion"><i class="fas fa-align-left"></i>Descripción</div>
+                    <div class="fila-label" data-fila="calificacion"><i class="ph ph-star"></i>Calificación</div>
+                    <div class="fila-label" data-fila="tipo"><i class="ph ph-stack"></i>Tipo</div>
+                    <div class="fila-label" data-fila="ancho"><i class="ph ph-arrows-out-line-horizontal"></i>Ancho</div>
+                    <div class="fila-label" data-fila="alto"><i class="ph ph-arrows-out-line-vertical"></i>Alto</div>
+                    <div class="fila-label" data-fila="espesor"><i class="ph ph-ruler"></i>Espesor</div>
+                    <div class="fila-label" data-fila="codigo"><i class="ph ph-barcode"></i>Código</div>
+                    <div class="fila-label" data-fila="descripcion"><i class="ph ph-text-align-left"></i>Descripción</div>
                     <div class="label-vacia"></div>
                 </div>
 
                 <!-- Una columna por producto -->
                 <div class="producto-columna" th:each="item : ${items}">
-
                     <div class="producto-image">
-                        <img th:src="${item.producto.imagen != null ? '/img/' + item.producto.imagen : '/img/default-glass.jpg'}"
-                             th:alt="${item.producto.nombre}">
+                        <img th:src="@{${item.producto.imagenUrl}}"
+                             th:alt="${item.producto.nombre}" alt="">
                     </div>
 
                     <div class="header">
-                        <h3 th:text="${item.producto.nombre}"></h3>
-                        <div class="precio" th:text="'$' + ${item.producto.precioFormateado}"></div>
+                        <h3 th:text="${item.producto.nombre}">Producto</h3>
+                        <div class="precio" th:text="'$' + ${item.producto.precioFormateado}">$0</div>
                         <div class="chips"></div>
                     </div>
 
                     <div class="fila" data-fila="calificacion">
-                        <span class="estrellas" th:text="${item.estrellasPromedio}"></span>
-                        <span class="review-count" th:text="${item.totalResenas} + ' reseña(s)'"></span>
+                        <span class="estrellas" th:text="${item.estrellasPromedio}">★★★☆☆</span>
+                        <span class="review-count" th:text="${item.totalResenas} + ' reseña(s)'">0 reseñas</span>
                     </div>
-
-                    <div class="fila fila-alt" data-fila="tipo" th:text="${item.producto.tipo}"></div>
-
-                    <div class="fila" data-fila="ancho" th:text="${item.producto.ancho} + ' cm'"></div>
-
-                    <div class="fila fila-alt" data-fila="alto" th:text="${item.producto.alto} + ' cm'"></div>
-
-                    <div class="fila" data-fila="espesor" th:text="${item.producto.espesor} + ' mm'"></div>
-
-                    <div class="fila fila-alt" data-fila="codigo" th:text="${item.producto.codigo}"></div>
-
-                    <div class="fila description-value" data-fila="descripcion" th:text="${item.producto.descripcion}"></div>
+                    <div class="fila" data-fila="tipo" th:text="${item.producto.tipo}">Templado</div>
+                    <div class="fila" data-fila="ancho" th:text="${item.producto.ancho} + ' cm'">0 cm</div>
+                    <div class="fila" data-fila="alto" th:text="${item.producto.alto} + ' cm'">0 cm</div>
+                    <div class="fila" data-fila="espesor" th:text="${item.producto.espesor} + ' mm'">0 mm</div>
+                    <div class="fila" data-fila="codigo" th:text="${item.producto.codigo}">SKU</div>
+                    <div class="fila description-value" data-fila="descripcion" th:text="${item.producto.descripcion}">Descripción</div>
 
                     <div class="accion">
-                        <a th:href="@{/detalle/{id}(id=${item.producto.id})}" class="btn-ver">
-                            Ver ficha completa
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
+                        <a th:href="@{/detalle/{id}(id=${item.producto.id})}" class="btn btn-secondary btn-block">Ver ficha completa</a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-</div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script>
 (function () {
@@ -546,7 +174,8 @@
         });
     }
     chk.addEventListener('change', aplicarFiltro);
-    if (cols.length < 2) chk.closest('.toggle-dif').style.display = 'none';
+    var hayIguales = filas.some(function (k) { return iguales[k]; });
+    if (cols.length < 2 || !hayIguales) chk.closest('.toggle-dif').hidden = true;
 
     /* ---------- Resaltar la fila bajo el cursor en todas las columnas ---------- */
     filas.forEach(function (clave) {
@@ -556,7 +185,7 @@
         });
     });
 
-    /* ---------- Etiquetas: mejor precio / mejor calificación ---------- */
+    /* ---------- Etiquetas: mejor precio / mejor calificacion ---------- */
     function numero(txt) {
         var s = String(txt).replace(/[^\d.,]/g, '');
         if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) return parseFloat(s.replace(/\./g, '').replace(',', '.'));
@@ -575,7 +204,8 @@
         var s = document.createElement('span');
         s.className = 'chip ' + clase;
         var i = document.createElement('i');
-        i.className = 'fas ' + icono;
+        i.className = 'ph-fill ' + icono;
+        i.setAttribute('aria-hidden', 'true');
         s.appendChild(i);
         s.appendChild(document.createTextNode(texto));
         col.querySelector('.chips').appendChild(s);
@@ -583,17 +213,16 @@
 
     var precios = cols.map(function (c) { return numero(c.querySelector('.precio').textContent); });
     var iP = unicoMejor(precios, false);
-    if (iP >= 0) chip(cols[iP], 'chip-precio', 'fa-tag', 'Mejor precio');
+    if (iP >= 0) chip(cols[iP], 'chip-precio', 'ph-tag', 'Mejor precio');
 
     var ratings = cols.map(function (c) {
         var t = c.querySelector('.estrellas');
-        return t ? (t.textContent.match(/\u2605/g) || []).length : NaN;
+        return t ? (t.textContent.match(/★/g) || []).length : NaN;
     });
     var iR = unicoMejor(ratings, true);
-    if (iR >= 0) chip(cols[iR], 'chip-rating', 'fa-star', 'Mejor calificación');
+    if (iR >= 0) chip(cols[iR], 'chip-rating', 'ph-star', 'Mejor calificación');
 })();
 </script>
-
 <script th:src="@{/js/main.js}"></script>
 
 </body>

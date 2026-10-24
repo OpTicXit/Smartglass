@@ -51,6 +51,32 @@
         </ul>
 
         <div class="nav-actions">
+            <!-- T1 accesibilidad: lo conecta main.js (inicializarAccesibilidad) -->
+            <div class="nav-item has-menu nav-a11y" data-a11y-control>
+                <button type="button" class="nav-link nav-trigger nav-a11y-trigger" aria-haspopup="true" aria-expanded="false" title="Accesibilidad">
+                    <svg class="ico-a11y" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="7" r="1.3" fill="currentColor"/><path d="M7 10h10M12 10v4l-2.5 4.5M12 14l2.5 4.5"/></svg>
+                    <span class="nav-a11y-texto visually-hidden">Accesibilidad</span>
+                </button>
+                <div class="nav-dropdown nav-dropdown--right a11y-panel" role="group" aria-label="Opciones de accesibilidad">
+                    <p class="nav-head">Accesibilidad</p>
+                    <button type="button" class="a11y-opcion" data-a11y-modo="daltotonico" aria-pressed="false">
+                        <span class="a11y-opcion-texto">
+                            <strong>Colores para daltonismo</strong>
+                            <small>Semáforo con icono, patrón y texto</small>
+                        </span>
+                        <span class="a11y-switch" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="a11y-opcion" data-a11y-modo="fotosensible" aria-pressed="false">
+                        <span class="a11y-opcion-texto">
+                            <strong>Sin animaciones ni destellos</strong>
+                            <small>Para fotosensibilidad o mareo por movimiento</small>
+                        </span>
+                        <span class="a11y-switch" aria-hidden="true"></span>
+                    </button>
+                    <p class="a11y-estado" data-a11y-estado aria-live="polite"></p>
+                </div>
+            </div>
+
             <div class="nav-item has-menu nav-account">
                 <button type="button" class="nav-link nav-trigger" aria-haspopup="true" aria-expanded="false">
                     <span class="nav-avatar" aria-hidden="true">

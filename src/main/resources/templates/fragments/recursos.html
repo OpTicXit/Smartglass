@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<!--
+    Recursos comunes del <head> de todas las vistas.
+    Uso (dentro de <head>, despues del <title>):
+        <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+    - theme-init.js va primero y sincrono: aplica el tema guardado antes de pintar.
+    - a11y-init.js, igual: aplica data-a11y (daltotonico / fotosensible) antes de pintar.
+    - Tipografias: Bricolage Grotesque (titulos) y Geist (texto).
+    - Iconos: Phosphor (solo el peso regular y el relleno, version fija).
+-->
+<th:block th:fragment="recursos">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark light">
+    <meta name="theme-color" content="#070B19">
+    <script th:src="@{/js/theme-init.js}"></script>
+    <script th:src="@{/js/a11y-init.js}"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist:wght@400..700&display=swap">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+</th:block>
+</head>
+</html>

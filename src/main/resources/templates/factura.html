@@ -2,717 +2,168 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <script th:src="@{/js/theme-init.js}"></script>
-    <title>SmartGlass - Factura de Venta</title>
-    <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+    <title th:text="'Factura ' + ${pedido.numeroFactura} + ' - SmartGlass'">SmartGlass - Factura de venta</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
-        /* =========================================================
-           SMARTGLASS — FACTURA DE VENTA
-           Diseño corporativo / comprobante / impresión
-           ========================================================= */
-
-        body {
-            min-height: 100vh;
-            padding: 30px 18px;
-            box-sizing: border-box;
-        }
+        /* La factura es un documento: se dibuja siempre como una hoja clara,
+           tambien en modo oscuro, y se imprime tal cual. */
+        .factura-barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; width: min(860px, 100%); margin: 28px auto 18px; padding: 0 var(--gutter); }
+        .factura-barra .back-link { margin: 0; }
 
         .factura-container {
-            position: relative;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 48px;
-            box-sizing: border-box;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            box-shadow: 0 14px 45px rgba(0, 0, 0, 0.12);
+            --ink: var(--paper-ink); --ink-muted: var(--paper-ink-muted); --line: var(--paper-line); --accent: var(--paper-accent);
+            position: relative; width: min(860px, calc(100% - 2 * var(--gutter))); margin: 0 auto 48px; padding: clamp(24px, 5vw, 56px);
+            overflow: hidden; background: var(--paper); color: var(--ink); border-radius: var(--r-md);
+            box-shadow: var(--paper-shadow), 0 0 0 1px var(--border-color);
         }
+        .factura-container::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 6px; background: linear-gradient(90deg, var(--color-accent-solid), var(--color-cyan) 60%, var(--color-success)); }
+        .watermark { position: absolute; right: -60px; bottom: -60px; width: 320px; opacity: 0.04; pointer-events: none; }
 
-        /* Barra de identidad superior */
-        .factura-container::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: var(--color-accent);
-            border-radius: 14px 14px 0 0;
+        .factura-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+        .empresa-brand { display: flex; align-items: center; gap: 14px; }
+        .empresa-logo { width: 52px; height: 52px; object-fit: contain; }
+        .empresa-info h1 { margin: 0; color: var(--ink); font-size: 1.4rem; letter-spacing: -0.02em; }
+        .empresa-info p { margin: 2px 0 0; color: var(--ink-muted); font-size: 0.88rem; }
+        .factura-identificacion { text-align: right; }
+        .factura-identificacion h2 { margin: 0 0 6px; color: var(--accent); font-family: var(--font-primary); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.04em; }
+        .factura-numero { margin: 0; color: var(--ink); font-family: var(--font-mono); font-size: 1.15rem; font-weight: 600; }
+        .factura-fecha { margin: 2px 0 0; color: var(--ink-muted); font-size: 0.88rem; }
+
+        .info-seccion { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 28px 0; }
+        .parte h3 { margin: 0 0 8px; color: var(--ink-muted); font-family: var(--font-primary); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; }
+        .parte strong { display: block; margin-bottom: 4px; color: var(--ink); font-size: 1rem; }
+        .parte p { margin: 0; color: var(--ink-muted); font-size: 0.9rem; line-height: 1.55; }
+
+        .factura-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+        .factura-table th { padding: 10px 12px; background: var(--paper-soft); color: var(--ink-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; border-bottom: 1px solid var(--line); }
+        .factura-table td { padding: 14px 12px; color: var(--ink); border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+        .factura-table tbody tr:hover td { background: transparent; }
+        .factura-table .num { text-align: right; }
+        .factura-table .centro { text-align: center; }
+        .factura-table .item-nombre { font-weight: 600; }
+
+        .resumen-factura { display: flex; justify-content: flex-end; padding: 20px 0 8px; }
+        .totales-container { width: min(320px, 100%); }
+        .total-row { display: flex; justify-content: space-between; padding: 8px 12px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+        .total-row.final { margin-top: 6px; padding: 14px 12px; border-radius: var(--r-sm); background: var(--paper-ink); color: var(--paper); font-size: 1.15rem; font-weight: 700; }
+
+        .factura-nota { margin: 24px 0 0; padding: 14px 16px; border-left: 3px solid var(--accent); background: var(--paper-soft); color: var(--ink-muted); font-size: 0.88rem; }
+        .factura-nota strong { color: var(--ink); }
+
+        .factura-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--ink-muted); font-size: 0.85rem; }
+        .factura-marca { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 700; }
+        .factura-marca img { width: 22px; }
+        .factura-footer p { margin: 0; }
+        /* F24: CO2e absoluto en color neutro (mismo tono que el texto de la hoja) */
+        .carbono-value { color: var(--ink); }
+
+        @media (max-width: 640px) {
+            .info-seccion { grid-template-columns: 1fr; }
+            .factura-identificacion { text-align: left; }
+            .factura-table th:nth-child(3), .factura-table td:nth-child(3) { display: none; }
         }
-
-        /* =========================================================
-           ENCABEZADO CORPORATIVO
-           ========================================================= */
-
-        .factura-header {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: center;
-            gap: 35px;
-            padding-bottom: 28px;
-            margin-bottom: 32px;
-            border-bottom: 2px solid var(--color-accent);
-        }
-
-        .empresa-brand {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
-
-        .empresa-logo {
-            width: 68px;
-            height: 68px;
-            object-fit: contain;
-            flex-shrink: 0;
-        }
-
-        .empresa-info h1 {
-            margin: 0 0 6px;
-            color: var(--color-accent-text);
-            font-size: clamp(1.5rem, 3vw, 2rem);
-            line-height: 1.1;
-            letter-spacing: -0.025em;
-        }
-
-        .empresa-info p {
-            margin: 0;
-            color: var(--text-muted);
-            font-size: 0.88rem;
-        }
-
-        .factura-identificacion {
-            min-width: 190px;
-            padding-left: 25px;
-            border-left: 1px solid var(--border-color);
-            text-align: right;
-        }
-
-        .factura-identificacion h3 {
-            margin: 0 0 7px;
-            color: var(--text-main);
-            font-size: 0.75rem;
-            font-weight: 800;
-            letter-spacing: 0.15em;
-        }
-
-        .factura-numero {
-            margin: 0;
-            color: var(--color-accent-text);
-            font-size: 1.15rem;
-            font-weight: 800;
-        }
-
-        .factura-fecha {
-            margin: 5px 0 0;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
-        /* =========================================================
-           INFORMACIÓN EMISOR / CLIENTE
-           ========================================================= */
-
-        .info-seccion {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-            margin-bottom: 38px;
-        }
-
-        .info-box {
-            position: relative;
-            padding: 22px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-        }
-
-        .info-box::before {
-            content: "";
-            position: absolute;
-            top: 18px;
-            left: 0;
-            width: 3px;
-            height: 28px;
-            background: var(--color-accent);
-            border-radius: 0 4px 4px 0;
-        }
-
-        .info-box h3 {
-            margin: 0 0 15px;
-            padding-bottom: 11px;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-main);
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.13em;
-            text-transform: uppercase;
-        }
-
-        .info-box strong {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-main);
-            font-size: 0.95rem;
-        }
-
-        .info-box p {
-            margin: 5px 0;
-            color: var(--text-muted);
-            font-size: 0.82rem;
-            line-height: 1.5;
-        }
-
-        /* El .info-box global (theme.css) trae efectos de hover/luz que
-           aqui no aplican; se neutralizan para que la barra de acento
-           y la tarjeta se vean como comprobante. */
-        .factura-container .info-box {
-            overflow: visible;
-            backdrop-filter: none;
-            box-shadow: none;
-        }
-        .factura-container .info-box:hover {
-            transform: none;
-            border-color: var(--border-color);
-            box-shadow: none;
-        }
-        .factura-container .info-box::before {
-            opacity: 1;
-            transform: none;
-            transition: none;
-            z-index: auto;
-        }
-        .factura-container .info-box:hover::before { opacity: 1; }
-
-        /* Marca de agua con el logo */
-        .watermark {
-            position: absolute;
-            right: 48px;
-            bottom: 150px;
-            width: 280px;
-            height: auto;
-            opacity: 0.05;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .factura-container > *:not(.watermark) { position: relative; z-index: 1; }
-
-        .factura-nota {
-            margin-top: 34px;
-            padding: 16px 20px;
-            border-left: 3px solid var(--color-accent);
-            border-radius: 0 8px 8px 0;
-            background: var(--bg-tertiary);
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            line-height: 1.6;
-        }
-        .factura-nota strong { color: var(--text-main); }
-
-        .factura-marca {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 14px;
-            color: var(--text-main);
-            font-weight: 700;
-            font-size: 0.95rem;
-        }
-        .factura-marca img { height: 26px; width: auto; }
-
-        /* =========================================================
-           TABLA DE PRODUCTOS
-           ========================================================= */
-
-        .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            margin-bottom: 30px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-        }
-
-        .factura-table {
-            width: 100%;
-            min-width: 650px;
-            border-collapse: collapse;
-        }
-
-        .factura-table th {
-            padding: 14px 16px;
-            background: var(--bg-tertiary);
-            border-bottom: 2px solid var(--border-color);
-            color: var(--color-accent-text);
-            font-size: 0.72rem;
-            font-weight: 800;
-            letter-spacing: 0.06em;
-            text-align: left;
-            text-transform: uppercase;
-        }
-
-        .factura-table td {
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-muted);
-            font-size: 0.88rem;
-            vertical-align: middle;
-        }
-
-        .factura-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .factura-table tbody tr {
-            transition: background 0.2s ease;
-        }
-
-        .factura-table tbody tr:hover {
-            background: var(--bg-tertiary);
-        }
-
-        .factura-table .item-nombre {
-            color: var(--text-main);
-            font-weight: 700;
-        }
-
-        /* =========================================================
-           TOTALES
-           ========================================================= */
-
-        .resumen-factura {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .totales-container {
-            width: 330px;
-            max-width: 100%;
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 25px;
-            padding: 11px 0;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-muted);
-            font-size: 0.88rem;
-        }
-
-        .total-row span:last-child {
-            color: var(--text-main);
-            font-weight: 600;
-        }
-
-        .total-row.final {
-            margin-top: 10px;
-            padding: 16px 18px;
-            border: 1px solid var(--color-accent);
-            border-radius: 10px;
-            background: var(--color-accent-dim);
-            color: var(--color-accent-text);
-            font-size: 1.15rem;
-            font-weight: 800;
-        }
-
-        .total-row.final span:last-child {
-            color: var(--color-accent-text);
-            font-size: 1.2rem;
-        }
-
-        /* =========================================================
-           PIE DE FACTURA
-           ========================================================= */
-
-        .factura-footer {
-            margin-top: 48px;
-            padding-top: 22px;
-            border-top: 1px dashed var(--border-color);
-            text-align: center;
-        }
-
-        .factura-footer p {
-            margin: 0;
-            color: var(--text-muted);
-            font-size: 0.82rem;
-            line-height: 1.6;
-        }
-
-        .carbono-value {
-            color: var(--color-success);
-            font-weight: 800;
-        }
-
-        /* =========================================================
-           ACCIONES
-           ========================================================= */
-
-        .factura-actions {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        .factura-actions .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 44px;
-            padding: 10px 18px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-sizing: border-box;
-            cursor: pointer;
-            font: inherit;
-            font-size: 0.84rem;
-            font-weight: 700;
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease,
-                background 0.2s ease;
-        }
-
-        .factura-actions .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-        }
-
-        .btn-print {
-            background: var(--bg-tertiary);
-            color: var(--text-main);
-        }
-
-        .btn-orders {
-            background: var(--color-accent);
-            color: var(--bg-primary);
-            text-decoration: none;
-        }
-
-        /* =========================================================
-           RESPONSIVE
-           ========================================================= */
-
-        @media (max-width: 760px) {
-            body {
-                padding: 15px 10px;
-            }
-
-            .factura-container {
-                padding: 32px 22px;
-            }
-
-            .factura-header {
-                grid-template-columns: 1fr;
-                gap: 22px;
-            }
-
-            .factura-identificacion {
-                padding: 16px 0 0;
-                border-left: none;
-                border-top: 1px solid var(--border-color);
-                text-align: left;
-            }
-
-            .info-seccion {
-                grid-template-columns: 1fr;
-            }
-
-            .resumen-factura {
-                justify-content: stretch;
-            }
-
-            .totales-container {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .factura-container {
-                padding: 28px 16px;
-                border-radius: 10px;
-            }
-
-            .empresa-brand {
-                align-items: flex-start;
-            }
-
-            .empresa-logo {
-                width: 55px;
-                height: 55px;
-            }
-
-            .info-box {
-                padding: 18px;
-            }
-
-            .factura-actions {
-                flex-direction: column;
-            }
-
-            .factura-actions .btn {
-                width: 100%;
-            }
-        }
-
-        /* =========================================================
-           IMPRESIÓN
-           ========================================================= */
-
         @media print {
-            @page {
-                size: A4;
-                margin: 15mm;
-            }
-
-            html,
-            body {
-                background: white;
-                color: black;
-                padding: 0;
-                margin: 0;
-            }
-
-            .factura-container {
-                width: 100%;
-                max-width: none;
-                margin: 0;
-                padding: 0;
-                background: white;
-                border: none;
-                border-radius: 0;
-                box-shadow: none;
-            }
-
-            .factura-container::before {
-                display: none;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-
-            .factura-header {
-                border-bottom: 2px solid black;
-            }
-
-            .empresa-info h1,
-            .factura-numero,
-            .factura-table th,
-            .total-row.final,
-            .total-row.final span:last-child {
-                color: black !important;
-            }
-
-            .info-box {
-                background: white;
-                border: 1px solid #999;
-            }
-
-            .info-box h3,
-            .info-box strong,
-            .factura-table td,
-            .total-row span:last-child {
-                color: black !important;
-            }
-
-            .info-box p,
-            .factura-fecha,
-            .factura-footer p,
-            .total-row {
-                color: #444 !important;
-            }
-
-            .factura-table th {
-                background: #f2f2f2;
-                border-bottom: 2px solid #777;
-            }
-
-            .factura-table td {
-                border-bottom: 1px solid #ccc;
-            }
-
-            .factura-table tbody tr:hover {
-                background: transparent;
-            }
-
-            .total-row.final {
-                background: #f2f2f2;
-                border: 1px solid #777;
-            }
-
-            .carbono-value {
-                color: black !important;
-            }
-
-            .watermark { opacity: 0.06; }
-
-            .factura-nota {
-                background: white;
-                border: 1px solid #999;
-                border-left: 3px solid black;
-                color: #444;
-            }
-
-            .factura-nota strong,
-            .factura-marca { color: black !important; }
-
-            .factura-footer {
-                border-top: 1px dashed #999;
-            }
+            @page { size: A4; margin: 15mm; }
+            html, body { background: var(--paper) !important; }
+            .no-print { display: none !important; }
+            .factura-container { width: 100%; margin: 0; padding: 0; box-shadow: none; border-radius: 0; }
+            .factura-container::before { display: none; }
+            .factura-table th, .factura-nota, .total-row.final { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
 
 <body>
 
-<div class="factura-container">
+<div class="factura-barra no-print">
+    <a th:href="@{/checkout/mis-pedidos}" class="back-link"><i class="ph ph-arrow-left" aria-hidden="true"></i> Mis pedidos</a>
+    <button type="button" class="btn btn-primary" onclick="window.print()">
+        <i class="ph ph-printer" aria-hidden="true"></i> Imprimir o guardar PDF
+    </button>
+</div>
+
+<main class="factura-container">
 
     <img class="watermark" th:src="@{/img/logo-icono.png}" alt="">
 
-    <div class="factura-header">
-
+    <header class="factura-header">
         <div class="empresa-brand">
-
-            <img
-                class="empresa-logo"
-                th:src="@{/img/logo-icono.png}"
-                alt="SmartGlass">
-
+            <img class="empresa-logo" th:src="@{/img/logo-icono.png}" alt="SmartGlass">
             <div class="empresa-info">
                 <h1>SmartGlass Industrial</h1>
-                <p>Soluciones Técnicas en Vidrio Sostenible</p>
+                <p>Soluciones técnicas en vidrio sostenible</p>
             </div>
-
         </div>
 
         <div class="factura-identificacion">
-            <h3>FACTURA DE VENTA</h3>
-            <p class="factura-numero" th:text="${pedido.numeroFactura}"></p>
-            <p class="factura-fecha" th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}"></p>
+            <h2>Factura de venta</h2>
+            <p class="factura-numero" th:text="${pedido.numeroFactura}">FAC-0000</p>
+            <p class="factura-fecha" th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</p>
         </div>
+    </header>
 
-    </div>
-
-
-    <div class="info-seccion">
-
-        <div class="info-box">
+    <section class="info-seccion">
+        <div class="parte">
             <h3>Emisor</h3>
             <strong>SmartGlass S.A.S</strong>
-            <p>NIT: 900.123.456-1</p>
-            <p>Planta Industrial - Zona Franca</p>
-            <p>Cartagena, Colombia</p>
+            <p>NIT: 900.123.456-1<br>Planta Industrial - Zona Franca<br>Cartagena, Colombia</p>
         </div>
 
-        <div class="info-box">
+        <div class="parte">
             <h3>Cliente</h3>
-            <strong th:text="${usuario.nombre}"></strong>
-            <p th:text="'Email: ' + ${usuario.email}"></p>
-            <p th:text="'Dirección: ' + ${pedido.direccionEnvio}"></p>
-            <p th:text="'Método Pago: ' + ${pedido.metodoPago}"></p>
+            <strong th:text="${usuario.nombre}">Cliente</strong>
+            <p>
+                <span th:text="${usuario.email}">correo@ejemplo.com</span><br>
+                <span th:text="${pedido.direccionEnvio}">Dirección</span><br>
+                <span th:text="'Pago: ' + ${pedido.metodoPago}">Pago</span>
+            </p>
         </div>
+    </section>
 
-    </div>
-
-
-    <div class="table-wrapper">
-        <table class="factura-table">
-
-            <thead>
-                <tr>
-                    <th>Producto / Servicio</th>
-                    <th style="text-align: center;">Cant.</th>
-                    <th style="text-align: right;">Precio Unit.</th>
-                    <th style="text-align: right;">Subtotal</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                <tr th:each="detalle : ${pedido.detalles}">
-                    <td class="item-nombre" th:text="${detalle.nombreProducto}"></td>
-                    <td style="text-align: center;" th:text="${detalle.cantidad}"></td>
-                    <td style="text-align: right;" th:text="${detalle.precioUnitarioFormateado}"></td>
-                    <td style="text-align: right; font-weight: bold; color: var(--text-main);" th:text="${detalle.subtotalFormateado}"></td>
-                </tr>
-
-            </tbody>
-
-        </table>
-    </div>
-
+    <table class="factura-table">
+        <thead>
+            <tr>
+                <th>Producto o servicio</th>
+                <th class="centro">Cant.</th>
+                <th class="num">Precio unit.</th>
+                <th class="num">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="detalle : ${pedido.detalles}">
+                <td class="item-nombre" th:text="${detalle.nombreProducto}">Producto</td>
+                <td class="centro" th:text="${detalle.cantidad}">1</td>
+                <td class="num" th:text="${detalle.precioUnitarioFormateado}">$0</td>
+                <td class="num" th:text="${detalle.subtotalFormateado}">$0</td>
+            </tr>
+        </tbody>
+    </table>
 
     <div class="resumen-factura">
-
         <div class="totales-container">
-
-            <div class="total-row">
-                <span>Subtotal:</span>
-                <span th:text="${pedido.totalFormateado}"></span>
-            </div>
-
-            <div class="total-row">
-                <span>Costo de Envío:</span>
-                <span>$ 0</span>
-            </div>
-
-            <div class="total-row final">
-                <span>TOTAL:</span>
-                <span th:text="${pedido.totalFormateado}"></span>
-            </div>
-
+            <div class="total-row"><span>Subtotal</span><span th:text="${pedido.totalFormateado}">$0</span></div>
+            <div class="total-row"><span>Envío</span><span>$ 0</span></div>
+            <div class="total-row final"><span>Total</span><span th:text="${pedido.totalFormateado}">$0</span></div>
         </div>
-
     </div>
 
-
-    <div class="factura-nota">
+    <p class="factura-nota">
         <strong>Soporte de compra.</strong>
-        Conserva este documento como comprobante de tu pedido. Los vidrios
-        personalizados se fabrican a la medida indicada en la cotización aprobada.
-    </div>
+        Conserva este documento como comprobante de tu pedido. Los vidrios personalizados
+        se fabrican a la medida indicada en la cotización aprobada.
+    </p>
 
-    <div class="factura-footer">
-
-        <div class="factura-marca">
-            <img th:src="@{/img/logo-icono.png}" alt="">
-            SmartGlass
-        </div>
-
+    <footer class="factura-footer">
+        <span class="factura-marca"><img th:src="@{/img/logo-icono.png}" alt=""> SmartGlass</span>
         <p>
-            Factura generada electrónicamente. Huella de carbono estimada de este pedido:
-            <strong class="carbono-value" th:text="${#numbers.formatDecimal(pedido.huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'"></strong>.
+            Factura generada electrónicamente. Huella de carbono estimada:
+            <strong class="carbono-value" th:text="${#numbers.formatDecimal(pedido.huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">0 kg CO₂e</strong>
         </p>
+    </footer>
 
-        <div class="no-print factura-actions">
-
-            <button
-                onclick="window.print()"
-                class="btn btn-print">
-                🖨️ Imprimir Factura
-            </button>
-
-            <a
-                th:href="@{/checkout/mis-pedidos}"
-                class="btn btn-orders">
-                Volver a Mis Pedidos
-            </a>
-
-        </div>
-
-    </div>
-
-</div>
+</main>
 
 <script th:src="@{/js/main.js}"></script>
-
 </body>
 </html>
