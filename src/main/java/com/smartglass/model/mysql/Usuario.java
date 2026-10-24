@@ -54,6 +54,10 @@ public class Usuario implements Serializable {
     @Column(name = "preferencia_accesibilidad", length = 30)
     private String preferenciaAccesibilidad;
 
+    // T0 i18n: "es-CO" | "es-ES" | "en"; null = es-CO (idioma por defecto). Nullable, sin migracion.
+    @Column(name = "preferencia_idioma", length = 8)
+    private String preferenciaIdioma;
+
     public Usuario() {
     }
 
@@ -98,4 +102,7 @@ public class Usuario implements Serializable {
 
     public String getPreferenciaAccesibilidad() { return preferenciaAccesibilidad; }
     public void setPreferenciaAccesibilidad(String preferenciaAccesibilidad) { this.preferenciaAccesibilidad = preferenciaAccesibilidad; }
+
+    public String getPreferenciaIdioma() { return preferenciaIdioma; }
+    public void setPreferenciaIdioma(String preferenciaIdioma) { this.preferenciaIdioma = preferenciaIdioma; }
 }

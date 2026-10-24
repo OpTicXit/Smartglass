@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Pedidos (Admin)</title>
+    <title th:text="#{admin.pedidos.smartglass_pedidos_admin}">SmartGlass - Pedidos (Admin)</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 
@@ -44,12 +44,12 @@
 
 <div class="container">
     
-    <h1 class="admin-title">Pedidos</h1>
+    <h1 class="admin-title" th:text="#{admin.pedidos.pedidos}">Pedidos</h1>
 
     <!-- Alerta flash (cuando se cambia el estado de uno o varios pedidos) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
 
-    <p class="hint-guardado">Cambia el estado de uno o varios pedidos y pulsa <strong>Guardar</strong> en cualquiera: se guardan todos los cambios a la vez.</p>
+    <p class="hint-guardado"><span th:text="#{admin.pedidos.cambia_el_estado_de_uno}">Cambia el estado de uno o varios pedidos y pulsa</span> <strong th:text="#{admin.pedidos.guardar}">Guardar</strong> <span th:text="#{admin.pedidos.en_cualquiera_se_guardan_todos}">en cualquiera: se guardan todos los cambios a la vez.</span></p>
 
     <!-- Un solo formulario para toda la tabla: cualquier boton Guardar envia todos los cambios -->
     <form id="form-estados" th:action="@{/admin/pedidos/estados}" method="post">
@@ -57,12 +57,12 @@
             <table class="table-admin">
                 <thead>
                     <tr>
-                        <th>Factura</th>
-                        <th>Cliente</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                        <th>Total</th>
-                        <th>Cambiar estado</th>
+                        <th th:text="#{admin.pedidos.factura}">Factura</th>
+                        <th th:text="#{admin.pedidos.cliente}">Cliente</th>
+                        <th th:text="#{admin.pedidos.fecha}">Fecha</th>
+                        <th th:text="#{admin.pedidos.estado}">Estado</th>
+                        <th th:text="#{admin.pedidos.total}">Total</th>
+                        <th th:text="#{admin.pedidos.cambiar_estado}">Cambiar estado</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,21 +81,21 @@
                         <td th:text="${pedido.totalFormateado}"></td>
                         <td>
                             <div class="estado-form">
-                                <select th:name="'estado_' + ${pedido.id}" aria-label="Cambiar estado del pedido"
+                                <select th:name="'estado_' + ${pedido.id}" aria-label="Cambiar estado del pedido" th:aria-label="#{admin.pedidos.cambiar_estado_del_pedido}"
                                         th:attr="data-previo=${pedido.estado}">
-                                    <option value="PENDIENTE" th:selected="${pedido.estado == 'PENDIENTE'}">Pendiente</option>
-                                    <option value="PROCESANDO" th:selected="${pedido.estado == 'PROCESANDO'}">Procesando</option>
-                                    <option value="ENVIADO" th:selected="${pedido.estado == 'ENVIADO'}">Enviado</option>
-                                    <option value="ENTREGADO" th:selected="${pedido.estado == 'ENTREGADO'}">Entregado</option>
-                                    <option value="CANCELADO" th:selected="${pedido.estado == 'CANCELADO'}">Cancelado</option>
+                                    <option value="PENDIENTE" th:selected="${pedido.estado == 'PENDIENTE'}" th:text="#{admin.pedidos.pendiente}">Pendiente</option>
+                                    <option value="PROCESANDO" th:selected="${pedido.estado == 'PROCESANDO'}" th:text="#{admin.pedidos.procesando}">Procesando</option>
+                                    <option value="ENVIADO" th:selected="${pedido.estado == 'ENVIADO'}" th:text="#{admin.pedidos.enviado}">Enviado</option>
+                                    <option value="ENTREGADO" th:selected="${pedido.estado == 'ENTREGADO'}" th:text="#{admin.pedidos.entregado}">Entregado</option>
+                                    <option value="CANCELADO" th:selected="${pedido.estado == 'CANCELADO'}" th:text="#{admin.pedidos.cancelado}">Cancelado</option>
                                 </select>
-                                <button type="submit">Guardar</button>
+                                <button type="submit" th:text="#{admin.pedidos.guardar}">Guardar</button>
                                 <span class="estado-msg" role="status" aria-live="polite"></span>
                             </div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(pedidos)}">
-                        <td colspan="6" class="td-vacio">
+                        <td colspan="6" class="td-vacio" th:text="#{admin.pedidos.no_hay_pedidos_registrados}">
                             No hay pedidos registrados.
                         </td>
                     </tr>

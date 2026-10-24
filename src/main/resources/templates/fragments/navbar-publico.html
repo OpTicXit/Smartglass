@@ -21,10 +21,10 @@
 
     <a th:href="@{/home}" class="logo">
         <img th:src="@{/img/logo-icono.png}" alt="">
-        <span>SmartGlass</span>
+        <span th:text="#{nav.smartglass}">SmartGlass</span>
     </a>
 
-    <button type="button" class="nav-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-panel-publico">
+    <button type="button" class="nav-toggle" aria-label="Abrir menú" th:aria-label="#{nav.abrir_menu}" aria-expanded="false" aria-controls="nav-panel-publico">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
 
@@ -32,60 +32,83 @@
 
         <ul class="nav-links">
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/home}" data-match="=/home|=/">Inicio</a>
+                <a class="nav-link" th:href="@{/home}" data-match="=/home|=/" th:text="#{nav.inicio}">Inicio</a>
             </li>
 
             <li class="nav-item has-menu">
                 <button type="button" class="nav-link nav-trigger" aria-haspopup="true" aria-expanded="false">
-                    Tienda
+                    <span th:text="#{nav.tienda}">Tienda</span>
                     <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
                 <ul class="nav-dropdown">
                     <li>
                         <a th:href="@{/catalogo}" data-key="catalogo" data-match="/catalogo|/detalle|/comparar">
-                            Catálogo completo
-                            <small>Todos los productos de vidrio</small>
+                            <span th:text="#{nav.catalogo_completo}">Catálogo completo</span>
+                            <small th:text="#{nav.todos_los_productos_de_vidrio}">Todos los productos de vidrio</small>
                         </a>
                     </li>
                     <li>
                         <a th:href="@{/destacados}" data-key="destacados" data-match="/destacados">
-                            Destacados
-                            <small>La selección de la casa</small>
+                            <span th:text="#{nav.destacados}">Destacados</span>
+                            <small th:text="#{nav.la_seleccion_de_la_casa}">La selección de la casa</small>
                         </a>
                     </li>
                 </ul>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/vidrio-personalizado/cotizar}" data-key="cotizar" data-match="/vidrio-personalizado">Vidrio personalizado</a>
+                <a class="nav-link" th:href="@{/vidrio-personalizado/cotizar}" data-key="cotizar" data-match="/vidrio-personalizado" th:text="#{nav.vidrio_personalizado}">Vidrio personalizado</a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/acerca}" data-match="/acerca">Acerca de</a>
+                <a class="nav-link" th:href="@{/acerca}" data-match="/acerca" th:text="#{nav.acerca_de}">Acerca de</a>
             </li>
         </ul>
 
         <div class="nav-actions">
 
+            <!-- T0 i18n: selector de idioma. Enlaces ?lang= (funcionan sin JS); main.js ademas lo guarda en la cuenta -->
+            <div class="nav-item has-menu nav-idioma" data-idioma-control>
+                <button type="button" class="nav-link nav-trigger nav-idioma-trigger" aria-haspopup="true" aria-expanded="false"
+                        th:title="#{idioma.abrir}" th:attr="aria-label=#{idioma.abrir}" title="Cambiar idioma" aria-label="Cambiar idioma">
+                    <svg class="ico-idioma" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+                    <span class="nav-idioma-codigo" aria-hidden="true"
+                          th:text="${#locale.language == 'en'} ? 'EN' : (${#locale.country == 'ES'} ? 'ES' : 'CO')">CO</span>
+                </button>
+                <ul class="nav-dropdown nav-dropdown--right idioma-panel">
+                    <li class="nav-head" aria-hidden="true" th:text="#{idioma.titulo}">Idioma</li>
+                    <li><a href="?lang=es-CO" hreflang="es-CO" lang="es-CO" data-idioma="es-CO"
+                           th:attr="aria-current=${#locale.toLanguageTag() == 'es-CO'} ? 'true' : null"
+                           th:text="#{idioma.es_CO}">Español (Colombia)</a></li>
+                    <li><a href="?lang=es-ES" hreflang="es-ES" lang="es-ES" data-idioma="es-ES"
+                           th:attr="aria-current=${#locale.toLanguageTag() == 'es-ES'} ? 'true' : null"
+                           th:text="#{idioma.es_ES}">Español (Castellano)</a></li>
+                    <li><a href="?lang=en" hreflang="en" lang="en" data-idioma="en"
+                           th:attr="aria-current=${#locale.toLanguageTag() == 'en'} ? 'true' : null"
+                           th:text="#{idioma.en}">English</a></li>
+                    <li class="idioma-nota" th:text="#{idioma.nota}">Los precios y cifras se muestran siempre en formato colombiano.</li>
+                </ul>
+            </div>
+
             <!-- T1 accesibilidad: lo conecta main.js (inicializarAccesibilidad); tambien para visitantes -->
             <div class="nav-item has-menu nav-a11y" data-a11y-control>
-                <button type="button" class="nav-link nav-trigger nav-a11y-trigger" aria-haspopup="true" aria-expanded="false" title="Accesibilidad">
+                <button type="button" class="nav-link nav-trigger nav-a11y-trigger" aria-haspopup="true" aria-expanded="false" title="Accesibilidad" th:title="#{nav.accesibilidad}">
                     <svg class="ico-a11y" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="7" r="1.3" fill="currentColor"/><path d="M7 10h10M12 10v4l-2.5 4.5M12 14l2.5 4.5"/></svg>
-                    <span class="nav-a11y-texto visually-hidden">Accesibilidad</span>
+                    <span class="nav-a11y-texto visually-hidden" th:text="#{nav.accesibilidad}">Accesibilidad</span>
                 </button>
-                <div class="nav-dropdown nav-dropdown--right a11y-panel" role="group" aria-label="Opciones de accesibilidad">
-                    <p class="nav-head">Accesibilidad</p>
+                <div class="nav-dropdown nav-dropdown--right a11y-panel" role="group" aria-label="Opciones de accesibilidad" th:aria-label="#{nav.opciones_de_accesibilidad}">
+                    <p class="nav-head" th:text="#{nav.accesibilidad}">Accesibilidad</p>
                     <button type="button" class="a11y-opcion" data-a11y-modo="daltotonico" aria-pressed="false">
                         <span class="a11y-opcion-texto">
-                            <strong>Colores para daltonismo</strong>
-                            <small>Semáforo con icono, patrón y texto</small>
+                            <strong th:text="#{nav.colores_para_daltonismo}">Colores para daltonismo</strong>
+                            <small th:text="#{nav.semaforo_con_icono_patron_y}">Semáforo con icono, patrón y texto</small>
                         </span>
                         <span class="a11y-switch" aria-hidden="true"></span>
                     </button>
                     <button type="button" class="a11y-opcion" data-a11y-modo="fotosensible" aria-pressed="false">
                         <span class="a11y-opcion-texto">
-                            <strong>Sin animaciones ni destellos</strong>
-                            <small>Para fotosensibilidad o mareo por movimiento</small>
+                            <strong th:text="#{nav.sin_animaciones_ni_destellos}">Sin animaciones ni destellos</strong>
+                            <small th:text="#{nav.para_fotosensibilidad_o_mareo_por}">Para fotosensibilidad o mareo por movimiento</small>
                         </span>
                         <span class="a11y-switch" aria-hidden="true"></span>
                     </button>
@@ -94,10 +117,10 @@
             </div>
 
             <!-- Visitante -->
-            <a th:unless="${auth}" th:href="@{/login}" class="btn-nav-cta">Iniciar sesión</a>
+            <a th:unless="${auth}" th:href="@{/login}" class="btn-nav-cta" th:text="#{nav.iniciar_sesion}">Iniciar sesión</a>
 
             <!-- Usuario registrado -->
-            <a th:if="${auth}" th:href="@{/carrito}" class="nav-cart" title="Carrito" aria-label="Carrito" data-match="=/carrito">
+            <a th:if="${auth}" th:href="@{/carrito}" class="nav-cart" title="Carrito" th:title="#{nav.carrito}" aria-label="Carrito" th:aria-label="#{nav.carrito}" data-match="=/carrito">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 11.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.5L21 7H6"/></svg>
                 <span class="cart-count" th:classappend="${cartCount == 0} ? 'is-empty'" th:text="${cartCount}">0</span>
             </a>
@@ -107,35 +130,35 @@
                     <span class="nav-avatar" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
                     </span>
-                    Mi cuenta
+                    <span th:text="#{nav.mi_cuenta}">Mi cuenta</span>
                     <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
                 <ul class="nav-dropdown nav-dropdown--right">
                     <li>
                         <a th:href="@{/usuario}" data-key="usuario" data-match="=/usuario">
-                            Resumen de cuenta
-                            <small>Tu panel personal</small>
+                            <span th:text="#{nav.resumen_de_cuenta}">Resumen de cuenta</span>
+                            <small th:text="#{nav.tu_panel_personal}">Tu panel personal</small>
                         </a>
                     </li>
                     <li>
                         <a th:href="@{/checkout/mis-pedidos}" data-key="mis-pedidos" data-match="/checkout/mis-pedidos|/checkout/pedido">
-                            Mis pedidos
-                            <small>Seguimiento y facturas</small>
+                            <span th:text="#{nav.mis_pedidos}">Mis pedidos</span>
+                            <small th:text="#{nav.seguimiento_y_facturas}">Seguimiento y facturas</small>
                         </a>
                     </li>
                     <li>
                         <a th:href="@{/vidrio-personalizado/mis-cotizaciones}" data-key="mis-cotizaciones" data-match="/mis-cotizaciones">
-                            Mis cotizaciones
-                            <small>Tus obras a medida</small>
+                            <span th:text="#{nav.mis_cotizaciones}">Mis cotizaciones</span>
+                            <small th:text="#{nav.tus_obras_a_medida}">Tus obras a medida</small>
                         </a>
                     </li>
                     <li th:if="${admin}" class="nav-sep" role="separator"></li>
                     <li th:if="${admin}">
-                        <a class="is-admin" th:href="@{/admin/dashboard}">Panel de administración</a>
+                        <a class="is-admin" th:href="@{/admin/dashboard}" th:text="#{nav.panel_de_administracion}">Panel de administración</a>
                     </li>
                     <li class="nav-sep" role="separator"></li>
                     <li>
-                        <a class="is-danger" th:href="@{/logout}">Cerrar sesión</a>
+                        <a class="is-danger" th:href="@{/logout}" th:text="#{nav.cerrar_sesion}">Cerrar sesión</a>
                     </li>
                 </ul>
             </div>
@@ -143,7 +166,7 @@
     </div>
 
     <!-- Barra secundaria: la rellena main.js solo cuando la seccion tiene opciones propias -->
-    <div class="subnav" role="navigation" aria-label="Opciones de la sección" hidden></div>
+    <div class="subnav" role="navigation" aria-label="Opciones de la sección" th:aria-label="#{nav.opciones_de_la_seccion}" hidden></div>
 
 </nav>
 

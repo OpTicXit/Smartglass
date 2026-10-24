@@ -1319,6 +1319,28 @@ html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-tr
 .nav-a11y > .nav-link { padding: 9px 11px; border: 1px solid var(--border-color); }
 .nav-a11y > .nav-link[aria-current="page"]::after, .nav-a11y > .nav-link::after { display: none; }
 
+/* ---------- Selector de idioma (T0 i18n) ---------- */
+.nav-idioma > .nav-link { gap: 6px; padding: 9px 11px; border: 1px solid var(--border-color); }
+.nav-idioma > .nav-link::after { display: none; }
+.nav-idioma .ico-idioma { width: 18px; height: 18px; flex: none; }
+.nav-idioma-codigo { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em; }
+.idioma-panel { min-width: 240px; }
+.idioma-panel a[aria-current="true"], .idioma-flotante a[aria-current="true"] {
+  background: var(--color-accent-dim); color: var(--color-accent-text);
+}
+/* El idioma activo tambien se marca con un check (no solo con color) */
+.idioma-panel a[aria-current="true"]::after, .idioma-flotante a[aria-current="true"]::after {
+  content: "\2713"; margin-left: auto; font-weight: 800;
+}
+.idioma-panel a, .idioma-flotante a { flex-direction: row; align-items: center; gap: 8px; }
+.idioma-nota { margin: 6px 12px 6px; color: var(--text-subtle); font-size: 0.74rem; line-height: 1.35; list-style: none; }
+.idioma-flotante { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-color); }
+.idioma-flotante a {
+  display: flex; padding: 9px 12px; border-radius: var(--r-sm); color: var(--text-main); font-size: 0.9rem; font-weight: 600;
+}
+.idioma-flotante a:hover, .idioma-flotante a:focus-visible { background: var(--color-accent-dim); }
+@media (pointer: coarse) { .idioma-panel a, .idioma-flotante a { min-height: 44px; } }
+
 /* Version flotante: vistas sin barra (login, registro, checkout, factura, confirmacion) */
 .a11y-flotante { position: fixed; right: 96px; bottom: max(20px, env(safe-area-inset-bottom)); z-index: 2000; }
 .a11y-flotante > .nav-link {

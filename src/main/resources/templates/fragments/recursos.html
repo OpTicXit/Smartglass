@@ -7,6 +7,7 @@
         <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     - theme-init.js va primero y sincrono: aplica el tema guardado antes de pintar.
     - a11y-init.js, igual: aplica data-a11y (daltotonico / fotosensible) antes de pintar.
+    - window.SG_LANG / window.SG_TXT: idioma activo y textos traducidos para main.js (T0 i18n).
     - Tipografias: Bricolage Grotesque (titulos) y Geist (texto).
     - Iconos: Phosphor (solo el peso regular y el relleno, version fija).
 -->
@@ -16,6 +17,88 @@
     <meta name="theme-color" content="#070B19">
     <script th:src="@{/js/theme-init.js}"></script>
     <script th:src="@{/js/a11y-init.js}"></script>
+    <!-- T0 i18n: idioma activo y textos de main.js (mismos messages*.properties que las vistas).
+         Los {0} se rellenan en JS. Regla D2: aqui no hay numeros del contrato. -->
+    <script th:inline="javascript">
+    window.SG_LANG = /*[[${#locale.toLanguageTag()}]]*/ 'es-CO';
+    window.SG_TXT = {
+        saltar: /*[[#{js.saltar}]]*/ 'Saltar al contenido',
+        notificaciones: /*[[#{js.notificaciones}]]*/ 'Notificaciones',
+        cerrar_notificacion: /*[[#{js.cerrar_notificacion}]]*/ 'Cerrar notificación',
+        cerrar_aviso: /*[[#{js.cerrar_aviso}]]*/ 'Cerrar aviso',
+        confirmar_titulo: /*[[#{js.confirmar_titulo}]]*/ '¿Confirmas esta acción?',
+        confirmar: /*[[#{js.confirmar}]]*/ 'Confirmar',
+        cancelar: /*[[#{js.cancelar}]]*/ 'Cancelar',
+        continuar: /*[[#{js.continuar}]]*/ '¿Continuar?',
+        mostrar_password: /*[[#{js.mostrar_password}]]*/ 'Mostrar contraseña',
+        ocultar_password: /*[[#{js.ocultar_password}]]*/ 'Ocultar contraseña',
+        comparar_max: /*[[#{js.comparar_max}]]*/ 'Puedes comparar hasta {0} productos a la vez.',
+        comparar_min: /*[[#{js.comparar_min}]]*/ 'Elige al menos 2 para comparar',
+        comparar_tope: /*[[#{js.comparar_tope}]]*/ 'Máximo {0} productos',
+        comparar_uno_mas: /*[[#{js.comparar_uno_mas}]]*/ 'Puedes sumar uno más',
+        tema_claro_on: /*[[#{js.tema_claro_on}]]*/ 'Modo claro activado. Cambiar a modo oscuro',
+        tema_oscuro_on: /*[[#{js.tema_oscuro_on}]]*/ 'Modo oscuro activado. Cambiar a modo claro',
+        tema_a_oscuro: /*[[#{js.tema_a_oscuro}]]*/ 'Cambiar a modo oscuro',
+        tema_a_claro: /*[[#{js.tema_a_claro}]]*/ 'Cambiar a modo claro',
+        a11y: /*[[#{js.a11y}]]*/ 'Accesibilidad',
+        a11y_opciones: /*[[#{js.a11y_opciones}]]*/ 'Opciones de accesibilidad',
+        a11y_dalt: /*[[#{js.a11y_dalt}]]*/ 'Colores para daltonismo',
+        a11y_dalt_det: /*[[#{js.a11y_dalt_det}]]*/ 'Semáforo con icono, patrón y texto',
+        a11y_foto: /*[[#{js.a11y_foto}]]*/ 'Sin animaciones ni destellos',
+        a11y_foto_det: /*[[#{js.a11y_foto_det}]]*/ 'Para fotosensibilidad o mareo por movimiento',
+        a11y_nombre_dalt: /*[[#{js.a11y_nombre_dalt}]]*/ 'colores para daltonismo',
+        a11y_nombre_foto: /*[[#{js.a11y_nombre_foto}]]*/ 'sin animaciones',
+        a11y_activado: /*[[#{js.a11y_activado}]]*/ 'Activado: {0}.',
+        a11y_normal: /*[[#{js.a11y_normal}]]*/ 'Accesibilidad en modo normal.',
+        a11y_guardado: /*[[#{js.a11y_guardado}]]*/ ' Guardado en tu cuenta.',
+        a11y_no_guardado: /*[[#{js.a11y_no_guardado}]]*/ ' No se pudo guardar en tu cuenta; queda en este navegador.',
+        a11y_y: /*[[#{js.a11y_y}]]*/ ' y ',
+        a11y_aria_activo: /*[[#{js.a11y_aria_activo}]]*/ 'Accesibilidad: {0} activado',
+        evo_paso: /*[[#{js.evo_paso}]]*/ 'Paso {0} de {1}',
+        evo_pausar: /*[[#{js.evo_pausar}]]*/ 'Pausar animación',
+        evo_reanudar: /*[[#{js.evo_reanudar}]]*/ 'Reanudar animación',
+        idioma_titulo: /*[[#{idioma.titulo}]]*/ 'Idioma',
+        idioma_es_CO: /*[[#{idioma.es_CO}]]*/ 'Español (Colombia)',
+        idioma_es_ES: /*[[#{idioma.es_ES}]]*/ 'Español (Castellano)',
+        idioma_en: /*[[#{idioma.en}]]*/ 'English',
+        idioma_nota: /*[[#{idioma.nota}]]*/ 'Los precios y cifras se muestran siempre en formato colombiano.',
+        abrir_menu: /*[[#{js.abrir_menu}]]*/ 'Abrir menú',
+        cerrar_menu: /*[[#{js.cerrar_menu}]]*/ 'Cerrar menú',
+        sub_vidrio: /*[[#{js.sub_vidrio}]]*/ 'Vidrio personalizado',
+        sub_nueva_cot: /*[[#{js.sub_nueva_cot}]]*/ 'Nueva cotización',
+        sub_mis_cot: /*[[#{js.sub_mis_cot}]]*/ 'Mis cotizaciones',
+        sub_cuenta: /*[[#{js.sub_cuenta}]]*/ 'Mi cuenta',
+        sub_resumen: /*[[#{js.sub_resumen}]]*/ 'Resumen',
+        sub_mis_pedidos: /*[[#{js.sub_mis_pedidos}]]*/ 'Mis pedidos',
+        sub_tienda: /*[[#{js.sub_tienda}]]*/ 'Tienda',
+        sub_catalogo: /*[[#{js.sub_catalogo}]]*/ 'Catálogo',
+        sub_destacados: /*[[#{js.sub_destacados}]]*/ 'Destacados',
+        reg_quisiste: /*[[#{js.reg_quisiste}]]*/ '¿Quisiste decir ',
+        reg_usuario_disponible: /*[[#{js.reg_usuario_disponible}]]*/ 'Usuario disponible',
+        reg_coinciden: /*[[#{js.reg_coinciden}]]*/ 'Las contraseñas coinciden',
+        reg_no_coinciden: /*[[#{js.reg_no_coinciden}]]*/ 'Las contraseñas no coinciden',
+        reg_tel_invalido: /*[[#{js.reg_tel_invalido}]]*/ 'Revisa el teléfono: debe ser válido para el país elegido.',
+        reg_pw_reglas: /*[[#{js.reg_pw_reglas}]]*/ 'La contraseña no cumple todas las reglas.',
+        reg_no_coinciden_punto: /*[[#{js.reg_no_coinciden_punto}]]*/ 'Las contraseñas no coinciden.',
+        cmp_mejor_precio: /*[[#{js.cmp_mejor_precio}]]*/ 'Mejor precio',
+        cmp_mejor_calif: /*[[#{js.cmp_mejor_calif}]]*/ 'Mejor calificación',
+        rating_1: /*[[#{js.rating_1}]]*/ 'Deficiente',
+        rating_2: /*[[#{js.rating_2}]]*/ 'Regular',
+        rating_3: /*[[#{js.rating_3}]]*/ 'Bueno',
+        rating_4: /*[[#{js.rating_4}]]*/ 'Muy bueno',
+        rating_5: /*[[#{js.rating_5}]]*/ 'Excelente',
+        miscot_ref: /*[[#{js.miscot_ref}]]*/ 'Pieza a medida, Nº {0}',
+        miscot_impacto: /*[[#{js.miscot_impacto}]]*/ 'Impacto {0}',
+        nivel_favorable: /*[[#{js.nivel_favorable}]]*/ 'favorable',
+        nivel_moderado: /*[[#{js.nivel_moderado}]]*/ 'moderado',
+        nivel_alto: /*[[#{js.nivel_alto}]]*/ 'alto'
+    };
+    /* sgT('clave', 'respaldo', arg0...): para los scripts de cada pagina (corren antes que main.js) */
+    window.sgT = function (k, r) {
+        var s = (window.SG_TXT && window.SG_TXT[k]) || r || '', a = [].slice.call(arguments, 2);
+        return s.replace(/\{(\d+)\}/g, function (m, i) { return a[i] != null ? a[i] : m; });
+    };
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist:wght@400..700&display=swap">

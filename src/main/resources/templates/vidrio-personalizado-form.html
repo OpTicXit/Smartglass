@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Atelier: diseña tu obra</title>
+    <title th:text="#{cotizar.smartglass_atelier_disena_tu_obra}">SmartGlass - Atelier: diseña tu obra</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -284,8 +284,8 @@
 <main class="atelier">
 
     <header class="atelier-hero">
-                <h1>Diseña tu obra</h1>
-        <p>
+                <h1 th:text="#{cotizar.disena_tu_obra}">Diseña tu obra</h1>
+        <p th:text="#{cotizar.cada_decision_transforma_la_pieza}">
             Cada decisión transforma la pieza que ves. Cuando la sientas tuya,
             la llevamos a fábrica y te mostramos su huella, su resistencia y su precio.
         </p>
@@ -294,7 +294,7 @@
     <div class="atelier-grid">
 
         <!-- ================= ESCENARIO ================= -->
-        <aside class="atelier-stage" aria-label="Vista previa de tu pieza">
+        <aside class="atelier-stage" aria-label="Vista previa de tu pieza" th:aria-label="#{cotizar.vista_previa_de_tu_pieza}">
 
             <div class="sg-stage stage-wrap">
                 <div class="sg-tilt sg-tilt-host" id="inclinable">
@@ -303,36 +303,36 @@
             </div>
 
             <div class="cartela">
-                <small>Tu obra</small>
-                <strong id="cartelaTitulo">Templado · 105 × 105 cm · 7 mm</strong>
-                <p id="cartelaFrase">Templado: hasta cinco veces más resistente, listo para el uso diario.</p>
+                <small th:text="#{cotizar.tu_obra}">Tu obra</small>
+                <strong id="cartelaTitulo" th:text="#{cotizar.templado_105_105_cm_7}">Templado · 105 × 105 cm · 7 mm</strong>
+                <p id="cartelaFrase" th:text="#{cotizar.templado_hasta_cinco_veces_mas}">Templado: hasta cinco veces más resistente, listo para el uso diario.</p>
             </div>
 
             <div class="medidas">
-                <div class="medida"><span>Área</span><strong id="areaText">1.10 m²</strong></div>
-                <div class="medida"><span>Peso</span><strong id="pesoText">19.3 kg</strong></div>
-                <div class="medida"><span>CO₂e de la pieza</span><strong id="co2Text" class="co2 co2-value">9.8 kg</strong></div>
+                <div class="medida"><span th:text="#{cotizar.area}">Área</span><strong id="areaText">1.10 m²</strong></div>
+                <div class="medida"><span th:text="#{cotizar.peso}">Peso</span><strong id="pesoText" th:text="#{cotizar.19_3_kg}">19.3 kg</strong></div>
+                <div class="medida"><span th:text="#{cotizar.co2e_de_la_pieza}">CO₂e de la pieza</span><strong id="co2Text" class="co2 co2-value" th:text="#{cotizar.9_8_kg}">9.8 kg</strong></div>
             </div>
 
             <div class="termometro nivel-favorable" id="termometro">
                 <div class="termo-cab">
-                    <span>Proceso · intensidad ambiental</span>
-                    <span class="chip-nivel" id="termoChip">Favorable</span>
+                    <span th:text="#{cotizar.proceso_intensidad_ambiental}">Proceso · intensidad ambiental</span>
+                    <span class="chip-nivel" id="termoChip" th:text="#{cotizar.favorable}">Favorable</span>
                 </div>
-                <div class="termo-valor"><strong id="termoValor">0.0</strong><small>kg CO₂e/m²</small></div>
+                <div class="termo-valor"><strong id="termoValor">0.0</strong><small th:text="#{cotizar.kg_co2e_m2}">kg CO₂e/m²</small></div>
                 <div class="termo-barra" aria-hidden="true">
                     <i id="termoPunto"></i>
                     <span style="left:40%">12</span><span style="left:66.67%">20</span>
                 </div>
-                <p id="termoFrase">Perfil ambiental favorable</p>
-                <button type="button" class="termo-ver" id="termoVer" hidden>Ver configuración recomendada</button>
+                <p id="termoFrase" th:text="#{cotizar.perfil_ambiental_favorable}">Perfil ambiental favorable</p>
+                <button type="button" class="termo-ver" id="termoVer" hidden th:text="#{cotizar.ver_configuracion_recomendada}">Ver configuración recomendada</button>
             </div>
 
             <div class="precio-caja">
-                <span>Estimación actual</span>
+                <span th:text="#{cotizar.estimacion_actual}">Estimación actual</span>
                 <div class="precio-grande" id="priceText">$175.959</div>
                 <div class="ahorro" id="ahorroText" hidden></div>
-                <p class="nota">
+                <p class="nota" th:text="#{cotizar.calculos_parametricos_el_precio_final}">
                     Cálculos paramétricos. El precio final puede variar según la
                     validación técnica en fábrica.
                 </p>
@@ -342,7 +342,7 @@
         <!-- ================= FORMULARIO ================= -->
         <form th:action="@{/vidrio-personalizado/cotizar}" method="post" id="formCotizacion" class="atelier-form">
 
-            <div class="aviso-balance" id="avisoBalance" hidden>
+            <div class="aviso-balance" id="avisoBalance" hidden th:text="#{cotizar.partimos_de_tu_obra_anterior}">
                 Partimos de tu obra anterior y aplicamos la configuración recomendada para reducir su impacto ambiental.
                 Ajusta lo que quieras antes de generar la cotización.
             </div>
@@ -350,13 +350,13 @@
             <section class="alerta-impacto nivel-alto" id="alertaImpacto" role="alert" hidden>
                 <div class="alerta-icono" aria-hidden="true"><i class="ph-fill ph-warning"></i></div>
                 <div class="alerta-cuerpo">
-                    <strong id="alertaTitulo">Configuración de alto impacto</strong>
+                    <strong id="alertaTitulo" th:text="#{cotizar.configuracion_de_alto_impacto}">Configuración de alto impacto</strong>
                     <p id="alertaTexto"></p>
                     <ul class="alerta-cambios" id="alertaCambios"></ul>
                     <p class="alerta-resultado" id="alertaResultado"></p>
                     <div class="alerta-acciones">
-                        <button type="button" class="btn-alerta" id="alertaAplicar">Aplicar configuración recomendada</button>
-                        <button type="button" class="btn-alerta-sec" id="alertaCerrar">Mantener mi diseño</button>
+                        <button type="button" class="btn-alerta" id="alertaAplicar" th:text="#{cotizar.aplicar_configuracion_recomendada}">Aplicar configuración recomendada</button>
+                        <button type="button" class="btn-alerta-sec" id="alertaCerrar" th:text="#{cotizar.mantener_mi_diseno}">Mantener mi diseño</button>
                     </div>
                 </div>
             </section>
@@ -366,42 +366,42 @@
                 <header class="cap-head">
                     <span class="cap-num">I</span>
                     <div>
-                        <h2>El lienzo</h2>
-                        <p>Para qué será tu pieza y de qué vidrio parte.</p>
+                        <h2 th:text="#{cotizar.el_lienzo}">El lienzo</h2>
+                        <p th:text="#{cotizar.para_que_sera_tu_pieza}">Para qué será tu pieza y de qué vidrio parte.</p>
                     </div>
                 </header>
 
                 <div class="campo">
-                    <label for="usoPrincipal">Uso principal</label>
+                    <label for="usoPrincipal" th:text="#{cotizar.uso_principal}">Uso principal</label>
                     <select name="usoPrincipal" id="usoPrincipal">
                         <optgroup label="Residencial e interiores">
-                            <option value="Mobiliario">Cubierta de mesa / mueble</option>
-                            <option value="Ducha">División de baño / ducha</option>
-                            <option value="Espejo">Espejo decorativo</option>
-                            <option value="Repisa">Repisa / estantería</option>
+                            <option value="Mobiliario" th:text="#{cotizar.cubierta_de_mesa_mueble}">Cubierta de mesa / mueble</option>
+                            <option value="Ducha" th:text="#{cotizar.division_de_bano_ducha}">División de baño / ducha</option>
+                            <option value="Espejo" th:text="#{cotizar.espejo_decorativo}">Espejo decorativo</option>
+                            <option value="Repisa" th:text="#{cotizar.repisa_estanteria}">Repisa / estantería</option>
                         </optgroup>
                         <optgroup label="Arquitectónico y exterior">
-                            <option value="Ventana">Ventana (residencial/comercial)</option>
-                            <option value="Puerta">Puerta de vidrio</option>
-                            <option value="Baranda">Baranda / pasamanos / balcón</option>
-                            <option value="Fachada">Fachada / muro cortina</option>
-                            <option value="Piso">Piso / escalera de vidrio</option>
-                            <option value="Techo">Pérgola / marquesina</option>
+                            <option value="Ventana" th:text="#{cotizar.ventana_residencial_comercial}">Ventana (residencial/comercial)</option>
+                            <option value="Puerta" th:text="#{cotizar.puerta_de_vidrio}">Puerta de vidrio</option>
+                            <option value="Baranda" th:text="#{cotizar.baranda_pasamanos_balcon}">Baranda / pasamanos / balcón</option>
+                            <option value="Fachada" th:text="#{cotizar.fachada_muro_cortina}">Fachada / muro cortina</option>
+                            <option value="Piso" th:text="#{cotizar.piso_escalera_de_vidrio}">Piso / escalera de vidrio</option>
+                            <option value="Techo" th:text="#{cotizar.pergola_marquesina}">Pérgola / marquesina</option>
                         </optgroup>
                     </select>
-                    <p class="hint">Nos ayuda a validar que el espesor elegido sea seguro para este propósito.</p>
+                    <p class="hint" th:text="#{cotizar.nos_ayuda_a_validar_que}">Nos ayuda a validar que el espesor elegido sea seguro para este propósito.</p>
                 </div>
 
                 <div class="campo">
-                    <span class="campo-titulo" id="lblTipo">Tipo de vidrio base</span>
+                    <span class="campo-titulo" id="lblTipo" th:text="#{cotizar.tipo_de_vidrio_base}">Tipo de vidrio base</span>
                     <select name="tipoVidrio" id="tipoVidrio" aria-labelledby="lblTipo">
-                        <option value="Crudo">Crudo (Estándar)</option>
-                        <option value="Templado" selected>Templado (Seguridad térmica/mecánica)</option>
-                        <option value="Laminado">Laminado (Seguridad antivandalismo)</option>
-                        <option value="TempladoLaminado">Templado + Laminado (Máxima seguridad)</option>
-                        <option value="Insulado">Insulado (Cámara de aire)</option>
-                        <option value="Inteligente">Inteligente (Privacidad variable)</option>
-                        <option value="Fotovoltaico">Fotovoltaico (Genera energía)</option>
+                        <option value="Crudo" th:text="#{cotizar.crudo_estandar}">Crudo (Estándar)</option>
+                        <option value="Templado" selected th:text="#{cotizar.templado_seguridad_termica_mecanica}">Templado (Seguridad térmica/mecánica)</option>
+                        <option value="Laminado" th:text="#{cotizar.laminado_seguridad_antivandalismo}">Laminado (Seguridad antivandalismo)</option>
+                        <option value="TempladoLaminado" th:text="#{cotizar.templado_laminado_maxima_seguridad}">Templado + Laminado (Máxima seguridad)</option>
+                        <option value="Insulado" th:text="#{cotizar.insulado_camara_de_aire}">Insulado (Cámara de aire)</option>
+                        <option value="Inteligente" th:text="#{cotizar.inteligente_privacidad_variable}">Inteligente (Privacidad variable)</option>
+                        <option value="Fotovoltaico" th:text="#{cotizar.fotovoltaico_genera_energia}">Fotovoltaico (Genera energía)</option>
                     </select>
                 </div>
             </section>
@@ -409,102 +409,102 @@
             <!-- II · LAS PROPORCIONES -->
             <section class="capitulo">
                 <header class="cap-head">
-                    <span class="cap-num">II</span>
+                    <span class="cap-num" th:text="#{cotizar.ii}">II</span>
                     <div>
-                        <h2>Las proporciones</h2>
-                        <p>Mueve los deslizadores o escribe la medida exacta.</p>
+                        <h2 th:text="#{cotizar.las_proporciones}">Las proporciones</h2>
+                        <p th:text="#{cotizar.mueve_los_deslizadores_o_escribe}">Mueve los deslizadores o escribe la medida exacta.</p>
                     </div>
                 </header>
 
                 <div class="medida-campo">
-                    <label for="ancho">Ancho</label>
+                    <label for="ancho" th:text="#{cotizar.ancho}">Ancho</label>
                     <div class="num-unidad">
                         <input type="number" name="ancho" id="ancho" value="105" min="10">
-                        <span>CM</span>
+                        <span th:text="#{cotizar.cm}">CM</span>
                     </div>
-                    <input type="range" id="anchoRango" aria-label="Ancho en centímetros">
+                    <input type="range" id="anchoRango" aria-label="Ancho en centímetros" th:aria-label="#{cotizar.ancho_en_centimetros}">
                 </div>
 
                 <div class="medida-campo">
-                    <label for="alto">Alto</label>
+                    <label for="alto" th:text="#{cotizar.alto}">Alto</label>
                     <div class="num-unidad">
                         <input type="number" name="alto" id="alto" value="105" min="10">
-                        <span>CM</span>
+                        <span th:text="#{cotizar.cm}">CM</span>
                     </div>
-                    <input type="range" id="altoRango" aria-label="Alto en centímetros">
+                    <input type="range" id="altoRango" aria-label="Alto en centímetros" th:aria-label="#{cotizar.alto_en_centimetros}">
                 </div>
 
                 <div class="medida-campo">
-                    <label for="espesor">Espesor</label>
+                    <label for="espesor" th:text="#{cotizar.espesor}">Espesor</label>
                     <div class="num-unidad">
                         <input type="number" name="espesor" id="espesor" value="7" min="4" max="40">
-                        <span>MM</span>
+                        <span th:text="#{cotizar.mm}">MM</span>
                     </div>
-                    <input type="range" id="espesorRango" aria-label="Espesor en milímetros">
+                    <input type="range" id="espesorRango" aria-label="Espesor en milímetros" th:aria-label="#{cotizar.espesor_en_milimetros}">
                 </div>
-                <p class="hint">Referencias: muebles 6–8 mm · ventanas 6–10 mm · duchas 8–10 mm · barandas y pisos 12–25 mm.</p>
+                <p class="hint" th:text="#{cotizar.referencias_muebles_68_mm_ventanas}">Referencias: muebles 6–8 mm · ventanas 6–10 mm · duchas 8–10 mm · barandas y pisos 12–25 mm.</p>
             </section>
 
             <!-- III · EL CARACTER -->
             <section class="capitulo">
                 <header class="cap-head">
-                    <span class="cap-num">III</span>
+                    <span class="cap-num" th:text="#{cotizar.iii}">III</span>
                     <div>
-                        <h2>El carácter</h2>
-                        <p>Acabado, forma y detalles que le dan identidad.</p>
+                        <h2 th:text="#{cotizar.el_caracter}">El carácter</h2>
+                        <p th:text="#{cotizar.acabado_forma_y_detalles_que}">Acabado, forma y detalles que le dan identidad.</p>
                     </div>
                 </header>
 
                 <div class="campo">
-                    <span class="campo-titulo" id="lblTrat">Tratamiento superficial</span>
+                    <span class="campo-titulo" id="lblTrat" th:text="#{cotizar.tratamiento_superficial}">Tratamiento superficial</span>
                     <select name="tratamiento" id="tratamiento" aria-labelledby="lblTrat">
-                        <option value="Ninguno">Incoloro / Extra claro</option>
-                        <option value="TintadoGris">Tintado en masa (Gris humo)</option>
-                        <option value="TintadoBronce">Tintado en masa (Bronce)</option>
-                        <option value="ControlSolar">Control solar (Low-E)</option>
-                        <option value="Esmerilado">Esmerilado (Sandblasting)</option>
-                        <option value="Serigrafiado">Serigrafiado (Patrón a medida)</option>
-                        <option value="Antireflejo">Antirreflejo (Vitrinas y museos)</option>
+                        <option value="Ninguno" th:text="#{cotizar.incoloro_extra_claro}">Incoloro / Extra claro</option>
+                        <option value="TintadoGris" th:text="#{cotizar.tintado_en_masa_gris_humo}">Tintado en masa (Gris humo)</option>
+                        <option value="TintadoBronce" th:text="#{cotizar.tintado_en_masa_bronce}">Tintado en masa (Bronce)</option>
+                        <option value="ControlSolar" th:text="#{cotizar.control_solar_low_e}">Control solar (Low-E)</option>
+                        <option value="Esmerilado" th:text="#{cotizar.esmerilado_sandblasting}">Esmerilado (Sandblasting)</option>
+                        <option value="Serigrafiado" th:text="#{cotizar.serigrafiado_patron_a_medida}">Serigrafiado (Patrón a medida)</option>
+                        <option value="Antireflejo" th:text="#{cotizar.antirreflejo_vitrinas_y_museos}">Antirreflejo (Vitrinas y museos)</option>
                     </select>
                 </div>
 
                 <div class="campo">
-                    <span class="campo-titulo" id="lblForma">Geometría de corte</span>
+                    <span class="campo-titulo" id="lblForma" th:text="#{cotizar.geometria_de_corte}">Geometría de corte</span>
                     <select name="forma" id="forma" aria-labelledby="lblForma">
-                        <option value="Rectangular">Rectangular / Cuadrado</option>
-                        <option value="Circular">Circular / Elíptico</option>
-                        <option value="Triangular">Triangular / Trapezoidal</option>
-                        <option value="Irregular">Corte irregular (Requiere plano CAD)</option>
-                        <option value="Personalizada">Corte personalizado (Dibuja tu pieza)</option>
+                        <option value="Rectangular" th:text="#{cotizar.rectangular_cuadrado}">Rectangular / Cuadrado</option>
+                        <option value="Circular" th:text="#{cotizar.circular_eliptico}">Circular / Elíptico</option>
+                        <option value="Triangular" th:text="#{cotizar.triangular_trapezoidal}">Triangular / Trapezoidal</option>
+                        <option value="Irregular" th:text="#{cotizar.corte_irregular_requiere_plano_cad}">Corte irregular (Requiere plano CAD)</option>
+                        <option value="Personalizada" th:text="#{cotizar.corte_personalizado_dibuja_tu_pieza}">Corte personalizado (Dibuja tu pieza)</option>
                     </select>
                     <!-- F45: vertices del corte ("x,y;x,y;..."); Spring los enlaza con CotizacionVidrioRequest.setPuntosTexto -->
                     <input type="hidden" name="puntosTexto" id="puntosTexto" value="">
                     <div class="corte-acciones" id="corteAcciones" hidden>
-                        <button type="button" class="btn btn-secondary" id="btnEditarCorte" data-sg-corte><i class="ph ph-pencil-simple" aria-hidden="true"></i> Editar mi corte</button>
+                        <button type="button" class="btn btn-secondary" id="btnEditarCorte" data-sg-corte><i class="ph ph-pencil-simple" aria-hidden="true"></i> <span th:text="#{cotizar.editar_mi_corte}">Editar mi corte</span></button>
                         <p class="hint" id="corteResumen" aria-live="polite"></p>
                     </div>
                 </div>
 
                 <div class="fila-2">
                     <div class="campo">
-                        <label for="acabadoBordes">Acabado de bordes</label>
+                        <label for="acabadoBordes" th:text="#{cotizar.acabado_de_bordes}">Acabado de bordes</label>
                         <select name="acabadoBordes" id="acabadoBordes">
-                            <option value="CorteLimpio">Corte limpio (para enmarcar)</option>
-                            <option value="PulidoPlano">Pulido plano brillante (expuesto)</option>
-                            <option value="Biselado">Biselado decorativo</option>
+                            <option value="CorteLimpio" th:text="#{cotizar.corte_limpio_para_enmarcar}">Corte limpio (para enmarcar)</option>
+                            <option value="PulidoPlano" th:text="#{cotizar.pulido_plano_brillante_expuesto}">Pulido plano brillante (expuesto)</option>
+                            <option value="Biselado" th:text="#{cotizar.biselado_decorativo}">Biselado decorativo</option>
                         </select>
-                        <p class="hint">Si el borde queda a la vista (mesa, ducha), elige pulido para evitar cortes.</p>
+                        <p class="hint" th:text="#{cotizar.si_el_borde_queda_a}">Si el borde queda a la vista (mesa, ducha), elige pulido para evitar cortes.</p>
                     </div>
 
                     <div class="campo">
-                        <label for="perforaciones">Perforaciones</label>
+                        <label for="perforaciones" th:text="#{cotizar.perforaciones}">Perforaciones</label>
                         <select name="perforaciones" id="perforaciones">
-                            <option value="0">Ninguna</option>
-                            <option value="2">1 a 2 perforaciones</option>
-                            <option value="4">3 a 4 perforaciones</option>
-                            <option value="6">Más de 4 (estructural)</option>
+                            <option value="0" th:text="#{cotizar.ninguna}">Ninguna</option>
+                            <option value="2" th:text="#{cotizar.1_a_2_perforaciones}">1 a 2 perforaciones</option>
+                            <option value="4" th:text="#{cotizar.3_a_4_perforaciones}">3 a 4 perforaciones</option>
+                            <option value="6" th:text="#{cotizar.mas_de_4_estructural}">Más de 4 (estructural)</option>
                         </select>
-                        <p class="hint">Necesarias para bisagras, chapas, conectores o pasamanos.</p>
+                        <p class="hint" th:text="#{cotizar.necesarias_para_bisagras_chapas_conectores}">Necesarias para bisagras, chapas, conectores o pasamanos.</p>
                     </div>
                 </div>
             </section>
@@ -512,26 +512,26 @@
             <!-- IV · TU HUELLA -->
             <section class="capitulo">
                 <header class="cap-head">
-                    <span class="cap-num">IV</span>
+                    <span class="cap-num" th:text="#{cotizar.iv}">IV</span>
                     <div>
-                        <h2>Tu huella</h2>
-                        <p>Una obra que también cuida el planeta.</p>
+                        <h2 th:text="#{cotizar.tu_huella}">Tu huella</h2>
+                        <p th:text="#{cotizar.una_obra_que_tambien_cuida}">Una obra que también cuida el planeta.</p>
                     </div>
                 </header>
 
                 <label class="eco-opcion">
                     <input type="checkbox" name="usarVidrioReciclado" id="opcionEco" checked>
-                    <span>Integrar <strong>material reciclado</strong><small>Reduce un 15 % la huella de carbono.</small></span>
+                    <span><span th:text="#{cotizar.integrar}">Integrar</span> <strong th:text="#{cotizar.material_reciclado}">material reciclado</strong><small th:text="#{cotizar.reduce_un_15_la_huella}">Reduce un 15 % la huella de carbono.</small></span>
                 </label>
 
                 <label class="eco-opcion">
                     <input type="checkbox" name="energiaRenovable" id="energiaRenovable" checked>
-                    <span>Procesar con <strong>energía solar y eólica</strong><small>Casi reduce a la mitad las emisiones del proceso.</small></span>
+                    <span><span th:text="#{cotizar.procesar_con}">Procesar con</span> <strong th:text="#{cotizar.energia_solar_y_eolica}">energía solar y eólica</strong><small th:text="#{cotizar.casi_reduce_a_la_mitad}">Casi reduce a la mitad las emisiones del proceso.</small></span>
                 </label>
 
                 <label class="eco-opcion">
                     <input type="checkbox" name="compensarCarbono" id="compensar" checked>
-                    <span>Activar <strong>compensación de CO₂</strong><small>Suma 5.000 COP a tu estimación.</small></span>
+                    <span><span th:text="#{cotizar.activar}">Activar</span> <strong th:text="#{cotizar.compensacion_de_co2}">compensación de CO₂</strong><small th:text="#{cotizar.suma_5_000_cop_a}">Suma 5.000 COP a tu estimación.</small></span>
                 </label>
             </section>
 
@@ -540,21 +540,21 @@
                 <header class="cap-head">
                     <span class="cap-num">V</span>
                     <div>
-                        <h2>El tiempo</h2>
-                        <p>¿La necesitas con prioridad?</p>
+                        <h2 th:text="#{cotizar.el_tiempo}">El tiempo</h2>
+                        <p th:text="#{cotizar.la_necesitas_con_prioridad}">¿La necesitas con prioridad?</p>
                     </div>
                 </header>
 
                 <label class="urgente sg-rainbow">
                     <input type="checkbox" name="urgente" id="urgente">
-                    <span>Entrega urgente / prioritaria<small>Suma un 20 % al precio.</small></span>
-                    <span class="chip-premium">Premium</span>
+                    <span><span th:text="#{cotizar.entrega_urgente_prioritaria}">Entrega urgente / prioritaria</span><small th:text="#{cotizar.suma_un_20_al_precio}">Suma un 20 % al precio.</small></span>
+                    <span class="chip-premium" th:text="#{cotizar.premium}">Premium</span>
                 </label>
             </section>
 
             <button type="submit" class="btn-forjar" id="btnForjar">
-                <strong>Dar vida a mi obra</strong>
-                <span>Generaremos el análisis industrial y de CO₂</span>
+                <strong th:text="#{cotizar.dar_vida_a_mi_obra}">Dar vida a mi obra</strong>
+                <span th:text="#{cotizar.generaremos_el_analisis_industrial_y}">Generaremos el análisis industrial y de CO₂</span>
             </button>
         </form>
     </div>
@@ -562,13 +562,13 @@
 
 <!-- Confirmacion al enviar una configuracion de alto impacto -->
 <dialog class="dlg-impacto nivel-alto" id="dlgImpacto" aria-labelledby="dlgTitulo">
-    <h3 id="dlgTitulo"><i class="ph-fill ph-warning" aria-hidden="true"></i> Antes de continuar</h3>
+    <h3 id="dlgTitulo"><i class="ph-fill ph-warning" aria-hidden="true"></i> <span th:text="#{cotizar.antes_de_continuar}">Antes de continuar</span></h3>
     <p id="dlgTexto"></p>
     <ul class="alerta-cambios" id="dlgCambios"></ul>
     <p class="alerta-resultado" id="dlgResultado"></p>
     <div class="alerta-acciones">
-        <button type="button" class="btn-alerta" id="dlgAplicar">Aplicar y revisar</button>
-        <button type="button" class="btn-alerta-sec" id="dlgContinuar">Continuar con mi diseño</button>
+        <button type="button" class="btn-alerta" id="dlgAplicar" th:text="#{cotizar.aplicar_y_revisar}">Aplicar y revisar</button>
+        <button type="button" class="btn-alerta-sec" id="dlgContinuar" th:text="#{cotizar.continuar_con_mi_diseno}">Continuar con mi diseño</button>
     </div>
 </dialog>
 
@@ -576,8 +576,8 @@
 <div class="forja" id="forja" hidden role="status" aria-live="polite">
     <div class="forja-card">
         <div class="sg-stage"><div id="forjaEscenario"></div></div>
-        <p id="forjaMensaje">Preparando tu obra…</p>
-        <small>Esto toma solo unos segundos.</small>
+        <p id="forjaMensaje" th:text="#{cotizar.preparando_tu_obra}">Preparando tu obra…</p>
+        <small th:text="#{cotizar.esto_toma_solo_unos_segundos}">Esto toma solo unos segundos.</small>
     </div>
 </div>
 

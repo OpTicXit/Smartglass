@@ -16,7 +16,7 @@
 <aside th:fragment="panel" class="auth-visual" aria-labelledby="evo-titulo">
     <a th:href="@{/home}" class="auth-marca" tabindex="-1" aria-hidden="true">
         <img th:src="@{/img/logo-icono.png}" alt="">
-        SmartGlass
+        <span th:text="#{evo.smartglass}">SmartGlass</span>
     </a>
 
     <figure class="evolucion" data-evolucion data-etapa="5">
@@ -81,32 +81,32 @@
         </svg>
 
         <figcaption class="evo-texto">
-            <p class="evo-paso" id="evo-paso">Paso 5 de 5</p>
-            <h2 id="evo-titulo">Tu pieza</h2>
-            <p id="evo-texto">Cortada a tu medida, con su precio y su huella de carbono a la vista antes de pedirla.</p>
+            <p class="evo-paso" id="evo-paso" th:text="#{evo.paso_5_de_5}">Paso 5 de 5</p>
+            <h2 id="evo-titulo" th:text="#{evo.tu_pieza}">Tu pieza</h2>
+            <p id="evo-texto" th:text="#{evo.cortada_a_tu_medida_con}">Cortada a tu medida, con su precio y su huella de carbono a la vista antes de pedirla.</p>
         </figcaption>
 
         <div class="evo-controles">
-            <ol class="evo-pasos" aria-label="Etapas de fabricación del vidrio">
-                <li><button type="button" data-evo-paso="1" aria-label="Paso 1: materia prima"
-                            data-titulo="Materia prima"
-                            data-texto="Arena de sílice, sosa y caliza, con hasta un 40 % de vidrio reciclado.">1</button></li>
-                <li><button type="button" data-evo-paso="2" aria-label="Paso 2: fusión"
-                            data-titulo="Fusión a 1.500 °C"
-                            data-texto="La mezcla se funde en el horno hasta volverse un líquido incandescente.">2</button></li>
-                <li><button type="button" data-evo-paso="3" aria-label="Paso 3: flotado"
-                            data-titulo="Flotado sobre estaño"
-                            data-texto="El vidrio fundido se extiende sobre estaño líquido y queda perfectamente plano.">3</button></li>
-                <li><button type="button" data-evo-paso="4" aria-label="Paso 4: templado"
-                            data-titulo="Templado"
-                            data-texto="Calor y aire frío a presión lo hacen hasta cinco veces más resistente.">4</button></li>
-                <li><button type="button" data-evo-paso="5" aria-label="Paso 5: tu pieza" aria-current="step"
-                            data-titulo="Tu pieza"
-                            data-texto="Cortada a tu medida, con su precio y su huella de carbono a la vista antes de pedirla.">5</button></li>
+            <ol class="evo-pasos" aria-label="Etapas de fabricación del vidrio" th:aria-label="#{evo.etapas_de_fabricacion_del_vidrio}">
+                <li><button type="button" data-evo-paso="1" aria-label="Paso 1: materia prima" th:aria-label="#{evo.paso_1_materia_prima}"
+                            data-titulo="Materia prima" th:data-titulo="#{evo.materia_prima}"
+                            data-texto="Arena de sílice, sosa y caliza, con hasta un 40 % de vidrio reciclado." th:data-texto="#{evo.arena_de_silice_sosa_y}">1</button></li>
+                <li><button type="button" data-evo-paso="2" aria-label="Paso 2: fusión" th:aria-label="#{evo.paso_2_fusion}"
+                            data-titulo="Fusión a 1.500 °C" th:data-titulo="#{evo.fusion_a_1_500_c}"
+                            data-texto="La mezcla se funde en el horno hasta volverse un líquido incandescente." th:data-texto="#{evo.la_mezcla_se_funde_en}">2</button></li>
+                <li><button type="button" data-evo-paso="3" aria-label="Paso 3: flotado" th:aria-label="#{evo.paso_3_flotado}"
+                            data-titulo="Flotado sobre estaño" th:data-titulo="#{evo.flotado_sobre_estano}"
+                            data-texto="El vidrio fundido se extiende sobre estaño líquido y queda perfectamente plano." th:data-texto="#{evo.el_vidrio_fundido_se_extiende}">3</button></li>
+                <li><button type="button" data-evo-paso="4" aria-label="Paso 4: templado" th:aria-label="#{evo.paso_4_templado}"
+                            data-titulo="Templado" th:data-titulo="#{evo.templado}"
+                            data-texto="Calor y aire frío a presión lo hacen hasta cinco veces más resistente." th:data-texto="#{evo.calor_y_aire_frio_a}">4</button></li>
+                <li><button type="button" data-evo-paso="5" aria-label="Paso 5: tu pieza" th:aria-label="#{evo.paso_5_tu_pieza}" aria-current="step"
+                            data-titulo="Tu pieza" th:data-titulo="#{evo.tu_pieza}"
+                            data-texto="Cortada a tu medida, con su precio y su huella de carbono a la vista antes de pedirla." th:data-texto="#{evo.cortada_a_tu_medida_con}">5</button></li>
             </ol>
             <button type="button" class="evo-pausa" data-evo-pausa aria-pressed="false" hidden>
                 <i class="ph ph-pause" aria-hidden="true"></i>
-                <span class="visually-hidden">Pausar animación</span>
+                <span class="visually-hidden" th:text="#{evo.pausar_animacion}">Pausar animación</span>
             </button>
         </div>
     </figure>

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Usuarios</title>
+    <title th:text="#{admin.usuarios.smartglass_usuarios}">SmartGlass - Usuarios</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 
@@ -57,8 +57,8 @@
 
     <div class="page-head">
         <div>
-            <h1 class="admin-title">Usuarios</h1>
-            <p class="page-sub">Consulta las cuentas registradas y administra sus roles.</p>
+            <h1 class="admin-title" th:text="#{admin.usuarios.usuarios}">Usuarios</h1>
+            <p class="page-sub" th:text="#{admin.usuarios.consulta_las_cuentas_registradas_y}">Consulta las cuentas registradas y administra sus roles.</p>
         </div>
     </div>
 
@@ -66,21 +66,21 @@
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
 
     <div class="mini-stats" th:unless="${#lists.isEmpty(usuarios)}">
-        <div class="mini-stat"><span class="v" id="st-total" th:text="${#lists.size(usuarios)}">0</span><span class="l">Usuarios en total</span></div>
-        <div class="mini-stat"><span class="v" id="st-admin">–</span><span class="l">Administradores</span></div>
-        <div class="mini-stat"><span class="v" id="st-user">–</span><span class="l">Usuarios</span></div>
+        <div class="mini-stat"><span class="v" id="st-total" th:text="${#lists.size(usuarios)}">0</span><span class="l" th:text="#{admin.usuarios.usuarios_en_total}">Usuarios en total</span></div>
+        <div class="mini-stat"><span class="v" id="st-admin">–</span><span class="l" th:text="#{admin.usuarios.administradores}">Administradores</span></div>
+        <div class="mini-stat"><span class="v" id="st-user">–</span><span class="l" th:text="#{admin.usuarios.usuarios}">Usuarios</span></div>
     </div>
 
     <!-- Buscador y filtro por rol -->
     <div class="toolbar" th:unless="${#lists.isEmpty(usuarios)}">
         <div class="search-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-            <input type="text" id="buscar" placeholder="Buscar por nombre, usuario o email…" autocomplete="off" aria-label="Buscar usuarios">
+            <input type="text" id="buscar" placeholder="Buscar por nombre, usuario o email…" th:placeholder="#{admin.usuarios.buscar_por_nombre_usuario_o}" autocomplete="off" aria-label="Buscar usuarios" th:aria-label="#{admin.usuarios.buscar_usuarios}">
         </div>
-        <div class="chips" role="group" aria-label="Filtrar por rol">
-            <button type="button" class="chip" data-rol="" aria-pressed="true">Todos</button>
-            <button type="button" class="chip" data-rol="admin" aria-pressed="false">Administradores</button>
-            <button type="button" class="chip" data-rol="usuario" aria-pressed="false">Usuarios</button>
+        <div class="chips" role="group" aria-label="Filtrar por rol" th:aria-label="#{admin.usuarios.filtrar_por_rol}">
+            <button type="button" class="chip" data-rol="" aria-pressed="true" th:text="#{admin.usuarios.todos}">Todos</button>
+            <button type="button" class="chip" data-rol="admin" aria-pressed="false" th:text="#{admin.usuarios.administradores}">Administradores</button>
+            <button type="button" class="chip" data-rol="usuario" aria-pressed="false" th:text="#{admin.usuarios.usuarios}">Usuarios</button>
         </div>
     </div>
 
@@ -103,20 +103,20 @@
             <div class="user-foot">
                 <span class="badge"
                       th:classappend="${u.tipoUsuario == 'ROLE_ADMIN'} ? 'badge-violet' : 'badge-neutral'"
-                      th:text="${u.tipoUsuario == 'ROLE_ADMIN'} ? 'Administrador' : 'Usuario'"></span>
-                <a class="ver" th:href="@{/admin/usuarios/{id}(id=${u.id})}">Ver / editar</a>
+                      th:text="${u.tipoUsuario == 'ROLE_ADMIN'} ? #{admin.rol.admin} : #{admin.rol.usuario}"></span>
+                <a class="ver" th:href="@{/admin/usuarios/{id}(id=${u.id})}" th:text="#{admin.usuarios.ver_editar}">Ver / editar</a>
             </div>
         </article>
     </div>
 
     <div class="empty-state" id="sin-resultados" hidden>
-        <strong>Sin resultados</strong>
-        No hay usuarios que coincidan con tu búsqueda.
+        <strong th:text="#{admin.usuarios.sin_resultados}">Sin resultados</strong>
+        <span th:text="#{admin.usuarios.no_hay_usuarios_que_coincidan}">No hay usuarios que coincidan con tu búsqueda.</span>
     </div>
 
     <div class="empty-state" th:if="${#lists.isEmpty(usuarios)}">
-        <strong>No hay usuarios registrados</strong>
-        Cuando alguien cree una cuenta aparecerá aquí.
+        <strong th:text="#{admin.usuarios.no_hay_usuarios_registrados}">No hay usuarios registrados</strong>
+        <span th:text="#{admin.usuarios.cuando_alguien_cree_una_cuenta}">Cuando alguien cree una cuenta aparecerá aquí.</span>
     </div>
 </div>
 

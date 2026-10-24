@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Cotizaciones (Admin)</title>
+    <title th:text="#{admin.cotizaciones.smartglass_cotizaciones_admin}">SmartGlass - Cotizaciones (Admin)</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <style>
@@ -97,33 +97,33 @@
 <div class="container">
 
     <h1 class="admin-title">
-        Cotizaciones
+        <span th:text="#{admin.cotizaciones.cotizaciones}">Cotizaciones</span>
         <span class="badge badge-neutral" th:text="${conteos['TODAS']}">0</span>
     </h1>
-    <p class="cot-sub">Revisa las obras de todos los clientes y apruébalas o recházalas.</p>
+    <p class="cot-sub" th:text="#{admin.cotizaciones.revisa_las_obras_de_todos}">Revisa las obras de todos los clientes y apruébalas o recházalas.</p>
 
     <!-- Mensaje flash -->
     <div th:if="${mensaje}" th:class="'flash ' + (${tipoMensaje == 'error'} ? 'flash-error' : '')" role="status" th:text="${mensaje}">Mensaje</div>
 
     <!-- Filtros por estado -->
-    <nav class="filtros" aria-label="Filtrar por estado">
-        <a th:href="@{/admin/cotizaciones}" th:classappend="${filtro == 'TODAS'} ? 'activo'">Todas <span class="n" th:text="${conteos['TODAS']}">0</span></a>
-        <a th:href="@{/admin/cotizaciones(estado='COTIZACION')}" th:classappend="${filtro == 'COTIZACION'} ? 'activo'">Pendientes <span class="n" th:text="${conteos['COTIZACION']}">0</span></a>
-        <a th:href="@{/admin/cotizaciones(estado='APROBADO')}" th:classappend="${filtro == 'APROBADO'} ? 'activo'">Aprobadas <span class="n" th:text="${conteos['APROBADO']}">0</span></a>
-        <a th:href="@{/admin/cotizaciones(estado='RECHAZADA')}" th:classappend="${filtro == 'RECHAZADA'} ? 'activo'">Rechazadas <span class="n" th:text="${conteos['RECHAZADA']}">0</span></a>
+    <nav class="filtros" aria-label="Filtrar por estado" th:aria-label="#{admin.cotizaciones.filtrar_por_estado}">
+        <a th:href="@{/admin/cotizaciones}" th:classappend="${filtro == 'TODAS'} ? 'activo'"><span th:text="#{admin.cotizaciones.todas}">Todas</span> <span class="n" th:text="${conteos['TODAS']}">0</span></a>
+        <a th:href="@{/admin/cotizaciones(estado='COTIZACION')}" th:classappend="${filtro == 'COTIZACION'} ? 'activo'"><span th:text="#{admin.cotizaciones.pendientes}">Pendientes</span> <span class="n" th:text="${conteos['COTIZACION']}">0</span></a>
+        <a th:href="@{/admin/cotizaciones(estado='APROBADO')}" th:classappend="${filtro == 'APROBADO'} ? 'activo'"><span th:text="#{admin.cotizaciones.aprobadas}">Aprobadas</span> <span class="n" th:text="${conteos['APROBADO']}">0</span></a>
+        <a th:href="@{/admin/cotizaciones(estado='RECHAZADA')}" th:classappend="${filtro == 'RECHAZADA'} ? 'activo'"><span th:text="#{admin.cotizaciones.rechazadas}">Rechazadas</span> <span class="n" th:text="${conteos['RECHAZADA']}">0</span></a>
     </nav>
 
     <div class="table-wrap">
         <table class="table-admin cot-tabla">
             <thead>
                 <tr>
-                    <th>Obra</th>
-                    <th>Cliente</th>
-                    <th>Fecha</th>
-                    <th>Impacto ambiental</th>
-                    <th>Precio</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+                    <th th:text="#{admin.cotizaciones.obra}">Obra</th>
+                    <th th:text="#{admin.cotizaciones.cliente}">Cliente</th>
+                    <th th:text="#{admin.cotizaciones.fecha}">Fecha</th>
+                    <th th:text="#{admin.cotizaciones.impacto_ambiental}">Impacto ambiental</th>
+                    <th th:text="#{admin.cotizaciones.precio}">Precio</th>
+                    <th th:text="#{admin.cotizaciones.estado}">Estado</th>
+                    <th th:text="#{admin.cotizaciones.acciones}">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -136,7 +136,7 @@
                             <div class="cot-obra-txt">
                                 <strong data-tipo-txt th:text="${f.tipo}">Templado</strong>
                                 <span class="cot-medidas" data-medidas th:text="${f.ancho} + ' × ' + ${f.alto} + ' cm · ' + ${f.espesor} + ' mm'">105 × 105 cm · 7 mm</span>
-                                <span class="cot-ref">Obra Nº <b data-ref th:text="${f.id}">000000</b></span>
+                                <span class="cot-ref"><span th:text="#{admin.cotizaciones.obra_no}">Obra Nº</span> <b data-ref th:text="${f.id}">000000</b></span>
                             </div>
                         </div>
                     </td>
@@ -166,19 +166,19 @@
 
                     <td class="acciones" data-label="Acciones">
                         <div class="acciones-fila">
-                            <a class="ver" th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${f.id})}">Ver</a>
+                            <a class="ver" th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${f.id})}" th:text="#{admin.cotizaciones.ver}">Ver</a>
 
                             <!-- Aprobar: desde Pendiente o para re-aprobar una Rechazada -->
                             <form th:if="${f.estado != 'APROBADO'}" th:action="@{/admin/cotizaciones/{id}/aprobar(id=${f.id})}" method="post">
                                 <input type="hidden" name="estado" th:value="${filtro}">
-                                <button type="submit" class="btn-aprobar-admin">Aprobar</button>
+                                <button type="submit" class="btn-aprobar-admin" th:text="#{admin.cotizaciones.aprobar}">Aprobar</button>
                             </form>
 
                             <!-- Rechazar: solo desde Pendiente -->
                             <form th:if="${f.estado == 'COTIZACION'}" th:action="@{/admin/cotizaciones/{id}/rechazar(id=${f.id})}" method="post"
-                                  data-confirm-title="¿Rechazar esta cotización?" data-confirm="El cliente verá que no fue aprobada." data-confirm-ok="Rechazar">
+                                  data-confirm-title="¿Rechazar esta cotización?" th:data-confirm-title="#{admin.cotizaciones.rechazar_esta_cotizacion}" data-confirm="El cliente verá que no fue aprobada." th:data-confirm="#{admin.cotizaciones.el_cliente_vera_que_no}" data-confirm-ok="Rechazar" th:data-confirm-ok="#{admin.cotizaciones.rechazar}">
                                 <input type="hidden" name="estado" th:value="${filtro}">
-                                <button type="submit" class="btn-eliminar">Rechazar</button>
+                                <button type="submit" class="btn-eliminar" th:text="#{admin.cotizaciones.rechazar}">Rechazar</button>
                             </form>
                         </div>
                     </td>
@@ -188,10 +188,10 @@
 
         <!-- Estado vacio (con o sin filtro) -->
         <div class="vacio" th:if="${#lists.isEmpty(filas)}">
-            <span th:if="${filtro == 'TODAS'}">Todavía no hay cotizaciones en el sistema.</span>
+            <span th:if="${filtro == 'TODAS'}" th:text="#{admin.cotizaciones.todavia_no_hay_cotizaciones_en}">Todavía no hay cotizaciones en el sistema.</span>
             <span th:unless="${filtro == 'TODAS'}">
-                No hay cotizaciones con este estado.
-                <a th:href="@{/admin/cotizaciones}">Ver todas</a>
+                <span th:text="#{admin.cotizaciones.no_hay_cotizaciones_con_este}">No hay cotizaciones con este estado.</span>
+                <a th:href="@{/admin/cotizaciones}" th:text="#{admin.cotizaciones.ver_todas}">Ver todas</a>
             </span>
         </div>
     </div>

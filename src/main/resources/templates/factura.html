@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="'Factura ' + ${pedido.numeroFactura} + ' - SmartGlass'">SmartGlass - Factura de venta</title>
+    <title th:text="#{factura.titulo_pagina(${pedido.numeroFactura})}">SmartGlass - Factura de venta</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -77,9 +77,9 @@
 <body>
 
 <div class="factura-barra no-print">
-    <a th:href="@{/checkout/mis-pedidos}" class="back-link"><i class="ph ph-arrow-left" aria-hidden="true"></i> Mis pedidos</a>
+    <a th:href="@{/checkout/mis-pedidos}" class="back-link"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="#{factura.mis_pedidos}">Mis pedidos</span></a>
     <button type="button" class="btn btn-primary" onclick="window.print()">
-        <i class="ph ph-printer" aria-hidden="true"></i> Imprimir o guardar PDF
+        <i class="ph ph-printer" aria-hidden="true"></i> <span th:text="#{factura.imprimir_o_guardar_pdf}">Imprimir o guardar PDF</span>
     </button>
 </div>
 
@@ -89,15 +89,15 @@
 
     <header class="factura-header">
         <div class="empresa-brand">
-            <img class="empresa-logo" th:src="@{/img/logo-icono.png}" alt="SmartGlass">
+            <img class="empresa-logo" th:src="@{/img/logo-icono.png}" alt="SmartGlass" th:alt="#{factura.smartglass}">
             <div class="empresa-info">
-                <h1>SmartGlass Industrial</h1>
-                <p>Soluciones técnicas en vidrio sostenible</p>
+                <h1 th:text="#{factura.smartglass_industrial}">SmartGlass Industrial</h1>
+                <p th:text="#{factura.soluciones_tecnicas_en_vidrio_sostenible}">Soluciones técnicas en vidrio sostenible</p>
             </div>
         </div>
 
         <div class="factura-identificacion">
-            <h2>Factura de venta</h2>
+            <h2 th:text="#{factura.factura_de_venta}">Factura de venta</h2>
             <p class="factura-numero" th:text="${pedido.numeroFactura}">FAC-0000</p>
             <p class="factura-fecha" th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</p>
         </div>
@@ -105,18 +105,18 @@
 
     <section class="info-seccion">
         <div class="parte">
-            <h3>Emisor</h3>
-            <strong>SmartGlass S.A.S</strong>
-            <p>NIT: 900.123.456-1<br>Planta Industrial - Zona Franca<br>Cartagena, Colombia</p>
+            <h3 th:text="#{factura.emisor}">Emisor</h3>
+            <strong th:text="#{factura.smartglass_s_a_s}">SmartGlass S.A.S</strong>
+            <p><span th:text="#{factura.nit_900_123_456_1}">NIT: 900.123.456-1</span><br><span th:text="#{factura.planta_industrial_zona_franca}">Planta Industrial - Zona Franca</span><br><span th:text="#{factura.cartagena_colombia}">Cartagena, Colombia</span></p>
         </div>
 
         <div class="parte">
-            <h3>Cliente</h3>
+            <h3 th:text="#{factura.cliente}">Cliente</h3>
             <strong th:text="${usuario.nombre}">Cliente</strong>
             <p>
                 <span th:text="${usuario.email}">correo@ejemplo.com</span><br>
                 <span th:text="${pedido.direccionEnvio}">Dirección</span><br>
-                <span th:text="'Pago: ' + ${pedido.metodoPago}">Pago</span>
+                <span th:text="#{factura.pago(${pedido.metodoPago})}">Pago</span>
             </p>
         </div>
     </section>
@@ -124,10 +124,10 @@
     <table class="factura-table">
         <thead>
             <tr>
-                <th>Producto o servicio</th>
-                <th class="centro">Cant.</th>
-                <th class="num">Precio unit.</th>
-                <th class="num">Subtotal</th>
+                <th th:text="#{factura.producto_o_servicio}">Producto o servicio</th>
+                <th class="centro" th:text="#{factura.cant}">Cant.</th>
+                <th class="num" th:text="#{factura.precio_unit}">Precio unit.</th>
+                <th class="num" th:text="#{factura.subtotal}">Subtotal</th>
             </tr>
         </thead>
         <tbody>
@@ -142,22 +142,22 @@
 
     <div class="resumen-factura">
         <div class="totales-container">
-            <div class="total-row"><span>Subtotal</span><span th:text="${pedido.totalFormateado}">$0</span></div>
-            <div class="total-row"><span>Envío</span><span>$ 0</span></div>
-            <div class="total-row final"><span>Total</span><span th:text="${pedido.totalFormateado}">$0</span></div>
+            <div class="total-row"><span th:text="#{factura.subtotal}">Subtotal</span><span th:text="${pedido.totalFormateado}">$0</span></div>
+            <div class="total-row"><span th:text="#{factura.envio}">Envío</span><span>$ 0</span></div>
+            <div class="total-row final"><span th:text="#{factura.total}">Total</span><span th:text="${pedido.totalFormateado}">$0</span></div>
         </div>
     </div>
 
     <p class="factura-nota">
-        <strong>Soporte de compra.</strong>
-        Conserva este documento como comprobante de tu pedido. Los vidrios personalizados
-        se fabrican a la medida indicada en la cotización aprobada.
+        <strong th:text="#{factura.soporte_de_compra}">Soporte de compra.</strong>
+        <span th:text="#{factura.conserva_este_documento_como_comprobante}">Conserva este documento como comprobante de tu pedido. Los vidrios personalizados
+        se fabrican a la medida indicada en la cotización aprobada.</span>
     </p>
 
     <footer class="factura-footer">
-        <span class="factura-marca"><img th:src="@{/img/logo-icono.png}" alt=""> SmartGlass</span>
+        <span class="factura-marca"><img th:src="@{/img/logo-icono.png}" alt=""> <span th:text="#{factura.smartglass}">SmartGlass</span></span>
         <p>
-            Factura generada electrónicamente. Huella de carbono estimada:
+            <span th:text="#{factura.factura_generada_electronicamente_huella_de}">Factura generada electrónicamente. Huella de carbono estimada:</span>
             <strong class="carbono-value" th:text="${#numbers.formatDecimal(pedido.huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">0 kg CO₂e</strong>
         </p>
     </footer>

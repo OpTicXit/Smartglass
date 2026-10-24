@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Acceso denegado - SmartGlass</title>
+    <title th:text="#{error403.acceso_denegado_smartglass}">Acceso denegado - SmartGlass</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <style>
         .acceso-denegado {
@@ -32,12 +32,12 @@
 
 <main class="acceso-denegado">
     <p class="codigo" aria-hidden="true">403</p>
-    <h1>No tienes acceso a esta página</h1>
-    <p>Tu cuenta no tiene permisos para ver este contenido. Si crees que es un error, contacta a un administrador.</p>
+    <h1 th:text="#{error403.no_tienes_acceso_a_esta}">No tienes acceso a esta página</h1>
+    <p th:text="#{error403.tu_cuenta_no_tiene_permisos}">Tu cuenta no tiene permisos para ver este contenido. Si crees que es un error, contacta a un administrador.</p>
 
     <div class="acciones">
-        <a th:href="@{/catalogo}" class="btn btn-primary">Volver al catálogo</a>
-        <a th:href="@{/home}" class="btn btn-secondary">Ir al inicio</a>
+        <a th:href="@{/catalogo}" class="btn btn-primary" th:text="#{error403.volver_al_catalogo}">Volver al catálogo</a>
+        <a th:href="@{/home}" class="btn btn-secondary" th:text="#{error403.ir_al_inicio}">Ir al inicio</a>
     </div>
 </main>
 

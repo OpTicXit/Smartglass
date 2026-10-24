@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${usuario.nombre} + ' - Admin'">Usuario - Admin</title>
+    <title th:text="#{admin.usuario_detalle.titulo_pagina(${usuario.nombre})}">Usuario - Admin</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
@@ -21,37 +21,37 @@
         <h2 th:text="${usuario.nombre}"></h2>
         
         <div class="row">
-            <span>Username</span>
+            <span th:text="#{admin.usuario-detalle.username}">Username</span>
             <span th:text="${usuario.username}"></span>
         </div>
         
         <div class="row">
-            <span>Email</span>
+            <span th:text="#{admin.usuario-detalle.email}">Email</span>
             <span th:text="${usuario.email}"></span>
         </div>
         
         <div class="row">
-            <span>Teléfono</span>
+            <span th:text="#{admin.usuario-detalle.telefono}">Teléfono</span>
             <span th:text="${usuario.telefono}"></span>
         </div>
         
         <div class="row">
-            <span>Rol actual</span>
+            <span th:text="#{admin.usuario-detalle.rol_actual}">Rol actual</span>
             <span class="badge"
                   th:classappend="${usuario.tipoUsuario == 'ROLE_ADMIN'} ? 'badge-violet' : 'badge-neutral'"
-                  th:text="${usuario.tipoUsuario == 'ROLE_ADMIN'} ? 'Administrador' : 'Usuario'"></span>
+                  th:text="${usuario.tipoUsuario == 'ROLE_ADMIN'} ? #{admin.rol.admin} : #{admin.rol.usuario}"></span>
         </div>
 
         <!-- Formulario para cambiar el rol -->
         <form th:action="@{/admin/usuarios/{id}/rol(id=${usuario.id})}" method="post">
             <div class="field">
-                <label for="tipoUsuario">Cambiar rol</label>
+                <label for="tipoUsuario" th:text="#{admin.usuario-detalle.cambiar_rol}">Cambiar rol</label>
                 <select id="tipoUsuario" name="tipoUsuario">
-                    <option value="ROLE_USER" th:selected="${usuario.tipoUsuario == 'ROLE_USER'}">Usuario</option>
-                    <option value="ROLE_ADMIN" th:selected="${usuario.tipoUsuario == 'ROLE_ADMIN'}">Administrador</option>
+                    <option value="ROLE_USER" th:selected="${usuario.tipoUsuario == 'ROLE_USER'}" th:text="#{admin.usuario-detalle.usuario}">Usuario</option>
+                    <option value="ROLE_ADMIN" th:selected="${usuario.tipoUsuario == 'ROLE_ADMIN'}" th:text="#{admin.usuario-detalle.administrador}">Administrador</option>
                 </select>
             </div>
-            <button type="submit" class="btn-guardar">Guardar rol</button>
+            <button type="submit" class="btn-guardar" th:text="#{admin.usuario-detalle.guardar_rol}">Guardar rol</button>
         </form>
     </div>
 </div>

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Pedido confirmado</title>
+    <title th:text="#{confirmacion.smartglass_pedido_confirmado}">SmartGlass - Pedido confirmado</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -55,45 +55,45 @@
 <main class="confirmacion-page">
 
     <header class="confirmation-header">
-        <a th:href="@{/home}" class="brand-mark"><img th:src="@{/img/logo-icono.png}" alt=""> SmartGlass</a>
+        <a th:href="@{/home}" class="brand-mark"><img th:src="@{/img/logo-icono.png}" alt=""> <span th:text="#{confirmacion.smartglass}">SmartGlass</span></a>
         <div class="success-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
         </div>
-        <h1>¡Pedido confirmado!</h1>
-        <p>Recibimos tu orden y ya está en la cola de nuestra planta de procesamiento térmico.</p>
+        <h1 th:text="#{confirmacion.pedido_confirmado}">¡Pedido confirmado!</h1>
+        <p th:text="#{confirmacion.recibimos_tu_orden_y_ya}">Recibimos tu orden y ya está en la cola de nuestra planta de procesamiento térmico.</p>
     </header>
 
     <section class="info-card surface" aria-labelledby="titulo-resumen">
         <div class="info-card-header">
-            <h2 id="titulo-resumen">Resumen de la orden</h2>
-            <span class="tag tag--success">Registrado</span>
+            <h2 id="titulo-resumen" th:text="#{confirmacion.resumen_de_la_orden}">Resumen de la orden</h2>
+            <span class="tag tag--success" th:text="#{confirmacion.registrado}">Registrado</span>
         </div>
         <ul class="kv">
-            <li><span>Factura</span><span class="invoice-number" th:text="${pedido.numeroFactura}">FAC-0000</span></li>
-            <li><span>Fecha y hora</span><span th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</span></li>
-            <li><span>Método de pago</span><span th:text="${pedido.metodoPago}">TARJETA</span></li>
-            <li><span>Huella de carbono</span><span th:text="${#numbers.formatDecimal(pedido.huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">0 kg CO₂e</span></li>
-            <li><span>Dirección de envío</span><span th:text="${pedido.direccionEnvio}">Dirección</span></li>
-            <li><span>Total pagado</span><span class="payment-total" th:text="${pedido.totalFormateado}">$0</span></li>
+            <li><span th:text="#{confirmacion.factura}">Factura</span><span class="invoice-number" th:text="${pedido.numeroFactura}">FAC-0000</span></li>
+            <li><span th:text="#{confirmacion.fecha_y_hora}">Fecha y hora</span><span th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</span></li>
+            <li><span th:text="#{confirmacion.metodo_de_pago}">Método de pago</span><span th:text="${pedido.metodoPago}">TARJETA</span></li>
+            <li><span th:text="#{confirmacion.huella_de_carbono}">Huella de carbono</span><span th:text="${#numbers.formatDecimal(pedido.huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">0 kg CO₂e</span></li>
+            <li><span th:text="#{confirmacion.direccion_de_envio}">Dirección de envío</span><span th:text="${pedido.direccionEnvio}">Dirección</span></li>
+            <li><span th:text="#{confirmacion.total_pagado}">Total pagado</span><span class="payment-total" th:text="${pedido.totalFormateado}">$0</span></li>
         </ul>
     </section>
 
     <section class="siguientes-pasos" aria-labelledby="titulo-pasos">
-        <h2 id="titulo-pasos">Qué sigue con tu pedido</h2>
+        <h2 id="titulo-pasos" th:text="#{confirmacion.que_sigue_con_tu_pedido}">Qué sigue con tu pedido</h2>
         <ol class="pasos">
-            <li class="paso hecho"><strong>Pedido recibido</strong>Tu orden quedó registrada.</li>
-            <li class="paso"><strong>Fabricación</strong>Procesamos tu vidrio a la medida.</li>
-            <li class="paso"><strong>Envío</strong>Lo despachamos a la dirección indicada.</li>
-            <li class="paso"><strong>Entrega</strong>Recibes tu pedido.</li>
+            <li class="paso hecho"><strong th:text="#{confirmacion.pedido_recibido}">Pedido recibido</strong><span th:text="#{confirmacion.tu_orden_quedo_registrada}">Tu orden quedó registrada.</span></li>
+            <li class="paso"><strong th:text="#{confirmacion.fabricacion}">Fabricación</strong><span th:text="#{confirmacion.procesamos_tu_vidrio_a_la}">Procesamos tu vidrio a la medida.</span></li>
+            <li class="paso"><strong th:text="#{confirmacion.envio}">Envío</strong><span th:text="#{confirmacion.lo_despachamos_a_la_direccion}">Lo despachamos a la dirección indicada.</span></li>
+            <li class="paso"><strong th:text="#{confirmacion.entrega}">Entrega</strong><span th:text="#{confirmacion.recibes_tu_pedido}">Recibes tu pedido.</span></li>
         </ol>
     </section>
 
     <div class="acciones-finales">
         <a th:href="@{/checkout/pedido/{id}(id=${pedido.id})}" class="btn btn-primary btn-lg">
-            <i class="ph ph-file-text" aria-hidden="true"></i> Ver factura
+            <i class="ph ph-file-text" aria-hidden="true"></i> <span th:text="#{confirmacion.ver_factura}">Ver factura</span>
         </a>
-        <a th:href="@{/checkout/mis-pedidos}" class="btn btn-secondary btn-lg">Ver mis pedidos</a>
-        <a th:href="@{/catalogo}" class="btn btn-ghost btn-lg">Seguir comprando</a>
+        <a th:href="@{/checkout/mis-pedidos}" class="btn btn-secondary btn-lg" th:text="#{confirmacion.ver_mis_pedidos}">Ver mis pedidos</a>
+        <a th:href="@{/catalogo}" class="btn btn-ghost btn-lg" th:text="#{confirmacion.seguir_comprando}">Seguir comprando</a>
     </div>
 
 </main>

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Mis cotizaciones</title>
+    <title th:text="#{mis-cotizaciones.smartglass_mis_cotizaciones}">SmartGlass - Mis cotizaciones</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -73,11 +73,11 @@
 
     <header class="page-intro">
         <div>
-            <h1>Mis cotizaciones</h1>
-            <p class="lead">Cada cotización es una pieza a medida. Revísalas, añade las aprobadas al carrito o diseña una nueva.</p>
+            <h1 th:text="#{mis-cotizaciones.mis_cotizaciones}">Mis cotizaciones</h1>
+            <p class="lead" th:text="#{mis-cotizaciones.cada_cotizacion_es_una_pieza}">Cada cotización es una pieza a medida. Revísalas, añade las aprobadas al carrito o diseña una nueva.</p>
         </div>
         <div class="page-intro-actions">
-            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary"><i class="ph ph-plus" aria-hidden="true"></i> Nueva cotización</a>
+            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary"><i class="ph ph-plus" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.nueva_cotizacion}">Nueva cotización</span></a>
         </div>
     </header>
 
@@ -88,21 +88,21 @@
     </div>
 
     <ul class="resumen" th:if="${not #lists.isEmpty(cotizaciones)}">
-        <li class="resumen-item"><strong th:text="${totalCots}">0</strong><span>Cotizaciones</span></li>
-        <li class="resumen-item"><strong th:text="${pendientes}">0</strong><span>Pendientes de aprobar</span></li>
-        <li class="resumen-item"><strong th:text="${aprobadas}">0</strong><span>Aprobadas</span></li>
-        <li class="resumen-item"><strong th:text="${huellaTotal} + ' kg'">0</strong><span>CO₂ estimado</span></li>
+        <li class="resumen-item"><strong th:text="${totalCots}">0</strong><span th:text="#{mis-cotizaciones.cotizaciones}">Cotizaciones</span></li>
+        <li class="resumen-item"><strong th:text="${pendientes}">0</strong><span th:text="#{mis-cotizaciones.pendientes_de_aprobar}">Pendientes de aprobar</span></li>
+        <li class="resumen-item"><strong th:text="${aprobadas}">0</strong><span th:text="#{mis-cotizaciones.aprobadas}">Aprobadas</span></li>
+        <li class="resumen-item"><strong th:text="${huellaTotal} + ' kg'">0</strong><span th:text="#{mis-cotizaciones.co2_estimado}">CO₂ estimado</span></li>
     </ul>
 
     <!-- Estado vacio -->
     <section class="vacio" th:if="${#lists.isEmpty(cotizaciones)}">
         <div>
-            <h2>Tu primera obra te espera</h2>
-            <p>
+            <h2 th:text="#{mis-cotizaciones.tu_primera_obra_te_espera}">Tu primera obra te espera</h2>
+            <p th:text="#{mis-cotizaciones.disena_una_pieza_de_vidrio}">
                 Diseña una pieza de vidrio a medida y mírala tomar forma mientras eliges:
                 tipo, proporciones, acabados y hasta su huella de carbono.
             </p>
-            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler" aria-hidden="true"></i> Empezar a diseñar</a>
+            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.empezar_a_disenar}">Empezar a diseñar</span></a>
         </div>
         <div class="sg-stage"><div class="obra-mini" id="demoVacio"></div></div>
     </section>
@@ -119,8 +119,8 @@
             </div>
 
             <div class="obra-cuerpo">
-                <h3 class="obra-titulo" data-titulo th:text="${cot.tipoVidrio} + ' personalizado'">Templado personalizado</h3>
-                <div class="obra-ref" data-ref th:text="'Obra Nº ' + ${cot.id}">Obra</div>
+                <h3 class="obra-titulo" data-titulo th:text="#{miscot.tipo_personalizado(${cot.tipoVidrio})}">Templado personalizado</h3>
+                <div class="obra-ref" data-ref th:text="#{miscot.obra_n(${cot.id})}">Obra</div>
 
                 <p class="obra-medidas" data-medidas>
                     <span th:text="${cot.ancho} + ' × ' + ${cot.alto} + ' cm'"></span> ·
@@ -129,29 +129,29 @@
                 </p>
 
                 <div class="obra-meta">
-                    <span class="obra-eco" th:if="${cot.usarVidrioReciclado}"><i class="ph ph-recycle" aria-hidden="true"></i> Contiene vidrio reciclado</span>
-                    <span class="obra-espera" th:if="${!admin and cot.estado == 'COTIZACION'}"><i class="ph ph-hourglass-medium" aria-hidden="true"></i> En revisión por SmartGlass</span>
-                    <span class="obra-rechazo" th:if="${cot.estado == 'RECHAZADA'}"><i class="ph ph-x-circle" aria-hidden="true"></i> No fue aprobada. Puedes eliminarla o crear una nueva.</span>
+                    <span class="obra-eco" th:if="${cot.usarVidrioReciclado}"><i class="ph ph-recycle" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.contiene_vidrio_reciclado}">Contiene vidrio reciclado</span></span>
+                    <span class="obra-espera" th:if="${!admin and cot.estado == 'COTIZACION'}"><i class="ph ph-hourglass-medium" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.en_revision_por_smartglass}">En revisión por SmartGlass</span></span>
+                    <span class="obra-rechazo" th:if="${cot.estado == 'RECHAZADA'}"><i class="ph ph-x-circle" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.no_fue_aprobada_puedes_eliminarla}">No fue aprobada. Puedes eliminarla o crear una nueva.</span></span>
                 </div>
 
-                <div class="obra-precio"><small>Inversión estimada</small><span th:text="${cot.precioEstimadoFormateado}"></span></div>
+                <div class="obra-precio"><small th:text="#{mis-cotizaciones.inversion_estimada}">Inversión estimada</small><span th:text="${cot.precioEstimadoFormateado}"></span></div>
             </div>
 
             <div class="obra-acciones">
-                <a th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${cot.id})}" class="btn btn-secondary btn-sm">Ver detalle</a>
+                <a th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${cot.id})}" class="btn btn-secondary btn-sm" th:text="#{mis-cotizaciones.ver_detalle}">Ver detalle</a>
 
                 <form th:if="${admin and cot.estado == 'COTIZACION'}" th:action="@{/vidrio-personalizado/aprobar/{id}(id=${cot.id})}" method="post">
-                    <button type="submit" class="btn btn-success btn-sm"><i class="ph ph-check" aria-hidden="true"></i> Aprobar</button>
+                    <button type="submit" class="btn btn-success btn-sm"><i class="ph ph-check" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.aprobar}">Aprobar</span></button>
                 </form>
 
                 <!-- Obra aprobada: su dueño la añade al carrito (nunca una rechazada ni una pendiente) -->
                 <form th:if="${cot.estado == 'APROBADO'}" th:action="@{/vidrio-personalizado/agregar-al-carrito/{id}(id=${cot.id})}" method="post">
-                    <button type="submit" class="btn btn-primary btn-sm"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i> Añadir al carrito</button>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.anadir_al_carrito}">Añadir al carrito</span></button>
                 </form>
 
                 <form th:if="${cot.estado == 'COTIZACION' or cot.estado == 'RECHAZADA'}" th:action="@{/vidrio-personalizado/eliminar/{id}(id=${cot.id})}" method="post"
-                      data-confirm-title="¿Eliminar esta cotización?" data-confirm="La pieza y su diseño se borrarán de tu galería." data-confirm-ok="Eliminar">
-                    <button type="submit" class="btn btn-danger btn-sm btn-icon btn-borrar" title="Eliminar cotización" aria-label="Eliminar cotización"><i class="ph ph-trash" aria-hidden="true"></i></button>
+                      data-confirm-title="¿Eliminar esta cotización?" th:data-confirm-title="#{mis-cotizaciones.eliminar_esta_cotizacion}" data-confirm="La pieza y su diseño se borrarán de tu galería." th:data-confirm="#{mis-cotizaciones.la_pieza_y_su_diseno}" data-confirm-ok="Eliminar" th:data-confirm-ok="#{mis-cotizaciones.eliminar}">
+                    <button type="submit" class="btn btn-danger btn-sm btn-icon btn-borrar" title="Eliminar cotización" th:title="#{mis-cotizaciones.eliminar_cotizacion}" aria-label="Eliminar cotización" th:aria-label="#{mis-cotizaciones.eliminar_cotizacion}"><i class="ph ph-trash" aria-hidden="true"></i></button>
                 </form>
             </div>
         </article>
@@ -172,7 +172,7 @@
 
         /* Textos en un formato uniforme: nombre legible, referencia corta y medidas sin ceros de mas */
         card.querySelector('[data-titulo]').textContent = SGGlass.nombreTipo(d.tipo);
-        card.querySelector('[data-ref]').textContent = 'Pieza a medida, N\u00ba ' + String(d.id || '').slice(-6).toUpperCase();
+        card.querySelector('[data-ref]').textContent = sgT('miscot_ref', 'Pieza a medida, N\u00ba {0}', String(d.id || '').slice(-6).toUpperCase());
         card.querySelector('[data-medidas]').textContent =
             SGGlass.fmtAuto(d.ancho) + ' × ' + SGGlass.fmtAuto(d.alto) + ' cm · ' + SGGlass.fmtAuto(d.espesor) + ' mm · ' + (d.forma || '');
 
@@ -183,7 +183,7 @@
         if (area > 0 && isFinite(co2)) {
             var imp = SGGlass.impacto(co2 / area);
             chip.className = 'chip-nivel nivel-' + imp.nivel;
-            chip.textContent = 'Impacto ' + imp.etiqueta.toLowerCase();
+            chip.textContent = sgT('miscot_impacto', 'Impacto {0}', sgT('nivel_' + imp.nivel, imp.etiqueta.toLowerCase()));
             chip.title = SGGlass.fmtNum(imp.valor, 1) + ' kg CO\u2082e/m\u00b2 \u00b7 ' + imp.frase;
             chip.hidden = false;
         }

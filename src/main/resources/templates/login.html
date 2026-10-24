@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Iniciar sesión</title>
+    <title th:text="#{login.smartglass_iniciar_sesion}">SmartGlass - Iniciar sesión</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 </head>
 <body>
@@ -13,23 +13,23 @@
         <div class="auth-card">
             <a th:href="@{/home}" class="auth-marca">
                 <img th:src="@{/img/logo-icono.png}" alt="">
-                SmartGlass
+                <span th:text="#{login.smartglass}">SmartGlass</span>
             </a>
 
-            <h1>Te damos la bienvenida</h1>
-            <p class="lead">Ingresa a tu cuenta para continuar.</p>
+            <h1 th:text="#{login.te_damos_la_bienvenida}">Te damos la bienvenida</h1>
+            <p class="lead" th:text="#{login.ingresa_a_tu_cuenta_para}">Ingresa a tu cuenta para continuar.</p>
 
             <div th:if="${param.error}" class="alert alert--error" role="alert" data-persistente>
                 <i class="ph ph-warning-circle" aria-hidden="true"></i>
-                <span>Usuario o contraseña incorrectos. Revisa los datos e inténtalo de nuevo.</span>
+                <span th:text="#{login.usuario_o_contrasena_incorrectos_revisa}">Usuario o contraseña incorrectos. Revisa los datos e inténtalo de nuevo.</span>
             </div>
             <div th:if="${param.bloqueado}" class="alert alert--error" role="alert" data-persistente>
                 <i class="ph ph-clock-countdown" aria-hidden="true"></i>
-                <span>Demasiados intentos seguidos. Espera un minuto y vuelve a intentarlo.</span>
+                <span th:text="#{login.demasiados_intentos_seguidos_espera_un}">Demasiados intentos seguidos. Espera un minuto y vuelve a intentarlo.</span>
             </div>
             <div th:if="${param.logout}" class="alert alert--info" role="status">
                 <i class="ph ph-sign-out" aria-hidden="true"></i>
-                <span>Cerraste sesión correctamente.</span>
+                <span th:text="#{login.cerraste_sesion_correctamente}">Cerraste sesión correctamente.</span>
             </div>
             <div th:if="${mensaje}" class="alert alert--success" role="status">
                 <i class="ph ph-check-circle" aria-hidden="true"></i>
@@ -38,7 +38,7 @@
 
             <form class="auth-form" th:action="@{/login}" method="POST">
                 <div class="form-group">
-                    <label for="username">Usuario o correo</label>
+                    <label for="username" th:text="#{login.usuario_o_correo}">Usuario o correo</label>
                     <div class="input-icono">
                         <i class="ph ph-user" aria-hidden="true"></i>
                         <input type="text" id="username" name="username" required autocomplete="username" autocapitalize="none" spellcheck="false" autofocus>
@@ -46,14 +46,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Contraseña</label>
+                    <label for="password" th:text="#{login.contrasena}">Contraseña</label>
                     <div class="input-password">
                         <input type="password" id="password" name="password" required autocomplete="current-password">
                     </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-lg btn-block">
-                    <i class="ph ph-sign-in" aria-hidden="true"></i> Ingresar
+                    <i class="ph ph-sign-in" aria-hidden="true"></i> <span th:text="#{login.ingresar}">Ingresar</span>
                 </button>
             </form>
 
@@ -61,11 +61,11 @@
 
             <a th:href="@{/oauth2/authorization/google}" class="btn btn-google btn-lg btn-block">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="" data-sin-respaldo>
-                Continuar con Google
+                <span th:text="#{login.continuar_con_google}">Continuar con Google</span>
             </a>
 
-            <p class="auth-pie">¿No tienes cuenta? <a th:href="@{/registro}">Crea una</a></p>
-            <p class="auth-pie mt-1"><a th:href="@{/home}" class="text-muted"><i class="ph ph-arrow-left" aria-hidden="true"></i> Volver al inicio</a></p>
+            <p class="auth-pie"><span th:text="#{login.no_tienes_cuenta}">¿No tienes cuenta?</span> <a th:href="@{/registro}" th:text="#{login.crea_una}">Crea una</a></p>
+            <p class="auth-pie mt-1"><a th:href="@{/home}" class="text-muted"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="#{login.volver_al_inicio}">Volver al inicio</span></a></p>
         </div>
     </main>
 

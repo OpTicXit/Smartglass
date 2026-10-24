@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="'SmartGlass - ' + ${producto.nombre}">SmartGlass - Detalle del producto</title>
+    <title th:text="#{detalle.titulo_pagina(${producto.nombre})}">SmartGlass - Detalle del producto</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -94,18 +94,18 @@
 <nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
 <main class="container">
-    <a th:href="@{/catalogo}" class="back-link"><i class="ph ph-arrow-left" aria-hidden="true"></i> Volver al catálogo</a>
+    <a th:href="@{/catalogo}" class="back-link"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="#{detalle.volver_al_catalogo}">Volver al catálogo</span></a>
 
     <section class="detalle-grid">
         <div class="galeria-producto" data-galeria>
             <div class="imagen-principal" th:classappend="${producto.imagenPendiente} ? 'img-pendiente'">
                 <img th:src="@{${producto.imagenUrl}}" th:alt="${producto.nombre}" alt="" data-galeria-principal>
-                <span class="foto-pendiente" th:if="${producto.imagenPendiente}">Foto en preparación</span>
+                <span class="foto-pendiente" th:if="${producto.imagenPendiente}" th:text="#{detalle.foto_en_preparacion}">Foto en preparación</span>
             </div>
             <!-- T2: miniaturas solo si hay galeria real (archivos que existen) -->
-            <ul class="miniaturas" th:if="${#lists.size(producto.imagenesUrl) > 1}" aria-label="Otras vistas">
+            <ul class="miniaturas" th:if="${#lists.size(producto.imagenesUrl) > 1}" aria-label="Otras vistas" th:aria-label="#{detalle.otras_vistas}">
                 <li th:each="url, it : ${producto.imagenesUrl}">
-                    <button type="button" data-galeria-miniatura th:attr="data-src=@{${url}},aria-label=${'Vista ' + it.count + ' de ' + it.size},aria-pressed=${it.first}">
+                    <button type="button" data-galeria-miniatura th:attr="data-src=@{${url}},aria-label=#{detalle.vista_n_de(${it.count},${it.size})},aria-pressed=${it.first}">
                         <img th:src="@{${url}}" alt="" loading="lazy">
                     </button>
                 </li>
@@ -119,45 +119,45 @@
                 <span class="codigo-badge" th:text="${producto.codigo}">SKU-000</span>
                 <a href="#resenas">
                     <span class="estrellas" th:text="${estrellasPromedio}" aria-hidden="true">☆☆☆☆☆</span>
-                    <span th:text="${promedioCalificacion} + ' · ' + ${#lists.size(resenas)} + ' reseña(s)'">0.0 · 0 reseñas</span>
+                    <span th:text="#{detalle.meta_resenas(${#strings.toString(promedioCalificacion)},${#lists.size(resenas)})}">0.0 · 0 reseñas</span>
                 </a>
             </div>
 
             <p class="precio" th:text="'$' + ${producto.precioFormateado}">$0</p>
-            <p class="precio-nota">Impuestos incluidos. Envío calculado al finalizar la compra.</p>
+            <p class="precio-nota" th:text="#{detalle.impuestos_incluidos_envio_calculado_al}">Impuestos incluidos. Envío calculado al finalizar la compra.</p>
 
             <form th:if="${usuarioLogueado}" th:action="@{/carrito/agregar}" method="post" class="compra">
                 <input type="hidden" name="productoId" th:value="${producto.id}">
                 <div class="stepper" data-stepper>
-                    <button type="button" data-step="-1" aria-label="Quitar una unidad"><i class="ph ph-minus" aria-hidden="true"></i></button>
-                    <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="99" aria-label="Cantidad" inputmode="numeric">
-                    <button type="button" data-step="1" aria-label="Agregar una unidad"><i class="ph ph-plus" aria-hidden="true"></i></button>
+                    <button type="button" data-step="-1" aria-label="Quitar una unidad" th:aria-label="#{detalle.quitar_una_unidad}"><i class="ph ph-minus" aria-hidden="true"></i></button>
+                    <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="99" aria-label="Cantidad" th:aria-label="#{detalle.cantidad}" inputmode="numeric">
+                    <button type="button" data-step="1" aria-label="Agregar una unidad" th:aria-label="#{detalle.agregar_una_unidad}"><i class="ph ph-plus" aria-hidden="true"></i></button>
                 </div>
                 <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="ph ph-shopping-cart-simple" aria-hidden="true"></i> Añadir al carrito
+                    <i class="ph ph-shopping-cart-simple" aria-hidden="true"></i> <span th:text="#{detalle.anadir_al_carrito}">Añadir al carrito</span>
                 </button>
             </form>
 
             <div th:unless="${usuarioLogueado}" class="compra">
                 <a th:href="@{/login}" class="btn btn-secondary btn-lg compra-login">
-                    <i class="ph ph-lock-key" aria-hidden="true"></i> Inicia sesión para comprar
+                    <i class="ph ph-lock-key" aria-hidden="true"></i> <span th:text="#{detalle.inicia_sesion_para_comprar}">Inicia sesión para comprar</span>
                 </a>
             </div>
 
             <div class="especificaciones">
-                <h2><i class="ph ph-sliders-horizontal" aria-hidden="true"></i> Ficha técnica</h2>
+                <h2><i class="ph ph-sliders-horizontal" aria-hidden="true"></i> <span th:text="#{detalle.ficha_tecnica}">Ficha técnica</span></h2>
                 <ul class="kv" th:unless="${producto.escultura}">
-                    <li><span>Tipo de vidrio</span><span th:text="${producto.tipo}">Templado</span></li>
-                    <li><span>Dimensiones</span><span th:text="${producto.ancho} + ' × ' + ${producto.alto} + ' cm'">0 × 0 cm</span></li>
-                    <li><span>Espesor</span><span th:text="${producto.espesor} + ' mm'">0 mm</span></li>
-                    <li><span>Código</span><span th:text="${producto.codigo}">SKU-000</span></li>
+                    <li><span th:text="#{detalle.tipo_de_vidrio}">Tipo de vidrio</span><span th:text="${producto.tipo}">Templado</span></li>
+                    <li><span th:text="#{detalle.dimensiones}">Dimensiones</span><span th:text="${producto.ancho} + ' × ' + ${producto.alto} + ' cm'">0 × 0 cm</span></li>
+                    <li><span th:text="#{detalle.espesor}">Espesor</span><span th:text="${producto.espesor} + ' mm'">0 mm</span></li>
+                    <li><span th:text="#{detalle.codigo}">Código</span><span th:text="${producto.codigo}">SKU-000</span></li>
                 </ul>
                 <!-- T2: esculturas -->
                 <ul class="kv" th:if="${producto.escultura}">
-                    <li><span>Pieza</span><span>Escultura de vidrio</span></li>
-                    <li th:if="${producto.tamanoEtiqueta != null}"><span>Tamaño</span><span th:text="${producto.tamanoEtiqueta}">Grande</span></li>
-                    <li><span>Medidas aproximadas</span><span th:text="${#numbers.formatDecimal(producto.ancho, 1, 'POINT', 0, 'COMMA')} + ' × ' + ${#numbers.formatDecimal(producto.alto, 1, 'POINT', 0, 'COMMA')} + ' cm'">0 × 0 cm</span></li>
-                    <li><span>Código</span><span th:text="${producto.codigo}">ESC-000</span></li>
+                    <li><span th:text="#{detalle.pieza}">Pieza</span><span th:text="#{detalle.escultura_de_vidrio}">Escultura de vidrio</span></li>
+                    <li th:if="${producto.tamano != null}"><span th:text="#{detalle.tamano}">Tamaño</span><span th:text="#{${'tamano.' + producto.tamano}}">Grande</span></li>
+                    <li><span th:text="#{detalle.medidas_aproximadas}">Medidas aproximadas</span><span th:text="${#numbers.formatDecimal(producto.ancho, 1, 'POINT', 0, 'COMMA')} + ' × ' + ${#numbers.formatDecimal(producto.alto, 1, 'POINT', 0, 'COMMA')} + ' cm'">0 × 0 cm</span></li>
+                    <li><span th:text="#{detalle.codigo}">Código</span><span th:text="${producto.codigo}">ESC-000</span></li>
                 </ul>
             </div>
         </div>
@@ -165,39 +165,39 @@
 
     <section class="resenas-section" id="resenas" aria-labelledby="titulo-resenas">
         <div class="resenas-resumen">
-            <h2 id="titulo-resenas">Opiniones de clientes</h2>
+            <h2 id="titulo-resenas" th:text="#{detalle.opiniones_de_clientes}">Opiniones de clientes</h2>
             <div class="promedio-box">
                 <span class="promedio-valor" th:text="${promedioCalificacion}">0.0</span>
                 <div>
                     <span class="estrellas" th:text="${estrellasPromedio}">☆☆☆☆☆</span>
-                    <small th:text="${#lists.size(resenas)} + ' reseña(s)'">0 reseñas</small>
+                    <small th:text="#{detalle.n_resenas(${#lists.size(resenas)})}">0 reseñas</small>
                 </div>
             </div>
 
             <div class="form-resena surface" th:if="${usuarioLogueado}">
-                <h3 th:text="${miResena != null} ? 'Actualiza tu reseña' : 'Deja tu reseña'">Deja tu reseña</h3>
+                <h3 th:text="${miResena != null} ? #{detalle.actualiza_resena} : #{detalle.deja_resena}">Deja tu reseña</h3>
                 <form th:action="@{/detalle/{id}/resenas(id=${producto.id})}" method="post">
                     <fieldset>
-                        <legend>Calificación</legend>
+                        <legend th:text="#{detalle.calificacion}">Calificación</legend>
                         <div class="cluster">
                             <div class="rating">
                                 <input type="radio" id="cal5" name="calificacion" value="5" th:checked="${miResena != null and miResena.calificacion == 5}">
-                                <label for="cal5" title="5 - Excelente">★<span class="visually-hidden">5 - Excelente</span></label>
+                                <label for="cal5" title="5 - Excelente" th:title="#{detalle.5_excelente}">★<span class="visually-hidden" th:text="#{detalle.5_excelente}">5 - Excelente</span></label>
                                 <input type="radio" id="cal4" name="calificacion" value="4" th:checked="${miResena != null and miResena.calificacion == 4}">
-                                <label for="cal4" title="4 - Muy bueno">★<span class="visually-hidden">4 - Muy bueno</span></label>
+                                <label for="cal4" title="4 - Muy bueno" th:title="#{detalle.4_muy_bueno}">★<span class="visually-hidden" th:text="#{detalle.4_muy_bueno}">4 - Muy bueno</span></label>
                                 <input type="radio" id="cal3" name="calificacion" value="3" th:checked="${miResena == null or miResena.calificacion == 3}" checked>
-                                <label for="cal3" title="3 - Bueno">★<span class="visually-hidden">3 - Bueno</span></label>
+                                <label for="cal3" title="3 - Bueno" th:title="#{detalle.3_bueno}">★<span class="visually-hidden" th:text="#{detalle.3_bueno}">3 - Bueno</span></label>
                                 <input type="radio" id="cal2" name="calificacion" value="2" th:checked="${miResena != null and miResena.calificacion == 2}">
-                                <label for="cal2" title="2 - Regular">★<span class="visually-hidden">2 - Regular</span></label>
+                                <label for="cal2" title="2 - Regular" th:title="#{detalle.2_regular}">★<span class="visually-hidden" th:text="#{detalle.2_regular}">2 - Regular</span></label>
                                 <input type="radio" id="cal1" name="calificacion" value="1" th:checked="${miResena != null and miResena.calificacion == 1}">
-                                <label for="cal1" title="1 - Deficiente">★<span class="visually-hidden">1 - Deficiente</span></label>
+                                <label for="cal1" title="1 - Deficiente" th:title="#{detalle.1_deficiente}">★<span class="visually-hidden" th:text="#{detalle.1_deficiente}">1 - Deficiente</span></label>
                             </div>
-                            <span class="rating-texto" id="ratingTexto" aria-hidden="true">Bueno</span>
+                            <span class="rating-texto" id="ratingTexto" aria-hidden="true" th:text="#{detalle.bueno}">Bueno</span>
                         </div>
                     </fieldset>
 
                     <div class="form-group">
-                        <label for="comentario">Tu comentario</label>
+                        <label for="comentario" th:text="#{detalle.tu_comentario}">Tu comentario</label>
                         <textarea name="comentario" id="comentario" rows="4" maxlength="1000"
                                   placeholder="¿Qué te pareció la calidad y el acabado de este vidrio?"
                                   th:text="${miResena != null ? miResena.comentario : ''}"></textarea>
@@ -205,13 +205,13 @@
 
                     <button type="submit" class="btn btn-primary btn-block">
                         <i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>
-                        <span th:text="${miResena != null} ? 'Actualizar reseña' : 'Publicar reseña'">Publicar reseña</span>
+                        <span th:text="${miResena != null} ? #{detalle.actualizar_resena} : #{detalle.publicar_resena}">Publicar reseña</span>
                     </button>
                 </form>
             </div>
 
             <p th:unless="${usuarioLogueado}" class="text-muted">
-                <a th:href="@{/login}">Inicia sesión</a> para dejar tu opinión sobre este producto.
+                <a th:href="@{/login}" th:text="#{detalle.inicia_sesion}">Inicia sesión</a> <span th:text="#{detalle.para_dejar_tu_opinion_sobre}">para dejar tu opinión sobre este producto.</span>
             </p>
         </div>
 
@@ -230,8 +230,8 @@
 
             <div th:if="${#lists.isEmpty(resenas)}" class="empty">
                 <div class="empty-icon"><i class="ph ph-chat-teardrop-dots" aria-hidden="true"></i></div>
-                <h3>Todavía no hay reseñas</h3>
-                <p>Cuéntale a otros clientes cómo te fue con este vidrio.</p>
+                <h3 th:text="#{detalle.todavia_no_hay_resenas}">Todavía no hay reseñas</h3>
+                <p th:text="#{detalle.cuentale_a_otros_clientes_como}">Cuéntale a otros clientes cómo te fue con este vidrio.</p>
             </div>
         </div>
     </section>
@@ -257,7 +257,7 @@
 (function () {
     var texto = document.getElementById('ratingTexto');
     if (!texto) return;
-    var NOMBRES = { 1: 'Deficiente', 2: 'Regular', 3: 'Bueno', 4: 'Muy bueno', 5: 'Excelente' };
+    var NOMBRES = { 1: sgT('rating_1', 'Deficiente'), 2: sgT('rating_2', 'Regular'), 3: sgT('rating_3', 'Bueno'), 4: sgT('rating_4', 'Muy bueno'), 5: sgT('rating_5', 'Excelente') };
     var radios = document.querySelectorAll('.rating input');
     function pintar() {
         var sel = document.querySelector('.rating input:checked');

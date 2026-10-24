@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Catálogo</title>
+    <title th:text="#{catalogo.smartglass_catalogo}">SmartGlass - Catálogo</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -122,76 +122,76 @@
 
     <header class="page-intro" th:with="esEsc=${categoria == 'escultura'}">
         <div>
-            <h1 th:text="${esEsc} ? 'Esculturas de vidrio' : 'Explora vidrios y esculturas'">Explora vidrios y esculturas</h1>
-            <p class="lead" th:text="${esEsc} ? 'Piezas de autor en vidrio fundido, soplado y tallado, en tres tamaños: para tu mesa, tu sala o un hall de doble altura.' : 'Vidrio plano para tus proyectos y esculturas de autor. Consulta cada pieza, agrégala al carrito o compara hasta tres antes de decidir.'">
+            <h1 th:text="${esEsc} ? #{catalogo.titulo_esculturas} : #{catalogo.titulo}">Explora vidrios y esculturas</h1>
+            <p class="lead" th:text="${esEsc} ? #{catalogo.lead_esculturas} : #{catalogo.lead}">
                 Vidrio plano para tus proyectos y esculturas de autor.
             </p>
 
             <form class="buscador-catalogo" th:action="@{/catalogo}" method="get" role="search" data-no-loading>
                 <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-                <label for="q" class="visually-hidden">Buscar productos</label>
-                <input type="search" id="q" name="q" placeholder="Buscar por nombre…" th:value="${query}" autocomplete="off">
+                <label for="q" class="visually-hidden" th:text="#{catalogo.buscar_productos}">Buscar productos</label>
+                <input type="search" id="q" name="q" placeholder="Buscar por nombre…" th:placeholder="#{catalogo.buscar_por_nombre}" th:value="${query}" autocomplete="off">
                 <input type="hidden" name="categoria" th:value="${categoria}" th:if="${!#strings.isEmpty(categoria)}">
                 <input type="hidden" name="tamano" th:value="${tamano}" th:if="${!#strings.isEmpty(tamano)}">
-                <a th:if="${query != null and !query.isEmpty()}" th:href="@{/catalogo(categoria=${categoria},tamano=${tamano})}" class="limpiar">Limpiar</a>
-                <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+                <a th:if="${query != null and !query.isEmpty()}" th:href="@{/catalogo(categoria=${categoria},tamano=${tamano})}" class="limpiar" th:text="#{catalogo.limpiar}">Limpiar</a>
+                <button type="submit" class="btn btn-primary btn-sm" th:text="#{catalogo.buscar}">Buscar</button>
             </form>
         </div>
     </header>
 
     <!-- T2: filtros por categoria y, en esculturas, por tamano (enlaces GET: se pueden compartir) -->
-    <nav class="filtros" aria-label="Filtrar catálogo"
+    <nav class="filtros" aria-label="Filtrar catálogo" th:aria-label="#{catalogo.filtrar_catalogo}"
          th:with="nEsc=${conteoCategorias != null and conteoCategorias['escultura'] != null ? conteoCategorias['escultura'] : 0},
                   nPlano=${conteoCategorias != null and conteoCategorias['vidrio-plano'] != null ? conteoCategorias['vidrio-plano'] : 0}">
         <div class="filtro-grupo" role="list">
             <a role="listitem" class="filtro" th:href="@{/catalogo(q=${query})}"
-               th:attr="aria-current=${#strings.isEmpty(categoria) ? 'page' : null}">Todo
+               th:attr="aria-current=${#strings.isEmpty(categoria) ? 'page' : null}"><span th:text="#{catalogo.todo}">Todo</span>
                <span class="n" th:text="${nEsc + nPlano}">0</span></a>
             <a role="listitem" class="filtro" th:href="@{/catalogo(q=${query},categoria='vidrio-plano')}"
-               th:attr="aria-current=${categoria == 'vidrio-plano' ? 'page' : null}"><i class="ph ph-square-split-vertical" aria-hidden="true"></i> Vidrio plano
+               th:attr="aria-current=${categoria == 'vidrio-plano' ? 'page' : null}"><i class="ph ph-square-split-vertical" aria-hidden="true"></i> <span th:text="#{catalogo.vidrio_plano}">Vidrio plano</span>
                <span class="n" th:text="${nPlano}">0</span></a>
             <a role="listitem" class="filtro" th:href="@{/catalogo(q=${query},categoria='escultura')}"
-               th:attr="aria-current=${categoria == 'escultura' ? 'page' : null}"><i class="ph ph-sketch-logo" aria-hidden="true"></i> Esculturas
+               th:attr="aria-current=${categoria == 'escultura' ? 'page' : null}"><i class="ph ph-sketch-logo" aria-hidden="true"></i> <span th:text="#{catalogo.esculturas}">Esculturas</span>
                <span class="n" th:text="${nEsc}">0</span></a>
         </div>
-        <div class="filtro-grupo filtro-tamano" role="list" th:if="${categoria == 'escultura'}" aria-label="Tamaño">
-            <span class="filtro-titulo" aria-hidden="true">Tamaño</span>
+        <div class="filtro-grupo filtro-tamano" role="list" th:if="${categoria == 'escultura'}" aria-label="Tamaño" th:aria-label="#{catalogo.tamano}">
+            <span class="filtro-titulo" aria-hidden="true" th:text="#{catalogo.tamano}">Tamaño</span>
             <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura')}"
-               th:attr="aria-current=${#strings.isEmpty(tamano) ? 'page' : null}">Todos</a>
+               th:attr="aria-current=${#strings.isEmpty(tamano) ? 'page' : null}" th:text="#{catalogo.todos}">Todos</a>
             <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='grande')}"
-               th:attr="aria-current=${tamano == 'grande' ? 'page' : null}">Grande</a>
+               th:attr="aria-current=${tamano == 'grande' ? 'page' : null}" th:text="#{catalogo.grande}">Grande</a>
             <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='mediana')}"
-               th:attr="aria-current=${tamano == 'mediana' ? 'page' : null}">Mediana</a>
+               th:attr="aria-current=${tamano == 'mediana' ? 'page' : null}" th:text="#{catalogo.mediana}">Mediana</a>
             <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='pequena')}"
-               th:attr="aria-current=${tamano == 'pequena' ? 'page' : null}">Pequeña</a>
+               th:attr="aria-current=${tamano == 'pequena' ? 'page' : null}" th:text="#{catalogo.pequena}">Pequeña</a>
         </div>
     </nav>
 
     <div class="catalogo-toolbar" th:if="${not #lists.isEmpty(productos)}">
         <p class="resultados-info">
             <strong th:text="${#lists.size(productos)}">0</strong>
-            <span th:text="${#lists.size(productos) == 1 ? 'producto' : 'productos'}">productos</span>
-            <th:block th:if="${query != null and !query.isEmpty()}">para «<span th:text="${query}">búsqueda</span>»</th:block>
+            <span th:text="${#lists.size(productos) == 1} ? #{catalogo.producto_uno} : #{catalogo.producto_varios}">productos</span>
+            <th:block th:if="${query != null and !query.isEmpty()}"><span th:text="#{catalogo.para}">para «</span><span th:text="${query}">búsqueda</span>»</th:block>
         </p>
-        <span class="resultados-ayuda"><i class="ph ph-scales" aria-hidden="true"></i> Marca «Comparar» en 2 o 3 productos</span>
+        <span class="resultados-ayuda"><i class="ph ph-scales" aria-hidden="true"></i> <span th:text="#{catalogo.marca_comparar_en_2_o}">Marca «Comparar» en 2 o 3 productos</span></span>
     </div>
 
-    <section class="productos-grid" th:if="${not #lists.isEmpty(productos)}" aria-label="Productos">
+    <section class="productos-grid" th:if="${not #lists.isEmpty(productos)}" aria-label="Productos" th:aria-label="#{catalogo.productos}">
 
         <article class="producto-card" th:each="producto : ${productos}">
 
             <a class="producto-img-wrapper" th:href="@{/detalle/{id}(id=${producto.id})}" tabindex="-1" aria-hidden="true"
                th:classappend="${producto.imagenPendiente} ? 'img-pendiente'">
                 <img th:src="@{${producto.imagenUrl}}" th:alt="${producto.nombre}" alt="" loading="lazy">
-                <span class="foto-pendiente" th:if="${producto.imagenPendiente}">Foto en preparación</span>
+                <span class="foto-pendiente" th:if="${producto.imagenPendiente}" th:text="#{catalogo.foto_en_preparacion}">Foto en preparación</span>
                 <span class="producto-badge" th:if="${producto.escultura}"
-                      th:text="${producto.tamanoEtiqueta != null} ? 'Escultura ' + ${#strings.toLowerCase(producto.tamanoEtiqueta)} : 'Escultura'">Escultura grande</span>
+                      th:text="${producto.tamano != null} ? #{${'catalogo.badge.' + producto.tamano}} : #{catalogo.badge.escultura}">Escultura grande</span>
             </a>
 
             <label class="comparar-check">
                 <input type="checkbox" class="chk-comparar" th:value="${producto.id}"
-                       th:attr="aria-label=${'Comparar ' + producto.nombre}">
-                Comparar
+                       th:attr="aria-label=#{catalogo.aria_comparar(${producto.nombre})}">
+                <span th:text="#{catalogo.comparar}">Comparar</span>
             </label>
 
             <div class="producto-body">
@@ -202,11 +202,11 @@
                     <span class="producto-precio" th:text="'$' + ${producto.precioFormateado}">$0</span>
 
                     <div class="producto-acciones">
-                        <a th:href="@{/detalle/{id}(id=${producto.id})}" class="btn btn-secondary btn-sm">Ver ficha</a>
+                        <a th:href="@{/detalle/{id}(id=${producto.id})}" class="btn btn-secondary btn-sm" th:text="#{catalogo.ver_ficha}">Ver ficha</a>
                         <form th:if="${usuarioLogueado}" th:action="@{/carrito/agregar}" method="post">
                             <input type="hidden" name="productoId" th:value="${producto.id}">
                             <button type="submit" class="btn btn-primary btn-sm btn-icon"
-                                    th:attr="aria-label=${'Agregar ' + producto.nombre + ' al carrito'}" title="Agregar al carrito">
+                                    th:attr="aria-label=#{catalogo.aria_agregar(${producto.nombre})}" title="Agregar al carrito" th:title="#{catalogo.agregar_al_carrito}">
                                 <i class="ph ph-shopping-cart-simple" aria-hidden="true"></i>
                             </button>
                         </form>
@@ -220,33 +220,33 @@
     <div class="empty" th:if="${#lists.isEmpty(productos)}">
         <div class="empty-icon"><i class="ph ph-magnifying-glass" aria-hidden="true"></i></div>
         <th:block th:if="${query != null and !query.isEmpty()}">
-            <h2>Sin resultados para «<span th:text="${query}">búsqueda</span>»</h2>
-            <p>Prueba con otro nombre o revisa la ortografía.</p>
-            <a th:href="@{/catalogo}" class="btn btn-secondary">Ver todo el catálogo</a>
+            <h2><span th:text="#{catalogo.sin_resultados_para}">Sin resultados para «</span><span th:text="${query}">búsqueda</span>»</h2>
+            <p th:text="#{catalogo.prueba_con_otro_nombre_o}">Prueba con otro nombre o revisa la ortografía.</p>
+            <a th:href="@{/catalogo}" class="btn btn-secondary" th:text="#{catalogo.ver_todo_el_catalogo}">Ver todo el catálogo</a>
         </th:block>
         <th:block th:if="${(query == null or query.isEmpty()) and (!#strings.isEmpty(categoria) or !#strings.isEmpty(tamano))}">
-            <h2>No hay piezas con ese filtro</h2>
-            <p>Prueba con otro tamaño o mira todo el catálogo.</p>
-            <a th:href="@{/catalogo}" class="btn btn-secondary">Ver todo el catálogo</a>
+            <h2 th:text="#{catalogo.no_hay_piezas_con_ese}">No hay piezas con ese filtro</h2>
+            <p th:text="#{catalogo.prueba_con_otro_tamano_o}">Prueba con otro tamaño o mira todo el catálogo.</p>
+            <a th:href="@{/catalogo}" class="btn btn-secondary" th:text="#{catalogo.ver_todo_el_catalogo}">Ver todo el catálogo</a>
         </th:block>
         <th:block th:if="${(query == null or query.isEmpty()) and #strings.isEmpty(categoria) and #strings.isEmpty(tamano)}">
-            <h2>El catálogo está vacío</h2>
-            <p>Todavía no hay productos publicados. Mientras tanto, puedes diseñar una pieza a medida.</p>
-            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary">Diseñar a medida</a>
+            <h2 th:text="#{catalogo.el_catalogo_esta_vacio}">El catálogo está vacío</h2>
+            <p th:text="#{catalogo.todavia_no_hay_productos_publicados}">Todavía no hay productos publicados. Mientras tanto, puedes diseñar una pieza a medida.</p>
+            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary" th:text="#{catalogo.disenar_a_medida}">Diseñar a medida</a>
         </th:block>
     </div>
 
 </main>
 
 <!-- Barra del comparador (la controla main.js) -->
-<div id="barra-comparador" class="barra-comparador" role="region" aria-label="Comparador">
+<div id="barra-comparador" class="barra-comparador" role="region" aria-label="Comparador" th:aria-label="#{catalogo.comparador}">
     <div class="texto">
-        <strong><span id="comparador-count">0</span> seleccionados</strong>
-        <span data-comparador-ayuda>Elige al menos 2 para comparar</span>
+        <strong><span id="comparador-count">0</span> <span th:text="#{catalogo.seleccionados}">seleccionados</span></strong>
+        <span data-comparador-ayuda th:text="#{catalogo.elige_al_menos_2_para}">Elige al menos 2 para comparar</span>
     </div>
-    <button id="btn-comparar-limpiar" type="button" class="btn btn-ghost btn-sm">Quitar</button>
+    <button id="btn-comparar-limpiar" type="button" class="btn btn-ghost btn-sm" th:text="#{catalogo.quitar}">Quitar</button>
     <button id="btn-comparar" type="button" class="btn btn-primary btn-sm">
-        <i class="ph ph-scales" aria-hidden="true"></i> Comparar
+        <i class="ph ph-scales" aria-hidden="true"></i> <span th:text="#{catalogo.comparar}">Comparar</span>
     </button>
 </div>
 

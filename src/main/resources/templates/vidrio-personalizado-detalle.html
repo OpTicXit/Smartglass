@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Tu obra</title>
+    <title th:text="#{obra.smartglass_tu_obra}">SmartGlass - Tu obra</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -194,25 +194,25 @@
 
     <header class="obra-cabecera">
         <div>
-            <div class="eyebrow">Pieza a medida Nº <span id="refObra">—</span></div>
-            <h1>Tu obra está lista</h1>
-            <p>Esta es la pieza que diseñaste, con todo lo que sabemos de ella.</p>
+            <div class="eyebrow"><span th:text="#{obra.pieza_a_medida_no}">Pieza a medida Nº</span> <span id="refObra">—</span></div>
+            <h1 th:text="#{obra.tu_obra_esta_lista}">Tu obra está lista</h1>
+            <p th:text="#{obra.esta_es_la_pieza_que}">Esta es la pieza que diseñaste, con todo lo que sabemos de ella.</p>
         </div>
     </header>
 
     <section class="alerta-obra" id="alertaObra" role="alert" hidden>
         <div class="alerta-icono" aria-hidden="true"><i class="ph-fill ph-warning"></i></div>
         <div>
-            <strong>Esta obra es de alto impacto ambiental</strong>
+            <strong th:text="#{obra.esta_obra_es_de_alto}">Esta obra es de alto impacto ambiental</strong>
             <p id="alertaObraTexto"></p>
-            <a th:href="@{/vidrio-personalizado/cotizar}" id="lnkBalanceAlerta" class="btn-alerta">Crear una versión balanceada</a>
+            <a th:href="@{/vidrio-personalizado/cotizar}" id="lnkBalanceAlerta" class="btn-alerta" th:text="#{obra.crear_una_version_balanceada}">Crear una versión balanceada</a>
         </div>
     </section>
 
     <div class="obra-grid">
 
         <!-- ================= ESCENARIO ================= -->
-        <section aria-label="Tu pieza">
+        <section aria-label="Tu pieza" th:aria-label="#{obra.tu_pieza}">
             <div class="sg-stage obra-stage">
                 <div class="sg-tilt" id="inclinable">
                     <div id="escenario"></div>
@@ -220,47 +220,47 @@
             </div>
 
             <div class="cartela">
-                <small>Cartela</small>
+                <small th:text="#{obra.cartela}">Cartela</small>
                 <strong id="cartelaTitulo">—</strong>
                 <p id="cartelaFrase"></p>
             </div>
         </section>
 
         <!-- ================= PANEL DE COMPRA ================= -->
-        <aside class="compra tech-card" aria-label="Inversión y aprobación">
+        <aside class="compra tech-card" aria-label="Inversión y aprobación" th:aria-label="#{obra.inversion_y_aprobacion}">
 
             <div class="chips">
                 <span class="chip chip-estado" th:classappend="${#strings.toString(vidrio.estado) == 'APROBADO'} ? 'chip-aprobado' : (${#strings.toString(vidrio.estado) == 'RECHAZADA'} ? 'chip-rechazada')" th:text="${vidrio.estado}">COTIZACION</span>
                 <span class="chip-nivel" id="chipNivel" hidden></span>
-                <span class="chip chip-eco" th:if="${vidrio.usarVidrioReciclado}"><i class="ph ph-recycle" aria-hidden="true"></i> Material reciclado</span>
-                <span class="chip chip-urgente sg-rainbow" th:if="${vidrio.urgente}"><i class="ph ph-lightning" aria-hidden="true"></i> Entrega urgente (+20 %)</span>
+                <span class="chip chip-eco" th:if="${vidrio.usarVidrioReciclado}"><i class="ph ph-recycle" aria-hidden="true"></i> <span th:text="#{obra.material_reciclado}">Material reciclado</span></span>
+                <span class="chip chip-urgente sg-rainbow" th:if="${vidrio.urgente}"><i class="ph ph-lightning" aria-hidden="true"></i> <span th:text="#{obra.entrega_urgente_20}">Entrega urgente (+20 %)</span></span>
                 <!-- F28: todo modificador que afecta precio, resistencia o huella es visible -->
-                <span class="chip chip-eco" th:if="${vidrio.energiaRenovable}"><i class="ph ph-sun" aria-hidden="true"></i> Energía renovable</span>
-                <span class="chip chip-eco" th:if="${vidrio.compensarCarbono}"><i class="ph ph-leaf" aria-hidden="true"></i> Compensación de CO₂ (+$5.000)</span>
+                <span class="chip chip-eco" th:if="${vidrio.energiaRenovable}"><i class="ph ph-sun" aria-hidden="true"></i> <span th:text="#{obra.energia_renovable}">Energía renovable</span></span>
+                <span class="chip chip-eco" th:if="${vidrio.compensarCarbono}"><i class="ph ph-leaf" aria-hidden="true"></i> <span th:text="#{obra.compensacion_de_co2_5_000}">Compensación de CO₂ (+$5.000)</span></span>
                 <span class="chip" th:if="${vidrio.tratamiento != null and !#strings.isEmpty(vidrio.tratamiento) and vidrio.tratamiento != 'Ninguno'}"
-                      th:attr="data-etq=${vidrio.tratamiento}" data-pref="Tratamiento: " th:text="'Tratamiento: ' + ${vidrio.tratamiento}">Tratamiento</span>
+                      th:attr="data-etq=${vidrio.tratamiento}" data-pref="Tratamiento: " th:text="#{obra.chip_tratamiento(${vidrio.tratamiento})}">Tratamiento</span>
                 <span class="chip" th:if="${vidrio.acabadoBordes != null and !#strings.isEmpty(vidrio.acabadoBordes) and vidrio.acabadoBordes != 'CorteLimpio'}"
-                      th:attr="data-etq=${vidrio.acabadoBordes}" data-pref="Borde: " th:text="'Borde: ' + ${vidrio.acabadoBordes}">Borde</span>
+                      th:attr="data-etq=${vidrio.acabadoBordes}" data-pref="Borde: " th:text="#{obra.chip_borde(${vidrio.acabadoBordes})}">Borde</span>
                 <span class="chip" th:if="${vidrio.perforaciones > 0}"
-                      th:text="${vidrio.perforaciones} + (${vidrio.perforaciones == 1} ? ' perforación' : ' perforaciones')">Perforaciones</span>
+                      th:text="${vidrio.perforaciones == 1} ? #{obra.perforacion_una(${#strings.toString(vidrio.perforaciones)})} : #{obra.perforacion_varias(${#strings.toString(vidrio.perforaciones)})}">Perforaciones</span>
             </div>
 
-            <div class="compra-label">Inversión estimada</div>
+            <div class="compra-label" th:text="#{obra.inversion_estimada}">Inversión estimada</div>
             <div class="compra-precio" th:text="${vidrio.precioEstimadoFormateado}">$0</div>
-            <p class="compra-nota">Estimación paramétrica. Se confirma con la validación técnica en fábrica.</p>
+            <p class="compra-nota" th:text="#{obra.estimacion_parametrica_se_confirma_con}">Estimación paramétrica. Se confirma con la validación técnica en fábrica.</p>
 
             <!-- F26: Administrador: SOLO aprueba la cotizacion (el servidor tambien lo valida); no añade al carrito -->
             <form th:if="${admin and #strings.toString(vidrio.estado) == 'COTIZACION'}"
                   th:action="@{/vidrio-personalizado/aprobar/{id}(id=${vidrio.id})}" method="post">
-                <button type="submit" class="btn-aprobar"><i class="ph ph-check" aria-hidden="true"></i> Aprobar cotización</button>
+                <button type="submit" class="btn-aprobar"><i class="ph ph-check" aria-hidden="true"></i> <span th:text="#{obra.aprobar_cotizacion}">Aprobar cotización</span></button>
             </form>
 
             <!-- Obra rechazada: el usuario no puede añadirla al carrito -->
             <div class="espera espera-rechazada" th:if="${!admin and #strings.toString(vidrio.estado) == 'RECHAZADA'}" role="status">
                 <i class="ph ph-x-circle" aria-hidden="true"></i>
                 <div>
-                    <strong>Tu obra no fue aprobada</strong>
-                    <small>Puedes eliminarla desde Mis cotizaciones o crear una nueva.</small>
+                    <strong th:text="#{obra.tu_obra_no_fue_aprobada}">Tu obra no fue aprobada</strong>
+                    <small th:text="#{obra.puedes_eliminarla_desde_mis_cotizaciones}">Puedes eliminarla desde Mis cotizaciones o crear una nueva.</small>
                 </div>
             </div>
 
@@ -268,28 +268,28 @@
             <div class="espera" th:if="${!admin and #strings.toString(vidrio.estado) == 'COTIZACION'}" role="status">
                 <i class="ph ph-hourglass-medium" aria-hidden="true"></i>
                 <div>
-                    <strong>En espera de aprobación por SmartGlass</strong>
-                    <small>Te avisaremos aquí cuando tu obra sea aprobada y puedas añadirla al carrito.</small>
+                    <strong th:text="#{obra.en_espera_de_aprobacion_por}">En espera de aprobación por SmartGlass</strong>
+                    <small th:text="#{obra.te_avisaremos_aqui_cuando_tu}">Te avisaremos aquí cuando tu obra sea aprobada y puedas añadirla al carrito.</small>
                 </div>
             </div>
 
             <!-- F26: el DUEÑO de una obra APROBADA puede añadirla a su carrito (admin no dueño: no) -->
             <form th:if="${esDueno != null and esDueno and #strings.toString(vidrio.estado) == 'APROBADO'}"
                   th:action="@{/vidrio-personalizado/agregar-al-carrito/{id}(id=${vidrio.id})}" method="post">
-                <button type="submit" class="btn-aprobar"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i> Añadir al carrito</button>
+                <button type="submit" class="btn-aprobar"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i> <span th:text="#{obra.anadir_al_carrito}">Añadir al carrito</span></button>
             </form>
 
             <div class="enlaces">
-                <a th:href="@{/vidrio-personalizado/cotizar}">Crear otra obra</a>
-                <a th:href="@{/vidrio-personalizado/mis-cotizaciones}">Mis cotizaciones</a>
-                <a th:if="${admin}" th:href="@{/admin/cotizaciones}">Panel de cotizaciones</a>
+                <a th:href="@{/vidrio-personalizado/cotizar}" th:text="#{obra.crear_otra_obra}">Crear otra obra</a>
+                <a th:href="@{/vidrio-personalizado/mis-cotizaciones}" th:text="#{obra.mis_cotizaciones}">Mis cotizaciones</a>
+                <a th:if="${admin}" th:href="@{/admin/cotizaciones}" th:text="#{obra.panel_de_cotizaciones}">Panel de cotizaciones</a>
             </div>
 
-            <ol class="camino" aria-label="Camino de tu obra">
-                <li class="hecho">Diseñada</li>
-                <li class="hecho">Cotizada</li>
-                <li class="rechazada" th:if="${#strings.toString(vidrio.estado) == 'RECHAZADA'}">Rechazada por SmartGlass</li>
-                <li th:unless="${#strings.toString(vidrio.estado) == 'RECHAZADA'}" th:class="${#strings.toString(vidrio.estado) == 'COTIZACION'} ? 'actual' : 'hecho'">Aprobada por SmartGlass</li>
+            <ol class="camino" aria-label="Camino de tu obra" th:aria-label="#{obra.camino_de_tu_obra}">
+                <li class="hecho" th:text="#{obra.disenada}">Diseñada</li>
+                <li class="hecho" th:text="#{obra.cotizada}">Cotizada</li>
+                <li class="rechazada" th:if="${#strings.toString(vidrio.estado) == 'RECHAZADA'}" th:text="#{obra.rechazada_por_smartglass}">Rechazada por SmartGlass</li>
+                <li th:unless="${#strings.toString(vidrio.estado) == 'RECHAZADA'}" th:class="${#strings.toString(vidrio.estado) == 'COTIZACION'} ? 'actual' : 'hecho'" th:text="#{obra.aprobada_por_smartglass}">Aprobada por SmartGlass</li>
             </ol>
         </aside>
     </div>
@@ -298,60 +298,60 @@
     <div class="detalles">
 
         <article class="tech-card">
-            <h3 class="tarjeta-titulo"><i class="ph ph-list-bullets" aria-hidden="true"></i>Ficha técnica</h3>
+            <h3 class="tarjeta-titulo"><i class="ph ph-list-bullets" aria-hidden="true"></i><span th:text="#{obra.ficha_tecnica}">Ficha técnica</span></h3>
             <dl class="ficha">
-                <div><dt>Tipo de vidrio</dt><dd th:text="${vidrio.tipoVidrio}">—</dd></div>
-                <div><dt>Dimensiones</dt><dd id="fDim" th:text="${vidrio.ancho} + ' × ' + ${vidrio.alto} + ' cm'">—</dd></div>
-                <div th:if="${vidrio.puntosPersonalizados != null and !#lists.isEmpty(vidrio.puntosPersonalizados)}"><dt>Área del corte</dt><dd th:text="${vidrio.areaPoligonal != null ? #numbers.formatDecimal(vidrio.areaPoligonal, 1, 'POINT', 2, 'COMMA') : '—'} + ' m² · polígono de ' + ${#lists.size(vidrio.puntosPersonalizados)} + ' vértices'">—</dd></div>
-                <div><dt>Espesor</dt><dd id="fEsp" th:text="${vidrio.espesor} + ' mm'">—</dd></div>
-                <div><dt>Área total</dt><dd id="fArea" th:text="${vidrio.areaTotal} + ' m²'">—</dd></div>
-                <div><dt>Peso estimado</dt><dd id="fPeso" th:text="${vidrio.pesoEstimado} + ' kg'">—</dd></div>
-                <div><dt>Geometría</dt><dd th:text="${vidrio.forma}">—</dd></div>
-                <div><dt>Material reciclado</dt><dd th:text="${vidrio.usarVidrioReciclado} ? 'Sí' : 'No'">—</dd></div>
-                <div><dt>Energía renovable</dt><dd th:text="${vidrio.energiaRenovable} ? 'Sí' : 'No'">—</dd></div>
-                <div><dt>Compensación de CO₂</dt><dd th:text="${vidrio.compensarCarbono} ? 'Sí (+$5.000)' : 'No'">—</dd></div>
-                <div><dt>Entrega urgente</dt><dd th:text="${vidrio.urgente} ? 'Sí (+20 %)' : 'No'">—</dd></div>
-                <div th:if="${vidrio.tratamiento != null and !#strings.isEmpty(vidrio.tratamiento)}"><dt>Tratamiento</dt><dd th:attr="data-etq=${vidrio.tratamiento}" th:text="${vidrio.tratamiento}">—</dd></div>
-                <div th:if="${vidrio.acabadoBordes != null and !#strings.isEmpty(vidrio.acabadoBordes)}"><dt>Acabado de bordes</dt><dd th:attr="data-etq=${vidrio.acabadoBordes}" th:text="${vidrio.acabadoBordes}">—</dd></div>
-                <div><dt>Perforaciones</dt><dd th:text="${vidrio.perforaciones}">0</dd></div>
+                <div><dt th:text="#{obra.tipo_de_vidrio}">Tipo de vidrio</dt><dd th:text="${vidrio.tipoVidrio}">—</dd></div>
+                <div><dt th:text="#{obra.dimensiones}">Dimensiones</dt><dd id="fDim" th:text="${vidrio.ancho} + ' × ' + ${vidrio.alto} + ' cm'">—</dd></div>
+                <div th:if="${vidrio.puntosPersonalizados != null and !#lists.isEmpty(vidrio.puntosPersonalizados)}"><dt th:text="#{obra.area_del_corte}">Área del corte</dt><dd th:text="${vidrio.areaPoligonal != null ? #numbers.formatDecimal(vidrio.areaPoligonal, 1, 'POINT', 2, 'COMMA') : '—'} + ' m² · polígono de ' + ${#lists.size(vidrio.puntosPersonalizados)} + ' vértices'">—</dd></div>
+                <div><dt th:text="#{obra.espesor}">Espesor</dt><dd id="fEsp" th:text="${vidrio.espesor} + ' mm'">—</dd></div>
+                <div><dt th:text="#{obra.area_total}">Área total</dt><dd id="fArea" th:text="${vidrio.areaTotal} + ' m²'">—</dd></div>
+                <div><dt th:text="#{obra.peso_estimado}">Peso estimado</dt><dd id="fPeso" th:text="${vidrio.pesoEstimado} + ' kg'">—</dd></div>
+                <div><dt th:text="#{obra.geometria}">Geometría</dt><dd th:text="${vidrio.forma}">—</dd></div>
+                <div><dt th:text="#{obra.material_reciclado}">Material reciclado</dt><dd th:text="${vidrio.usarVidrioReciclado} ? #{obra.si} : #{obra.no}">—</dd></div>
+                <div><dt th:text="#{obra.energia_renovable}">Energía renovable</dt><dd th:text="${vidrio.energiaRenovable} ? #{obra.si} : #{obra.no}">—</dd></div>
+                <div><dt th:text="#{obra.compensacion_de_co2}">Compensación de CO₂</dt><dd th:text="${vidrio.compensarCarbono} ? #{obra.si_compensacion} : #{obra.no}">—</dd></div>
+                <div><dt th:text="#{obra.entrega_urgente}">Entrega urgente</dt><dd th:text="${vidrio.urgente} ? #{obra.si_urgente} : #{obra.no}">—</dd></div>
+                <div th:if="${vidrio.tratamiento != null and !#strings.isEmpty(vidrio.tratamiento)}"><dt th:text="#{obra.tratamiento}">Tratamiento</dt><dd th:attr="data-etq=${vidrio.tratamiento}" th:text="${vidrio.tratamiento}">—</dd></div>
+                <div th:if="${vidrio.acabadoBordes != null and !#strings.isEmpty(vidrio.acabadoBordes)}"><dt th:text="#{obra.acabado_de_bordes}">Acabado de bordes</dt><dd th:attr="data-etq=${vidrio.acabadoBordes}" th:text="${vidrio.acabadoBordes}">—</dd></div>
+                <div><dt th:text="#{obra.perforaciones}">Perforaciones</dt><dd th:text="${vidrio.perforaciones}">0</dd></div>
             </dl>
         </article>
 
         <article class="tech-card">
-            <h3 class="tarjeta-titulo"><i class="ph ph-stack" aria-hidden="true"></i>Anatomía de la pieza</h3>
+            <h3 class="tarjeta-titulo"><i class="ph ph-stack" aria-hidden="true"></i><span th:text="#{obra.anatomia_de_la_pieza}">Anatomía de la pieza</span></h3>
 
             <div class="material">
-                <div class="material-fila"><span>Sílice (arena)</span><strong data-kg="silice" th:text="${vidrio.cantidadSilice} + ' kg'">0 kg</strong></div>
+                <div class="material-fila"><span th:text="#{obra.silice_arena}">Sílice (arena)</span><strong data-kg="silice" th:text="${vidrio.cantidadSilice} + ' kg'">0 kg</strong></div>
                 <div class="barra"><i class="silice" data-barra="silice"></i></div>
             </div>
             <div class="material">
-                <div class="material-fila"><span>Sosa</span><strong data-kg="sosa" th:text="${vidrio.cantidadSosa} + ' kg'">0 kg</strong></div>
+                <div class="material-fila"><span th:text="#{obra.sosa}">Sosa</span><strong data-kg="sosa" th:text="${vidrio.cantidadSosa} + ' kg'">0 kg</strong></div>
                 <div class="barra"><i class="sosa" data-barra="sosa"></i></div>
             </div>
             <div class="material">
-                <div class="material-fila"><span>Caliza</span><strong data-kg="caliza" th:text="${vidrio.cantidadCaliza} + ' kg'">0 kg</strong></div>
+                <div class="material-fila"><span th:text="#{obra.caliza}">Caliza</span><strong data-kg="caliza" th:text="${vidrio.cantidadCaliza} + ' kg'">0 kg</strong></div>
                 <div class="barra"><i class="caliza" data-barra="caliza"></i></div>
             </div>
             <div class="material">
-                <div class="material-fila"><span>Alúmina</span><strong data-kg="alumina" th:text="${vidrio.cantidadAlumina} + ' kg'">0 kg</strong></div>
+                <div class="material-fila"><span th:text="#{obra.alumina}">Alúmina</span><strong data-kg="alumina" th:text="${vidrio.cantidadAlumina} + ' kg'">0 kg</strong></div>
                 <div class="barra"><i class="alumina" data-barra="alumina"></i></div>
             </div>
             <!-- Solo cotizaciones nuevas guardan "otros óxidos"; las anteriores no lo tienen -->
             <div class="material" th:if="${vidrio.cantidadOtros > 0}">
-                <div class="material-fila"><span>Otros óxidos (MgO, K₂O…)</span><strong data-kg="otros" th:text="${vidrio.cantidadOtros} + ' kg'">0 kg</strong></div>
+                <div class="material-fila"><span th:text="#{obra.otros_oxidos_mgo_k2o}">Otros óxidos (MgO, K₂O…)</span><strong data-kg="otros" th:text="${vidrio.cantidadOtros} + ' kg'">0 kg</strong></div>
                 <div class="barra"><i class="otros" data-barra="otros"></i></div>
             </div>
             <div class="material" th:if="${vidrio.usarVidrioReciclado}">
-                <div class="material-fila"><span>Vidrio reciclado (calcín)</span><strong data-kg="calcin" th:text="${vidrio.vidrioRecicladoKg} + ' kg'">0 kg</strong></div>
+                <div class="material-fila"><span th:text="#{obra.vidrio_reciclado_calcin}">Vidrio reciclado (calcín)</span><strong data-kg="calcin" th:text="${vidrio.vidrioRecicladoKg} + ' kg'">0 kg</strong></div>
                 <div class="barra"><i class="calcin" data-barra="calcin"></i></div>
             </div>
             <div class="material material-total">
-                <div class="material-fila"><span>Total de la pieza</span><strong id="fTotal" th:text="${vidrio.pesoEstimado} + ' kg'">0 kg</strong></div>
+                <div class="material-fila"><span th:text="#{obra.total_de_la_pieza}">Total de la pieza</span><strong id="fTotal" th:text="${vidrio.pesoEstimado} + ' kg'">0 kg</strong></div>
             </div>
         </article>
 
         <article class="tech-card huella" id="tarjetaHuella">
-            <h3 class="tarjeta-titulo" style="justify-content:center"><i class="ph ph-leaf" aria-hidden="true"></i>Huella de carbono</h3>
+            <h3 class="tarjeta-titulo" style="justify-content:center"><i class="ph ph-leaf" aria-hidden="true"></i><span th:text="#{obra.huella_de_carbono}">Huella de carbono</span></h3>
 
             <div class="anillo" id="anillo">
                 <svg viewBox="0 0 160 160" aria-hidden="true">
@@ -360,39 +360,39 @@
                 </svg>
                 <div class="anillo-centro">
                     <strong id="co2Valor" th:text="${vidrio.huellaCarbono != null ? #numbers.formatDecimal(vidrio.huellaCarbono, 1, 'POINT', 1, 'COMMA') : '0,0'}">0.0</strong>
-                    <span>kg CO₂e · pieza</span>
+                    <span th:text="#{obra.kg_co2e_pieza}">kg CO₂e · pieza</span>
                 </div>
             </div>
 
-            <div class="proceso" id="bloqueProceso"><p class="proceso-etq">Proceso de fabricación</p>
+            <div class="proceso" id="bloqueProceso"><p class="proceso-etq" th:text="#{obra.proceso_de_fabricacion}">Proceso de fabricación</p>
             <div class="nivel-bloque">
                 <span class="chip-nivel" id="huellaChip">—</span>
                 <strong id="huellaInt">—</strong>
             </div>
             <p class="nivel-frase" id="huellaFrase"></p>
-            <a th:href="@{/vidrio-personalizado/cotizar}" id="lnkBalance" class="enlace-balance" hidden>Ver una versión mejorada</a>
+            <a th:href="@{/vidrio-personalizado/cotizar}" id="lnkBalance" class="enlace-balance" hidden th:text="#{obra.ver_una_version_mejorada}">Ver una versión mejorada</a>
             </div>
 
             <ul class="equivale">
-                <li>Equivale a recorrer unos <b id="eqKm">—</b> en auto.</li>
-                <li>Un árbol tardaría unos <b id="eqArbol">—</b> en absorberlo.</li>
+                <li><span th:text="#{obra.equivale_a_recorrer_unos}">Equivale a recorrer unos</span> <b id="eqKm">—</b> <span th:text="#{obra.en_auto}">en auto.</span></li>
+                <li><span th:text="#{obra.un_arbol_tardaria_unos}">Un árbol tardaría unos</span> <b id="eqArbol">—</b> <span th:text="#{obra.en_absorberlo}">en absorberlo.</span></li>
             </ul>
-            <p class="aprox">Equivalencias aproximadas, solo como referencia.</p>
+            <p class="aprox" th:text="#{obra.equivalencias_aproximadas_solo_como_referencia}">Equivalencias aproximadas, solo como referencia.</p>
         </article>
     </div>
 
     <!-- ================= ESTRUCTURA ================= -->
     <article class="tech-card estructura">
         <div class="resistencia">
-            <h3 class="tarjeta-titulo"><i class="ph ph-shield-check" aria-hidden="true"></i>Análisis estructural</h3>
+            <h3 class="tarjeta-titulo"><i class="ph ph-shield-check" aria-hidden="true"></i><span th:text="#{obra.analisis_estructural}">Análisis estructural</span></h3>
             <strong id="resistencia-valor" th:text="${vidrio.resistenciaEstimada != null ? #numbers.formatDecimal(vidrio.resistenciaEstimada, 1, 'POINT', 1, 'COMMA') + ' MPa' : 'N/D'}">0.0 MPa</strong>
-            <span>Índice de resistencia</span>
-            <div class="verificado" id="verificado">Contraste con servicio externo</div>
+            <span th:text="#{obra.indice_de_resistencia}">Índice de resistencia</span>
+            <div class="verificado" id="verificado" th:text="#{obra.contraste_con_servicio_externo}">Contraste con servicio externo</div>
         </div>
 
         <p class="dictamen">
-            <small>Proceso: diagnóstico del diseño y la fabricación</small>
-            <span id="recomendacion-texto" th:text="${vidrio.recomendacion != null ? vidrio.recomendacion : 'Esperando análisis...'}">Esperando análisis...</span>
+            <small th:text="#{obra.proceso_diagnostico_del_diseno_y}">Proceso: diagnóstico del diseño y la fabricación</small>
+            <span id="recomendacion-texto" th:text="${vidrio.recomendacion != null} ? ${vidrio.recomendacion} : #{obra.esperando_analisis}">Esperando análisis...</span>
         </p>
     </article>
 </main>

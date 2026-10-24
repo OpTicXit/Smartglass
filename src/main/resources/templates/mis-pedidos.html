@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Mis pedidos</title>
+    <title th:text="#{mis-pedidos.smartglass_mis_pedidos}">SmartGlass - Mis pedidos</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -51,8 +51,8 @@
 
     <header class="page-intro">
         <div>
-            <h1>Mis pedidos</h1>
-            <p class="lead">El historial de tus compras, con el estado de cada pedido y su factura.</p>
+            <h1 th:text="#{mis-pedidos.mis_pedidos}">Mis pedidos</h1>
+            <p class="lead" th:text="#{mis-pedidos.el_historial_de_tus_compras}">El historial de tus compras, con el estado de cada pedido y su factura.</p>
         </div>
     </header>
 
@@ -63,7 +63,7 @@
             <span class="stat-icon"><i class="ph ph-receipt" aria-hidden="true"></i></span>
             <div>
                 <strong th:text="${#lists.size(pedidos)}">0</strong>
-                <span>Pedidos realizados</span>
+                <span th:text="#{mis-pedidos.pedidos_realizados}">Pedidos realizados</span>
             </div>
         </div>
 
@@ -82,20 +82,20 @@
                 <th:block th:if="${nC > 0}">
                     <strong class="kpi-valor">
                         <span class="kpi-num" th:text="${#numbers.formatDecimal(kgC, 1, 'POINT', 1, 'COMMA')}">0,0</span>
-                        <small class="kpi-unidad">kg CO₂ compensados</small>
+                        <small class="kpi-unidad" th:text="#{mis-pedidos.kg_co2_compensados}">kg CO₂ compensados</small>
                     </strong>
                     <span class="sostenible-sub">
-                        en <b th:text="${nC}">0</b> <b th:text="${nC == 1 ? 'pedido' : 'pedidos'}">pedidos</b><span th:if="${kgT > 0}">, el <b th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 0, 'COMMA')} + ' %'">0 %</b> de tu huella total</span>
+                        <span th:text="#{mis-pedidos.en}">en</span> <b th:text="${nC}">0</b> <b th:text="${nC == 1} ? #{mispedidos.pedido_uno} : #{mispedidos.pedido_varios}">pedidos</b><span th:if="${kgT > 0}"><span th:text="#{mis-pedidos.el}">, el</span> <b th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 0, 'COMMA')} + ' %'">0 %</b> <span th:text="#{mis-pedidos.de_tu_huella_total}">de tu huella total</span></span>
                     </span>
                 </th:block>
 
                 <!-- Estado cero explicito -->
                 <th:block th:unless="${nC > 0}">
-                    <strong>0 <small>kg CO₂ compensados</small></strong>
-                    <span class="sostenible-sub">Todavía no compensas la huella de tus pedidos.</span>
+                    <strong>0 <small th:text="#{mis-pedidos.kg_co2_compensados}">kg CO₂ compensados</small></strong>
+                    <span class="sostenible-sub" th:text="#{mis-pedidos.todavia_no_compensas_la_huella}">Todavía no compensas la huella de tus pedidos.</span>
                     <details class="como-compensar">
-                        <summary>¿Cómo compensarla?</summary>
-                        <p>
+                        <summary th:text="#{mis-pedidos.como_compensarla}">¿Cómo compensarla?</summary>
+                        <p th:text="#{mis-pedidos.al_finalizar_una_compra_en}">
                             Al finalizar una compra, en el paso 3 del checkout marca
                             «Deseo compensar mi huella» (+$5.000) y SmartGlass compensa las emisiones de tu pedido.
                         </p>
@@ -109,9 +109,9 @@
     <!-- Sin pedidos -->
     <div th:if="${#lists.isEmpty(pedidos)}" class="empty">
         <div class="empty-icon"><i class="ph ph-package" aria-hidden="true"></i></div>
-        <h2>Aún no tienes pedidos</h2>
-        <p>Cuando compres en SmartGlass, aquí verás el estado de cada pedido y podrás descargar su factura.</p>
-        <a th:href="@{/catalogo}" class="btn btn-primary">Explorar el catálogo</a>
+        <h2 th:text="#{mis-pedidos.aun_no_tienes_pedidos}">Aún no tienes pedidos</h2>
+        <p th:text="#{mis-pedidos.cuando_compres_en_smartglass_aqui}">Cuando compres en SmartGlass, aquí verás el estado de cada pedido y podrás descargar su factura.</p>
+        <a th:href="@{/catalogo}" class="btn btn-primary" th:text="#{mis-pedidos.explorar_el_catalogo}">Explorar el catálogo</a>
     </div>
 
     <!-- Lista de pedidos -->
@@ -121,19 +121,19 @@
 
             <header class="pedido-header">
                 <div>
-                    <h2>Pedido #<span th:text="${pedido.id}">0</span></h2>
+                    <h2><span th:text="#{mis-pedidos.pedido}">Pedido #</span><span th:text="${pedido.id}">0</span></h2>
                     <time class="pedido-date" th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</time>
                 </div>
                 <span th:class="'tag estado-' + ${#strings.toLowerCase(pedido.estado)}" class="tag" th:text="${pedido.estado}">ESTADO</span>
             </header>
 
-            <ul class="pedido-productos" aria-label="Productos del pedido">
+            <ul class="pedido-productos" aria-label="Productos del pedido" th:aria-label="#{mis-pedidos.productos_del_pedido}">
                 <li class="producto-item" th:each="detalle : ${pedido.detalles}">
                     <img th:src="${detalle.imagenProducto != null} ? @{/img/{img}(img=${detalle.imagenProducto})} : @{/img/logo-icono.png}"
                          alt="" loading="lazy">
                     <div class="producto-info">
                         <strong th:text="${detalle.nombreProducto}">Producto</strong>
-                        <span th:text="${detalle.cantidad} + (${detalle.cantidad == 1} ? ' unidad' : ' unidades')">1 unidad</span>
+                        <span th:text="${detalle.cantidad == 1} ? #{mispedidos.unidad_uno(${#strings.toString(detalle.cantidad)})} : #{mispedidos.unidad_varias(${#strings.toString(detalle.cantidad)})}">1 unidad</span>
                     </div>
                     <div class="producto-subtotal" th:text="${detalle.subtotalFormateado}">$0</div>
                 </li>
@@ -141,11 +141,11 @@
 
             <footer class="pedido-footer">
                 <div>
-                    <span class="total-label">Total del pedido</span>
+                    <span class="total-label" th:text="#{mis-pedidos.total_del_pedido}">Total del pedido</span>
                     <span class="total-badge" th:text="${pedido.totalFormateado}">$0</span>
                 </div>
                 <a th:href="@{/checkout/pedido/{id}(id=${pedido.id})}" class="btn btn-secondary">
-                    <i class="ph ph-file-text" aria-hidden="true"></i> Ver factura
+                    <i class="ph ph-file-text" aria-hidden="true"></i> <span th:text="#{mis-pedidos.ver_factura}">Ver factura</span>
                 </a>
             </footer>
         </article>

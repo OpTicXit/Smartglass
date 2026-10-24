@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Comparar productos</title>
+    <title th:text="#{comparar.smartglass_comparar_productos}">SmartGlass - Comparar productos</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -69,23 +69,23 @@
 
     <header class="page-intro">
         <div>
-            <h1>Comparar productos</h1>
-            <p class="lead">Revisa las características lado a lado antes de elegir la opción que mejor se adapta a tu proyecto.</p>
+            <h1 th:text="#{comparar.comparar_productos}">Comparar productos</h1>
+            <p class="lead" th:text="#{comparar.revisa_las_caracteristicas_lado_a}">Revisa las características lado a lado antes de elegir la opción que mejor se adapta a tu proyecto.</p>
         </div>
         <div class="page-intro-actions">
-            <a th:href="@{/catalogo}" class="btn btn-secondary"><i class="ph ph-plus" aria-hidden="true"></i> Cambiar selección</a>
+            <a th:href="@{/catalogo}" class="btn btn-secondary"><i class="ph ph-plus" aria-hidden="true"></i> <span th:text="#{comparar.cambiar_seleccion}">Cambiar selección</span></a>
         </div>
     </header>
 
     <section class="comparacion card-panel" aria-labelledby="titulo-comparativa">
         <div class="comparacion-barra">
             <h2 id="titulo-comparativa"><i class="ph ph-columns" aria-hidden="true"></i>
-                <span th:text="${#lists.size(items)} + ' de 3 productos'">3 de 3 productos</span>
+                <span th:text="#{comparar.n_de_3(${#lists.size(items)})}">3 de 3 productos</span>
             </h2>
             <label class="toggle-dif">
                 <input type="checkbox" id="soloDif">
                 <span class="toggle-ui" aria-hidden="true"></span>
-                Mostrar solo diferencias
+                <span th:text="#{comparar.mostrar_solo_diferencias}">Mostrar solo diferencias</span>
             </label>
         </div>
 
@@ -98,13 +98,13 @@
                 <div class="label-columna" aria-hidden="true">
                     <div class="label-vacia"></div>
                     <div class="label-vacia"></div>
-                    <div class="fila-label" data-fila="calificacion"><i class="ph ph-star"></i>Calificación</div>
-                    <div class="fila-label" data-fila="tipo"><i class="ph ph-stack"></i>Tipo</div>
-                    <div class="fila-label" data-fila="ancho"><i class="ph ph-arrows-out-line-horizontal"></i>Ancho</div>
-                    <div class="fila-label" data-fila="alto"><i class="ph ph-arrows-out-line-vertical"></i>Alto</div>
-                    <div class="fila-label" data-fila="espesor"><i class="ph ph-ruler"></i>Espesor</div>
-                    <div class="fila-label" data-fila="codigo"><i class="ph ph-barcode"></i>Código</div>
-                    <div class="fila-label" data-fila="descripcion"><i class="ph ph-text-align-left"></i>Descripción</div>
+                    <div class="fila-label" data-fila="calificacion"><i class="ph ph-star"></i><span th:text="#{comparar.calificacion}">Calificación</span></div>
+                    <div class="fila-label" data-fila="tipo"><i class="ph ph-stack"></i><span th:text="#{comparar.tipo}">Tipo</span></div>
+                    <div class="fila-label" data-fila="ancho"><i class="ph ph-arrows-out-line-horizontal"></i><span th:text="#{comparar.ancho}">Ancho</span></div>
+                    <div class="fila-label" data-fila="alto"><i class="ph ph-arrows-out-line-vertical"></i><span th:text="#{comparar.alto}">Alto</span></div>
+                    <div class="fila-label" data-fila="espesor"><i class="ph ph-ruler"></i><span th:text="#{comparar.espesor}">Espesor</span></div>
+                    <div class="fila-label" data-fila="codigo"><i class="ph ph-barcode"></i><span th:text="#{comparar.codigo}">Código</span></div>
+                    <div class="fila-label" data-fila="descripcion"><i class="ph ph-text-align-left"></i><span th:text="#{comparar.descripcion}">Descripción</span></div>
                     <div class="label-vacia"></div>
                 </div>
 
@@ -123,7 +123,7 @@
 
                     <div class="fila" data-fila="calificacion">
                         <span class="estrellas" th:text="${item.estrellasPromedio}">★★★☆☆</span>
-                        <span class="review-count" th:text="${item.totalResenas} + ' reseña(s)'">0 reseñas</span>
+                        <span class="review-count" th:text="#{comparar.n_resenas(${#strings.toString(item.totalResenas)})}">0 reseñas</span>
                     </div>
                     <div class="fila" data-fila="tipo" th:text="${item.producto.tipo}">Templado</div>
                     <div class="fila" data-fila="ancho" th:text="${item.producto.ancho} + ' cm'">0 cm</div>
@@ -133,7 +133,7 @@
                     <div class="fila description-value" data-fila="descripcion" th:text="${item.producto.descripcion}">Descripción</div>
 
                     <div class="accion">
-                        <a th:href="@{/detalle/{id}(id=${item.producto.id})}" class="btn btn-secondary btn-block">Ver ficha completa</a>
+                        <a th:href="@{/detalle/{id}(id=${item.producto.id})}" class="btn btn-secondary btn-block" th:text="#{comparar.ver_ficha_completa}">Ver ficha completa</a>
                     </div>
                 </div>
             </div>
@@ -213,14 +213,14 @@
 
     var precios = cols.map(function (c) { return numero(c.querySelector('.precio').textContent); });
     var iP = unicoMejor(precios, false);
-    if (iP >= 0) chip(cols[iP], 'chip-precio', 'ph-tag', 'Mejor precio');
+    if (iP >= 0) chip(cols[iP], 'chip-precio', 'ph-tag', sgT('cmp_mejor_precio', 'Mejor precio'));
 
     var ratings = cols.map(function (c) {
         var t = c.querySelector('.estrellas');
         return t ? (t.textContent.match(/★/g) || []).length : NaN;
     });
     var iR = unicoMejor(ratings, true);
-    if (iR >= 0) chip(cols[iR], 'chip-rating', 'ph-star', 'Mejor calificación');
+    if (iR >= 0) chip(cols[iR], 'chip-rating', 'ph-star', sgT('cmp_mejor_calif', 'Mejor calificación'));
 })();
 </script>
 <script th:src="@{/js/main.js}"></script>

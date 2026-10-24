@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org" lang="es" th:lang="${#locale.toLanguageTag()}">
 <head>
     <meta charset="UTF-8"/>
-    <title>SmartGlass - Nuestra misión y sostenibilidad</title>
+    <title th:text="#{acerca.smartglass_nuestra_mision_y_sostenibilidad}">SmartGlass - Nuestra misión y sostenibilidad</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -56,82 +56,82 @@
 <main class="container">
 
     <header class="acerca-hero">
-        <h1>Ingeniería en vidrio sostenible</h1>
-        <p>Llevamos la industria del vidrio a una operación digital y más limpia, con datos, análisis y transparencia total sobre el impacto de cada pieza.</p>
+        <h1 th:text="#{acerca.ingenieria_en_vidrio_sostenible}">Ingeniería en vidrio sostenible</h1>
+        <p th:text="#{acerca.llevamos_la_industria_del_vidrio}">Llevamos la industria del vidrio a una operación digital y más limpia, con datos, análisis y transparencia total sobre el impacto de cada pieza.</p>
     </header>
 
     <section class="bloque">
-        <h2>Nuestra visión</h2>
+        <h2 th:text="#{acerca.nuestra_vision}">Nuestra visión</h2>
         <div class="bloque-cuerpo">
-            <p>SmartGlass no es solo una plataforma de pedidos: es un ecosistema digital para optimizar una de las industrias que más energía consume en el mundo.</p>
-            <p>Conectamos al diseñador o arquitecto directamente con la línea de producción. Nuestros algoritmos de optimización de corte reducen en promedio un 15 % el desperdicio de retal por pedido.</p>
+            <p th:text="#{acerca.smartglass_no_es_solo_una}">SmartGlass no es solo una plataforma de pedidos: es un ecosistema digital para optimizar una de las industrias que más energía consume en el mundo.</p>
+            <p th:text="#{acerca.conectamos_al_disenador_o_arquitecto}">Conectamos al diseñador o arquitecto directamente con la línea de producción. Nuestros algoritmos de optimización de corte reducen en promedio un 15 % el desperdicio de retal por pedido.</p>
         </div>
     </section>
 
     <section class="bloque">
-        <h2>Pilares de innovación</h2>
+        <h2 th:text="#{acerca.pilares_de_innovacion}">Pilares de innovación</h2>
         <ul class="pilares">
             <li>
                 <i class="ph ph-polygon" aria-hidden="true"></i>
-                <h3>Geometría de precisión</h3>
-                <p>Cualquier forma es posible. Nuestro motor calcula al instante la viabilidad estructural de cortes no rectangulares.</p>
+                <h3 th:text="#{acerca.geometria_de_precision}">Geometría de precisión</h3>
+                <p th:text="#{acerca.cualquier_forma_es_posible_nuestro}">Cualquier forma es posible. Nuestro motor calcula al instante la viabilidad estructural de cortes no rectangulares.</p>
             </li>
             <li>
                 <i class="ph ph-leaf" aria-hidden="true"></i>
-                <h3>Transparencia ambiental</h3>
-                <p>Calculamos la huella de carbono real de cada pieza según su peso, su espesor y el tratamiento térmico aplicado.</p>
+                <h3 th:text="#{acerca.transparencia_ambiental}">Transparencia ambiental</h3>
+                <p th:text="#{acerca.calculamos_la_huella_de_carbono}">Calculamos la huella de carbono real de cada pieza según su peso, su espesor y el tratamiento térmico aplicado.</p>
             </li>
             <li>
                 <i class="ph ph-recycle" aria-hidden="true"></i>
-                <h3>Economía circular</h3>
-                <p>Usamos vidrio con hasta un 40 % de composición reciclada, sin perder los estándares ópticos de grado industrial.</p>
+                <h3 th:text="#{acerca.economia_circular}">Economía circular</h3>
+                <p th:text="#{acerca.usamos_vidrio_con_hasta_un}">Usamos vidrio con hasta un 40 % de composición reciclada, sin perder los estándares ópticos de grado industrial.</p>
             </li>
         </ul>
     </section>
 
     <section class="bloque">
-        <h2>Compromiso carbono cero 2026</h2>
+        <h2 th:text="#{acerca.compromiso_carbono_cero_2026}">Compromiso carbono cero 2026</h2>
         <div class="bloque-cuerpo">
-            <p>Proyectamos evitar la emisión de 500 toneladas de CO₂ al año optimizando procesos y usando solo energías renovables en nuestras plantas.</p>
+            <p th:text="#{acerca.proyectamos_evitar_la_emision_de}">Proyectamos evitar la emisión de 500 toneladas de CO₂ al año optimizando procesos y usando solo energías renovables en nuestras plantas.</p>
             <div class="cifras">
-                <div class="cifra"><strong>98,2 %</strong><span>Claridad óptica certificada</span></div>
-                <div class="cifra"><strong>ISO 14001</strong><span>Sistema de gestión ambiental</span></div>
-                <div class="cifra"><strong>-25 %</strong><span>Energía frente al proceso tradicional</span></div>
+                <div class="cifra"><strong>98,2 %</strong><span th:text="#{acerca.claridad_optica_certificada}">Claridad óptica certificada</span></div>
+                <div class="cifra"><strong th:text="#{acerca.iso_14001}">ISO 14001</strong><span th:text="#{acerca.sistema_de_gestion_ambiental}">Sistema de gestión ambiental</span></div>
+                <div class="cifra"><strong>-25 %</strong><span th:text="#{acerca.energia_frente_al_proceso_tradicional}">Energía frente al proceso tradicional</span></div>
             </div>
         </div>
     </section>
 
     <section class="bloque">
-        <h2>Objetivos de Desarrollo Sostenible</h2>
+        <h2 th:text="#{acerca.objetivos_de_desarrollo_sostenible}">Objetivos de Desarrollo Sostenible</h2>
         <div class="bloque-cuerpo">
-            <p>Nuestra operación y nuestro software están diseñados de acuerdo con la Agenda 2030 de la ONU.</p>
+            <p th:text="#{acerca.nuestra_operacion_y_nuestro_software}">Nuestra operación y nuestro software están diseñados de acuerdo con la Agenda 2030 de la ONU.</p>
             <ul class="ods">
                 <li>
                     <span class="ods-num" aria-hidden="true">9</span>
                     <div>
-                        <h3>Industria, innovación e infraestructura</h3>
-                        <p>Optimizamos un proceso industrial intensivo en energía con datos y algoritmos de corte que reducen el desperdicio.</p>
+                        <h3 th:text="#{acerca.industria_innovacion_e_infraestructura}">Industria, innovación e infraestructura</h3>
+                        <p th:text="#{acerca.optimizamos_un_proceso_industrial_intensivo}">Optimizamos un proceso industrial intensivo en energía con datos y algoritmos de corte que reducen el desperdicio.</p>
                     </div>
                 </li>
                 <li>
                     <span class="ods-num" aria-hidden="true">11</span>
                     <div>
-                        <h3>Ciudades y comunidades sostenibles</h3>
-                        <p>Vidrio de control solar y aislamiento térmico para edificaciones con menor consumo energético.</p>
+                        <h3 th:text="#{acerca.ciudades_y_comunidades_sostenibles}">Ciudades y comunidades sostenibles</h3>
+                        <p th:text="#{acerca.vidrio_de_control_solar_y}">Vidrio de control solar y aislamiento térmico para edificaciones con menor consumo energético.</p>
                     </div>
                 </li>
                 <li>
                     <span class="ods-num" aria-hidden="true">12</span>
                     <div>
-                        <h3>Producción y consumo responsables</h3>
-                        <p>Incorporamos vidrio reciclado en cada cotización y mostramos la composición de materiales de cada pieza.</p>
+                        <h3 th:text="#{acerca.produccion_y_consumo_responsables}">Producción y consumo responsables</h3>
+                        <p th:text="#{acerca.incorporamos_vidrio_reciclado_en_cada}">Incorporamos vidrio reciclado en cada cotización y mostramos la composición de materiales de cada pieza.</p>
                     </div>
                 </li>
                 <li>
                     <span class="ods-num" aria-hidden="true">13</span>
                     <div>
-                        <h3>Acción por el clima</h3>
-                        <p>Calculamos y mostramos la huella de CO₂ de cada pedido, con opción de compensarla en el mismo checkout.</p>
+                        <h3 th:text="#{acerca.accion_por_el_clima}">Acción por el clima</h3>
+                        <p th:text="#{acerca.calculamos_y_mostramos_la_huella}">Calculamos y mostramos la huella de CO₂ de cada pedido, con opción de compensarla en el mismo checkout.</p>
                     </div>
                 </li>
             </ul>
@@ -140,10 +140,10 @@
 
     <aside class="acerca-cta">
         <div>
-            <h2>¿Tienes un proyecto en mente?</h2>
-            <p>Diseña tu pieza y conoce su precio y su huella antes de pedirla.</p>
+            <h2 th:text="#{acerca.tienes_un_proyecto_en_mente}">¿Tienes un proyecto en mente?</h2>
+            <p th:text="#{acerca.disena_tu_pieza_y_conoce}">Diseña tu pieza y conoce su precio y su huella antes de pedirla.</p>
         </div>
-        <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler" aria-hidden="true"></i> Diseñar a medida</a>
+        <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler" aria-hidden="true"></i> <span th:text="#{acerca.disenar_a_medida}">Diseñar a medida</span></a>
     </aside>
 
 </main>

@@ -25,6 +25,14 @@
   }
   var puntero = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+  // T0 i18n: textos de window.SG_TXT (fragments/recursos.html, desde messages*.properties).
+  // tx('clave', 'respaldo es-CO', arg0, arg1...) reemplaza {0}, {1}... Sin numeros del contrato (D2).
+  function tx(clave, respaldo) {
+    var txt = (window.SG_TXT && window.SG_TXT[clave]) || respaldo || '';
+    var args = Array.prototype.slice.call(arguments, 2);
+    return txt.replace(/\{(\d+)\}/g, function (m, i) { return args[i] != null ? args[i] : m; });
+  }
+
   var ICONOS = {
     success: 'ph-check-circle',
     error: 'ph-warning-circle',
@@ -44,6 +52,7 @@
       inicializarNavegacion,
       inicializarSelectorDeTema,
       inicializarAccesibilidad,
+      inicializarIdioma,
       inicializarEvolucionVidrio,
       inicializarAlertas,
       inicializarToastsDeclarativos,
@@ -78,7 +87,7 @@
       regionToasts = document.createElement('div');
       regionToasts.className = 'sg-toasts';
       regionToasts.setAttribute('role', 'region');
-      regionToasts.setAttribute('aria-label', 'Notificaciones');
+      regionToasts.setAttribute('aria-label', tx('notificaciones', 'Notificaciones'));
       document.body.appendChild(regionToasts);
     }
 
@@ -95,7 +104,7 @@
 
     var cerrar = document.createElement('button');
     cerrar.type = 'button';
-    cerrar.setAttribute('aria-label', 'Cerrar notificación');
+    cerrar.setAttribute('aria-label', tx('cerrar_notificacion', 'Cerrar notificación'));
     cerrar.innerHTML = '<i class="ph ph-x" aria-hidden="true"></i>';
 
     t.append(icono, texto, cerrar);
@@ -137,7 +146,7 @@
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'alert-close';
-      b.setAttribute('aria-label', 'Cerrar aviso');
+      b.setAttribute('aria-label', tx('cerrar_aviso', 'Cerrar aviso'));
       b.innerHTML = '<i class="ph ph-x" aria-hidden="true"></i>';
       b.addEventListener('click', function () { cerrarAlerta(alerta); });
       alerta.appendChild(b);
@@ -162,7 +171,7 @@
   function confirmar(op) {
     op = op || {};
     if (typeof HTMLDialogElement === 'undefined') {
-      return Promise.resolve(window.confirm(op.mensaje || op.titulo || '¿Continuar?'));
+      return Promise.resolve(window.confirm(op.mensaje || op.titulo || tx('continuar', '¿Continuar?')));
     }
     if (!dialogo) {
       dialogo = document.createElement('dialog');
@@ -185,14 +194,14 @@
     }
 
     var neutral = op.tono === 'neutral';
-    dialogo.querySelector('#sg-dialog-titulo').textContent = op.titulo || '¿Confirmas esta acción?';
+    dialogo.querySelector('#sg-dialog-titulo').textContent = op.titulo || tx('confirmar_titulo', '¿Confirmas esta acción?');
     dialogo.querySelector('#sg-dialog-texto').textContent = op.mensaje || '';
     dialogo.querySelector('.sg-dialog-icon').classList.toggle('is-neutral', neutral);
     dialogo.querySelector('.sg-dialog-icon i').className = 'ph ' + (neutral ? 'ph-question' : 'ph-warning');
     var ok = dialogo.querySelector('[data-aceptar]');
-    ok.textContent = op.aceptar || 'Confirmar';
+    ok.textContent = op.aceptar || tx('confirmar', 'Confirmar');
     ok.className = 'btn ' + (neutral ? 'btn-primary' : 'btn-danger');
-    dialogo.querySelector('[data-cancelar]').textContent = op.cancelar || 'Cancelar';
+    dialogo.querySelector('[data-cancelar]').textContent = op.cancelar || tx('cancelar', 'Cancelar');
 
     return new Promise(function (resolve) {
       dialogo.returnValue = '';
@@ -323,7 +332,7 @@
       b.className = 'ver-password';
       function pintar() {
         var visible = input.type === 'text';
-        b.setAttribute('aria-label', visible ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        b.setAttribute('aria-label', visible ? tx('ocultar_password', 'Ocultar contraseña') : tx('mostrar_password', 'Mostrar contraseña'));
         b.setAttribute('aria-pressed', String(visible));
         b.innerHTML = '<i class="ph ' + (visible ? 'ph-eye-slash' : 'ph-eye') + '" aria-hidden="true"></i>';
       }
@@ -439,7 +448,7 @@
     var a = document.createElement('a');
     a.className = 'skip-link';
     a.href = '#' + destino.id;
-    a.textContent = 'Saltar al contenido';
+    a.textContent = tx('saltar', 'Saltar al contenido');
     document.body.insertBefore(a, document.body.firstChild);
   }
 
@@ -478,14 +487,14 @@
       barra.style.display = visible ? 'flex' : 'none';
       btnComparar.disabled = seleccion.length < 2;
       var ayuda = barra.querySelector('[data-comparador-ayuda]');
-      if (ayuda) ayuda.textContent = seleccion.length < 2 ? 'Elige al menos 2 para comparar' : (seleccion.length >= MAX ? 'Máximo ' + MAX + ' productos' : 'Puedes sumar uno más');
+      if (ayuda) ayuda.textContent = seleccion.length < 2 ? tx('comparar_min', 'Elige al menos 2 para comparar') : (seleccion.length >= MAX ? tx('comparar_tope', 'Máximo {0} productos', MAX) : tx('comparar_uno_mas', 'Puedes sumar uno más'));
     }
 
     checks.forEach(function (chk) {
       chk.addEventListener('change', function () {
         var i = seleccion.indexOf(chk.value);
         if (chk.checked && i === -1) {
-          if (seleccion.length >= MAX) { chk.checked = false; toast('Puedes comparar hasta ' + MAX + ' productos a la vez.', { tipo: 'warning' }); return; }
+          if (seleccion.length >= MAX) { chk.checked = false; toast(tx('comparar_max', 'Puedes comparar hasta {0} productos a la vez.', MAX), { tipo: 'warning' }); return; }
           seleccion.push(chk.value);
         } else if (!chk.checked && i !== -1) {
           seleccion.splice(i, 1);
@@ -563,7 +572,8 @@
     var CLAVE = 'sg-a11y';
     var URL = '/perfil/accesibilidad';
     var VALIDOS = ['daltotonico', 'fotosensible'];
-    var NOMBRES = { daltotonico: 'colores para daltonismo', fotosensible: 'sin animaciones' };
+    var NOMBRES = { daltotonico: tx('a11y_nombre_dalt', 'colores para daltonismo'), fotosensible: tx('a11y_nombre_foto', 'sin animaciones') };
+    function unir(modos) { return modos.map(function (m) { return NOMBRES[m]; }).join(tx('a11y_y', ' y ')); }
 
     function normalizar(lista) {
       return VALIDOS.filter(function (m) { return lista.indexOf(m) !== -1; });
@@ -577,15 +587,16 @@
       flot.className = 'nav-item has-menu nav-a11y a11y-flotante';
       flot.setAttribute('data-a11y-control', '');
       flot.innerHTML =
-        '<button type="button" class="nav-link nav-trigger nav-a11y-trigger" aria-haspopup="true" aria-expanded="false" title="Accesibilidad">' +
+        '<button type="button" class="nav-link nav-trigger nav-a11y-trigger" aria-haspopup="true" aria-expanded="false" title="' + tx('a11y', 'Accesibilidad') + '">' +
           '<svg class="ico-a11y" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="7" r="1.3" fill="currentColor"/><path d="M7 10h10M12 10v4l-2.5 4.5M12 14l2.5 4.5"/></svg>' +
-          '<span class="nav-a11y-texto visually-hidden">Accesibilidad</span>' +
+          '<span class="nav-a11y-texto visually-hidden">' + tx('a11y', 'Accesibilidad') + '</span>' +
         '</button>' +
-        '<div class="nav-dropdown nav-dropdown--right a11y-panel" role="group" aria-label="Opciones de accesibilidad">' +
-          '<p class="nav-head">Accesibilidad</p>' +
-          '<button type="button" class="a11y-opcion" data-a11y-modo="daltotonico" aria-pressed="false"><span class="a11y-opcion-texto"><strong>Colores para daltonismo</strong><small>Semáforo con icono, patrón y texto</small></span><span class="a11y-switch" aria-hidden="true"></span></button>' +
-          '<button type="button" class="a11y-opcion" data-a11y-modo="fotosensible" aria-pressed="false"><span class="a11y-opcion-texto"><strong>Sin animaciones ni destellos</strong><small>Para fotosensibilidad o mareo por movimiento</small></span><span class="a11y-switch" aria-hidden="true"></span></button>' +
+        '<div class="nav-dropdown nav-dropdown--right a11y-panel" role="group" aria-label="' + tx('a11y_opciones', 'Opciones de accesibilidad') + '">' +
+          '<p class="nav-head">' + tx('a11y', 'Accesibilidad') + '</p>' +
+          '<button type="button" class="a11y-opcion" data-a11y-modo="daltotonico" aria-pressed="false"><span class="a11y-opcion-texto"><strong>' + tx('a11y_dalt', 'Colores para daltonismo') + '</strong><small>' + tx('a11y_dalt_det', 'Semáforo con icono, patrón y texto') + '</small></span><span class="a11y-switch" aria-hidden="true"></span></button>' +
+          '<button type="button" class="a11y-opcion" data-a11y-modo="fotosensible" aria-pressed="false"><span class="a11y-opcion-texto"><strong>' + tx('a11y_foto', 'Sin animaciones ni destellos') + '</strong><small>' + tx('a11y_foto_det', 'Para fotosensibilidad o mareo por movimiento') + '</small></span><span class="a11y-switch" aria-hidden="true"></span></button>' +
           '<p class="a11y-estado" data-a11y-estado aria-live="polite"></p>' +
+          idiomaMarkup() +
         '</div>';
       document.body.appendChild(flot);
 
@@ -612,8 +623,8 @@
       });
       controles.forEach(function (c) {
         c.classList.toggle('is-activo', modos.length > 0);
-        var t = c.querySelector('.nav-a11y-trigger');
-        if (t) t.setAttribute('aria-label', 'Accesibilidad' + (modos.length ? ': ' + modos.map(function (m) { return NOMBRES[m]; }).join(' y ') + ' activado' : ''));
+        var disp = c.querySelector('.nav-a11y-trigger');
+        if (disp) disp.setAttribute('aria-label', modos.length ? tx('a11y_aria_activo', 'Accesibilidad: {0} activado', unir(modos)) : tx('a11y', 'Accesibilidad'));
       });
     }
 
@@ -651,11 +662,11 @@
       document.dispatchEvent(new CustomEvent('sg-a11y-change', { detail: { modos: modos } }));
 
       if (op.sincronizar) {
-        var aviso = modos.length ? 'Activado: ' + modos.map(function (m) { return NOMBRES[m]; }).join(' y ') + '.' : 'Accesibilidad en modo normal.';
+        var aviso = modos.length ? tx('a11y_activado', 'Activado: {0}.', unir(modos)) : tx('a11y_normal', 'Accesibilidad en modo normal.');
         guardarServidor(modos).then(function (r) {
-          estados.forEach(function (e) { e.textContent = aviso + (r ? ' Guardado en tu cuenta.' : ''); });
+          estados.forEach(function (e) { e.textContent = aviso + (r ? tx('a11y_guardado', ' Guardado en tu cuenta.') : ''); });
         }).catch(function () {
-          estados.forEach(function (e) { e.textContent = aviso + ' No se pudo guardar en tu cuenta; queda en este navegador.'; });
+          estados.forEach(function (e) { e.textContent = aviso + tx('a11y_no_guardado', ' No se pudo guardar en tu cuenta; queda en este navegador.'); });
         });
       }
     }
@@ -695,6 +706,55 @@
         })
         .catch(function () { /* sin red: queda lo local */ });
     }
+  }
+
+  /* ==========================================================
+     IDIOMA (T0 i18n)
+     Los enlaces ?lang=es-CO|es-ES|en funcionan sin JS (cookie sg-lang).
+     Con JS: PATCH /perfil/idioma fija la cookie y, si hay sesion, lo guarda
+     en la cuenta (usuarios.preferencia_idioma); luego se recarga la pagina.
+     Regla D2: cambia los TEXTOS; los numeros del contrato siguen en es-CO.
+  ========================================================== */
+  var IDIOMAS = [
+    { codigo: 'es-CO', clave: 'idioma_es_CO', nombre: 'Español (Colombia)' },
+    { codigo: 'es-ES', clave: 'idioma_es_ES', nombre: 'Español (Castellano)' },
+    { codigo: 'en', clave: 'idioma_en', nombre: 'English' }
+  ];
+
+  /** Seccion "Idioma" para el panel flotante (vistas sin barra). */
+  function idiomaMarkup() {
+    var actual = window.SG_LANG || 'es-CO';
+    return '<div class="idioma-flotante" data-idioma-control>' +
+      '<p class="nav-head">' + tx('idioma_titulo', 'Idioma') + '</p>' +
+      IDIOMAS.map(function (i) {
+        return '<a href="?lang=' + i.codigo + '" hreflang="' + i.codigo + '" lang="' + i.codigo + '" data-idioma="' + i.codigo + '"' +
+          (i.codigo === actual ? ' aria-current="true"' : '') + '>' + tx(i.clave, i.nombre) + '</a>';
+      }).join('') +
+      '<p class="idioma-nota">' + tx('idioma_nota', 'Los precios y cifras se muestran siempre en formato colombiano.') + '</p>' +
+      '</div>';
+  }
+
+  function inicializarIdioma() {
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[data-idioma]');
+      if (!a || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      e.preventDefault();
+      var codigo = a.getAttribute('data-idioma');
+      var destino = new URL(window.location.href);
+      destino.searchParams.set('lang', codigo);
+      if (codigo === window.SG_LANG) return;
+      if (!window.fetch) { window.location.href = destino.toString(); return; }
+      fetch('/perfil/idioma', {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ idioma: codigo })
+      }).then(function (r) {
+        if (!r.ok) throw new Error(r.status);
+        destino.searchParams.delete('lang');          // la cookie ya quedo puesta
+        window.location.href = destino.toString();
+      }).catch(function () { window.location.href = destino.toString(); });
+    });
   }
 
   /* ==========================================================
@@ -746,7 +806,7 @@
       fig.setAttribute('data-etapa', String(n));
       var b = botones[n - 1];
       botones.forEach(function (x) { if (x === b) x.setAttribute('aria-current', 'step'); else x.removeAttribute('aria-current'); });
-      lblPaso.textContent = 'Paso ' + n + ' de ' + total;
+      lblPaso.textContent = tx('evo_paso', 'Paso {0} de {1}', n, total);
       lblTitulo.textContent = b.getAttribute('data-titulo');
       lblTexto.textContent = b.getAttribute('data-texto');
       if (animarTexto && !menosMovimiento()) {
@@ -780,7 +840,7 @@
       pausa.hidden = !puede;
       pausa.setAttribute('aria-pressed', String(pausado));
       pausa.innerHTML = '<i class="ph ' + (pausado ? 'ph-play' : 'ph-pause') + '" aria-hidden="true"></i>' +
-        '<span class="visually-hidden">' + (pausado ? 'Reanudar animación' : 'Pausar animación') + '</span>';
+        '<span class="visually-hidden">' + (pausado ? tx('evo_reanudar', 'Reanudar animación') : tx('evo_pausar', 'Pausar animación')) + '</span>';
     }
 
     botones.forEach(function (b, i) {
@@ -852,8 +912,8 @@
       raiz.setAttribute('data-theme', tema);
       var claro = tema === 'light';
       boton.setAttribute('aria-checked', String(claro));
-      boton.setAttribute('aria-label', claro ? 'Modo claro activado. Cambiar a modo oscuro' : 'Modo oscuro activado. Cambiar a modo claro');
-      boton.title = claro ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro';
+      boton.setAttribute('aria-label', claro ? tx('tema_claro_on', 'Modo claro activado. Cambiar a modo oscuro') : tx('tema_oscuro_on', 'Modo oscuro activado. Cambiar a modo claro'));
+      boton.title = claro ? tx('tema_a_oscuro', 'Cambiar a modo oscuro') : tx('tema_a_claro', 'Cambiar a modo claro');
       if (metaColor) metaColor.setAttribute('content', claro ? '#F4F7FD' : '#070B19');
       if (guardar) {
         try { localStorage.setItem(CLAVE, tema); } catch (e) { /* sin almacenamiento */ }
@@ -1011,7 +1071,7 @@
       toggle.addEventListener('click', function () {
         var abierto = nav.classList.toggle('mobile-open');
         toggle.setAttribute('aria-expanded', String(abierto));
-        toggle.setAttribute('aria-label', abierto ? 'Cerrar menú' : 'Abrir menú');
+        toggle.setAttribute('aria-label', abierto ? tx('cerrar_menu', 'Cerrar menú') : tx('abrir_menu', 'Abrir menú'));
       });
       nav.querySelectorAll('.nav-panel a').forEach(function (a) { a.addEventListener('click', cerrarMovil); });
       window.matchMedia('(min-width: 951px)').addEventListener('change', function (e) { if (e.matches) cerrarMovil(); });
@@ -1040,18 +1100,18 @@
     var sub = nav.querySelector('.subnav');
     if (!sub) return;
     var SECCIONES = [
-      { match: '/vidrio-personalizado', titulo: 'Vidrio personalizado', items: [
-        { k: 'cotizar', texto: 'Nueva cotización', match: '=/vidrio-personalizado/cotizar' },
-        { k: 'mis-cotizaciones', texto: 'Mis cotizaciones', match: '/mis-cotizaciones|/vidrio-personalizado/cotizacion' }
+      { match: '/vidrio-personalizado', titulo: tx('sub_vidrio', 'Vidrio personalizado'), items: [
+        { k: 'cotizar', texto: tx('sub_nueva_cot', 'Nueva cotización'), match: '=/vidrio-personalizado/cotizar' },
+        { k: 'mis-cotizaciones', texto: tx('sub_mis_cot', 'Mis cotizaciones'), match: '/mis-cotizaciones|/vidrio-personalizado/cotizacion' }
       ] },
-      { match: '=/usuario|/checkout/mis-pedidos|/checkout/pedido', titulo: 'Mi cuenta', items: [
-        { k: 'usuario', texto: 'Resumen', match: '=/usuario' },
-        { k: 'mis-pedidos', texto: 'Mis pedidos', match: '/checkout/mis-pedidos|/checkout/pedido' },
-        { k: 'mis-cotizaciones', texto: 'Mis cotizaciones', match: '/mis-cotizaciones' }
+      { match: '=/usuario|/checkout/mis-pedidos|/checkout/pedido', titulo: tx('sub_cuenta', 'Mi cuenta'), items: [
+        { k: 'usuario', texto: tx('sub_resumen', 'Resumen'), match: '=/usuario' },
+        { k: 'mis-pedidos', texto: tx('sub_mis_pedidos', 'Mis pedidos'), match: '/checkout/mis-pedidos|/checkout/pedido' },
+        { k: 'mis-cotizaciones', texto: tx('sub_mis_cot', 'Mis cotizaciones'), match: '/mis-cotizaciones' }
       ] },
-      { match: '/catalogo|/destacados|/detalle|/comparar', titulo: 'Tienda', items: [
-        { k: 'catalogo', texto: 'Catálogo', match: '/catalogo|/detalle|/comparar' },
-        { k: 'destacados', texto: 'Destacados', match: '/destacados' }
+      { match: '/catalogo|/destacados|/detalle|/comparar', titulo: tx('sub_tienda', 'Tienda'), items: [
+        { k: 'catalogo', texto: tx('sub_catalogo', 'Catálogo'), match: '/catalogo|/detalle|/comparar' },
+        { k: 'destacados', texto: tx('sub_destacados', 'Destacados'), match: '/destacados' }
       ] }
     ];
     var seccion = SECCIONES.filter(function (s) { return coincide(s.match); })[0];

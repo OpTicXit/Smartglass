@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Vidrio inteligente y sostenible</title>
+    <title th:text="#{index.smartglass_vidrio_inteligente_y_sostenible}">SmartGlass - Vidrio inteligente y sostenible</title>
     <meta name="description" content="Vidrio a medida para arquitectura e interiores, con precio y huella de carbono calculados al instante.">
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
@@ -162,17 +162,17 @@
     <section class="hero">
         <div class="container">
             <div class="hero-texto">
-                <span class="hero-badge sg-rainbow"><i class="ph ph-leaf"></i> Vidrio con su huella de carbono a la vista</span>
-                <h1>Transparencia que <span>transforma espacios</span></h1>
-                <p>Vidrio de alta calidad para tus proyectos, a medida o de catálogo. Diseña tu pieza y conoce su precio y su impacto ambiental antes de pedirla.</p>
+                <span class="hero-badge sg-rainbow"><i class="ph ph-leaf"></i> <span th:text="#{index.vidrio_con_su_huella_de}">Vidrio con su huella de carbono a la vista</span></span>
+                <h1><span th:text="#{index.transparencia_que}">Transparencia que</span> <span th:text="#{index.transforma_espacios}">transforma espacios</span></h1>
+                <p th:text="#{index.vidrio_de_alta_calidad_para}">Vidrio de alta calidad para tus proyectos, a medida o de catálogo. Diseña tu pieza y conoce su precio y su impacto ambiental antes de pedirla.</p>
                 <div class="hero-cta">
-                    <a th:href="@{/catalogo}" class="btn btn-primary btn-lg sg-rainbow"><i class="ph ph-storefront"></i> Ver catálogo</a>
-                    <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-secondary btn-lg"><i class="ph ph-pencil-ruler"></i> Diseñar a medida</a>
+                    <a th:href="@{/catalogo}" class="btn btn-primary btn-lg sg-rainbow"><i class="ph ph-storefront"></i> <span th:text="#{index.ver_catalogo}">Ver catálogo</span></a>
+                    <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-secondary btn-lg"><i class="ph ph-pencil-ruler"></i> <span th:text="#{index.disenar_a_medida}">Diseñar a medida</span></a>
                 </div>
                 <ul class="hero-datos">
-                    <li><strong>98,2 %</strong><span>claridad óptica</span></li>
-                    <li><strong>-15 %</strong><span>desperdicio de corte</span></li>
-                    <li><strong>ISO 14001</strong><span>gestión ambiental</span></li>
+                    <li><strong>98,2 %</strong><span th:text="#{index.claridad_optica}">claridad óptica</span></li>
+                    <li><strong>-15 %</strong><span th:text="#{index.desperdicio_de_corte}">desperdicio de corte</span></li>
+                    <li><strong th:text="#{index.iso_14001}">ISO 14001</strong><span th:text="#{index.gestion_ambiental}">gestión ambiental</span></li>
                 </ul>
             </div>
 
@@ -184,42 +184,42 @@
                 <div class="hero-flotantes">
                     <div class="badge-flotante">
                         <i class="ph ph-leaf"></i>
-                        <div><h2>Sostenible</h2><p>Hasta 40 % de vidrio reciclado</p></div>
+                        <div><h2 th:text="#{index.sostenible}">Sostenible</h2><p th:text="#{index.hasta_40_de_vidrio_reciclado}">Hasta 40 % de vidrio reciclado</p></div>
                     </div>
                     <div class="badge-flotante">
                         <i class="ph ph-shield-check"></i>
-                        <div><h2>Resistente</h2><p>Templado y laminado de seguridad</p></div>
+                        <div><h2 th:text="#{index.resistente}">Resistente</h2><p th:text="#{index.templado_y_laminado_de_seguridad}">Templado y laminado de seguridad</p></div>
                     </div>
                     <div class="badge-flotante">
                         <i class="ph ph-sun"></i>
-                        <div><h2>Alta claridad</h2><p>Máxima transparencia</p></div>
+                        <div><h2 th:text="#{index.alta_claridad}">Alta claridad</h2><p th:text="#{index.maxima_transparencia}">Máxima transparencia</p></div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="container" aria-label="Por qué SmartGlass">
+    <section class="container" aria-label="Por qué SmartGlass" th:aria-label="#{index.por_que_smartglass}">
         <ul class="beneficios-grid">
             <li>
                 <i class="ph ph-drop"></i>
-                <h2>Materiales certificados</h2>
-                <p>Vidrio de primera línea con estándares internacionales.</p>
+                <h2 th:text="#{index.materiales_certificados}">Materiales certificados</h2>
+                <p th:text="#{index.vidrio_de_primera_linea_con}">Vidrio de primera línea con estándares internacionales.</p>
             </li>
             <li>
                 <i class="ph ph-ruler"></i>
-                <h2>Corte a tu medida</h2>
-                <p>Cualquier forma, espesor y acabado para tu proyecto.</p>
+                <h2 th:text="#{index.corte_a_tu_medida}">Corte a tu medida</h2>
+                <p th:text="#{index.cualquier_forma_espesor_y_acabado}">Cualquier forma, espesor y acabado para tu proyecto.</p>
             </li>
             <li>
                 <i class="ph ph-truck"></i>
-                <h2>Envío protegido</h2>
-                <p>Tu pedido llega embalado y en perfectas condiciones.</p>
+                <h2 th:text="#{index.envio_protegido}">Envío protegido</h2>
+                <p th:text="#{index.tu_pedido_llega_embalado_y}">Tu pedido llega embalado y en perfectas condiciones.</p>
             </li>
             <li>
                 <i class="ph ph-headset"></i>
-                <h2>Asesoría técnica</h2>
-                <p>Te acompañamos desde la cotización hasta la entrega.</p>
+                <h2 th:text="#{index.asesoria_tecnica}">Asesoría técnica</h2>
+                <p th:text="#{index.te_acompanamos_desde_la_cotizacion}">Te acompañamos desde la cotización hasta la entrega.</p>
             </li>
         </ul>
     </section>
@@ -227,28 +227,28 @@
     <section class="vitrina">
         <div class="container">
             <div class="vitrina-header">
-                <h2>Soluciones en vidrio para cada proyecto</h2>
-                <p>Productos que combinan estética, desempeño térmico y menor impacto ambiental.</p>
+                <h2 th:text="#{index.soluciones_en_vidrio_para_cada}">Soluciones en vidrio para cada proyecto</h2>
+                <p th:text="#{index.productos_que_combinan_estetica_desempeno}">Productos que combinan estética, desempeño térmico y menor impacto ambiental.</p>
             </div>
             <div class="vitrina-grid">
                 <a th:href="@{/catalogo}" class="categoria-card">
                     <img src="/img/vidrio19.jpg" alt="" loading="lazy">
                     <div class="categoria-overlay">
-                        <div><h3>Vidrio arquitectónico</h3><p>Fachadas, ventanería y control solar</p></div>
+                        <div><h3 th:text="#{index.vidrio_arquitectonico}">Vidrio arquitectónico</h3><p th:text="#{index.fachadas_ventaneria_y_control_solar}">Fachadas, ventanería y control solar</p></div>
                         <i class="ph ph-arrow-right" aria-hidden="true"></i>
                     </div>
                 </a>
                 <a th:href="@{/catalogo}" class="categoria-card">
                     <img src="/img/vidrio8.jpg" alt="" loading="lazy">
                     <div class="categoria-overlay">
-                        <div><h3>Vidrio interior</h3><p>Divisiones, baños y espejos</p></div>
+                        <div><h3 th:text="#{index.vidrio_interior}">Vidrio interior</h3><p th:text="#{index.divisiones_banos_y_espejos}">Divisiones, baños y espejos</p></div>
                         <i class="ph ph-arrow-right" aria-hidden="true"></i>
                     </div>
                 </a>
                 <a th:href="@{/catalogo}" class="categoria-card">
                     <img src="/img/vidrio5.jpg" alt="" loading="lazy">
                     <div class="categoria-overlay">
-                        <div><h3>Vidrio exterior</h3><p>Barandas, cubiertas y pérgolas</p></div>
+                        <div><h3 th:text="#{index.vidrio_exterior}">Vidrio exterior</h3><p th:text="#{index.barandas_cubiertas_y_pergolas}">Barandas, cubiertas y pérgolas</p></div>
                         <i class="ph ph-arrow-right" aria-hidden="true"></i>
                     </div>
                 </a>
@@ -260,19 +260,19 @@
         <div class="container">
             <div class="a-medida-panel">
                 <div class="a-medida-texto">
-                    <h2>Diseña tu pieza y mírala tomar forma</h2>
-                    <p>Elige el tipo de vidrio, las medidas, el espesor y el acabado. Ves el precio y la huella de CO₂ mientras decides, y nosotros la fabricamos.</p>
-                    <ul class="tipos" role="group" aria-label="Tipo de vidrio de ejemplo">
-                        <li><button type="button" data-tipo="Templado" aria-pressed="true">Templado</button></li>
-                        <li><button type="button" data-tipo="Laminado" aria-pressed="false">Laminado</button></li>
-                        <li><button type="button" data-tipo="Insulado" aria-pressed="false">Insulado</button></li>
-                        <li><button type="button" data-tipo="Inteligente" aria-pressed="false">Inteligente</button></li>
-                        <li><button type="button" data-tipo="Fotovoltaico" aria-pressed="false">Fotovoltaico</button></li>
+                    <h2 th:text="#{index.disena_tu_pieza_y_mirala}">Diseña tu pieza y mírala tomar forma</h2>
+                    <p th:text="#{index.elige_el_tipo_de_vidrio}">Elige el tipo de vidrio, las medidas, el espesor y el acabado. Ves el precio y la huella de CO₂ mientras decides, y nosotros la fabricamos.</p>
+                    <ul class="tipos" role="group" aria-label="Tipo de vidrio de ejemplo" th:aria-label="#{index.tipo_de_vidrio_de_ejemplo}">
+                        <li><button type="button" data-tipo="Templado" aria-pressed="true" th:text="#{index.templado}">Templado</button></li>
+                        <li><button type="button" data-tipo="Laminado" aria-pressed="false" th:text="#{index.laminado}">Laminado</button></li>
+                        <li><button type="button" data-tipo="Insulado" aria-pressed="false" th:text="#{index.insulado}">Insulado</button></li>
+                        <li><button type="button" data-tipo="Inteligente" aria-pressed="false" th:text="#{index.inteligente}">Inteligente</button></li>
+                        <li><button type="button" data-tipo="Fotovoltaico" aria-pressed="false" th:text="#{index.fotovoltaico}">Fotovoltaico</button></li>
                     </ul>
-                    <p class="tipo-frase" id="tipoFrase" aria-live="polite">Templado: hasta cinco veces más resistente, listo para el uso diario.</p>
-                    <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler"></i> Empezar a diseñar</a>
+                    <p class="tipo-frase" id="tipoFrase" aria-live="polite" th:text="#{index.templado_hasta_cinco_veces_mas}">Templado: hasta cinco veces más resistente, listo para el uso diario.</p>
+                    <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler"></i> <span th:text="#{index.empezar_a_disenar}">Empezar a diseñar</span></a>
                 </div>
-                <div class="sg-stage"><div id="muestraVidrio" role="img" aria-label="Vista previa de una pieza de vidrio templado"></div></div>
+                <div class="sg-stage"><div id="muestraVidrio" role="img" aria-label="Vista previa de una pieza de vidrio templado" th:aria-label="#{index.vista_previa_de_una_pieza}"></div></div>
             </div>
         </div>
     </section>

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Reseñas (Admin)</title>
+    <title th:text="#{admin.resenas.smartglass_resenas_admin}">SmartGlass - Reseñas (Admin)</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <style>
@@ -199,8 +199,8 @@
 
 <div class="container">
 
-    <h1 class="admin-title">Reseñas de productos</h1>
-    <p class="rv-sub">Explora las opiniones agrupadas por producto y modera las que sea necesario.</p>
+    <h1 class="admin-title" th:text="#{admin.resenas.resenas_de_productos}">Reseñas de productos</h1>
+    <p class="rv-sub" th:text="#{admin.resenas.explora_las_opiniones_agrupadas_por}">Explora las opiniones agrupadas por producto y modera las que sea necesario.</p>
 
     <!-- Alerta flash (cuando se elimina una reseña) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
@@ -214,13 +214,13 @@
             <span class="d-fecha" th:text="${#temporals.format(r.fecha, 'yyyy-MM-dd HH:mm')}"></span>
             <span class="d-nombre" th:text="${nombresProducto[r.productoId]}"></span>
             <span class="d-comentario" th:text="${r.comentario}"></span>
-            <a class="d-ver" th:href="@{/detalle/{id}(id=${r.productoId})}">Ver</a>
+            <a class="d-ver" th:href="@{/detalle/{id}(id=${r.productoId})}" th:text="#{admin.resenas.ver}">Ver</a>
             <form class="d-form" th:action="@{/admin/resenas/{id}/eliminar(id=${r.id})}" method="post"></form>
         </div>
     </div>
 
     <div id="rv-app"></div>
-    <noscript><p class="rv-empty">Activa JavaScript para ver las reseñas.</p></noscript>
+    <noscript><p class="rv-empty" th:text="#{admin.resenas.activa_javascript_para_ver_las}">Activa JavaScript para ver las reseñas.</p></noscript>
 </div>
 
 <script>

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Panel Admin</title>
+    <title th:text="#{admin.dashboard.smartglass_panel_admin}">SmartGlass - Panel Admin</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
@@ -14,7 +14,7 @@
 <div class="container">
     
     <!-- Título principal -->
-    <h1 class="admin-title">Panel de administración</h1>
+    <h1 class="admin-title" th:text="#{admin.dashboard.panel_de_administracion}">Panel de administración</h1>
 
     <!-- Alerta de éxito (si viene de cambiar un rol o estado) -->
     <div th:if="${mensaje}" class="flash" th:text="${mensaje}"></div>
@@ -23,39 +23,39 @@
     <div class="stats-grid stats-6">
         <div class="stat-box card-panel">
             <span class="value" th:text="'$ ' + ${#numbers.formatDecimal(stats.ingresos, 1, 'COMMA', 0, 'POINT')}"></span>
-            <span class="label">Ingresos</span>
+            <span class="label" th:text="#{admin.dashboard.ingresos}">Ingresos</span>
         </div>
         <div class="stat-box card-panel">
             <span class="value" th:text="${stats.co2Total} + ' kg'"></span>
-            <span class="label">CO₂ total</span>
+            <span class="label" th:text="#{admin.dashboard.co2_total}">CO₂ total</span>
         </div>
         <div class="stat-box card-panel">
             <span class="value" th:text="${stats.pendientes}"></span>
-            <span class="label">Pedidos pendientes</span>
+            <span class="label" th:text="#{admin.dashboard.pedidos_pendientes}">Pedidos pendientes</span>
         </div>
         <div class="stat-box card-panel">
             <span class="value" th:text="${stats.totalPedidos}"></span>
-            <span class="label">Total pedidos</span>
+            <span class="label" th:text="#{admin.dashboard.total_pedidos}">Total pedidos</span>
         </div>
         <div class="stat-box card-panel">
             <span class="value" th:text="${totalUsuarios}"></span>
-            <span class="label">Usuarios registrados</span>
+            <span class="label" th:text="#{admin.dashboard.usuarios_registrados}">Usuarios registrados</span>
         </div>
         <div class="stat-box card-panel">
             <span class="value" th:text="${totalProductos}"></span>
-            <span class="label">Productos en catálogo</span>
+            <span class="label" th:text="#{admin.dashboard.productos_en_catalogo}">Productos en catálogo</span>
         </div>
     </div>
 
     <!-- 3. Tabla de Últimos Pedidos -->
-    <h2 class="admin-subtitle">Últimos pedidos</h2>
+    <h2 class="admin-subtitle" th:text="#{admin.dashboard.ultimos_pedidos}">Últimos pedidos</h2>
     <div class="table-wrap">
         <table class="table-admin">
             <thead>
                 <tr>
-                    <th>Factura</th>
-                    <th>Estado</th>
-                    <th>Total</th>
+                    <th th:text="#{admin.dashboard.factura}">Factura</th>
+                    <th th:text="#{admin.dashboard.estado}">Estado</th>
+                    <th th:text="#{admin.dashboard.total}">Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -72,7 +72,7 @@
                     <td th:text="${pedido.totalFormateado}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(stats.pedidos)}">
-                    <td colspan="3" class="td-vacio">No hay pedidos recientes.</td>
+                    <td colspan="3" class="td-vacio" th:text="#{admin.dashboard.no_hay_pedidos_recientes}">No hay pedidos recientes.</td>
                 </tr>
             </tbody>
         </table>

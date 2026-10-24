@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Crear cuenta</title>
+    <title th:text="#{registro.smartglass_crear_cuenta}">SmartGlass - Crear cuenta</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
     <!-- F43: selector de pais para el telefono (version fija) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
@@ -58,11 +58,11 @@
         <div class="auth-card">
             <a th:href="@{/home}" class="auth-marca">
                 <img th:src="@{/img/logo-icono.png}" alt="">
-                SmartGlass
+                <span th:text="#{registro.smartglass}">SmartGlass</span>
             </a>
 
-            <h1>Crea tu cuenta</h1>
-            <p class="lead">Completa tus datos para empezar a usar SmartGlass.</p>
+            <h1 th:text="#{registro.crea_tu_cuenta}">Crea tu cuenta</h1>
+            <p class="lead" th:text="#{registro.completa_tus_datos_para_empezar}">Completa tus datos para empezar a usar SmartGlass.</p>
 
             <div th:if="${error}" class="alert alert--error" role="alert" data-persistente>
                 <i class="ph ph-warning-circle" aria-hidden="true"></i>
@@ -70,13 +70,13 @@
             </div>
             <div th:if="${param.limite != null}" class="alert alert--error" role="alert" data-persistente>
                 <i class="ph ph-clock-countdown" aria-hidden="true"></i>
-                <span>Demasiados intentos seguidos. Espera un minuto e inténtalo de nuevo.</span>
+                <span th:text="#{registro.demasiados_intentos_seguidos_espera_un}">Demasiados intentos seguidos. Espera un minuto e inténtalo de nuevo.</span>
             </div>
 
             <form class="auth-form" id="formRegistro" th:action="@{/registro}" method="POST">
 
                 <div class="form-group">
-                    <label for="nombre">Nombre completo</label>
+                    <label for="nombre" th:text="#{registro.nombre_completo}">Nombre completo</label>
                     <input
                         type="text"
                         id="nombre"
@@ -85,17 +85,17 @@
                         minlength="2"
                         maxlength="100"
                         pattern="[A-Za-zÁÉÍÓÚÑÜáéíóúñü' \-]{2,100}"
-                        title="Solo letras, espacios, apóstrofo y guion"
+                        title="Solo letras, espacios, apóstrofo y guion" th:title="#{registro.solo_letras_espacios_apostrofo_y}"
                         required>
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Correo electrónico</label>
+                    <label for="email" th:text="#{registro.correo_electronico}">Correo electrónico</label>
                     <input
                         type="email"
                         id="email"
                         name="email"
-                        placeholder="nombre@correo.com"
+                        placeholder="nombre@correo.com" th:placeholder="#{registro.nombre_correo_com}"
                         autocomplete="email"
                         autocapitalize="none"
                         spellcheck="false"
@@ -105,7 +105,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="telefono">Teléfono</label>
+                    <label for="telefono" th:text="#{registro.telefono}">Teléfono</label>
                     <input
                         type="tel"
                         id="telefono"
@@ -117,25 +117,25 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="username">Usuario</label>
+                    <label for="username" th:text="#{registro.usuario}">Usuario</label>
                     <input
                         type="text"
                         id="username"
                         name="username"
-                        placeholder="Con el que vas a ingresar"
+                        placeholder="Con el que vas a ingresar" th:placeholder="#{registro.con_el_que_vas_a}"
                         autocomplete="username"
                         autocapitalize="none"
                         spellcheck="false"
                         minlength="3"
                         maxlength="20"
                         pattern="[a-z0-9._\-]{3,20}"
-                        title="De 3 a 20 caracteres: letras minúsculas, números, punto, guion o guion bajo"
+                        title="De 3 a 20 caracteres: letras minúsculas, números, punto, guion o guion bajo" th:title="#{registro.de_3_a_20_caracteres}"
                         required>
                     <div class="hint" id="userHint" aria-live="polite"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Contraseña</label>
+                    <label for="password" th:text="#{registro.contrasena}">Contraseña</label>
                     <div class="input-password">
                         <input
                             type="password"
@@ -148,17 +148,17 @@
                             required>
                     </div>
                     <ul class="pw-lista" id="pwLista" aria-live="polite">
-                        <li data-regla="largo">8 caracteres o más</li>
-                        <li data-regla="mayus">Una mayúscula</li>
-                        <li data-regla="minus">Una minúscula</li>
-                        <li data-regla="digito">Un número</li>
-                        <li data-regla="espacios">Sin espacios</li>
-                        <li data-regla="distinta">Distinta del correo y del usuario</li>
+                        <li data-regla="largo" th:text="#{registro.8_caracteres_o_mas}">8 caracteres o más</li>
+                        <li data-regla="mayus" th:text="#{registro.una_mayuscula}">Una mayúscula</li>
+                        <li data-regla="minus" th:text="#{registro.una_minuscula}">Una minúscula</li>
+                        <li data-regla="digito" th:text="#{registro.un_numero}">Un número</li>
+                        <li data-regla="espacios" th:text="#{registro.sin_espacios}">Sin espacios</li>
+                        <li data-regla="distinta" th:text="#{registro.distinta_del_correo_y_del}">Distinta del correo y del usuario</li>
                     </ul>
                 </div>
 
                 <div class="form-group">
-                    <label for="confirmPassword">Confirmar contraseña</label>
+                    <label for="confirmPassword" th:text="#{registro.confirmar_contrasena}">Confirmar contraseña</label>
                     <div class="input-password">
                         <input
                             type="password"
@@ -173,15 +173,15 @@
 
                 <!-- Campo trampa (honeypot): una persona no lo ve ni lo llena -->
                 <div class="campo-trampa" aria-hidden="true">
-                    <label for="website">Sitio web</label>
+                    <label for="website" th:text="#{registro.sitio_web}">Sitio web</label>
                     <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-lg btn-block mt-1">Crear cuenta</button>
+                <button type="submit" class="btn btn-primary btn-lg btn-block mt-1" th:text="#{registro.crear_cuenta}">Crear cuenta</button>
             </form>
 
-            <p class="auth-pie">¿Ya tienes cuenta? <a th:href="@{/login}">Inicia sesión</a></p>
-            <p class="auth-pie mt-1"><a th:href="@{/home}" class="text-muted"><i class="ph ph-arrow-left" aria-hidden="true"></i> Volver al inicio</a></p>
+            <p class="auth-pie"><span th:text="#{registro.ya_tienes_cuenta}">¿Ya tienes cuenta?</span> <a th:href="@{/login}" th:text="#{registro.inicia_sesion}">Inicia sesión</a></p>
+            <p class="auth-pie mt-1"><a th:href="@{/home}" class="text-muted"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="#{registro.volver_al_inicio}">Volver al inicio</span></a></p>
         </div>
     </main>
 
@@ -262,7 +262,7 @@
         var s = sugerencia(email.value);
         if (!s) { pintar(emailHint, ''); return; }
         pintar(emailHint, '');
-        emailHint.appendChild(document.createTextNode('¿Quisiste decir '));
+        emailHint.appendChild(document.createTextNode(sgT('reg_quisiste', '¿Quisiste decir ')));
         var boton = document.createElement('button');
         boton.type = 'button';
         boton.textContent = s;
@@ -290,7 +290,7 @@
                 if (e && d.emailDisponible === false) { pintar(emailHint, d.emailMensaje, 'error'); email.classList.add('invalido'); }
                 else if (e && d.emailDisponible === true) { email.classList.remove('invalido'); if (!sugerencia(e)) pintar(emailHint, ''); }
                 if (u && d.usernameDisponible === false) { pintar(userHint, d.usernameMensaje, 'error'); user.classList.add('invalido'); }
-                else if (u && d.usernameDisponible === true) { user.classList.remove('invalido'); pintar(userHint, 'Usuario disponible', 'ok'); }
+                else if (u && d.usernameDisponible === true) { user.classList.remove('invalido'); pintar(userHint, sgT('reg_usuario_disponible', 'Usuario disponible'), 'ok'); }
             })
             .catch(function () { /* sin red: valida el servidor al enviar */ });
     }
@@ -323,7 +323,7 @@
     function pintarConfirmacion() {
         if (!conf.value) { pintar(confHint, ''); conf.classList.remove('invalido'); return true; }
         var igual = conf.value === pass.value;
-        pintar(confHint, igual ? 'Las contraseñas coinciden' : 'Las contraseñas no coinciden', igual ? 'ok' : 'error');
+        pintar(confHint, igual ? sgT('reg_coinciden', 'Las contraseñas coinciden') : sgT('reg_no_coinciden', 'Las contraseñas no coinciden'), igual ? 'ok' : 'error');
         conf.classList.toggle('invalido', !igual);
         return igual;
     }
@@ -336,7 +336,7 @@
     form.addEventListener('submit', function (ev) {
         var problema = null;
         if (!telefonoValido()) {
-            problema = 'Revisa el teléfono: debe ser válido para el país elegido.';
+            problema = sgT('reg_tel_invalido', 'Revisa el teléfono: debe ser válido para el país elegido.');
             pintar(telHint, problema, 'error');
             tel.classList.add('invalido');
         } else {
@@ -345,8 +345,8 @@
             /* E.164 (+573001234567) hacia el servidor; si utils.js no cargo se envia lo escrito */
             if (iti && iti.isValidNumber() === true) tel.value = iti.getNumber();
         }
-        if (!pintarChecklist()) problema = problema || 'La contraseña no cumple todas las reglas.';
-        if (!pintarConfirmacion()) problema = problema || 'Las contraseñas no coinciden.';
+        if (!pintarChecklist()) problema = problema || sgT('reg_pw_reglas', 'La contraseña no cumple todas las reglas.');
+        if (!pintarConfirmacion()) problema = problema || sgT('reg_no_coinciden_punto', 'Las contraseñas no coinciden.');
         if (problema) { ev.preventDefault(); }
     });
 })();

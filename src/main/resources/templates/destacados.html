@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Destacados</title>
+    <title th:text="#{destacados.smartglass_destacados}">SmartGlass - Destacados</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -53,20 +53,20 @@
 
     <header class="page-intro">
         <div>
-            <h1>Piezas que definen un espacio</h1>
-            <p class="lead">Una selección de nuestros productos más recientes, elegidos por su diseño, su calidad y su desempeño sostenible.</p>
+            <h1 th:text="#{destacados.piezas_que_definen_un_espacio}">Piezas que definen un espacio</h1>
+            <p class="lead" th:text="#{destacados.una_seleccion_de_nuestros_productos}">Una selección de nuestros productos más recientes, elegidos por su diseño, su calidad y su desempeño sostenible.</p>
         </div>
         <div class="page-intro-actions">
-            <a th:href="@{/catalogo}" class="btn btn-secondary">Ver todo el catálogo</a>
+            <a th:href="@{/catalogo}" class="btn btn-secondary" th:text="#{destacados.ver_todo_el_catalogo}">Ver todo el catálogo</a>
         </div>
     </header>
 
-    <section class="galeria-grid" th:if="${not #lists.isEmpty(destacados)}" aria-label="Productos destacados">
+    <section class="galeria-grid" th:if="${not #lists.isEmpty(destacados)}" aria-label="Productos destacados" th:aria-label="#{destacados.productos_destacados}">
         <a class="producto-card galeria-card" th:each="producto : ${destacados}"
            th:href="@{/detalle/{id}(id=${producto.id})}" th:classappend="${producto.imagenPendiente} ? 'img-pendiente'">
             <img th:src="@{${producto.imagenUrl}}"
                  alt="" loading="lazy">
-            <span class="foto-pendiente" th:if="${producto.imagenPendiente}">Foto en preparación</span>
+            <span class="foto-pendiente" th:if="${producto.imagenPendiente}" th:text="#{destacados.foto_en_preparacion}">Foto en preparación</span>
             <div class="galeria-overlay">
                 <div>
                     <h2 th:text="${producto.nombre}">Producto</h2>
@@ -79,9 +79,9 @@
 
     <div class="empty" th:if="${#lists.isEmpty(destacados)}">
         <div class="empty-icon"><i class="ph ph-sparkle" aria-hidden="true"></i></div>
-        <h2>Aún no hay destacados</h2>
-        <p>Pronto elegiremos las piezas de la temporada. Mientras tanto, recorre el catálogo completo.</p>
-        <a th:href="@{/catalogo}" class="btn btn-primary">Ir al catálogo</a>
+        <h2 th:text="#{destacados.aun_no_hay_destacados}">Aún no hay destacados</h2>
+        <p th:text="#{destacados.pronto_elegiremos_las_piezas_de}">Pronto elegiremos las piezas de la temporada. Mientras tanto, recorre el catálogo completo.</p>
+        <a th:href="@{/catalogo}" class="btn btn-primary" th:text="#{destacados.ir_al_catalogo}">Ir al catálogo</a>
     </div>
 
 </main>

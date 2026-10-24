@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Mi cuenta</title>
+    <title th:text="#{usuario.smartglass_mi_cuenta}">SmartGlass - Mi cuenta</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -52,8 +52,8 @@
 
     <header class="page-intro page-intro--plain saludo">
         <div>
-            <h1>Hola, <span th:text="${usuario.nombre}">Usuario</span></h1>
-            <p class="lead">Desde aquí gestionas tus compras, tus cotizaciones a medida y tus pedidos.</p>
+            <h1><span th:text="#{usuario.hola}">Hola,</span> <span th:text="${usuario.nombre}">Usuario</span></h1>
+            <p class="lead" th:text="#{usuario.desde_aqui_gestionas_tus_compras}">Desde aquí gestionas tus compras, tus cotizaciones a medida y tus pedidos.</p>
         </div>
     </header>
 
@@ -61,7 +61,7 @@
         <li>
             <a th:href="@{/catalogo}" class="acceso">
                 <span class="acceso-icono"><i class="ph ph-storefront" aria-hidden="true"></i></span>
-                <div><strong>Explorar tienda</strong><span>Ver el catálogo completo</span></div>
+                <div><strong th:text="#{usuario.explorar_tienda}">Explorar tienda</strong><span th:text="#{usuario.ver_el_catalogo_completo}">Ver el catálogo completo</span></div>
                 <i class="ph ph-arrow-right flecha" aria-hidden="true"></i>
             </a>
         </li>
@@ -70,8 +70,8 @@
                 <span class="acceso-icono"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i></span>
                 <span class="contador" th:if="${cantidadCarrito != null and cantidadCarrito > 0}" th:text="${cantidadCarrito}">0</span>
                 <div>
-                    <strong>Mi carrito</strong>
-                    <span th:text="${cantidadCarrito != null and cantidadCarrito > 0} ? ${cantidadCarrito} + ' producto(s) esperando' : 'Aún está vacío'">Aún está vacío</span>
+                    <strong th:text="#{usuario.mi_carrito}">Mi carrito</strong>
+                    <span th:text="${cantidadCarrito != null and cantidadCarrito > 0} ? #{usuario.carrito_n(${#strings.toString(cantidadCarrito)})} : #{usuario.carrito_vacio}">Aún está vacío</span>
                 </div>
                 <i class="ph ph-arrow-right flecha" aria-hidden="true"></i>
             </a>
@@ -79,14 +79,14 @@
         <li>
             <a th:href="@{/checkout/mis-pedidos}" class="acceso">
                 <span class="acceso-icono"><i class="ph ph-package" aria-hidden="true"></i></span>
-                <div><strong>Mis pedidos</strong><span>Seguimiento y facturas</span></div>
+                <div><strong th:text="#{usuario.mis_pedidos}">Mis pedidos</strong><span th:text="#{usuario.seguimiento_y_facturas}">Seguimiento y facturas</span></div>
                 <i class="ph ph-arrow-right flecha" aria-hidden="true"></i>
             </a>
         </li>
         <li>
             <a th:href="@{/vidrio-personalizado/mis-cotizaciones}" class="acceso">
                 <span class="acceso-icono"><i class="ph ph-pencil-ruler" aria-hidden="true"></i></span>
-                <div><strong>Mis cotizaciones</strong><span>Tus piezas a medida</span></div>
+                <div><strong th:text="#{usuario.mis_cotizaciones}">Mis cotizaciones</strong><span th:text="#{usuario.tus_piezas_a_medida}">Tus piezas a medida</span></div>
                 <i class="ph ph-arrow-right flecha" aria-hidden="true"></i>
             </a>
         </li>
@@ -95,10 +95,10 @@
     <section aria-labelledby="titulo-destacados">
         <div class="section-title">
             <div>
-                <h2 id="titulo-destacados">Novedades y destacados</h2>
-                <p>Algunos de nuestros productos disponibles.</p>
+                <h2 id="titulo-destacados" th:text="#{usuario.novedades_y_destacados}">Novedades y destacados</h2>
+                <p th:text="#{usuario.algunos_de_nuestros_productos_disponibles}">Algunos de nuestros productos disponibles.</p>
             </div>
-            <a th:href="@{/destacados}" class="btn btn-ghost btn-sm">Ver todos <i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+            <a th:href="@{/destacados}" class="btn btn-ghost btn-sm"><span th:text="#{usuario.ver_todos}">Ver todos</span> <i class="ph ph-arrow-right" aria-hidden="true"></i></a>
         </div>
 
         <div class="productos-grid">

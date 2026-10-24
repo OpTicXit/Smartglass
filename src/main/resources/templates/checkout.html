@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Finalizar compra</title>
+    <title th:text="#{checkout.smartglass_finalizar_compra}">SmartGlass - Finalizar compra</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -92,22 +92,22 @@
 <header class="checkout-nav">
     <a th:href="@{/home}" class="brand-link">
         <img th:src="@{/img/logo-icono.png}" alt="">
-        <span>SmartGlass</span>
+        <span th:text="#{checkout.smartglass}">SmartGlass</span>
     </a>
-    <ol class="progreso" aria-label="Progreso de la compra">
-        <li class="hecho"><span class="n">✓</span><span class="t">Carrito</span></li>
-        <li aria-current="step"><span class="n">2</span><span class="t">Entrega y pago</span></li>
-        <li><span class="n">3</span><span class="t">Confirmación</span></li>
+    <ol class="progreso" aria-label="Progreso de la compra" th:aria-label="#{checkout.progreso_de_la_compra}">
+        <li class="hecho"><span class="n">✓</span><span class="t" th:text="#{checkout.carrito}">Carrito</span></li>
+        <li aria-current="step"><span class="n">2</span><span class="t" th:text="#{checkout.entrega_y_pago}">Entrega y pago</span></li>
+        <li><span class="n">3</span><span class="t" th:text="#{checkout.confirmacion}">Confirmación</span></li>
     </ol>
-    <a th:href="@{/carrito}" class="btn btn-ghost btn-sm"><i class="ph ph-arrow-left" aria-hidden="true"></i> Carrito</a>
+    <a th:href="@{/carrito}" class="btn btn-ghost btn-sm"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="#{checkout.carrito}">Carrito</span></a>
 </header>
 
 <main class="container">
 
     <header class="page-intro page-intro--plain">
         <div>
-            <h1>Finalizar compra</h1>
-            <p class="lead">Indica dónde enviamos tu pedido y cómo quieres pagarlo.</p>
+            <h1 th:text="#{checkout.finalizar_compra}">Finalizar compra</h1>
+            <p class="lead" th:text="#{checkout.indica_donde_enviamos_tu_pedido}">Indica dónde enviamos tu pedido y cómo quieres pagarlo.</p>
         </div>
     </header>
 
@@ -120,24 +120,24 @@
                 <div class="section-heading">
                     <span class="section-number" aria-hidden="true">1</span>
                     <div>
-                        <h2>Datos de entrega</h2>
-                        <p>Dónde debemos enviar tu pedido.</p>
+                        <h2 th:text="#{checkout.datos_de_entrega}">Datos de entrega</h2>
+                        <p th:text="#{checkout.donde_debemos_enviar_tu_pedido}">Dónde debemos enviar tu pedido.</p>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="direccionEnvio">Dirección completa</label>
+                    <label for="direccionEnvio" th:text="#{checkout.direccion_completa}">Dirección completa</label>
                     <textarea id="direccionEnvio" name="direccionEnvio" rows="2" required autocomplete="street-address"
                               placeholder="Calle 123 #45-67, apartamento, barrio"></textarea>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="ciudad">Ciudad</label>
+                        <label for="ciudad" th:text="#{checkout.ciudad}">Ciudad</label>
                         <input type="text" id="ciudad" name="ciudad" required autocomplete="address-level2">
                     </div>
                     <div class="form-group">
-                        <label for="telefono">Teléfono de contacto</label>
+                        <label for="telefono" th:text="#{checkout.telefono_de_contacto}">Teléfono de contacto</label>
                         <input type="tel" id="telefono" name="telefono" required autocomplete="tel" inputmode="tel">
                     </div>
                 </div>
@@ -148,18 +148,18 @@
                 <div class="section-heading">
                     <span class="section-number" aria-hidden="true">2</span>
                     <div>
-                        <h2>Método de pago</h2>
-                        <p>Elige cómo quieres pagar.</p>
+                        <h2 th:text="#{checkout.metodo_de_pago}">Método de pago</h2>
+                        <p th:text="#{checkout.elige_como_quieres_pagar}">Elige cómo quieres pagar.</p>
                     </div>
                 </div>
 
-                <div class="metodos-pago" role="radiogroup" aria-label="Método de pago">
+                <div class="metodos-pago" role="radiogroup" aria-label="Método de pago" th:aria-label="#{checkout.metodo_de_pago}">
                     <label class="metodo-card">
                         <input type="radio" name="metodoPago" value="TARJETA_CREDITO" checked>
                         <span class="metodo-icon"><i class="ph ph-credit-card" aria-hidden="true"></i></span>
                         <span class="metodo-content">
-                            <span class="metodo-title">Tarjeta de crédito o débito</span>
-                            <span class="metodo-description">Visa, Mastercard y otras</span>
+                            <span class="metodo-title" th:text="#{checkout.tarjeta_de_credito_o_debito}">Tarjeta de crédito o débito</span>
+                            <span class="metodo-description" th:text="#{checkout.visa_mastercard_y_otras}">Visa, Mastercard y otras</span>
                         </span>
                         <span class="metodo-check" aria-hidden="true"></span>
                     </label>
@@ -168,8 +168,8 @@
                         <input type="radio" name="metodoPago" value="PSE">
                         <span class="metodo-icon"><i class="ph ph-bank" aria-hidden="true"></i></span>
                         <span class="metodo-content">
-                            <span class="metodo-title">PSE o transferencia</span>
-                            <span class="metodo-description">Débito desde tu banco</span>
+                            <span class="metodo-title" th:text="#{checkout.pse_o_transferencia}">PSE o transferencia</span>
+                            <span class="metodo-description" th:text="#{checkout.debito_desde_tu_banco}">Débito desde tu banco</span>
                         </span>
                         <span class="metodo-check" aria-hidden="true"></span>
                     </label>
@@ -181,37 +181,37 @@
                 <div class="section-heading">
                     <span class="section-number" aria-hidden="true">3</span>
                     <div>
-                        <h2>Huella de carbono</h2>
-                        <p>Conoce el impacto de tu pedido y decide si lo compensas.</p>
+                        <h2 th:text="#{checkout.huella_de_carbono}">Huella de carbono</h2>
+                        <p th:text="#{checkout.conoce_el_impacto_de_tu}">Conoce el impacto de tu pedido y decide si lo compensas.</p>
                     </div>
                 </div>
 
                 <div class="huella-dato">
-                    <span><i class="ph ph-leaf" aria-hidden="true"></i> Huella estimada del pedido</span>
+                    <span><i class="ph ph-leaf" aria-hidden="true"></i> <span th:text="#{checkout.huella_estimada_del_pedido}">Huella estimada del pedido</span></span>
                     <span class="huella-valor" th:text="${#numbers.formatDecimal(huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">0 kg CO₂e</span>
                 </div>
 
                 <label class="compensacion-option sg-rainbow">
                     <input type="checkbox" name="compensarCarbono" value="true">
                     <span>
-                        <strong>Deseo compensar mi huella (+$5.000)</strong>
-                        <small>SmartGlass compensa las emisiones de este pedido.</small>
+                        <strong th:text="#{checkout.deseo_compensar_mi_huella_5}">Deseo compensar mi huella (+$5.000)</strong>
+                        <small th:text="#{checkout.smartglass_compensa_las_emisiones_de}">SmartGlass compensa las emisiones de este pedido.</small>
                     </span>
-                    <span class="chip-premium">Premium</span>
+                    <span class="chip-premium" th:text="#{checkout.premium}">Premium</span>
                 </label>
             </section>
 
             <div class="enviar-movil">
                 <button type="submit" class="btn btn-primary btn-lg btn-block">
-                    <i class="ph ph-lock-simple" aria-hidden="true"></i> Confirmar y pagar
+                    <i class="ph ph-lock-simple" aria-hidden="true"></i> <span th:text="#{checkout.confirmar_y_pagar}">Confirmar y pagar</span>
                 </button>
-                <p class="secure-note"><i class="ph ph-shield-check" aria-hidden="true"></i> Tu información se procesa de forma segura.</p>
+                <p class="secure-note"><i class="ph ph-shield-check" aria-hidden="true"></i> <span th:text="#{checkout.tu_informacion_se_procesa_de}">Tu información se procesa de forma segura.</span></p>
             </div>
         </form>
 
         <!-- Resumen -->
         <aside class="resumen-pedido surface" aria-labelledby="titulo-resumen">
-            <h2 id="titulo-resumen">Tu pedido</h2>
+            <h2 id="titulo-resumen" th:text="#{checkout.tu_pedido}">Tu pedido</h2>
 
             <ul class="resumen-items">
                 <li th:each="item : ${items}" class="resumen-item">
@@ -219,20 +219,20 @@
                          alt="">
                     <div>
                         <div class="producto-nombre" th:text="${item.producto.nombre}">Producto</div>
-                        <div class="producto-cantidad" th:text="'Cantidad: ' + ${item.cantidad}">Cantidad: 1</div>
+                        <div class="producto-cantidad" th:text="#{checkout.cantidad_n(${#strings.toString(item.cantidad)})}">Cantidad: 1</div>
                     </div>
                 </li>
             </ul>
 
             <div class="total-final">
-                <span class="total-label">Total a pagar</span>
+                <span class="total-label" th:text="#{checkout.total_a_pagar}">Total a pagar</span>
                 <span class="total-amount" th:text="'$ ' + ${#numbers.formatDecimal(total, 1, 'POINT', 0, 'COMMA')}">$0</span>
             </div>
 
             <button type="submit" form="formCheckout" class="btn btn-primary btn-lg btn-block">
-                <i class="ph ph-lock-simple" aria-hidden="true"></i> Confirmar y pagar
+                <i class="ph ph-lock-simple" aria-hidden="true"></i> <span th:text="#{checkout.confirmar_y_pagar}">Confirmar y pagar</span>
             </button>
-            <p class="secure-note"><i class="ph ph-shield-check" aria-hidden="true"></i> Pago procesado de forma segura.</p>
+            <p class="secure-note"><i class="ph ph-shield-check" aria-hidden="true"></i> <span th:text="#{checkout.pago_procesado_de_forma_segura}">Pago procesado de forma segura.</span></p>
         </aside>
 
     </div>

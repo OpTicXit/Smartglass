@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SmartGlass - Carrito de compras</title>
+    <title th:text="#{carrito.smartglass_carrito_de_compras}">SmartGlass - Carrito de compras</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -66,8 +66,8 @@
 <main class="container">
     <header class="page-intro">
         <div>
-            <h1>Tu carrito</h1>
-            <p class="lead" th:unless="${#lists.isEmpty(items)}">Revisa las cantidades antes de finalizar la compra.</p>
+            <h1 th:text="#{carrito.tu_carrito}">Tu carrito</h1>
+            <p class="lead" th:unless="${#lists.isEmpty(items)}" th:text="#{carrito.revisa_las_cantidades_antes_de}">Revisa las cantidades antes de finalizar la compra.</p>
         </div>
     </header>
 
@@ -78,11 +78,11 @@
 
     <div th:if="${#lists.isEmpty(items)}" class="empty">
         <div class="empty-icon"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i></div>
-        <h2>Tu carrito está vacío</h2>
-        <p>Explora el catálogo y agrega productos de vidrio a tu orden, o diseña una pieza a medida.</p>
+        <h2 th:text="#{carrito.tu_carrito_esta_vacio}">Tu carrito está vacío</h2>
+        <p th:text="#{carrito.explora_el_catalogo_y_agrega}">Explora el catálogo y agrega productos de vidrio a tu orden, o diseña una pieza a medida.</p>
         <div class="cluster">
-            <a th:href="@{/catalogo}" class="btn btn-primary"><i class="ph ph-storefront" aria-hidden="true"></i> Ir al catálogo</a>
-            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-secondary">Diseñar a medida</a>
+            <a th:href="@{/catalogo}" class="btn btn-primary"><i class="ph ph-storefront" aria-hidden="true"></i> <span th:text="#{carrito.ir_al_catalogo}">Ir al catálogo</span></a>
+            <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-secondary" th:text="#{carrito.disenar_a_medida}">Diseñar a medida</a>
         </div>
     </div>
 
@@ -96,30 +96,30 @@
                 <div class="item-info">
                     <h2 th:text="${item.producto.nombre}">Nombre de vidrio</h2>
                     <span class="codigo" th:if="${item.producto.codigo != null}" th:text="${item.producto.codigo}">SKU-000</span>
-                    <p class="precio-unitario" th:text="'$' + ${item.producto.precioFormateado} + ' c/u'">$0 c/u</p>
+                    <p class="precio-unitario" th:text="#{carrito.precio_unidad(${item.producto.precioFormateado})}">$0 c/u</p>
                 </div>
 
                 <div class="item-cantidad">
                     <form th:action="@{/carrito/actualizar}" method="post" class="form-cantidad" data-no-loading>
                         <input type="hidden" name="productoId" th:value="${item.producto.id}">
                         <div class="stepper" data-stepper>
-                            <button type="button" data-step="-1" aria-label="Quitar una unidad"><i class="ph ph-minus" aria-hidden="true"></i></button>
-                            <input type="number" name="cantidad" th:value="${item.cantidad}" value="1" min="1" max="99" aria-label="Cantidad" inputmode="numeric">
-                            <button type="button" data-step="1" aria-label="Agregar una unidad"><i class="ph ph-plus" aria-hidden="true"></i></button>
+                            <button type="button" data-step="-1" aria-label="Quitar una unidad" th:aria-label="#{carrito.quitar_una_unidad}"><i class="ph ph-minus" aria-hidden="true"></i></button>
+                            <input type="number" name="cantidad" th:value="${item.cantidad}" value="1" min="1" max="99" aria-label="Cantidad" th:aria-label="#{carrito.cantidad}" inputmode="numeric">
+                            <button type="button" data-step="1" aria-label="Agregar una unidad" th:aria-label="#{carrito.agregar_una_unidad}"><i class="ph ph-plus" aria-hidden="true"></i></button>
                         </div>
-                        <button type="submit" class="btn btn-secondary btn-sm btn-actualizar">Actualizar</button>
+                        <button type="submit" class="btn btn-secondary btn-sm btn-actualizar" th:text="#{carrito.actualizar}">Actualizar</button>
                     </form>
                 </div>
 
                 <div class="item-precio">
-                    <span class="label">Subtotal</span>
+                    <span class="label" th:text="#{carrito.subtotal}">Subtotal</span>
                     <span class="precio-total" th:text="'$' + ${item.subtotalFormateado}">$0</span>
                 </div>
 
                 <div class="item-eliminar">
                     <form th:action="@{/carrito/eliminar/{id}(id=${item.producto.id})}" method="post"
-                          data-confirm="¿Quitar este producto del carrito?" data-confirm-ok="Quitar">
-                        <button type="submit" class="btn-quitar" title="Quitar del carrito" aria-label="Quitar del carrito">
+                          data-confirm="¿Quitar este producto del carrito?" th:data-confirm="#{carrito.quitar_este_producto_del_carrito}" data-confirm-ok="Quitar" th:data-confirm-ok="#{carrito.quitar}">
+                        <button type="submit" class="btn-quitar" title="Quitar del carrito" th:title="#{carrito.quitar_del_carrito}" aria-label="Quitar del carrito" th:aria-label="#{carrito.quitar_del_carrito}">
                             <i class="ph ph-trash" aria-hidden="true"></i>
                         </button>
                     </form>
@@ -128,36 +128,36 @@
         </ul>
 
         <aside class="carrito-resumen surface" aria-labelledby="titulo-resumen">
-            <h2 id="titulo-resumen">Resumen del pedido</h2>
+            <h2 id="titulo-resumen" th:text="#{carrito.resumen_del_pedido}">Resumen del pedido</h2>
             <ul class="kv">
-                <li><span>Productos</span><span th:text="${#lists.size(items)}">0</span></li>
-                <li><span>Impuestos</span><span>Incluidos</span></li>
-                <li><span>Envío</span><span>Se calcula al pagar</span></li>
+                <li><span th:text="#{carrito.productos}">Productos</span><span th:text="${#lists.size(items)}">0</span></li>
+                <li><span th:text="#{carrito.impuestos}">Impuestos</span><span th:text="#{carrito.incluidos}">Incluidos</span></li>
+                <li><span th:text="#{carrito.envio}">Envío</span><span th:text="#{carrito.se_calcula_al_pagar}">Se calcula al pagar</span></li>
             </ul>
 
             <div class="carrito-total">
-                <span>Total</span>
+                <span th:text="#{carrito.total}">Total</span>
                 <span class="total-monto" th:text="'$' + ${#numbers.formatDecimal(total, 0, 'POINT', 0, 'COMMA')}">$0</span>
             </div>
 
             <div class="carrito-acciones">
                 <form th:action="@{/carrito/procesar-compra}" method="post">
                     <button type="submit" class="btn btn-primary btn-lg btn-block">
-                        <i class="ph ph-lock-simple" aria-hidden="true"></i> Finalizar compra
+                        <i class="ph ph-lock-simple" aria-hidden="true"></i> <span th:text="#{carrito.finalizar_compra}">Finalizar compra</span>
                     </button>
                 </form>
-                <a th:href="@{/catalogo}" class="btn btn-secondary btn-block">Seguir comprando</a>
+                <a th:href="@{/catalogo}" class="btn btn-secondary btn-block" th:text="#{carrito.seguir_comprando}">Seguir comprando</a>
                 <form th:action="@{/carrito/limpiar}" method="post"
-                      data-confirm-title="¿Vaciar el carrito?"
-                      data-confirm="Se quitarán todos los productos. Esta acción no se puede deshacer."
-                      data-confirm-ok="Vaciar carrito">
+                      data-confirm-title="¿Vaciar el carrito?" th:data-confirm-title="#{carrito.vaciar_el_carrito}"
+                      data-confirm="Se quitarán todos los productos. Esta acción no se puede deshacer." th:data-confirm="#{carrito.se_quitaran_todos_los_productos}"
+                      data-confirm-ok="Vaciar carrito" th:data-confirm-ok="#{carrito.vaciar_carrito}">
                     <button type="submit" class="btn btn-ghost btn-block btn-sm">
-                        <i class="ph ph-trash-simple" aria-hidden="true"></i> Vaciar carrito
+                        <i class="ph ph-trash-simple" aria-hidden="true"></i> <span th:text="#{carrito.vaciar_carrito}">Vaciar carrito</span>
                     </button>
                 </form>
             </div>
 
-            <p class="resumen-nota"><i class="ph ph-shield-check" aria-hidden="true"></i> Pago seguro. Puedes revisar todo antes de confirmar.</p>
+            <p class="resumen-nota"><i class="ph ph-shield-check" aria-hidden="true"></i> <span th:text="#{carrito.pago_seguro_puedes_revisar_todo}">Pago seguro. Puedes revisar todo antes de confirmar.</span></p>
         </aside>
     </div>
 </main>
