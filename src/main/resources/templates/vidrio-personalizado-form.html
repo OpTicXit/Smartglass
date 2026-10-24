@@ -285,6 +285,12 @@
             .medida-campo { grid-template-columns: 96px 1fr; gap: 12px; }
             .medidas { grid-template-columns: 1fr 1fr; }
         }
+    
+        /* ---------- F45: corte personalizado ---------- */
+        .corte-acciones { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+        .corte-acciones[hidden] { display: none; }
+        .corte-acciones .hint { margin: 0; }
+        .medida-campo.es-corte input[readonly] { opacity: 0.75; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -486,7 +492,14 @@
                         <option value="Circular">Circular / Elíptico</option>
                         <option value="Triangular">Triangular / Trapezoidal</option>
                         <option value="Irregular">Corte irregular (Requiere plano CAD)</option>
+                        <option value="Personalizada">Corte personalizado (Dibuja tu pieza)</option>
                     </select>
+                    <!-- F45: vertices del corte ("x,y;x,y;..."); Spring los enlaza con CotizacionVidrioRequest.setPuntosTexto -->
+                    <input type="hidden" name="puntosTexto" id="puntosTexto" value="">
+                    <div class="corte-acciones" id="corteAcciones" hidden>
+                        <button type="button" class="btn btn-secondary" id="btnEditarCorte" data-sg-corte>✎ Editar mi corte</button>
+                        <p class="hint" id="corteResumen" aria-live="polite"></p>
+                    </div>
                 </div>
 
                 <div class="fila-2">
@@ -586,11 +599,15 @@
 </div>
 
 <script th:src="@{/js/glass-preview.js}"></script>
+<script th:src="@{/js/corte-editor.js}"></script>
 <script>
 (function () {
     function $(id) { return document.getElementById(id); }
     function evento(el) { el.dispatchEvent(new Event('input', { bubbles: true })); }
     var G = SGGlass;
+    /* F45: si corte-editor.js no cargo, el formulario sigue funcionando con las formas fijas */
+    var SC = window.SGCorte || { desdeTexto: function () { return []; }, aTexto: function () { return ''; },
+                                 puntosConfirmados: function () { return []; }, marcarEnviado: function () {}, abrir: function () {} };
 
     /* ---------- Datos que vienen en la URL (p. ej. "crear version balanceada" desde el detalle) ---------- */
     var balancear = false;
@@ -611,6 +628,11 @@
         if (q.has('reciclado')) $('opcionEco').checked = bool(q.get('reciclado'));
         if (q.has('renovable')) $('energiaRenovable').checked = bool(q.get('renovable'));
         balancear = q.get('balancear') === '1';
+        /* F45: una obra personalizada vuelve con sus vertices; el servidor los valida igualmente */
+        if (q.get('forma') === 'Personalizada' && q.has('puntos')) {
+            var pp = SC.desdeTexto(q.get('puntos'));
+            if (pp.length >= 3) $('puntosTexto').value = SC.aTexto(pp);
+        }
     })();
 
     /* ---------- Lectura del formulario ---------- */
@@ -620,16 +642,27 @@
             tipo: $('tipoVidrio').value, forma: $('forma').value, tratamiento: $('tratamiento').value,
             bordes: $('acabadoBordes').value, perforaciones: parseInt($('perforaciones').value, 10) || 0,
             eco: $('opcionEco').checked, renov: $('energiaRenovable').checked, compensar: $('compensar').checked,
-            urgente: $('urgente').checked, uso: $('usoPrincipal').value
+            urgente: $('urgente').checked, uso: $('usoPrincipal').value,
+            puntos: $('forma').value === 'Personalizada' && SC.puntosConfirmados().length >= 3 ? SC.puntosConfirmados() : null   /* F45 */
         };
     }
     function paraVista(c) {
-        return { ancho: c.ancho, alto: c.alto, espesor: c.espesor, tipo: c.tipo, forma: c.forma, tratamiento: c.tratamiento, bordes: c.bordes, perforaciones: c.perforaciones, reciclado: c.eco };
+        return { ancho: c.ancho, alto: c.alto, espesor: c.espesor, tipo: c.tipo, forma: c.forma, tratamiento: c.tratamiento, bordes: c.bordes, perforaciones: c.perforaciones, reciclado: c.eco, puntos: c.puntos };
+    }
+    /* F45: SGGlass.calcular solo conoce ancho x alto. Con un corte personalizado se le pasa un cuadrado de igual
+       AREA que el poligono (area real, shoelace); el resto de formulas y umbrales quedan intactos. */
+    function paraCalculo(c) {
+        if (!c.puntos) return c;
+        var lado = Math.sqrt(G.areaPoligono(c.puntos));
+        var cc = {};
+        for (var k in c) cc[k] = c[k];
+        cc.ancho = lado; cc.alto = lado;
+        return cc;
     }
 
     /* ---------- Precio (formulas de siempre; el CO2 sale de SGGlass.calcular, fuente unica) ---------- */
     function precioDe(c) {
-        var area = (c.ancho * c.alto) / 10000;
+        var area = (c.puntos ? G.areaPoligono(c.puntos) : c.ancho * c.alto) / 10000;   /* F45: area real del corte */
         var base = 80000;
         switch (c.tipo) {
             case 'Templado': base = 120000; break;
@@ -717,7 +750,7 @@
     /* ---------- Actualizacion en vivo ---------- */
     var raf = null;
     function actualizar(instante) {
-        var c = leer(), r = G.calcular(c), imp = G.impacto(r.intensidad), precio = precioDe(c);
+        var c = leer(), cc = paraCalculo(c), r = G.calcular(cc), imp = G.impacto(r.intensidad), precio = precioDe(c);
         var op = instante === true ? { instantaneo: true } : {};
         function contar(el, v, fmt, dur) { G.contar(el, v, Object.assign({ fmt: fmt, duracion: dur || 500 }, op)); }
 
@@ -744,7 +777,7 @@
         $('termoPunto').style.left = Math.min(imp.valor / 30, 1) * 100 + '%';
 
         var objetivo = imp.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable;
-        gestionarAviso(imp, G.recomendar(c, objetivo));
+        gestionarAviso(imp, G.recomendar(cc, objetivo));
         actualizarFades();
     }
     function programar() {
@@ -757,9 +790,9 @@
         form.scrollTo({ top: 0, behavior: 'smooth' });
     });
     $('alertaAplicar').addEventListener('click', function () {
-        var imp = G.impacto(G.calcular(leer()).intensidad);
+        var imp = G.impacto(G.calcular(paraCalculo(leer())).intensidad);
         manual = false;
-        aplicarConfig(G.recomendar(leer(), imp.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable).cfg);
+        aplicarConfig(G.recomendar(paraCalculo(leer()), imp.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable).cfg);
     });
     $('alertaCerrar').addEventListener('click', function () { descartada = true; manual = false; $('alertaImpacto').hidden = true; });
 
@@ -841,7 +874,37 @@
     }
     selector('tipoVidrio', function (v) { return { tipo: v, forma: 'Rectangular', ancho: 100, alto: 80, espesor: 10, mini: true }; });
     selector('tratamiento', function (v) { return { tipo: 'Templado', tratamiento: v, forma: 'Rectangular', ancho: 100, alto: 80, espesor: 8, mini: true }; });
-    selector('forma', function (v) { return { tipo: 'Templado', forma: v, ancho: 100, alto: 90, espesor: 8, mini: true }; });
+    selector('forma', function (v) {
+        var o = { tipo: 'Templado', forma: v, ancho: 100, alto: 90, espesor: 8, mini: true };
+        if (v === 'Personalizada') o.puntos = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 45 }, { x: 55, y: 45 }, { x: 55, y: 90 }, { x: 0, y: 90 }];
+        return o;
+    });
+
+    /* ---------- F45: corte personalizado ---------- */
+    var formaPrevia = $('forma').value === 'Personalizada' ? 'Rectangular' : $('forma').value;
+    function hayCorte() { return SC.puntosConfirmados().length >= 3; }
+    function modoCorte() {
+        var esPers = $('forma').value === 'Personalizada', fijo = esPers && hayCorte();
+        /* con corte, ancho/alto salen de su caja envolvente: se muestran pero no se editan */
+        ['ancho', 'alto'].forEach(function (id) { $(id).readOnly = fijo; $(id).closest('.medida-campo').classList.toggle('es-corte', fijo); });
+        ['anchoRango', 'altoRango'].forEach(function (id) { $(id).disabled = fijo; });
+        $('corteAcciones').hidden = !esPers;
+        var p = SC.puntosConfirmados();
+        $('corteResumen').textContent = !esPers ? '' : (p.length >= 3
+            ? p.length + ' vértices · área ' + G.fmtNum(G.areaPoligono(p) / 10000, 2) + ' m² · la caja del corte define el ancho y el alto'
+            : 'Aún no has dibujado tu corte.');
+    }
+    $('forma').addEventListener('input', function () {
+        if ($('forma').value === 'Personalizada') { if (!hayCorte()) SC.abrir(); }
+        else formaPrevia = $('forma').value;
+        modoCorte();
+    });
+    document.addEventListener('sgcorte:cerrado', function (e) {
+        /* cancelar sin tener un corte confirmado: se vuelve a la forma anterior */
+        if (!e.detail.confirmado && !hayCorte() && $('forma').value === 'Personalizada') { $('forma').value = formaPrevia; evento($('forma')); }
+        modoCorte(); programar();
+    });
+    modoCorte();
 
     /* ---------- Columnas con scroll independiente (solo escritorio) ---------- */
     var columnas = [document.querySelector('.atelier-stage'), form];
@@ -871,8 +934,8 @@
     actualizar(true);
 
     if (balancear) {
-        var imp0 = G.impacto(G.calcular(leer()).intensidad);
-        var reco = G.recomendar(leer(), imp0.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable);
+        var imp0 = G.impacto(G.calcular(paraCalculo(leer())).intensidad);
+        var reco = G.recomendar(paraCalculo(leer()), imp0.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable);
         if (reco.cambios.length) { aplicarConfig(reco.cfg); $('avisoBalance').hidden = false; }
     }
 
@@ -882,17 +945,18 @@
 
     function cerrarDialogo() { if (dlg.open) dlg.close(); }
     $('dlgAplicar').addEventListener('click', function () {
-        var imp = G.impacto(G.calcular(leer()).intensidad);
-        aplicarConfig(G.recomendar(leer(), imp.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable).cfg);
+        var imp = G.impacto(G.calcular(paraCalculo(leer())).intensidad);
+        aplicarConfig(G.recomendar(paraCalculo(leer()), imp.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable).cfg);
         cerrarDialogo();
     });
     $('dlgContinuar').addEventListener('click', function () { confirmado = true; cerrarDialogo(); form.requestSubmit(); });
 
     form.addEventListener('submit', function (ev) {
-        var c = leer(), imp = G.impacto(G.calcular(c).intensidad);
+        if ($('forma').value === 'Personalizada' && !hayCorte()) { ev.preventDefault(); SC.abrir(); return; }
+        var c = leer(), imp = G.impacto(G.calcular(paraCalculo(c)).intensidad);
         if (imp.nivel === 'alto' && !confirmado && typeof dlg.showModal === 'function') {
             ev.preventDefault();
-            var reco = G.recomendar(c, G.umbral.moderado);
+            var reco = G.recomendar(paraCalculo(c), G.umbral.moderado);
             $('dlgTexto').replaceChildren(resumen(imp, reco));
             listar($('dlgCambios'), reco.cambios);
             resultado($('dlgResultado'), reco);
@@ -901,6 +965,7 @@
             return;
         }
         confirmado = false;
+        if (c.puntos) SC.marcarEnviado();
         G.render($('forjaEscenario'), paraVista(c));
         forja.hidden = false;
         $('btnForjar').disabled = true;

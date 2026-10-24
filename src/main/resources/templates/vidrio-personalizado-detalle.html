@@ -205,7 +205,7 @@
 <main class="obra" th:if="${vidrio != null}"
       th:with="admin=${puedeAprobar != null ? puedeAprobar : (esAdmin != null ? esAdmin : false)}"
       id="obra"
-      th:attr="data-id=${vidrio.id},data-tipo=${vidrio.tipoVidrio},data-ancho=${vidrio.ancho},data-alto=${vidrio.alto},data-espesor=${vidrio.espesor},data-forma=${vidrio.forma},data-reciclado=${vidrio.usarVidrioReciclado},data-silice=${vidrio.cantidadSilice},data-sosa=${vidrio.cantidadSosa},data-caliza=${vidrio.cantidadCaliza},data-alumina=${vidrio.cantidadAlumina},data-otros=${vidrio.cantidadOtros},data-calcin=${vidrio.vidrioRecicladoKg},data-peso=${vidrio.pesoEstimado},data-co2=${vidrio.huellaCarbono},data-intensidad=${vidrio.intensidadCarbono},data-nivel=${vidrio.nivelImpacto},data-mpa=${vidrio.resistenciaEstimada}">
+      th:attr="data-id=${vidrio.id},data-tipo=${vidrio.tipoVidrio},data-ancho=${vidrio.ancho},data-alto=${vidrio.alto},data-espesor=${vidrio.espesor},data-forma=${vidrio.forma},data-reciclado=${vidrio.usarVidrioReciclado},data-silice=${vidrio.cantidadSilice},data-sosa=${vidrio.cantidadSosa},data-caliza=${vidrio.cantidadCaliza},data-alumina=${vidrio.cantidadAlumina},data-otros=${vidrio.cantidadOtros},data-calcin=${vidrio.vidrioRecicladoKg},data-peso=${vidrio.pesoEstimado},data-co2=${vidrio.huellaCarbono},data-intensidad=${vidrio.intensidadCarbono},data-nivel=${vidrio.nivelImpacto},data-mpa=${vidrio.resistenciaEstimada},data-area-total=${vidrio.areaTotal},data-puntos=${vidrio.puntosTexto}">
 
     <header class="obra-cabecera">
         <div>
@@ -317,6 +317,7 @@
             <dl class="ficha">
                 <div><dt>Tipo de vidrio</dt><dd th:text="${vidrio.tipoVidrio}">—</dd></div>
                 <div><dt>Dimensiones</dt><dd id="fDim" th:text="${vidrio.ancho} + ' × ' + ${vidrio.alto} + ' cm'">—</dd></div>
+                <div th:if="${vidrio.puntosPersonalizados != null and !#lists.isEmpty(vidrio.puntosPersonalizados)}"><dt>Área del corte</dt><dd th:text="${vidrio.areaPoligonal != null ? #numbers.formatDecimal(vidrio.areaPoligonal, 1, 'POINT', 2, 'COMMA') : '—'} + ' m² · polígono de ' + ${#lists.size(vidrio.puntosPersonalizados)} + ' vértices'">—</dd></div>
                 <div><dt>Espesor</dt><dd id="fEsp" th:text="${vidrio.espesor} + ' mm'">—</dd></div>
                 <div><dt>Área total</dt><dd id="fArea" th:text="${vidrio.areaTotal} + ' m²'">—</dd></div>
                 <div><dt>Peso estimado</dt><dd id="fPeso" th:text="${vidrio.pesoEstimado} + ' kg'">—</dd></div>
@@ -418,13 +419,31 @@
     if (!raiz) return;
     var d = raiz.dataset;
 
+    /* F45: tras un POST exitoso el borrador del editor ya no hace falta (el formulario deja la marca antes de enviar) */
+    try {
+        var marca = parseInt(localStorage.getItem('sg-borrador-corte-limpiar') || '0', 10);
+        if (marca && Date.now() - marca < 120000) { localStorage.removeItem('sg-borrador-corte'); localStorage.removeItem('sg-borrador-corte-previo'); }
+        localStorage.removeItem('sg-borrador-corte-limpiar');
+    } catch (e) { /* sin almacenamiento: nada que limpiar */ }
+
+    /* F45: vertices del corte, leidos del servidor ("x,y;x,y;...") */
+    var puntos = [];
+    if (d.forma === 'Personalizada' && d.puntos) {
+        d.puntos.split(';').forEach(function (par) {
+            var xy = par.split(','), x = parseFloat(xy[0]), y = parseFloat(xy[1]);
+            if (xy.length === 2 && isFinite(x) && isFinite(y)) puntos.push({ x: x, y: y });
+        });
+        if (puntos.length < 3) puntos = [];
+    }
+
     /* ---------- Referencia corta ---------- */
     document.getElementById('refObra').textContent = String(d.id || '').slice(-6).toUpperCase() || '—';
 
     /* ---------- La pieza ---------- */
     var opts = {
         tipo: d.tipo, ancho: d.ancho, alto: d.alto, espesor: d.espesor, forma: d.forma,
-        reciclado: d.reciclado === 'true'
+        reciclado: d.reciclado === 'true',
+        puntos: puntos.length >= 3 ? puntos : undefined
     };
     SGGlass.render(document.getElementById('escenario'), opts);
     SGGlass.tilt(document.getElementById('inclinable'));
@@ -455,7 +474,10 @@
         SGGlass.contar(co2El, co2, { fmt: function (v) { return SGGlass.fmtNum(v, 1); }, duracion: 1200 });
     }, 250);
     /* Nivel de impacto: intensidad = kg CO2e por m2 de vidrio (<=12 favorable, 12-20 moderado, >20 alto) */
-    var area = (parseFloat(d.ancho) || 0) * (parseFloat(d.alto) || 0) / 10000;
+    /* F45: con corte personalizado el area es la del poligono (la guarda el servidor); si no, ancho x alto como siempre */
+    var area = (puntos.length >= 3 && isFinite(parseFloat(d.areaTotal)) && parseFloat(d.areaTotal) > 0)
+        ? parseFloat(d.areaTotal)
+        : (parseFloat(d.ancho) || 0) * (parseFloat(d.alto) || 0) / 10000;
     var intensidad = isFinite(parseFloat(d.intensidad)) ? parseFloat(d.intensidad) : (area > 0 ? co2 / area : 0); /* F24: misma fuente que el panel */
     /* F24: el NIVEL lo decide el servidor (vidrio.nivelImpacto, misma fuente que el panel); aqui solo se toman los textos. */
     var REPRESENTANTE = { favorable: 0, moderado: 16, alto: 99 };
@@ -475,10 +497,12 @@
 
     if (imp.nivel !== 'favorable') {
         // Enlace al configurador con la obra cargada y la configuracion recomendada aplicada
-        var q = new URLSearchParams({
+        var qp = new URLSearchParams({
             ancho: d.ancho || '', alto: d.alto || '', espesor: d.espesor || '', tipo: d.tipo || '', forma: d.forma || '',
             reciclado: d.reciclado === 'true' ? '1' : '0', balancear: '1'
-        }).toString();
+        });
+        if (puntos.length >= 3) qp.set('puntos', d.puntos);      /* F45: la version balanceada conserva TU corte */
+        var q = qp.toString();
         var enlace = document.getElementById('lnkBalance');
         enlace.href = enlace.getAttribute('href') + '?' + q;
         enlace.hidden = false;
@@ -521,12 +545,20 @@
     var payload = { ancho: parseFloat(d.ancho) || 0, alto: parseFloat(d.alto) || 0, espesor: parseFloat(d.espesor) || 0 };
     var URL_API = 'https://api-production-d556.up.railway.app/analizar-resistencia';
 
+    /* C4: la referencia externa no puede colgar la pagina: corte a los 3 s con AbortController */
+    var controlador = (typeof AbortController === 'function') ? new AbortController() : null;
+    var corte = controlador ? setTimeout(function () { controlador.abort(); }, 3000) : null;
+
     fetch(URL_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controlador ? controlador.signal : undefined
     })
-    .then(function (res) { return res.json(); })
+    .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+    })
     .then(function (data) {
         /* F39: la resistencia y la recomendacion las manda el SERVIDOR y NO se sobrescriben.
            El servicio externo solo recibe ancho/alto/espesor (sin tipo ni capas): su valor es una referencia aparte. */
@@ -543,9 +575,13 @@
         }
     })
     .catch(function (err) {
-        // Si el servicio no responde se conserva el diagnostico ya calculado por el servidor.
-        console.error('Error:', err);
-    });
+        /* Sin respuesta (timeout, red, HTTP != 200): se avisa y NO se toca resistencia-valor ni recomendacion-texto */
+        var caja = document.getElementById('verificado');
+        caja.textContent = 'Referencia externa no disponible';
+        caja.classList.add('referencia', 'visible');
+        console.warn('Servicio externo de resistencia:', err && err.message ? err.message : err);
+    })
+    .then(function () { if (corte) clearTimeout(corte); });
 })();
 </script>
 

@@ -7,7 +7,8 @@
    Uso:
      SGGlass.render(elemento, { ancho, alto, espesor, tipo, forma,
                                 tratamiento, bordes, perforaciones,
-                                reciclado, mini })
+                                reciclado, mini,
+                                puntos })   // puntos [{x,y}]: solo con forma 'Personalizada' (F45)
      SGGlass.tilt(elementoInclinable)        // inclinacion 3D con el puntero
      SGGlass.contar(elemento, 12.5, {...})   // contador animado
      SGGlass.describir(opts)                 // frase tipo "cartela de museo"
@@ -116,7 +117,24 @@
     var pasos = Math.max(3, Math.round(depth));
     var dx = depth, dy = depth * 0.55;
 
-    var d = contorno(forma, x, y, w, h);
+    var d;
+    if (forma === 'Personalizada' && o.puntos && o.puntos.length >= 3) {
+      /* F45: dibuja TU poligono, escalado a la misma caja (w x h) que usan las formas fijas. */
+      var pb = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+      o.puntos.forEach(function (p) {
+        if (p.x < pb.minX) pb.minX = p.x; if (p.y < pb.minY) pb.minY = p.y;
+        if (p.x > pb.maxX) pb.maxX = p.x; if (p.y > pb.maxY) pb.maxY = p.y;
+      });
+      var pw = Math.max(pb.maxX - pb.minX, 1), ph = Math.max(pb.maxY - pb.minY, 1);
+      var sx = w / pw, sy = h / ph;
+      d = 'M' + f(x + (o.puntos[0].x - pb.minX) * sx) + ',' + f(y + (o.puntos[0].y - pb.minY) * sy);
+      for (var pi = 1; pi < o.puntos.length; pi++) {
+        d += ' L' + f(x + (o.puntos[pi].x - pb.minX) * sx) + ',' + f(y + (o.puntos[pi].y - pb.minY) * sy);
+      }
+      d += ' Z';
+    } else {
+      d = contorno(forma, x, y, w, h);
+    }
     var s = '';
 
     s += '<svg class="sg-glass" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + VW + ' ' + VH + '" role="img" aria-label="' +
@@ -331,6 +349,17 @@
     return Math.abs(n - Math.round(n)) < 0.05 ? fmtNum(Math.round(n), 0) : fmtNum(n, 1);
   }
 
+  /* F45: area de un poligono (shoelace/Gauss). pts = [{x,y}] en cm. Devuelve cm2. Una sola fuente en JS. */
+  function areaPoligono(pts) {
+    if (!pts || pts.length < 3) return 0;
+    var s = 0, n = pts.length;
+    for (var i = 0; i < n; i++) {
+      var a = pts[i], b = pts[(i + 1) % n];
+      s += a.x * b.y - b.x * a.y;
+    }
+    return Math.abs(s) / 2;
+  }
+
   /* Contrato de formulas (no tocar constantes):
      area = ancho*alto/10000 ; peso = area*espesor*densidad (2.5 | 2.0 Insulado | 2.6 Laminado y Templado+Laminado)
      CO2 = peso * (0.6 renovable | 1.1) * (1.4 Templado+Laminado) * (1.8 Inteligente|Fotovoltaico) * (0.85 reciclado)
@@ -410,6 +439,6 @@
   window.SGGlass = {
     render: render, describir: describir, tilt: tilt, contar: contar, impacto: impacto, umbral: UMBRAL,
     nombreTipo: nombreTipo, fmt: fmt, fmtNum: fmtNum, fmtAuto: fmtAuto, calcular: calcular, recomendar: recomendar,
-    equivalencias: equivalencias, rangosUso: RANGOS_USO
+    equivalencias: equivalencias, rangosUso: RANGOS_USO, areaPoligono: areaPoligono
   };
 })();
