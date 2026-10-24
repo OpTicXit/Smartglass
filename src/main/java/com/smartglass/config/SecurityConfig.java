@@ -1,6 +1,7 @@
 package com.smartglass.config;
 
 import com.smartglass.security.JwtAuthenticationFilter;
+import com.smartglass.security.LoginRateLimitFilter;
 import com.smartglass.security.RateLimitFilter;
 import com.smartglass.service.CustomOAuth2UserService;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,6 +65,9 @@ public class SecurityConfig {
     private int rlSensible;
     @Value("${smartglass.ratelimit.confiar-forwarded-for:false}")
     private boolean rlConfiarForwardedFor;
+    // H05: intentos de login por IP y minuto (LoginRateLimitFilter)
+    @Value("${smartglass.ratelimit.login-por-minuto:10}")
+    private int rlLogin;
 
     public SecurityConfig(
             CustomSuccessHandler customSuccessHandler,
@@ -90,6 +94,8 @@ public class SecurityConfig {
         // F41: NO es un bean (Spring Boot lo registraria tambien como filtro de servlet, antes de autenticar)
         RateLimitFilter rateLimitFilter = new RateLimitFilter(
                 rlAnonimo, rlUsuario, rlAdmin, rlSensible, rlConfiarForwardedFor);
+        // H05: tampoco es un bean; frena la fuerza bruta antes de consultar usuario y BCrypt
+        LoginRateLimitFilter loginRateLimitFilter = new LoginRateLimitFilter(rlLogin, rlConfiarForwardedFor);
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -173,6 +179,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             )
+            // H05: limite de intentos de login por IP, antes de autenticar
+            .addFilterBefore(loginRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             // F41: despues de la autenticacion (JWT/sesion) para distinguir usuario, admin y anonimo
             .addFilterAfter(rateLimitFilter, UsernamePasswordAuthenticationFilter.class);

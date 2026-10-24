@@ -305,6 +305,11 @@
                 <span>Usuario o contraseña incorrectos</span>
             </div>
             
+            <div th:if="${param.bloqueado}" class="alert-banner alert-error">
+                <i class="ph ph-warning-circle"></i>
+                <span>Demasiados intentos seguidos. Espera un minuto y vuelve a intentar.</span>
+            </div>
+
             <div th:if="${param.logout}" class="alert-banner alert-info">
                 <i class="ph ph-info"></i>
                 <span>Has cerrado sesión exitosamente</span>

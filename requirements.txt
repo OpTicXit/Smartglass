@@ -1,0 +1,9 @@
+# Dependencias del componente de mineria de datos (Python 3.13).
+# Sacadas de los imports reales de data/generacion_dataset.py,
+# "mineria de datos/preparacion.py" y "mineria de datos/analisis.ipynb".
+numpy>=2.1
+pandas>=2.2,<3   # el notebook usa select_dtypes(include=['object']), que cambia en pandas 3
+scikit-learn>=1.5
+joblib>=1.4
+matplotlib>=3.9
+seaborn>=0.13

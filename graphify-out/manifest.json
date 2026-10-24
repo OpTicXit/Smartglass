@@ -1,0 +1,680 @@
+{
+  "data/generacion_dataset.py": {
+    "mtime": 1792861839.9339197,
+    "seen": 1792862051.5427387,
+    "ast_hash": "3ddca89269a623aae87cd49cf3450543",
+    "semantic_hash": "3ddca89269a623aae87cd49cf3450543"
+  },
+  "mineria de datos/preparacion.py": {
+    "mtime": 1791924420.9788094,
+    "seen": 1792855344.9575424,
+    "ast_hash": "48a564c46187a500d41fd2d86c406f96",
+    "semantic_hash": "48a564c46187a500d41fd2d86c406f96"
+  },
+  "mvnw": {
+    "mtime": 1790745773.4674091,
+    "seen": 1792855344.957546,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": "ab50dd89da7da2346b28003352eeeeeb"
+  },
+  "pom.xml": {
+    "mtime": 1792808447.9581707,
+    "seen": 1792855344.9575474,
+    "ast_hash": "ae2fd6810dd65ff29dbf93b59189048a",
+    "semantic_hash": "ae2fd6810dd65ff29dbf93b59189048a"
+  },
+  "src/main/java/com/smartglass/SmartglassApplication.java": {
+    "mtime": 1790745773.4694097,
+    "seen": 1792855344.957549,
+    "ast_hash": "7595761dc931b34f33b9fc8401c4cb21",
+    "semantic_hash": "7595761dc931b34f33b9fc8401c4cb21"
+  },
+  "src/main/java/com/smartglass/config/CatalogoProductoSeeder.java": {
+    "mtime": 1790745773.4694097,
+    "seen": 1792855344.95755,
+    "ast_hash": "58493a9da64e30fc28d89b553541a0f3",
+    "semantic_hash": "58493a9da64e30fc28d89b553541a0f3"
+  },
+  "src/main/java/com/smartglass/config/CustomSuccessHandler.java": {
+    "mtime": 1790995058.8335574,
+    "seen": 1792855344.9575517,
+    "ast_hash": "b84a7a3c4e7ce599da08050afd8fc0c1",
+    "semantic_hash": "b84a7a3c4e7ce599da08050afd8fc0c1"
+  },
+  "src/main/java/com/smartglass/config/DataInitializer.java": {
+    "mtime": 1792859960.9544342,
+    "seen": 1792862051.5427623,
+    "ast_hash": "e004d0e7710fc854e42b9f81e1b22cc1",
+    "semantic_hash": "e004d0e7710fc854e42b9f81e1b22cc1"
+  },
+  "src/main/java/com/smartglass/config/ResenaSeeder.java": {
+    "mtime": 1790745773.4704092,
+    "seen": 1792855344.9575536,
+    "ast_hash": "867dc12873fc6a75a113f54ae14541b6",
+    "semantic_hash": "867dc12873fc6a75a113f54ae14541b6"
+  },
+  "src/main/java/com/smartglass/config/SecurityConfig.java": {
+    "mtime": 1792860238.4382355,
+    "seen": 1792862051.5427659,
+    "ast_hash": "6fe542e353d7a9bdee3ea4dffe2949d6",
+    "semantic_hash": "6fe542e353d7a9bdee3ea4dffe2949d6"
+  },
+  "src/main/java/com/smartglass/config/UploadsWebConfig.java": {
+    "mtime": 1792207467.8872569,
+    "seen": 1792855344.9575558,
+    "ast_hash": "8076518c5a9da148b8c44eaae2fe2beb",
+    "semantic_hash": "8076518c5a9da148b8c44eaae2fe2beb"
+  },
+  "src/main/java/com/smartglass/controller/AdminController.java": {
+    "mtime": 1792207923.6526673,
+    "seen": 1792855344.957557,
+    "ast_hash": "f98006799bcfcde713b386b06e6fcc65",
+    "semantic_hash": "f98006799bcfcde713b386b06e6fcc65"
+  },
+  "src/main/java/com/smartglass/controller/AdminCotizacionesController.java": {
+    "mtime": 1792808447.9611714,
+    "seen": 1792855344.957558,
+    "ast_hash": "2aadcb179791e246ffd70b17669d3f63",
+    "semantic_hash": "2aadcb179791e246ffd70b17669d3f63"
+  },
+  "src/main/java/com/smartglass/controller/AuthController.java": {
+    "mtime": 1792808447.9611714,
+    "seen": 1792855344.957559,
+    "ast_hash": "bed8709fa70aae9d34271cd5bc3fa08e",
+    "semantic_hash": "bed8709fa70aae9d34271cd5bc3fa08e"
+  },
+  "src/main/java/com/smartglass/controller/CarritoController.java": {
+    "mtime": 1790745773.4714084,
+    "seen": 1792855344.95756,
+    "ast_hash": "6c4ccbad8944e399d0facad92d10d4e0",
+    "semantic_hash": "6c4ccbad8944e399d0facad92d10d4e0"
+  },
+  "src/main/java/com/smartglass/controller/CheckoutController.java": {
+    "mtime": 1792808447.9631739,
+    "seen": 1792855344.9575613,
+    "ast_hash": "cbba0a894b5eee63b1451c1b876ceb3e",
+    "semantic_hash": "cbba0a894b5eee63b1451c1b876ceb3e"
+  },
+  "src/main/java/com/smartglass/controller/HomeController.java": {
+    "mtime": 1790745773.4724069,
+    "seen": 1792855344.9575627,
+    "ast_hash": "75c1967acad729ae7057ee290b15c568",
+    "semantic_hash": "75c1967acad729ae7057ee290b15c568"
+  },
+  "src/main/java/com/smartglass/controller/LoginController.java": {
+    "mtime": 1790745773.4724069,
+    "seen": 1792855344.9575636,
+    "ast_hash": "72ca66052a739570c68ae532ba50007f",
+    "semantic_hash": "72ca66052a739570c68ae532ba50007f"
+  },
+  "src/main/java/com/smartglass/controller/PermisosAdvice.java": {
+    "mtime": 1792808447.9631739,
+    "seen": 1792855344.9575648,
+    "ast_hash": "3a29b374439e0527aedbf43ba08006c0",
+    "semantic_hash": "3a29b374439e0527aedbf43ba08006c0"
+  },
+  "src/main/java/com/smartglass/controller/RegistroController.java": {
+    "mtime": 1792860300.5745208,
+    "seen": 1792862051.5427823,
+    "ast_hash": "6c096bb692ba665593cecde8cc94d58f",
+    "semantic_hash": "6c096bb692ba665593cecde8cc94d58f"
+  },
+  "src/main/java/com/smartglass/controller/TiendaController.java": {
+    "mtime": 1790745773.4724069,
+    "seen": 1792855344.9575667,
+    "ast_hash": "6f827029e15818fe2ff87d05ac859cd9",
+    "semantic_hash": "6f827029e15818fe2ff87d05ac859cd9"
+  },
+  "src/main/java/com/smartglass/controller/UsuarioDashboardController.java": {
+    "mtime": 1790745773.473416,
+    "seen": 1792855344.957568,
+    "ast_hash": "193332e3bde418d30b6e8edb1ff5e318",
+    "semantic_hash": "193332e3bde418d30b6e8edb1ff5e318"
+  },
+  "src/main/java/com/smartglass/controller/VidrioPersonalizadoController.java": {
+    "mtime": 1792808447.9661727,
+    "seen": 1792855344.9575696,
+    "ast_hash": "692fa22cd673b3f69d955f52af24f272",
+    "semantic_hash": "692fa22cd673b3f69d955f52af24f272"
+  },
+  "src/main/java/com/smartglass/controller/VidrioPersonalizadoWebController.java": {
+    "mtime": 1792808447.9671714,
+    "seen": 1792855344.9575706,
+    "ast_hash": "50427fe0627769c8f85e9e7931bf650b",
+    "semantic_hash": "50427fe0627769c8f85e9e7931bf650b"
+  },
+  "src/main/java/com/smartglass/controller/VistaGlobalAttributesAdvice.java": {
+    "mtime": 1792808447.9681711,
+    "seen": 1792855344.9575715,
+    "ast_hash": "5d08e7058c9d8ad6fbf5546616ca7a8c",
+    "semantic_hash": "5d08e7058c9d8ad6fbf5546616ca7a8c"
+  },
+  "src/main/java/com/smartglass/dto/ComparacionItem.java": {
+    "mtime": 1790745773.47441,
+    "seen": 1792855344.9575727,
+    "ast_hash": "7f48f96f88165e0c080f7354c16c946e",
+    "semantic_hash": "7f48f96f88165e0c080f7354c16c946e"
+  },
+  "src/main/java/com/smartglass/dto/CotizacionVidrioRequest.java": {
+    "mtime": 1792808447.9691718,
+    "seen": 1792855344.9575737,
+    "ast_hash": "b16bd426806687ce187d5a8a3b2097be",
+    "semantic_hash": "b16bd426806687ce187d5a8a3b2097be"
+  },
+  "src/main/java/com/smartglass/dto/CotizacionVidrioResponse.java": {
+    "mtime": 1790745773.47441,
+    "seen": 1792855344.9575746,
+    "ast_hash": "688bf8b03676853e1df96064bd3f29ae",
+    "semantic_hash": "688bf8b03676853e1df96064bd3f29ae"
+  },
+  "src/main/java/com/smartglass/dto/ErrorResponse.java": {
+    "mtime": 1790745773.4754071,
+    "seen": 1792855344.9575758,
+    "ast_hash": "073243da258b882eb5bd36ba04dbe041",
+    "semantic_hash": "073243da258b882eb5bd36ba04dbe041"
+  },
+  "src/main/java/com/smartglass/dto/LoginRequest.java": {
+    "mtime": 1790745773.4754071,
+    "seen": 1792855344.9575768,
+    "ast_hash": "8fff2b53eac23d9cfcef86898785c244",
+    "semantic_hash": "8fff2b53eac23d9cfcef86898785c244"
+  },
+  "src/main/java/com/smartglass/dto/PuntoCorte.java": {
+    "mtime": 1792808447.970173,
+    "seen": 1792855344.9575777,
+    "ast_hash": "9be3f66472736d5b0c47e0d34a09e3a8",
+    "semantic_hash": "9be3f66472736d5b0c47e0d34a09e3a8"
+  },
+  "src/main/java/com/smartglass/dto/RegistroRequest.java": {
+    "mtime": 1792808447.9711723,
+    "seen": 1792855344.9575787,
+    "ast_hash": "ef67bc16b13a37a0e5c910db2018fd6d",
+    "semantic_hash": "ef67bc16b13a37a0e5c910db2018fd6d"
+  },
+  "src/main/java/com/smartglass/dto/TokenResponse.java": {
+    "mtime": 1790745773.4754071,
+    "seen": 1792855344.9575799,
+    "ast_hash": "1e6a6443faddce426911a2b7683561ca",
+    "semantic_hash": "1e6a6443faddce426911a2b7683561ca"
+  },
+  "src/main/java/com/smartglass/dto/UsuarioResponse.java": {
+    "mtime": 1790745773.4754071,
+    "seen": 1792855344.957581,
+    "ast_hash": "98a2fd45db44ab38b53dac96466ab239",
+    "semantic_hash": "98a2fd45db44ab38b53dac96466ab239"
+  },
+  "src/main/java/com/smartglass/model/mongo/Carrito.java": {
+    "mtime": 1790745773.476407,
+    "seen": 1792855344.957582,
+    "ast_hash": "c0d7ecb675736156097192c0e4dfbfb7",
+    "semantic_hash": "c0d7ecb675736156097192c0e4dfbfb7"
+  },
+  "src/main/java/com/smartglass/model/mongo/CatalogoProducto.java": {
+    "mtime": 1790745773.476407,
+    "seen": 1792855344.9575832,
+    "ast_hash": "52251d18a2a2a4d6426aa3d9f5fafc84",
+    "semantic_hash": "52251d18a2a2a4d6426aa3d9f5fafc84"
+  },
+  "src/main/java/com/smartglass/model/mongo/ItemCarrito.java": {
+    "mtime": 1790745773.476407,
+    "seen": 1792855344.9575841,
+    "ast_hash": "b1952b11488c94dfccd9a0f6d4222dc0",
+    "semantic_hash": "b1952b11488c94dfccd9a0f6d4222dc0"
+  },
+  "src/main/java/com/smartglass/model/mongo/Resena.java": {
+    "mtime": 1790745773.4774072,
+    "seen": 1792855344.9575853,
+    "ast_hash": "3665baac5542a740c4720edc8928481d",
+    "semantic_hash": "3665baac5542a740c4720edc8928481d"
+  },
+  "src/main/java/com/smartglass/model/mongo/VidrioSostenible.java": {
+    "mtime": 1792808447.9721694,
+    "seen": 1792855344.9575865,
+    "ast_hash": "d493b4dbede19895eee40a6816de1779",
+    "semantic_hash": "d493b4dbede19895eee40a6816de1779"
+  },
+  "src/main/java/com/smartglass/model/mysql/DetallePedido.java": {
+    "mtime": 1790745773.4774072,
+    "seen": 1792855344.9575875,
+    "ast_hash": "f90a005d87802def36d5a5e4298d0b48",
+    "semantic_hash": "f90a005d87802def36d5a5e4298d0b48"
+  },
+  "src/main/java/com/smartglass/model/mysql/Pedido.java": {
+    "mtime": 1790745773.4774072,
+    "seen": 1792855344.9575884,
+    "ast_hash": "4ccc0cd0cae4cbe665e3e5773cc976c6",
+    "semantic_hash": "4ccc0cd0cae4cbe665e3e5773cc976c6"
+  },
+  "src/main/java/com/smartglass/model/mysql/Usuario.java": {
+    "mtime": 1792808447.9731715,
+    "seen": 1792855344.9575894,
+    "ast_hash": "35e3deef32e61d83d12408e3a32c7c5a",
+    "semantic_hash": "35e3deef32e61d83d12408e3a32c7c5a"
+  },
+  "src/main/java/com/smartglass/repository/mongo/CarritoRepository.java": {
+    "mtime": 1790745773.478407,
+    "seen": 1792855344.9575908,
+    "ast_hash": "71788f38e6151ac516285028ceb0cdd7",
+    "semantic_hash": "71788f38e6151ac516285028ceb0cdd7"
+  },
+  "src/main/java/com/smartglass/repository/mongo/CatalogoProductoRepository.java": {
+    "mtime": 1790745773.478407,
+    "seen": 1792855344.9575922,
+    "ast_hash": "a220e6b61f594a11ed022cb6cebd5b41",
+    "semantic_hash": "a220e6b61f594a11ed022cb6cebd5b41"
+  },
+  "src/main/java/com/smartglass/repository/mongo/ResenaRepository.java": {
+    "mtime": 1790745773.4794068,
+    "seen": 1792855344.9575934,
+    "ast_hash": "dab2619ae24ec24a011593e70ebd1fa6",
+    "semantic_hash": "dab2619ae24ec24a011593e70ebd1fa6"
+  },
+  "src/main/java/com/smartglass/repository/mongo/VidrioSostenibleRepository.java": {
+    "mtime": 1792808447.9741693,
+    "seen": 1792855344.9575944,
+    "ast_hash": "52b13bf30b26872ae1039f46bb1c6a05",
+    "semantic_hash": "52b13bf30b26872ae1039f46bb1c6a05"
+  },
+  "src/main/java/com/smartglass/repository/mysql/PedidoRepository.java": {
+    "mtime": 1790745773.4794068,
+    "seen": 1792855344.9575953,
+    "ast_hash": "26a030688402a99af657694a577800f6",
+    "semantic_hash": "26a030688402a99af657694a577800f6"
+  },
+  "src/main/java/com/smartglass/repository/mysql/UsuarioRepository.java": {
+    "mtime": 1790745773.4794068,
+    "seen": 1792855344.9575963,
+    "ast_hash": "ab7371e86f48d7cfb8ea2771c4433127",
+    "semantic_hash": "ab7371e86f48d7cfb8ea2771c4433127"
+  },
+  "src/main/java/com/smartglass/security/JwtAuthenticationFilter.java": {
+    "mtime": 1792808447.9751725,
+    "seen": 1792855344.9575975,
+    "ast_hash": "bc9b59135ec811792994dad02795b0ce",
+    "semantic_hash": "bc9b59135ec811792994dad02795b0ce"
+  },
+  "src/main/java/com/smartglass/security/JwtProvider.java": {
+    "mtime": 1792860453.3535564,
+    "seen": 1792862051.5428307,
+    "ast_hash": "5c18181fb9b8493a04ece6dd670b6996",
+    "semantic_hash": "5c18181fb9b8493a04ece6dd670b6996"
+  },
+  "src/main/java/com/smartglass/security/RateLimitFilter.java": {
+    "mtime": 1792861607.3405876,
+    "seen": 1792862051.542835,
+    "ast_hash": "1be271c4f7c0f79d820792d00e783cb1",
+    "semantic_hash": "1be271c4f7c0f79d820792d00e783cb1"
+  },
+  "src/main/java/com/smartglass/security/TokenBucket.java": {
+    "mtime": 1792808447.9791727,
+    "seen": 1792855344.9576006,
+    "ast_hash": "7ffc70343ed1d4b231f4dd87357f8e2e",
+    "semantic_hash": "7ffc70343ed1d4b231f4dd87357f8e2e"
+  },
+  "src/main/java/com/smartglass/security/UserDetailsServiceImpl.java": {
+    "mtime": 1790991972.0778048,
+    "seen": 1792855344.9576015,
+    "ast_hash": "634e2adda211d6a3e1ca138e920059db",
+    "semantic_hash": "634e2adda211d6a3e1ca138e920059db"
+  },
+  "src/main/java/com/smartglass/service/AnalisisService.java": {
+    "mtime": 1792808447.9801714,
+    "seen": 1792855344.9576025,
+    "ast_hash": "ead6abb5fdd7e90f6ad2ab47c90cd5f9",
+    "semantic_hash": "ead6abb5fdd7e90f6ad2ab47c90cd5f9"
+  },
+  "src/main/java/com/smartglass/service/AuthService.java": {
+    "mtime": 1792808447.98117,
+    "seen": 1792855344.9576037,
+    "ast_hash": "4744879b2f2187ae49266b020e7dc596",
+    "semantic_hash": "4744879b2f2187ae49266b020e7dc596"
+  },
+  "src/main/java/com/smartglass/service/CarritoService.java": {
+    "mtime": 1792399558.4152749,
+    "seen": 1792855344.9576046,
+    "ast_hash": "448af4cc72d716bcc8ccd39c3284586c",
+    "semantic_hash": "448af4cc72d716bcc8ccd39c3284586c"
+  },
+  "src/main/java/com/smartglass/service/CustomOAuth2UserService.java": {
+    "mtime": 1792808447.9821708,
+    "seen": 1792855344.9576056,
+    "ast_hash": "07d661babdf03da4e3b83ba891f78af8",
+    "semantic_hash": "07d661babdf03da4e3b83ba891f78af8"
+  },
+  "src/main/java/com/smartglass/service/PedidoService.java": {
+    "mtime": 1792808447.9831686,
+    "seen": 1792855344.957607,
+    "ast_hash": "bd6e69accd7106fe97432a9ad96a7b09",
+    "semantic_hash": "bd6e69accd7106fe97432a9ad96a7b09"
+  },
+  "src/main/java/com/smartglass/service/ProductoService.java": {
+    "mtime": 1790745773.4824069,
+    "seen": 1792855344.957608,
+    "ast_hash": "68460ef6877fb5ac85f50b5c8a6a87d5",
+    "semantic_hash": "68460ef6877fb5ac85f50b5c8a6a87d5"
+  },
+  "src/main/java/com/smartglass/service/ResenaService.java": {
+    "mtime": 1790745773.4824069,
+    "seen": 1792855344.9576092,
+    "ast_hash": "5c26e4e0347b11d6028d9deef6a322f4",
+    "semantic_hash": "5c26e4e0347b11d6028d9deef6a322f4"
+  },
+  "src/main/java/com/smartglass/service/ResultadoAnalisisVidrio.java": {
+    "mtime": 1792808447.9841714,
+    "seen": 1792855344.9576101,
+    "ast_hash": "67035f0884a4ae41872897d40fedc0d5",
+    "semantic_hash": "67035f0884a4ae41872897d40fedc0d5"
+  },
+  "src/main/java/com/smartglass/service/UserService.java": {
+    "mtime": 1790745773.48341,
+    "seen": 1792855344.9576113,
+    "ast_hash": "ebecfe5649c5be8a6882764aca64ff9d",
+    "semantic_hash": "ebecfe5649c5be8a6882764aca64ff9d"
+  },
+  "src/main/java/com/smartglass/service/VidrioSostenibleService.java": {
+    "mtime": 1792808447.9851706,
+    "seen": 1792855344.9576123,
+    "ast_hash": "5a0a703cf601e56ec401fccb0ed95469",
+    "semantic_hash": "5a0a703cf601e56ec401fccb0ed95469"
+  },
+  "src/main/java/com/smartglass/validation/EmailValido.java": {
+    "mtime": 1792808447.9861698,
+    "seen": 1792855344.9576132,
+    "ast_hash": "d02c1b53c03733d01cd776d468fbc9a9",
+    "semantic_hash": "d02c1b53c03733d01cd776d468fbc9a9"
+  },
+  "src/main/java/com/smartglass/validation/EmailValidoValidator.java": {
+    "mtime": 1792808447.9871693,
+    "seen": 1792855344.9576144,
+    "ast_hash": "cae9296c4a28e536c95c55b5a29cb6c2",
+    "semantic_hash": "cae9296c4a28e536c95c55b5a29cb6c2"
+  },
+  "src/main/java/com/smartglass/validation/FieldMatch.java": {
+    "mtime": 1792808447.9881692,
+    "seen": 1792855344.9576156,
+    "ast_hash": "22eeb2914a6add802a59ebb3f4ab7b4c",
+    "semantic_hash": "22eeb2914a6add802a59ebb3f4ab7b4c"
+  },
+  "src/main/java/com/smartglass/validation/FieldMatchValidator.java": {
+    "mtime": 1792808447.9891694,
+    "seen": 1792855344.9576163,
+    "ast_hash": "6474480e91a12ca12bbfafbf00284842",
+    "semantic_hash": "6474480e91a12ca12bbfafbf00284842"
+  },
+  "src/main/java/com/smartglass/validation/PasswordValida.java": {
+    "mtime": 1792808447.9891694,
+    "seen": 1792855344.9576175,
+    "ast_hash": "37581de636843fc497b0221a94ab5b18",
+    "semantic_hash": "37581de636843fc497b0221a94ab5b18"
+  },
+  "src/main/java/com/smartglass/validation/PasswordValidaValidator.java": {
+    "mtime": 1792808447.9901705,
+    "seen": 1792855344.9576187,
+    "ast_hash": "985e331cb85606c804eac7ccd3c38e5b",
+    "semantic_hash": "985e331cb85606c804eac7ccd3c38e5b"
+  },
+  "src/main/java/com/smartglass/validation/TelefonoValido.java": {
+    "mtime": 1792808447.9911695,
+    "seen": 1792855344.9576197,
+    "ast_hash": "c535c690cb3e184e61fc7a687cccc0f3",
+    "semantic_hash": "c535c690cb3e184e61fc7a687cccc0f3"
+  },
+  "src/main/java/com/smartglass/validation/TelefonoValidoValidator.java": {
+    "mtime": 1792808447.9921691,
+    "seen": 1792855344.9576206,
+    "ast_hash": "8cd20cda4015b9eef13d257c25d3fb39",
+    "semantic_hash": "8cd20cda4015b9eef13d257c25d3fb39"
+  },
+  "src/main/java/com/smartglass/validation/UsernameValido.java": {
+    "mtime": 1792808447.9921691,
+    "seen": 1792855344.9576216,
+    "ast_hash": "110edb4c7d63f6a98bae31a245fb5d77",
+    "semantic_hash": "110edb4c7d63f6a98bae31a245fb5d77"
+  },
+  "src/main/java/com/smartglass/validation/UsernameValidoValidator.java": {
+    "mtime": 1792808447.993173,
+    "seen": 1792855344.9576228,
+    "ast_hash": "62fb64ddbdc677fdae055d80001a0072",
+    "semantic_hash": "62fb64ddbdc677fdae055d80001a0072"
+  },
+  "src/main/resources/static/js/corte-editor.js": {
+    "mtime": 1792825099.4177537,
+    "seen": 1792855344.9576252,
+    "ast_hash": "860cb64c18c1447f721e07fffaa6acc0",
+    "semantic_hash": "860cb64c18c1447f721e07fffaa6acc0"
+  },
+  "src/main/resources/static/js/glass-preview.js": {
+    "mtime": 1792825197.5502808,
+    "seen": 1792855344.957626,
+    "ast_hash": "57991613b1f2659908e0bba5b9a20375",
+    "semantic_hash": "57991613b1f2659908e0bba5b9a20375"
+  },
+  "src/main/resources/static/js/main.js": {
+    "mtime": 1792203750.4126701,
+    "seen": 1792855344.957627,
+    "ast_hash": "cca619bd89d181595a662930695ee94e",
+    "semantic_hash": "cca619bd89d181595a662930695ee94e"
+  },
+  "src/test/java/com/smartglass/smartglass/SmartglassApplicationTests.java": {
+    "mtime": 1790745773.5164084,
+    "seen": 1792855344.9576283,
+    "ast_hash": "32860756e6eec3c1ec6d49c1a6152b34",
+    "semantic_hash": "32860756e6eec3c1ec6d49c1a6152b34"
+  },
+  "README.md": {
+    "mtime": 1792861833.1629865,
+    "seen": 1792862051.5428789,
+    "ast_hash": "ad252149f91c2f8f9f7d2a7a33ebb94b",
+    "semantic_hash": "ad252149f91c2f8f9f7d2a7a33ebb94b"
+  },
+  "src/main/resources/templates/Comparar.html": {
+    "mtime": 1792106444.0822406,
+    "seen": 1792855344.9576306,
+    "ast_hash": "3d642fa571824fb1b7cce307070ed8af",
+    "semantic_hash": "3d642fa571824fb1b7cce307070ed8af"
+  },
+  "src/main/resources/templates/acerca.html": {
+    "mtime": 1791964802.5323963,
+    "seen": 1792855344.9576316,
+    "ast_hash": "cf9d88a518a27e17fb20c77aadc62e60",
+    "semantic_hash": "cf9d88a518a27e17fb20c77aadc62e60"
+  },
+  "src/main/resources/templates/admin-cotizaciones.html": {
+    "mtime": 1792808447.9984975,
+    "seen": 1792855344.9576325,
+    "ast_hash": "a4f818a80682245d03ce77238b6a1c87",
+    "semantic_hash": "a4f818a80682245d03ce77238b6a1c87"
+  },
+  "src/main/resources/templates/admin/Resenas.html": {
+    "mtime": 1792035440.264965,
+    "seen": 1792855344.9576337,
+    "ast_hash": "1c3fb418f083615538178bfd085f02e6",
+    "semantic_hash": "1c3fb418f083615538178bfd085f02e6"
+  },
+  "src/main/resources/templates/admin/dashboard.html": {
+    "mtime": 1792206256.2387583,
+    "seen": 1792855344.957635,
+    "ast_hash": "478186bd2bee94afc7e2dc20fecdc078",
+    "semantic_hash": "478186bd2bee94afc7e2dc20fecdc078"
+  },
+  "src/main/resources/templates/admin/fragments/nav.html": {
+    "mtime": 1792808448.0005088,
+    "seen": 1792855344.957636,
+    "ast_hash": "643a8b802e692410dc3a0845275c271d",
+    "semantic_hash": "643a8b802e692410dc3a0845275c271d"
+  },
+  "src/main/resources/templates/admin/pedidos.html": {
+    "mtime": 1792207923.6366646,
+    "seen": 1792855344.9576373,
+    "ast_hash": "009ca2ba037c5a84fcb020703bad17bf",
+    "semantic_hash": "009ca2ba037c5a84fcb020703bad17bf"
+  },
+  "src/main/resources/templates/admin/productos.html": {
+    "mtime": 1792207486.8868146,
+    "seen": 1792855344.9576395,
+    "ast_hash": "0dfbdfb518bc3a0d603b185fae855906",
+    "semantic_hash": "0dfbdfb518bc3a0d603b185fae855906"
+  },
+  "src/main/resources/templates/admin/usuario-detalle.html": {
+    "mtime": 1791964802.5208733,
+    "seen": 1792855344.9576404,
+    "ast_hash": "bcb081bb12bbf1f73032266499db7c09",
+    "semantic_hash": "bcb081bb12bbf1f73032266499db7c09"
+  },
+  "src/main/resources/templates/admin/usuarios.html": {
+    "mtime": 1792207486.8762355,
+    "seen": 1792855344.9576418,
+    "ast_hash": "596727a633b5fc364e3da58955c0ff72",
+    "semantic_hash": "596727a633b5fc364e3da58955c0ff72"
+  },
+  "src/main/resources/templates/carrito.html": {
+    "mtime": 1792808448.0015085,
+    "seen": 1792855344.9576426,
+    "ast_hash": "d66ca18c96835825e168f7585eb03cb5",
+    "semantic_hash": "d66ca18c96835825e168f7585eb03cb5"
+  },
+  "src/main/resources/templates/catalogo.html": {
+    "mtime": 1792035440.264965,
+    "seen": 1792855344.9576437,
+    "ast_hash": "72acd0efd3c3f9f52ef0758a4ea25eda",
+    "semantic_hash": "72acd0efd3c3f9f52ef0758a4ea25eda"
+  },
+  "src/main/resources/templates/checkout.html": {
+    "mtime": 1792808448.0025096,
+    "seen": 1792855344.9576447,
+    "ast_hash": "7c5ebc1847fafe26bbd6c2d73cd1593d",
+    "semantic_hash": "7c5ebc1847fafe26bbd6c2d73cd1593d"
+  },
+  "src/main/resources/templates/destacados.html": {
+    "mtime": 1792035440.264965,
+    "seen": 1792855344.957646,
+    "ast_hash": "c170f7ed6c15864490087bfc2b61b2f4",
+    "semantic_hash": "c170f7ed6c15864490087bfc2b61b2f4"
+  },
+  "src/main/resources/templates/detalle.html": {
+    "mtime": 1792035440.264965,
+    "seen": 1792855344.957647,
+    "ast_hash": "7a69c1160af05f8b91e539aa07c91218",
+    "semantic_hash": "7a69c1160af05f8b91e539aa07c91218"
+  },
+  "src/main/resources/templates/error/403.html": {
+    "mtime": 1792106444.0811574,
+    "seen": 1792855344.9576483,
+    "ast_hash": "3b7568bbdfcedb6319f0aa2cd9874aef",
+    "semantic_hash": "3b7568bbdfcedb6319f0aa2cd9874aef"
+  },
+  "src/main/resources/templates/factura.html": {
+    "mtime": 1792808448.003508,
+    "seen": 1792855344.9576495,
+    "ast_hash": "18689f1e86cf098bfe1385b789a5e42f",
+    "semantic_hash": "18689f1e86cf098bfe1385b789a5e42f"
+  },
+  "src/main/resources/templates/fragments/navbar-publico.html": {
+    "mtime": 1792106444.0822406,
+    "seen": 1792855344.9576504,
+    "ast_hash": "83673ac3a8dcf7d410c7763227e97db7",
+    "semantic_hash": "83673ac3a8dcf7d410c7763227e97db7"
+  },
+  "src/main/resources/templates/index.html": {
+    "mtime": 1792205735.8998623,
+    "seen": 1792855344.9576514,
+    "ast_hash": "13018f8959c454059a57c3570e33a323",
+    "semantic_hash": "13018f8959c454059a57c3570e33a323"
+  },
+  "src/main/resources/templates/login.html": {
+    "mtime": 1792860238.8518772,
+    "seen": 1792862051.5428853,
+    "ast_hash": "eaa7a31f3bc3b884087e1082dd715e5c",
+    "semantic_hash": "eaa7a31f3bc3b884087e1082dd715e5c"
+  },
+  "src/main/resources/templates/mis-cotizaciones.html": {
+    "mtime": 1792808448.0055084,
+    "seen": 1792855344.9576535,
+    "ast_hash": "79a477553e1acf53db058eb83874ca83",
+    "semantic_hash": "79a477553e1acf53db058eb83874ca83"
+  },
+  "src/main/resources/templates/mis-pedidos.html": {
+    "mtime": 1792808448.0065062,
+    "seen": 1792855344.9576545,
+    "ast_hash": "822357a8f7d244c7d526608f18bcf9f8",
+    "semantic_hash": "822357a8f7d244c7d526608f18bcf9f8"
+  },
+  "src/main/resources/templates/pedido-confirmacion.html": {
+    "mtime": 1792808448.007507,
+    "seen": 1792855344.957656,
+    "ast_hash": "f4062fe2aec7208c966f63e47c6344ba",
+    "semantic_hash": "f4062fe2aec7208c966f63e47c6344ba"
+  },
+  "src/main/resources/templates/registro.html": {
+    "mtime": 1792808448.0095067,
+    "seen": 1792855344.9576566,
+    "ast_hash": "fdb40b62514e817d707d60a6428ecc18",
+    "semantic_hash": "fdb40b62514e817d707d60a6428ecc18"
+  },
+  "src/main/resources/templates/usuario.html": {
+    "mtime": 1792106444.0822406,
+    "seen": 1792855344.9576578,
+    "ast_hash": "d45f105e01ea87ed8ec500fcf7f1ecbf",
+    "semantic_hash": "d45f105e01ea87ed8ec500fcf7f1ecbf"
+  },
+  "src/main/resources/templates/vidrio-personalizado-detalle.html": {
+    "mtime": 1792825197.5492876,
+    "seen": 1792855344.9576588,
+    "ast_hash": "8a4715b70c4dc6e592479d917b61448b",
+    "semantic_hash": "8a4715b70c4dc6e592479d917b61448b"
+  },
+  "src/main/resources/templates/vidrio-personalizado-form.html": {
+    "mtime": 1792825197.5442462,
+    "seen": 1792855344.95766,
+    "ast_hash": "8eb1f0efc2afba5d2ad59d5e7fee4517",
+    "semantic_hash": "8eb1f0efc2afba5d2ad59d5e7fee4517"
+  },
+  "documentos/informe_metodologico.pdf": {
+    "mtime": 1791927488.4874866,
+    "seen": 1792855344.9576607,
+    "ast_hash": "42f48ca481422252ad79b5347408b762",
+    "semantic_hash": "42f48ca481422252ad79b5347408b762"
+  },
+  "documentos/propuesta_modelo.pdf": {
+    "mtime": 1791927486.9050796,
+    "seen": 1792855344.9576619,
+    "ast_hash": "bc174bf79aeca0c2c4d902d171ab50bf",
+    "semantic_hash": "bc174bf79aeca0c2c4d902d171ab50bf"
+  },
+  "src/main/java/com/smartglass/security/LoginRateLimitFilter.java": {
+    "mtime": 1792860224.618186,
+    "seen": 1792862051.5428329,
+    "ast_hash": "60017ab273a5d2a05c5f695642b6066a",
+    "semantic_hash": "60017ab273a5d2a05c5f695642b6066a"
+  },
+  "src/main/resources/static/js/theme-init.js": {
+    "mtime": 1791949167.7744384,
+    "seen": 1792862051.5428758,
+    "ast_hash": "e6ffa6e0762a44efc628f67b5565562e",
+    "semantic_hash": "e6ffa6e0762a44efc628f67b5565562e"
+  },
+  "requirements.txt": {
+    "mtime": 1792860398.6341174,
+    "seen": 1792862051.5428808,
+    "ast_hash": "627897afe15cb385262b00d3e7124edd",
+    "semantic_hash": "627897afe15cb385262b00d3e7124edd"
+  },
+  "src/main/resources/templates/admin/resenas.html": {
+    "mtime": 1792035440.264965,
+    "seen": 1792862051.5428822,
+    "ast_hash": "1c3fb418f083615538178bfd085f02e6",
+    "semantic_hash": "1c3fb418f083615538178bfd085f02e6"
+  },
+  "src/main/resources/templates/comparar.html": {
+    "mtime": 1792106444.0822406,
+    "seen": 1792862051.5428836,
+    "ast_hash": "3d642fa571824fb1b7cce307070ed8af",
+    "semantic_hash": "3d642fa571824fb1b7cce307070ed8af"
+  },
+  "FLUJO-DE-TRABAJO.md": {
+    "mtime": 1792863501.3082066,
+    "seen": 1792863832.0692935,
+    "ast_hash": "5b57aae475c20152290c69901b3e641e",
+    "semantic_hash": "5b57aae475c20152290c69901b3e641e"
+  }
+}

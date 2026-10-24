@@ -1,6 +1,7 @@
 package com.smartglass.controller;
 
 import com.smartglass.dto.RegistroRequest;
+import com.smartglass.repository.mysql.UsuarioRepository;
 import com.smartglass.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -10,7 +11,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Envoltorio MVC (formulario HTML) sobre AuthService.register(...).
@@ -21,14 +27,42 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * form con el primer mensaje de error en espanol. El honeypot redirige en
  * silencio a /login. El parametro ?limite lo pone RateLimitFilter (F41)
  * cuando se agota la cubeta de 10 registros/min por IP.
+ *
+ * H06: GET /registro/disponible responde a la comprobacion en vivo de registro.html
+ * (comprobarDisponibilidad). RateLimitFilter ya la trata como ruta sensible (429 JSON).
  */
 @Controller
 public class RegistroController {
 
     private final AuthService authService;
+    private final UsuarioRepository usuarioRepository;
 
-    public RegistroController(AuthService authService) {
+    public RegistroController(AuthService authService, UsuarioRepository usuarioRepository) {
         this.authService = authService;
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    /**
+     * H06: disponibilidad de correo y/o usuario. Solo responde las claves de los
+     * parametros enviados; normaliza igual que los setters de RegistroRequest
+     * (trim + minusculas) para que coincida con lo que se guardaria.
+     */
+    @GetMapping("/registro/disponible")
+    @ResponseBody
+    public Map<String, Object> disponible(@RequestParam(required = false) String email,
+                                          @RequestParam(required = false) String username) {
+        Map<String, Object> respuesta = new LinkedHashMap<>();
+        if (email != null && !email.isBlank()) {
+            boolean libre = !usuarioRepository.existsByEmail(email.trim().toLowerCase(Locale.ROOT));
+            respuesta.put("emailDisponible", libre);
+            respuesta.put("emailMensaje", libre ? "" : "Ya existe una cuenta con ese correo.");
+        }
+        if (username != null && !username.isBlank()) {
+            boolean libre = !usuarioRepository.existsByUsername(username.trim().toLowerCase(Locale.ROOT));
+            respuesta.put("usernameDisponible", libre);
+            respuesta.put("usernameMensaje", libre ? "" : "Ese nombre de usuario ya está en uso.");
+        }
+        return respuesta;
     }
 
     @GetMapping("/registro")

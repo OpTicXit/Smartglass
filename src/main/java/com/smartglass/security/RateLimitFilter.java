@@ -17,8 +17,8 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * F41: limitador de solicitudes por actor (usuario autenticado o IP).
  *
- * - Se aplica a /api/** y a las rutas sensibles (POST /registro, GET /registro/disponible,
- *   POST /api/vidrios/cotizar). Las paginas HTML y los estaticos (/css, /js, /img) NO
+ * - Se aplica a /api/** y a las rutas sensibles (POST /registro, POST /auth/registro,
+ *   GET /registro/disponible, POST /api/vidrios/cotizar). Las paginas HTML y los estaticos (/css, /js, /img) NO
  *   gastan fichas: una sola carga de pagina pide varios recursos y agotaria el limite.
  * - Limites por minuto: anonimo, usuario, admin y "sensible" (adicional, por actor).
  * - NO es un @Component a proposito: Spring Boot registraria el filtro dos veces (una como
@@ -61,7 +61,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String ruta = req.getServletPath();
         boolean api = ruta.startsWith("/api/");
         boolean disponibilidad = ruta.equals("/registro/disponible");
-        boolean sensible = disponibilidad
+        // H11: POST /auth/registro (API REST) entra en el mismo bucket sensible que POST /registro
+        boolean registroApi = "POST".equals(req.getMethod()) && ruta.equals("/auth/registro");
+        boolean sensible = disponibilidad || registroApi
                 || ("POST".equals(req.getMethod()) && (ruta.equals("/api/vidrios/cotizar") || ruta.equals("/registro")));
 
         if (!api && !sensible) {
@@ -92,7 +94,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         if (especifica != null) espera = Math.max(espera, especifica.segundosParaReintentar(ahora));
         res.setHeader("Retry-After", String.valueOf(Math.max(1L, espera)));
 
-        if (api || disponibilidad) {
+        if (api || disponibilidad || registroApi) {
             res.setStatus(429);
             res.setContentType("application/json;charset=UTF-8");
             String msg = "Demasiadas solicitudes. Intenta de nuevo en un minuto.";

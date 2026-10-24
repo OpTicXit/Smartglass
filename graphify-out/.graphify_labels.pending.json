@@ -1,0 +1,19 @@
+{
+  "0": "AdminController",
+  "2": "AuthController.java",
+  "14": "org.springframework.ui.Model",
+  "15": "Resena",
+  "16": "ResenaService",
+  "17": "ItemCarrito",
+  "28": "ProductoService",
+  "32": "org.springframework.stereotype.Service",
+  "34": "RegistroController.java",
+  "38": "org.springframework.web.bind.annotation.GetMapping",
+  "46": "UsuarioRepository",
+  "52": "AuthService",
+  "62": "LoginRequest",
+  "63": "org.springframework.context.annotation.Configuration",
+  "64": "TokenResponse",
+  "65": ".registrar",
+  "66": ".crearProducto"
+}

@@ -1,5 +1,10 @@
 HELP.md
 target/
+
+### Secretos locales (la plantilla .env.example SI se versiona) ###
+.env
+.env.*
+!.env.example
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

@@ -1,7 +1,7 @@
 # 🚀 SmartGlass
 ### Plataforma de Gestión Sostenible e Industrial del Vidrio
 
-SmartGlass es una plataforma de software desarrollada con **Spring Boot** para la industria de manufactura y comercialización de vidrio. Integra la gestión de productos, inventarios y pedidos industriales con herramientas de análisis predictivo orientadas a la estimación de emisiones de dióxido de carbono (CO₂).
+SmartGlass es una plataforma de software desarrollada con **Spring Boot** para la industria de manufactura y comercialización de vidrio. Integra la gestión de productos, inventarios y pedidos industriales con un cotizador que estima las emisiones de dióxido de carbono (CO₂) de cada pieza mediante fórmulas deterministas. Como componente de Minería de Datos I, incluye además un modelo predictivo de CO₂ entrenado y evaluado aparte; su integración en la aplicación es la siguiente fase.
 
 El proyecto combina tecnologías de desarrollo backend, persistencia híbrida y minería de datos para facilitar la toma de decisiones, mejorar la trazabilidad de los productos y promover prácticas de producción más sostenibles.
 
@@ -71,10 +71,10 @@ Desarrollar una plataforma tecnológica para la gestión industrial del vidrio q
 - Control de acceso mediante Spring Security.
 
 ### 🌱 Gestión ambiental
-- Estimación de emisiones de CO₂ por pieza de vidrio.
+- Estimación de emisiones de CO₂ por pieza de vidrio en el cotizador, con fórmulas deterministas (`AnalisisService`), no con el modelo predictivo.
 - Análisis de variables técnicas relacionadas con el impacto ambiental.
 - Evaluación del efecto potencial del contenido de vidrio reciclado o calcín.
-- Posible integración de predicciones ambientales en el proceso de cotización.
+- Integración del modelo predictivo en la cotización: **siguiente fase** (no implementada; ver [Integración del modelo predictivo](#-integración-del-modelo-predictivo)).
 
 ### 📊 Minería de datos
 - Generación reproducible de datos sintéticos basados en factores de emisión documentados.
@@ -117,10 +117,10 @@ Se utiliza mediante **Spring Data MongoDB** para almacenar documentos flexibles,
 2. Los controladores reciben las solicitudes y las delegan a los servicios de negocio.
 3. La información transaccional se gestiona mediante MySQL.
 4. Los catálogos y documentos flexibles se administran mediante MongoDB.
-5. El componente de minería de datos procesa variables técnicas para estimar las emisiones de CO₂.
-6. Los resultados pueden incorporarse a cotizaciones, análisis ambientales y reportes.
+5. El cotizador calcula peso, huella de CO₂, intensidad (kg CO₂e/m²), precio y resistencia de cada pieza con fórmulas deterministas en el backend (`AnalisisService`).
+6. El modelo predictivo de minería de datos se entrena y evalúa aparte, en Python; la aplicación Java **no** lo consulta.
 
-> **Nota:** La descripción anterior representa la arquitectura prevista del proyecto. La disponibilidad efectiva de cada funcionalidad depende de su implementación y configuración en el repositorio.
+> **Nota:** los pasos 1 a 5 están implementados en el repositorio. Conectar el modelo del paso 6 con las cotizaciones es la siguiente fase.
 
 ---
 
@@ -136,7 +136,6 @@ Se utiliza mediante **Spring Data MongoDB** para almacenar documentos flexibles,
 | Base de datos documental | MongoDB |
 | Persistencia | Spring Data JPA, Hibernate y Spring Data MongoDB |
 | Gestión de dependencias | Maven |
-| Reducción de código repetitivo | Lombok |
 | Lenguaje de análisis | Python 3.13 |
 | Procesamiento de datos | pandas |
 | Aprendizaje automático | scikit-learn |
@@ -144,7 +143,7 @@ Se utiliza mediante **Spring Data MongoDB** para almacenar documentos flexibles,
 | Entorno de análisis | Google Colab y Jupyter Notebook |
 | Control de versiones | Git y GitHub |
 
-**Compatibilidad de Java:** el entorno debe utilizar una versión de Java compatible con la versión concreta de Spring Boot configurada en el proyecto. Aunque Java 17 aparece como requisito inicial, se debe verificar el requisito mínimo de Java de la versión de Spring Boot 4.x utilizada antes de ejecutar la aplicación.
+**Compatibilidad de Java:** el proyecto usa Spring Boot 4.1.1 y compila para Java 26 (`java.version` en `pom.xml`); se necesita un JDK 26 o posterior.
 
 ---
 
@@ -153,43 +152,46 @@ Se utiliza mediante **Spring Data MongoDB** para almacenar documentos flexibles,
 ```text
 SmartGlass/
 ├── README.md
-├── requirements.txt
+├── FLUJO-DE-TRABAJO.md             # Estado de cada ítem contra el código
+├── requirements.txt                # Dependencias de Python
+├── .env.example                    # Plantilla de variables de entorno (sin secretos)
 ├── .gitignore
 │
 ├── src/
 │   ├── main/
 │   │   ├── java/com/smartglass/
-│   │   │   ├── config/             # Configuración de seguridad y JWT
+│   │   │   ├── config/             # Spring Security, seeders, recursos subidos
 │   │   │   ├── controller/         # Controladores REST y web
-│   │   │   ├── model/              # Entidades y modelos de dominio
+│   │   │   ├── dto/                # Objetos de entrada y salida
+│   │   │   ├── model/              # Entidades JPA (mysql/) y documentos (mongo/)
 │   │   │   ├── repository/         # Acceso a datos
-│   │   │   ├── service/            # Lógica de negocio
-│   │   │   └── SmartGlassApplication.java
+│   │   │   ├── security/           # JWT y límites de solicitudes
+│   │   │   ├── service/            # Lógica de negocio y cálculo ambiental
+│   │   │   ├── validation/         # Validadores del registro
+│   │   │   └── SmartglassApplication.java
 │   │   │
 │   │   └── resources/
 │   │       ├── templates/          # Vistas Thymeleaf
 │   │       ├── static/             # CSS, JavaScript e imágenes
 │   │       └── application.properties
 │   │
-│   └── test/                       # Pruebas automatizadas
+│   └── test/                       # Prueba de carga del contexto (contextLoads)
 │
 ├── data/
 │   ├── generacion_dataset.py       # Generador reproducible
 │   └── raw/
 │       └── smartglass_co2.csv      # Dataset generado
 │
-├── mineria-datos/
+├── mineria de datos/
 │   ├── analisis.ipynb              # EDA, entrenamiento y evaluación
 │   ├── preparacion.py              # Preprocesamiento de datos
-│   ├── modelo_smartglass_co2.pkl   # Modelo entrenado
+│   ├── modelo_smartglass_co2.pkl   # Modelo entrenado (no integrado en la app)
 │   └── metricas_modelo.csv         # Resultados de evaluación
 │
 └── documentos/
     ├── propuesta_modelo.pdf        # Entregable 2
     └── informe_metodologico.pdf    # Entregable 3
 ```
-
-*Nota: esta estructura representa la organización documentada del proyecto. Los directorios y archivos deben corresponder con los que se encuentren efectivamente en el repositorio.*
 
 ---
 
@@ -235,6 +237,41 @@ Las propiedades de conexión deben corresponder con los nombres y mecanismos de 
 Si el proyecto utiliza autenticación con Google OAuth2, registra las credenciales correspondientes en Google Cloud y configura el identificador y el secreto del cliente fuera del código fuente.
 
 De igual manera, configura las claves utilizadas para firmar o validar los JWT mediante un mecanismo seguro.
+
+`application.properties` no contiene secretos: los lee de estas variables de entorno. La plantilla [`.env.example`](.env.example) las lista con valores de ejemplo no secretos. Spring Boot **no** lee ese archivo por sí solo: hay que definir las variables en el entorno (abajo).
+
+| Variable | Obligatoria | Uso |
+|---|---|---|
+| `MYSQL_PASSWORD` | Sí | Contraseña de MySQL |
+| `MYSQL_USER` | No (por defecto `root`) | Usuario de MySQL |
+| `JWT_SECRET` | Sí | Clave HMAC-SHA256 para firmar los JWT (mínimo 32 bytes); debe ser **fija** mientras la app esté en uso |
+| `GOOGLE_CLIENT_ID` | Sí | Cliente OAuth2 de Google |
+| `GOOGLE_CLIENT_SECRET` | Sí | Secreto del cliente OAuth2 de Google |
+| `ADMIN_PASSWORD` | Solo la primera vez | Contraseña del administrador inicial (`admin`); si falta, no se crea |
+
+Sin las obligatorias, la aplicación no arranca (`PlaceholderResolutionException: Could not resolve placeholder 'JWT_SECRET'`, por ejemplo). MongoDB no necesita variables: se conecta a `mongodb://localhost:27017/smartglass_catalog`.
+
+Genera **una vez** un `JWT_SECRET` y guárdalo fijo en tu usuario de Windows (así sobrevive a reinicios de la app y de DevTools; si cambia, los JWT ya emitidos dejan de valer):
+
+```powershell
+[Environment]::SetEnvironmentVariable('JWT_SECRET', [Convert]::ToBase64String((1..48 | ForEach-Object { Get-Random -Maximum 256 })), 'User')
+```
+
+Luego, en cada terminal nueva (las variables de usuario se cargan al abrirla):
+
+```powershell
+$env:MYSQL_PASSWORD = '<tu contraseña de MySQL>'
+$env:GOOGLE_CLIENT_ID = '<id de cliente de Google>'
+$env:GOOGLE_CLIENT_SECRET = '<secreto de cliente de Google>'
+# $env:ADMIN_PASSWORD = '<contraseña>'   # solo si el admin aún no existe en MySQL
+.\mvnw.cmd spring-boot:run
+```
+
+Para comprobar qué falta antes de arrancar:
+
+```powershell
+'MYSQL_PASSWORD','JWT_SECRET','GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET' | Where-Object { -not [Environment]::GetEnvironmentVariable($_) }
+```
 
 **Importante:** no subas secretos reales a GitHub ni incluyas credenciales directamente en `application.properties`.
 
@@ -310,11 +347,9 @@ data/raw/smartglass_co2.csv
 
 ### 3. Ejecutar el análisis predictivo
 
-Abre el archivo `mineria-datos/analisis.ipynb` en Google Colab o Jupyter Notebook.
+Abre el archivo `mineria de datos/analisis.ipynb` en Google Colab o Jupyter Notebook.
 
-Ejecuta las celdas en orden para reproducir el análisis exploratorio, el preprocesamiento, el entrenamiento y la evaluación del modelo.
-
-Antes de ejecutar el notebook, comprueba que las rutas a los archivos CSV y Python coincidan con la estructura del entorno de ejecución.
+Ejecuta las celdas en orden para reproducir el análisis exploratorio, el preprocesamiento, el entrenamiento y la evaluación del modelo. El notebook busca el CSV junto a sí mismo (Colab, subiéndolo) o en `../data/raw/` (desde el repositorio). Al terminar, reescribe `modelo_smartglass_co2.pkl` y `metricas_modelo.csv`.
 
 ---
 
@@ -331,8 +366,8 @@ El proyecto aborda esta pregunta mediante un modelo de regresión que utiliza ca
 | Característica | Descripción |
 |---|---|
 | Registros | 1.000 piezas de vidrio |
-| Variables | 8 variables documentadas |
-| Catálogo | 20 tipos de vidrio |
+| Columnas | 8: `tipo_vidrio`, `proceso`, `area_m2`, `espesor_mm`, `calcin_pct`, `masa_kg`, `energia_kwh_kg`, `co2_kg` |
+| Catálogo | 20 tipos de vidrio (propios del dataset; el cotizador web ofrece 7) |
 | Variable objetivo | `co2_kg` |
 | Tipo de problema | Regresión supervisada |
 | Semilla de generación | `42` |
@@ -350,7 +385,9 @@ Entre los tipos de vidrio considerados se encuentran:
 - Inteligente.
 - Reciclado.
 
-La descripción de las variables contempla características como el tipo de vidrio, el área, el espesor, el proceso de fabricación y el porcentaje de calcín. La definición final de las ocho variables debe verificarse en el generador y en el dataset.
+El modelo usa **6 variables predictoras**: `tipo_vidrio` y `proceso` (categóricas, One-Hot) y `area_m2`, `espesor_mm`, `calcin_pct` y `energia_kwh_kg` (numéricas). **`masa_kg` se excluye**: el generador la calcula como `area_m2 × espesor_mm × 2,5`, la misma fórmula de la que sale `co2_kg`, así que incluirla filtraría la respuesta al modelo (*leakage*) e inflaría las métricas.
+
+El dataset modela sus propios factores de emisión (multiplicador por tipo, energía del proceso, factor de red de 0,25 kg CO₂/kWh, calcín de 0 a 80 %). **No** reproduce las fórmulas del cotizador web (`AnalisisService`), que usa 7 tipos y factores distintos. Por eso el modelo es un estudio independiente, no una validación del cotizador.
 
 ### Modelo predictivo
 
@@ -360,23 +397,25 @@ El algoritmo seleccionado es **Random Forest Regressor**, un método de aprendiz
 |---|---|
 | Algoritmo | Random Forest Regressor |
 | Número de árboles | 200 |
+| Variables predictoras | 6 (sin `masa_kg`) |
 | Preprocesamiento categórico | One-Hot Encoding |
 | Datos de entrenamiento | 80 % (800 registros) |
 | Datos de prueba | 20 % (200 registros) |
+| Partición | Aleatoria, semilla `42` (la misma de `preparacion.dividir`) |
 | Validación cruzada | 5 particiones (*5-fold*) |
 
 ### Métricas de evaluación
 
-Los resultados reportados para el modelo son los siguientes:
+Resultados del notebook re-ejecutado sin `masa_kg` (los mismos que guarda `metricas_modelo.csv`):
 
 | Métrica | Resultado | Interpretación |
 |---|---:|---|
-| MAE | 20,69 kg de CO₂ | Error absoluto medio de las predicciones. |
-| RMSE | 33,49 kg de CO₂ | Penaliza en mayor medida los errores grandes. |
-| R² | 0,9461 | El modelo explica aproximadamente el 94,61 % de la variabilidad de la variable objetivo en la evaluación reportada. |
-| R² de validación cruzada | 0,9456 ± 0,0123 | Media y desviación reportadas en la validación de cinco particiones. |
+| MAE | 23,25 kg de CO₂ | Error absoluto medio en el conjunto de prueba. |
+| RMSE | 33,22 kg de CO₂ | Penaliza en mayor medida los errores grandes. |
+| R² (prueba) | 0,9433 | El modelo explica cerca del 94,3 % de la variabilidad en el conjunto de prueba. |
+| R² de validación cruzada | 0,9271 ± 0,0115 | Media y desviación en cinco particiones; es la cifra más representativa. |
 
-Estos valores corresponden a los resultados documentados del proyecto y deben reproducirse a partir del dataset, el código de entrenamiento y el procedimiento de evaluación para confirmar su consistencia.
+Una versión anterior reportaba MAE 20,69 y R² 0,9461. Esas cifras salían de un modelo que **incluía `masa_kg`** y por eso eran más altas; se descartaron por la filtración descrita arriba.
 
 **Consideración metodológica:** un R² elevado no demuestra por sí solo que las predicciones representen con precisión las emisiones industriales reales. La calidad del modelo depende de la fiabilidad de los factores de emisión, la representatividad del dataset y la ausencia de filtraciones de información entre entrenamiento y prueba.
 
@@ -397,35 +436,30 @@ Estos valores corresponden a los resultados documentados del proyecto y deben re
 
 ## 🔬 Integración del modelo predictivo
 
-El artefacto entrenado `modelo_smartglass_co2.pkl` está destinado a una posible integración con el módulo ambiental de SmartGlass, relacionado con las historias de usuario US-09 y US-13.
+### Estado actual
 
-Su integración permitiría desarrollar las siguientes funcionalidades:
+**El modelo no está integrado en la aplicación.** `modelo_smartglass_co2.pkl` es un artefacto entrenado y evaluado aparte (MAE 23,25 kg · R² de validación cruzada 0,9271, sin filtración), versionado en el repositorio. Ningún componente Java lo carga ni lo consulta: las cifras de CO₂ que muestra la web salen de las fórmulas deterministas de `AnalisisService`. La presencia del archivo `.pkl` no implica integración.
 
-### Estimación en tiempo real
+Además, hoy no se podría conectar directamente: el modelo necesita `proceso`, `energia_kwh_kg` y `calcin_pct`, que el formulario de cotización no pide, y conoce 20 tipos de vidrio frente a los 7 del cotizador.
 
-Calcular una estimación de las emisiones de CO₂ durante la cotización de una pieza de vidrio personalizada, utilizando sus parámetros técnicos.
+### Siguiente fase (no implementada)
 
-### Recomendación de alternativas sostenibles
+La integración prevista, relacionada con las historias de usuario US-09 y US-13, permitiría:
 
-Comparar escenarios de fabricación y estudiar si un mayor porcentaje de calcín u otras características del producto se asocian con una reducción de emisiones.
+- **Estimación durante la cotización:** consultar el modelo con los parámetros de la pieza, como segunda opinión junto al cálculo determinista.
+- **Recomendación de alternativas sostenibles:** comparar escenarios de fabricación (por ejemplo, más calcín). Estas recomendaciones deben sustentarse en los datos y en las restricciones técnicas del proceso; no se debe asumir que aumentar el contenido reciclado siempre reduce las emisiones.
+- **Reportes ambientales:** consolidar predicciones y datos operativos en indicadores, por ejemplo en Power BI.
 
-Estas recomendaciones deben sustentarse en los datos y en las restricciones técnicas del proceso industrial; no se debe asumir que aumentar el contenido reciclado siempre reduce las emisiones en cualquier escenario.
+### Requisitos para integrarlo
 
-### Reportes ambientales
-
-Consolidar predicciones y datos operativos para elaborar indicadores ambientales y facilitar su análisis en herramientas como Power BI.
-
-### Consideraciones de integración
-
-Para conectar el modelo de Python con el backend Java, se debe definir un mecanismo de comunicación, por ejemplo, un servicio de inferencia independiente o una API. También se deben garantizar:
+Hace falta un mecanismo de comunicación entre Python y Java, por ejemplo un servicio de inferencia independiente con API. También hay que garantizar:
 
 - La compatibilidad entre las variables de entrada y el preprocesamiento del entrenamiento.
 - El uso de las mismas categorías y transformaciones que utilizó el modelo original.
 - El control de versiones del modelo y sus dependencias.
 - La validación de entradas y el manejo de errores.
 - La identificación de las predicciones como estimaciones, no como mediciones directas.
-
-La presencia del archivo `.pkl` no implica que el modelo ya esté integrado en el backend. Esta funcionalidad depende de la implementación del mecanismo de inferencia.
+- Que el formulario de cotización recoja las variables que el modelo necesita, o que el dataset se alinee con las variables y tipos del cotizador.
 
 ---
 
@@ -447,7 +481,7 @@ Facilita el análisis de materiales reciclados, las características de fabricac
 
 ### ODS 13 — Acción por el clima
 
-Incorpora el análisis y la estimación de emisiones de CO₂ como apoyo para la evaluación ambiental de productos y procesos industriales.
+Incorpora la estimación de emisiones de CO₂ en el cotizador y un análisis predictivo de las emisiones como apoyo para la evaluación ambiental de productos y procesos industriales.
 
 ---
 

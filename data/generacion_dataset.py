@@ -4,7 +4,8 @@ Dataset derivado de factores de emisión documentados:
 - Densidad del vidrio: 2500 kg/m3 -> masa_kg = area_m2 * espesor_mm * 2.5
 - Factor red eléctrica Colombia: ~0.25 kg CO2/kWh
 - El calcín reduce ~2.5% de energía por cada 10% y sustituye CO2 de materia prima.
-Los 20 tipos de vidrio y sus multiplicadores son fieles al catálogo de SmartGlass.
+Los 20 tipos de vidrio y sus multiplicadores son propios de este dataset; no coinciden con
+los 7 tipos ni con los factores del cotizador web (AnalisisService).
 Reproducible
 """
 import os

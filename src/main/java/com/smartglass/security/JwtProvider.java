@@ -19,10 +19,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * JwtPorvider corregido.
- *
- * Nota:
- * Se mantiene el nombre JwtPorvider para no romper referencias existentes.
+ * Proveedor de JWT (firma y validacion con HMAC-SHA256).
+ * El secreto llega de la variable de entorno JWT_SECRET (smartglass.jwt.secret).
  *
  * Mejora:
  * - Se agrega metodo para generar token incluyendo roles.
