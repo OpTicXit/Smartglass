@@ -228,12 +228,18 @@ public class NotificacionService {
         return r;
     }
 
+    /** U1: nombre del producto en ingles si lo tiene (mismo criterio que ContenidoLocalizado). */
+    private static String nombre(CatalogoProducto p, Locale locale) {
+        boolean en = locale != null && "en".equals(locale.getLanguage());
+        return en && p.getNombreEn() != null && !p.getNombreEn().isBlank() ? p.getNombreEn() : p.getNombre();
+    }
+
     private List<Map<String, Object>> ofertas(Locale locale) {
         List<Map<String, Object>> lista = new ArrayList<>();
         for (CatalogoProducto p : productoService.obtenerTodos()) {
             if (!p.isOfertaVigente() || p.isAgotado()) continue;
             lista.add(Map.of("texto", messageSource.getMessage("notif.oferta_item",
-                            new Object[]{p.getNombre(), pesos(p.getPrecioVigente()), String.valueOf(p.getDescuentoPorcentaje())}, locale),
+                            new Object[]{nombre(p, locale), pesos(p.getPrecioVigente()), String.valueOf(p.getDescuentoPorcentaje())}, locale),
                     "enlace", "/detalle/" + p.getId()));
             if (lista.size() == 4) break;
         }
@@ -248,7 +254,7 @@ public class NotificacionService {
                 CatalogoProducto p = productoService.obtenerPorIdOrNull((String) fila[0]);
                 if (p == null) continue;
                 lista.add(Map.of("texto", messageSource.getMessage("notif.vendido_item",
-                                new Object[]{p.getNombre(), String.valueOf(((Number) fila[1]).longValue())}, locale),
+                                new Object[]{nombre(p, locale), String.valueOf(((Number) fila[1]).longValue())}, locale),
                         "enlace", "/detalle/" + p.getId()));
                 if (lista.size() == 3) break;
             }

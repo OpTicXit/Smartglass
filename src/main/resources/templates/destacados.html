@@ -69,7 +69,7 @@
             <span class="foto-pendiente" th:if="${producto.imagenPendiente}" th:text="#{destacados.foto_en_preparacion}">Foto en preparación</span>
             <div class="galeria-overlay">
                 <div>
-                    <h2 th:text="${producto.nombre}">Producto</h2>
+                    <h2 th:text="${@contenido.nombre(producto)}">Producto</h2>
                     <span class="precio" th:text="'$' + ${producto.precioVigenteFormateado}">$0</span>
                 </div>
                 <span class="galeria-ver" aria-hidden="true"><i class="ph ph-arrow-right"></i></span>

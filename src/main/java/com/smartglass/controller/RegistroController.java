@@ -1,5 +1,7 @@
 package com.smartglass.controller;
 
+import com.smartglass.service.Textos;
+
 import com.smartglass.dto.RegistroRequest;
 import com.smartglass.repository.mysql.UsuarioRepository;
 import com.smartglass.service.AuthService;
@@ -36,10 +38,12 @@ public class RegistroController {
 
     private final AuthService authService;
     private final UsuarioRepository usuarioRepository;
+    private final Textos textos;
 
-    public RegistroController(AuthService authService, UsuarioRepository usuarioRepository) {
+    public RegistroController(AuthService authService, UsuarioRepository usuarioRepository, Textos textos) {
         this.authService = authService;
         this.usuarioRepository = usuarioRepository;
+        this.textos = textos;
     }
 
     /**
@@ -55,12 +59,12 @@ public class RegistroController {
         if (email != null && !email.isBlank()) {
             boolean libre = !usuarioRepository.existsByEmail(email.trim().toLowerCase(Locale.ROOT));
             respuesta.put("emailDisponible", libre);
-            respuesta.put("emailMensaje", libre ? "" : "Ya existe una cuenta con ese correo.");
+            respuesta.put("emailMensaje", libre ? "" : textos.t("auth.email_existe"));
         }
         if (username != null && !username.isBlank()) {
             boolean libre = !usuarioRepository.existsByUsername(username.trim().toLowerCase(Locale.ROOT));
             respuesta.put("usernameDisponible", libre);
-            respuesta.put("usernameMensaje", libre ? "" : "Ese nombre de usuario ya está en uso.");
+            respuesta.put("usernameMensaje", libre ? "" : textos.t("auth.usuario_en_uso"));
         }
         return respuesta;
     }
@@ -68,7 +72,7 @@ public class RegistroController {
     @GetMapping("/registro")
     public String mostrarFormulario(@RequestParam(required = false) String limite, Model model) {
         if (limite != null) {
-            model.addAttribute("error", "Demasiados intentos seguidos. Espera un minuto y vuelve a intentar.");
+            model.addAttribute("error", textos.t("flash.demasiados_intentos"));
         }
         return "registro";
     }
@@ -87,10 +91,10 @@ public class RegistroController {
         }
         try {
             authService.register(request);
-            ra.addFlashAttribute("mensaje", "Cuenta creada. Ya puedes iniciar sesión.");
+            ra.addFlashAttribute("mensaje", textos.t("flash.cuenta_creada"));
             return "redirect:/login";
         } catch (IllegalStateException ex) {
-            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("error", textos.traducir(ex.getMessage()));
             return "registro";
         }
     }

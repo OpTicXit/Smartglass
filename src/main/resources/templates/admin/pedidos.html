@@ -149,7 +149,7 @@
             celda.querySelector('.estado-msg').textContent = cambio ? 'Sin guardar' : '';
             var btn = celda.querySelector('button');
             btn.disabled = enviando || n === 0;
-            btn.textContent = n > 1 ? 'Guardar (' + n + ')' : 'Guardar';
+            btn.textContent = n > 1 ? sgT('adm_guardar_n', 'Guardar ({0})', n) : sgT('adm_guardar', 'Guardar');
         });
     }
 
@@ -160,7 +160,7 @@
     form.addEventListener('submit', function (event) {
         if (!pendientes().length) {
             event.preventDefault();
-            avisar('No hay cambios por guardar.');
+            avisar(sgT('adm_sin_cambios', 'No hay cambios por guardar.'));
             return;
         }
         enviando = true;

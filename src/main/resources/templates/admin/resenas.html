@@ -223,6 +223,51 @@
     <noscript><p class="rv-empty" th:text="#{admin.resenas.activa_javascript_para_ver_las}">Activa JavaScript para ver las reseñas.</p></noscript>
 </div>
 
+<script th:inline="javascript">
+/* U1: textos del panel de resenas en el idioma activo (los {0} se rellenan en RV()) */
+window.RV_TXT = {
+    sin_producto: /*[[#{adminjs.rv.sin_producto}]]*/ 'Sin producto asociado',
+    producto_eliminado: /*[[#{adminjs.rv.producto_eliminado}]]*/ 'Producto eliminado (…{0})',
+    vacio: /*[[#{adminjs.rv.vacio}]]*/ 'Todavía no hay reseñas en el sistema.',
+    buscar_producto: /*[[#{adminjs.rv.buscar_producto}]]*/ 'Buscar producto…',
+    buscar_producto_aria: /*[[#{adminjs.rv.buscar_producto_aria}]]*/ 'Buscar producto',
+    ordenar: /*[[#{adminjs.rv.ordenar}]]*/ 'Ordenar productos',
+    o_bajas: /*[[#{adminjs.rv.o_bajas}]]*/ 'Más reseñas bajas primero',
+    o_nombre: /*[[#{adminjs.rv.o_nombre}]]*/ 'Nombre (A–Z)',
+    o_cantidad: /*[[#{adminjs.rv.o_cantidad}]]*/ 'Más reseñas',
+    o_mejor: /*[[#{adminjs.rv.o_mejor}]]*/ 'Mejor promedio',
+    o_peor: /*[[#{adminjs.rv.o_peor}]]*/ 'Peor promedio',
+    sin_coincidencias: /*[[#{adminjs.rv.sin_coincidencias}]]*/ 'Ningún producto coincide con la búsqueda.',
+    resena_1: /*[[#{adminjs.rv.resena_1}]]*/ '{0} reseña',
+    resena_n: /*[[#{adminjs.rv.resena_n}]]*/ '{0} reseñas',
+    baja_1: /*[[#{adminjs.rv.baja_1}]]*/ '{0} baja (1–2 ★)',
+    baja_n: /*[[#{adminjs.rv.baja_n}]]*/ '{0} bajas (1–2 ★)',
+    sin_bajas: /*[[#{adminjs.rv.sin_bajas}]]*/ 'Sin reseñas bajas',
+    revisar: /*[[#{adminjs.rv.revisar}]]*/ 'Revisar',
+    todo_bien: /*[[#{adminjs.rv.todo_bien}]]*/ 'Todo bien',
+    total: /*[[#{adminjs.rv.total}]]*/ 'Reseñas en total',
+    productos: /*[[#{adminjs.rv.productos}]]*/ 'Productos con reseñas',
+    promedio: /*[[#{adminjs.rv.promedio}]]*/ 'Promedio general',
+    bajas: /*[[#{adminjs.rv.bajas}]]*/ 'Reseñas bajas (1–2 ★)',
+    buscar_comentarios: /*[[#{adminjs.rv.buscar_comentarios}]]*/ 'Buscar en los comentarios…',
+    buscar_comentarios_aria: /*[[#{adminjs.rv.buscar_comentarios_aria}]]*/ 'Buscar en los comentarios',
+    filtrar_estrellas: /*[[#{adminjs.rv.filtrar_estrellas}]]*/ 'Filtrar reseñas de {0} estrellas',
+    filtro: /*[[#{adminjs.rv.filtro}]]*/ 'Filtro: {0} ★ ✕',
+    sin_filtro: /*[[#{adminjs.rv.sin_filtro}]]*/ 'No hay reseñas con ese filtro.',
+    eliminar: /*[[#{adminjs.rv.eliminar}]]*/ 'Eliminar',
+    eliminar_t: /*[[#{adminjs.rv.eliminar_t}]]*/ '¿Eliminar esta reseña?',
+    eliminar_d: /*[[#{adminjs.rv.eliminar_d}]]*/ 'El comentario dejará de mostrarse en la ficha del producto.',
+    pag_ant: /*[[#{adminjs.rv.pag_ant}]]*/ 'Página anterior',
+    pag_sig: /*[[#{adminjs.rv.pag_sig}]]*/ 'Página siguiente',
+    mostrando: /*[[#{adminjs.rv.mostrando}]]*/ 'Mostrando {0}–{1} de {2}',
+    todos: /*[[#{adminjs.rv.todos}]]*/ '← Todos los productos',
+    ver_producto: /*[[#{adminjs.rv.ver_producto}]]*/ 'Ver producto',
+    col_cliente: /*[[#{adminjs.rv.col_cliente}]]*/ 'Cliente',
+    col_calif: /*[[#{adminjs.rv.col_calif}]]*/ 'Calificación',
+    col_coment: /*[[#{adminjs.rv.col_coment}]]*/ 'Comentario',
+    col_fecha: /*[[#{adminjs.rv.col_fecha}]]*/ 'Fecha'
+};
+</script>
 <script>
 (function () {
     var POR_PAGINA = 10;
@@ -272,10 +317,17 @@
         g.items.sort(function (a, b) { return a.fecha < b.fecha ? 1 : (a.fecha > b.fecha ? -1 : 0); });
     });
 
+    /* U1: textos del diccionario RV_TXT (servidor, idioma activo) y decimales con coma (D2) */
+    function RV(k) {
+        var s = (window.RV_TXT && window.RV_TXT[k]) || k, a = [].slice.call(arguments, 1);
+        return s.replace(/\{(\d+)\}/g, function (m, i) { return a[i] != null ? a[i] : m; });
+    }
+    function dec1(v) { return v.toFixed(1).replace('.', ','); }
+
     function nombreDe(g) {
         if (g.nombre) return g.nombre;
-        if (!g.id) return 'Sin producto asociado';
-        return 'Producto eliminado (\u2026' + g.id.slice(-4) + ')';
+        if (!g.id) return RV('sin_producto');
+        return RV('producto_eliminado', g.id.slice(-4));
     }
 
     /* ---------- Utilidades de DOM ---------- */
@@ -341,7 +393,7 @@
     /* ---------- Vista general: una tarjeta por producto ---------- */
     function vistaGeneral() {
         if (!datos.length) {
-            app.replaceChildren(h('div', { class: 'rv-empty', text: 'Todavía no hay reseñas en el sistema.' }));
+            app.replaceChildren(h('div', { class: 'rv-empty', text: RV('vacio') }));
             return;
         }
 
@@ -349,13 +401,13 @@
         var prom = datos.reduce(function (a, d) { return a + d.n; }, 0) / total;
         var bajas = datos.filter(function (d) { return d.n <= 2; }).length;
 
-        var buscador = h('input', { type: 'search', class: 'rv-input', placeholder: 'Buscar producto…', 'aria-label': 'Buscar producto' });
-        var orden = h('select', { 'aria-label': 'Ordenar productos' },
-            h('option', { value: 'bajas', text: 'Más reseñas bajas primero' }),
-            h('option', { value: 'nombre', text: 'Nombre (A–Z)' }),
-            h('option', { value: 'cantidad', text: 'Más reseñas' }),
-            h('option', { value: 'mejor', text: 'Mejor promedio' }),
-            h('option', { value: 'peor', text: 'Peor promedio' })
+        var buscador = h('input', { type: 'search', class: 'rv-input', placeholder: RV('buscar_producto'), 'aria-label': RV('buscar_producto_aria') });
+        var orden = h('select', { 'aria-label': RV('ordenar') },
+            h('option', { value: 'bajas', text: RV('o_bajas') }),
+            h('option', { value: 'nombre', text: RV('o_nombre') }),
+            h('option', { value: 'cantidad', text: RV('o_cantidad') }),
+            h('option', { value: 'mejor', text: RV('o_mejor') }),
+            h('option', { value: 'peor', text: RV('o_peor') })
         );
         var cuadricula = h('div', { class: 'rv-grid' });
 
@@ -373,7 +425,7 @@
             });
 
             if (!lista.length) {
-                cuadricula.replaceChildren(h('div', { class: 'rv-empty', text: 'Ningún producto coincide con la búsqueda.' }));
+                cuadricula.replaceChildren(h('div', { class: 'rv-empty', text: RV('sin_coincidencias') }));
                 return;
             }
 
@@ -381,13 +433,13 @@
                 return h('button', { type: 'button', class: 'rv-card', onclick: function () { abrir(g.id); } },
                     h('h3', { text: nombreDe(g) }),
                     h('div', { class: 'rv-meta' },
-                        h('span', { class: 'rv-avg', text: estrellas(g.prom) + ' ' + g.prom.toFixed(1) }),
-                        h('span', { text: g.total + ' reseña' + (g.total === 1 ? '' : 's') })
+                        h('span', { class: 'rv-avg', text: estrellas(g.prom) + ' ' + dec1(g.prom) }),
+                        h('span', { text: RV(g.total === 1 ? 'resena_1' : 'resena_n', g.total) })
                     ),
                     barra(g),
                     h('div', { class: 'rv-meta' },
-                        h('span', { text: g.bajas ? g.bajas + ' baja' + (g.bajas === 1 ? '' : 's') + ' (1–2 ★)' : 'Sin reseñas bajas' }),
-                        h('span', { class: 'badge ' + (g.bajas ? 'badge-error' : 'badge-success'), text: g.bajas ? 'Revisar' : 'Todo bien' })
+                        h('span', { text: g.bajas ? RV(g.bajas === 1 ? 'baja_1' : 'baja_n', g.bajas) : RV('sin_bajas') }),
+                        h('span', { class: 'badge ' + (g.bajas ? 'badge-error' : 'badge-success'), text: g.bajas ? RV('revisar') : RV('todo_bien') })
                     )
                 );
             }));
@@ -398,10 +450,10 @@
 
         app.replaceChildren(
             h('div', { class: 'rv-stats' },
-                stat(total, 'Reseñas en total'),
-                stat(grupos.length, 'Productos con reseñas'),
-                stat(prom.toFixed(1) + ' ★', 'Promedio general'),
-                stat(bajas, 'Reseñas bajas (1–2 ★)')
+                stat(total, RV('total')),
+                stat(grupos.length, RV('productos')),
+                stat(dec1(prom) + ' ★', RV('promedio')),
+                stat(bajas, RV('bajas'))
             ),
             h('div', { class: 'rv-toolbar' }, buscador, orden),
             cuadricula
@@ -419,7 +471,7 @@
         var pie = h('div', { class: 'rv-pager' });
         var distEl = h('div', { class: 'rv-dist' });
         var chipEl = h('span');
-        var buscador = h('input', { type: 'search', class: 'rv-input', placeholder: 'Buscar en los comentarios…', 'aria-label': 'Buscar en los comentarios', value: sel.q });
+        var buscador = h('input', { type: 'search', class: 'rv-input', placeholder: RV('buscar_comentarios'), 'aria-label': RV('buscar_comentarios_aria'), value: sel.q });
 
         function visibles() {
             var q = norm(sel.q.trim());
@@ -439,7 +491,7 @@
                         type: 'button',
                         class: sel.filtro === n ? 'activo' : false,
                         disabled: cant === 0,
-                        'aria-label': 'Filtrar reseñas de ' + n + ' estrellas',
+                        'aria-label': RV('filtrar_estrellas', n),
                         onclick: function () { sel.filtro = sel.filtro === n ? 0 : n; sel.pag = 1; pintar(); }
                     },
                         h('span', { text: n + ' \u2605' }),
@@ -452,7 +504,7 @@
             chipEl.replaceChildren();
             if (sel.filtro) {
                 chipEl.append(h('button', { type: 'button', class: 'rv-filtro-chip', onclick: function () { sel.filtro = 0; sel.pag = 1; pintar(); } },
-                    'Filtro: ' + sel.filtro + ' ★ \u2715'));
+                    RV('filtro', sel.filtro)));
             }
         }
 
@@ -474,15 +526,15 @@
             var pagina = lista.slice(ini, ini + POR_PAGINA);
 
             if (!pagina.length) {
-                cuerpo.replaceChildren(h('tr', null, h('td', { colspan: '5', class: 'rv-empty', text: 'No hay reseñas con ese filtro.' })));
+                cuerpo.replaceChildren(h('tr', null, h('td', { colspan: '5', class: 'rv-empty', text: RV('sin_filtro') })));
             } else {
                 cuerpo.replaceChildren.apply(cuerpo, pagina.map(function (d) {
                     var f = d.form.cloneNode(true);
-                    f.append(h('button', { type: 'submit', class: 'btn-eliminar', text: 'Eliminar' }));
+                    f.append(h('button', { type: 'submit', class: 'btn-eliminar', text: RV('eliminar') }));
                     // main.js pide la confirmacion (data-confirm) antes de que llegue este submit
-                    f.setAttribute('data-confirm-title', '¿Eliminar esta reseña?');
-                    f.setAttribute('data-confirm', 'El comentario dejará de mostrarse en la ficha del producto.');
-                    f.setAttribute('data-confirm-ok', 'Eliminar');
+                    f.setAttribute('data-confirm-title', RV('eliminar_t'));
+                    f.setAttribute('data-confirm', RV('eliminar_d'));
+                    f.setAttribute('data-confirm-ok', RV('eliminar'));
                     f.addEventListener('submit', function () {
                         try { sessionStorage.setItem(CLAVE_SEL, JSON.stringify({ p: g.id, pag: sel.pag, filtro: sel.filtro, q: sel.q })); } catch (x) {}
                     });
@@ -499,16 +551,16 @@
             var desde = lista.length ? ini + 1 : 0;
             var hasta = Math.min(ini + POR_PAGINA, lista.length);
             var botones = [
-                h('button', { type: 'button', disabled: sel.pag === 1, 'aria-label': 'Página anterior', onclick: function () { sel.pag--; pintar(); }, text: '\u2039' })
+                h('button', { type: 'button', disabled: sel.pag === 1, 'aria-label': RV('pag_ant'), onclick: function () { sel.pag--; pintar(); }, text: '\u2039' })
             ];
             paginas(paginasTotal, sel.pag).forEach(function (p) {
                 if (p === '\u2026') botones.push(h('span', { text: p }));
                 else botones.push(h('button', { type: 'button', class: p === sel.pag ? 'activo' : false, 'aria-current': p === sel.pag ? 'page' : false, onclick: function () { sel.pag = p; pintar(); }, text: String(p) }));
             });
-            botones.push(h('button', { type: 'button', disabled: sel.pag === paginasTotal, 'aria-label': 'Página siguiente', onclick: function () { sel.pag++; pintar(); }, text: '\u203A' }));
+            botones.push(h('button', { type: 'button', disabled: sel.pag === paginasTotal, 'aria-label': RV('pag_sig'), onclick: function () { sel.pag++; pintar(); }, text: '\u203A' }));
 
             pie.replaceChildren(
-                h('span', { text: 'Mostrando ' + desde + '–' + hasta + ' de ' + lista.length + ' reseña' + (lista.length === 1 ? '' : 's') }),
+                h('span', { text: RV('mostrando', desde, hasta, RV(lista.length === 1 ? 'resena_1' : 'resena_n', lista.length)) }),
                 paginasTotal > 1 ? h('div', { class: 'rv-pages' }, botones) : null
             );
         }
@@ -516,23 +568,23 @@
         buscador.addEventListener('input', function () { sel.q = buscador.value; sel.pag = 1; pintar(); });
 
         app.replaceChildren(
-            h('button', { type: 'button', class: 'btn-volver rv-back', onclick: volver, text: '← Todos los productos' }),
+            h('button', { type: 'button', class: 'btn-volver rv-back', onclick: volver, text: RV('todos') }),
             h('div', { class: 'rv-prod-head' },
                 h('h2', { text: nombreDe(g) }),
-                g.nombre ? h('a', { class: 'ver', href: g.ver, text: 'Ver producto' }) : null
+                g.nombre ? h('a', { class: 'ver', href: g.ver, text: RV('ver_producto') }) : null
             ),
             h('div', { class: 'rv-summary' },
                 h('div', null,
-                    h('div', { class: 'rv-big', text: g.prom.toFixed(1) }),
+                    h('div', { class: 'rv-big', text: dec1(g.prom) }),
                     h('div', { class: 'rv-big-stars', text: estrellas(g.prom) }),
-                    h('div', { class: 'rv-big-count', text: g.total + ' reseña' + (g.total === 1 ? '' : 's') })
+                    h('div', { class: 'rv-big-count', text: RV(g.total === 1 ? 'resena_1' : 'resena_n', g.total) })
                 ),
                 distEl
             ),
             h('div', { class: 'rv-toolbar' }, buscador, chipEl),
             h('div', { class: 'table-wrap' }, h('table', { class: 'table-admin rv-tabla' },
                 h('thead', null, h('tr', null,
-                    h('th', { text: 'Cliente' }), h('th', { text: 'Calificación' }), h('th', { text: 'Comentario' }), h('th', { text: 'Fecha' }), h('th')
+                    h('th', { text: RV('col_cliente') }), h('th', { text: RV('col_calif') }), h('th', { text: RV('col_coment') }), h('th', { text: RV('col_fecha') }), h('th')
                 )),
                 cuerpo
             )),

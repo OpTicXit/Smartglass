@@ -1,5 +1,7 @@
 package com.smartglass.controller;
 
+import com.smartglass.service.Textos;
+
 import com.smartglass.model.mongo.VidrioSostenible;
 import com.smartglass.model.mysql.Pedido;
 import com.smartglass.model.mysql.Usuario;
@@ -27,10 +29,12 @@ public class CheckoutController {
     private final UsuarioRepository usuarioRepository;
     private final VidrioSostenibleService vidrioSostenibleService;
     private final PlanService plan;
+    private final Textos textos;
 
     public CheckoutController(CarritoService carritoService, PedidoService pedidoService, UsuarioRepository usuarioRepository,
-                              VidrioSostenibleService vidrioSostenibleService, PlanService plan) {
+                              VidrioSostenibleService vidrioSostenibleService, PlanService plan, Textos textos) {
         this.plan = plan;
+        this.textos = textos;
         this.carritoService = carritoService;
         this.pedidoService = pedidoService;
         this.usuarioRepository = usuarioRepository;
@@ -92,7 +96,7 @@ public class CheckoutController {
             session.setAttribute("ultimoPedidoId", pedido.getId());
             return "redirect:/checkout/confirmacion/" + pedido.getId();
         } catch (Exception e) {
-            ra.addFlashAttribute("mensaje", "Error al procesar el pedido: " + e.getMessage());
+            ra.addFlashAttribute("mensaje", textos.t("flash.pedido_error", textos.traducir(e.getMessage())));
             ra.addFlashAttribute("tipoMensaje", "error");
             return "redirect:/checkout";
         }
@@ -110,7 +114,7 @@ public class CheckoutController {
                     return "pedido-confirmacion";
                 })
                 .orElseGet(() -> {
-                    ra.addFlashAttribute("mensaje", "No tienes permisos para ver este pedido.");
+                    ra.addFlashAttribute("mensaje", textos.t("flash.sin_permiso_pedido"));
                     ra.addFlashAttribute("tipoMensaje", "error");
                     return "redirect:/checkout/mis-pedidos";
                 });
@@ -149,7 +153,7 @@ public class CheckoutController {
                     return "factura";
                 })
                 .orElseGet(() -> {
-                    ra.addFlashAttribute("mensaje", "No tienes permisos para ver este documento.");
+                    ra.addFlashAttribute("mensaje", textos.t("flash.sin_permiso_documento"));
                     ra.addFlashAttribute("tipoMensaje", "error");
                     return "redirect:/checkout/mis-pedidos";
                 });

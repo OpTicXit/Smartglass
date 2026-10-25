@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FieldMatch {
-    String message() default "Los campos no coinciden";
+    String message() default "{valid.campos_no_coinciden}";
     String first();
     String second();
     Class<?>[] groups() default {};

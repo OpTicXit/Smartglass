@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UsernameValido {
-    String message() default "El usuario debe tener 3–20 caracteres (minúsculas, dígitos, punto, guion) y no ser un nombre reservado";
+    String message() default "{valid.username}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

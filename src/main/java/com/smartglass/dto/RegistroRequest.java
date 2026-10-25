@@ -16,12 +16,12 @@ import java.util.Locale;
  * "website" es el campo trampa (honeypot): un usuario real nunca lo ve ni lo llena.
  */
 @PasswordValida
-@FieldMatch(first = "password", second = "confirmPassword", message = "Las contraseñas no coinciden")
+@FieldMatch(first = "password", second = "confirmPassword", message = "{valid.passwords_no_coinciden}")
 public class RegistroRequest {
 
-    @NotBlank(message = "Ingresa tu nombre")
+    @NotBlank(message = "{valid.nombre_requerido}")
     @Pattern(regexp = "^[A-Za-zÁÉÍÓÚÑÜáéíóúñü' -]{2,100}$",
-            message = "El nombre solo puede tener letras, espacios, apóstrofo y guion (2 a 100 caracteres)")
+            message = "{valid.nombre_formato}")
     private String nombre;
 
     @EmailValido

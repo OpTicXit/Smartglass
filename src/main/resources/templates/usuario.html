@@ -108,8 +108,8 @@
                     <img th:src="@{${producto.imagenUrl}}" alt="" loading="lazy">
                 </a>
                 <div class="producto-cuerpo">
-                    <h3><a th:href="@{/detalle/{id}(id=${producto.id})}" th:text="${producto.nombre}">Vidrio</a></h3>
-                    <p class="detalle" th:text="${producto.descripcionCorta}">Descripción</p>
+                    <h3><a th:href="@{/detalle/{id}(id=${producto.id})}" th:text="${@contenido.nombre(producto)}">Vidrio</a></h3>
+                    <p class="detalle" th:text="${@contenido.descripcionCorta(producto)}">Descripción</p>
                     <div class="precio-badge" th:text="'$' + ${producto.precioVigenteFormateado}">$0</div>
                 </div>
             </article>

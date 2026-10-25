@@ -438,13 +438,13 @@
                 <div class="campo">
                     <label for="usoPrincipal" th:text="#{cotizar.uso_principal}">Uso principal</label>
                     <select name="usoPrincipal" id="usoPrincipal">
-                        <optgroup label="Residencial e interiores">
+                        <optgroup label="Residencial e interiores" th:label="#{cotizar.grupo_residencial}">
                             <option value="Mobiliario" th:text="#{cotizar.cubierta_de_mesa_mueble}">Cubierta de mesa / mueble</option>
                             <option value="Ducha" th:text="#{cotizar.division_de_bano_ducha}">División de baño / ducha</option>
                             <option value="Espejo" th:text="#{cotizar.espejo_decorativo}">Espejo decorativo</option>
                             <option value="Repisa" th:text="#{cotizar.repisa_estanteria}">Repisa / estantería</option>
                         </optgroup>
-                        <optgroup label="Arquitectónico y exterior">
+                        <optgroup label="Arquitectónico y exterior" th:label="#{cotizar.grupo_arquitectonico}">
                             <option value="Ventana" th:text="#{cotizar.ventana_residencial_comercial}">Ventana (residencial/comercial)</option>
                             <option value="Puerta" th:text="#{cotizar.puerta_de_vidrio}">Puerta de vidrio</option>
                             <option value="Baranda" th:text="#{cotizar.baranda_pasamanos_balcon}">Baranda / pasamanos / balcón</option>

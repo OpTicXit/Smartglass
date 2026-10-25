@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con T6 · despliegue escrito). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con U1 · idiomas escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue **sin commitear**). No se ha subido nada (`push`).
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas **sin commitear**). No se ha subido nada (`push`).
 
 ## Leyenda
 
@@ -177,6 +177,22 @@ Seis tandas con gate: T1 responsive → T2 plano y cotizaciones → T3 sostenibi
 | Fotos subidas en carpeta configurable (`UPLOADS_DIR`) para montar un volumen persistente | 🧪 ESCRITO (foto servida desde la carpeta del perfil prod) | `UploadsWebConfig`, `AdminController` |
 | Guía `DESPLIEGUE.md`: plataforma recomendada (Railway), variables, pasos, migración de datos (`mongodump --db test` → Atlas), Google Cloud y comprobaciones | 🧪 ESCRITO | `DESPLIEGUE.md`; enlace en `README.md` |
 | Pendiente del equipo: rotar los secretos del historial (H01) antes de subir el repositorio, push y crear los servicios en la plataforma | POR HACER | — |
+
+## Optimización antes del despliegue (rama `optimizacion-pre-despliegue`)
+
+Seis tandas con gate: U1 idiomas → U2 rendimiento → U3 SaaS visible (plan editable por cualquier admin, página pública de planes y preview animada) → U4 CO₂ por etapas (cambio de contrato aprobado) → U5 inmersión → U6 guía automatizada (simulada, sin guardar datos; termina en el inicio de sesión).
+
+### U1 · Idiomas en todo el proyecto
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Catálogo en inglés: `nombreEn` / `descripcionEn` en cada producto; el seeder rellena los 27 productos sembrados sin pisar lo que escriba el admin; el formulario de nuevo producto los pide (opcionales) | 🧪 ESCRITO (rastreo en inglés: catálogo, destacados, comparador y detalle sin español) | `CatalogoProducto`, `TraduccionesCatalogoSeeder`, `ContenidoLocalizado` (bean `@contenido`) |
+| Carrito: productos copiados antes de U1 se resuelven por id; obras a medida "Templado · obra a medida" con el tipo traducido | 🧪 ESCRITO | `ContenidoLocalizado.nombre` |
+| Recomendación del análisis (7 frases fijas de `AnalisisService`) traducida al mostrarla, sin tocar el cálculo | 🧪 ESCRITO | `ContenidoLocalizado.recomendacion` |
+| Avisos del servidor (admin, carrito, pago, registro, tienda), errores de `AuthService`/`PedidoService`/`ResenaService` y validaciones del registro con claves i18n | 🧪 ESCRITO (registro inválido en inglés: "Invalid phone number…") | `Textos`, validadores `{valid.*}` |
+| Scripts del admin (reseñas, pedidos, productos) y 3 textos fijos de plantillas | 🧪 ESCRITO | `RV_TXT` en `admin/resenas.html`; `SG_TXT` |
+| Reseñas: texto de los clientes, no se traduce; en inglés se avisa "Reviews are shown in the language they were written in." | 🧪 ESCRITO | `detalle.html` |
+| Páginas con sesión en inglés: Mis cotizaciones, Mis pedidos, cuenta, checkout, factura, confirmación, ficha y panel admin; líneas de pedido y nombres de producto del admin traducidos (los pedidos guardan el nombre de la compra y se muestra en el idioma activo) | 🧪 ESCRITO (rastreo con sesión: solo quedan reseñas y nombres de personas) | `ContenidoLocalizado.nombrePedido`, `AdminController` (reseñas) |
 
 ### Decisiones D1–D4
 

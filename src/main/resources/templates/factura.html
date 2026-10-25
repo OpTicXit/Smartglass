@@ -139,7 +139,7 @@
         </thead>
         <tbody>
             <tr th:each="detalle : ${pedido.detalles}">
-                <td class="item-nombre" th:text="${detalle.nombreProducto}">Producto</td>
+                <td class="item-nombre" th:text="${@contenido.nombrePedido(detalle)}">Producto</td>
                 <td class="centro" th:text="${detalle.cantidad}">1</td>
                 <td class="num" th:text="${detalle.precioUnitarioFormateado}">$0</td>
                 <td class="num" th:text="${detalle.subtotalFormateado}">$0</td>

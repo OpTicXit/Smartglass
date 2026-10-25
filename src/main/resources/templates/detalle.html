@@ -2,7 +2,7 @@
 <html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{detalle.titulo_pagina(${producto.nombre})}">SmartGlass - Detalle del producto</title>
+    <title th:text="#{detalle.titulo_pagina(${@contenido.nombre(producto)})}">SmartGlass - Detalle del producto</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
     <style>
@@ -56,6 +56,7 @@
         .resenas-section { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: clamp(24px, 4vw, 48px); align-items: start; padding-top: 48px; border-top: 1px solid var(--border-color); }
         .resenas-resumen { position: sticky; top: calc(var(--nav-h, 68px) + 20px); }
         .resenas-resumen h2 { margin: 0 0 18px; font-size: var(--fs-xl); }
+        .resenas-idioma { margin: -10px 0 16px; color: var(--text-muted); font-size: 0.85rem; }
         .promedio-box { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
         .promedio-valor { font-family: var(--font-display); font-size: 3.2rem; font-weight: 700; line-height: 1; letter-spacing: -0.04em; }
         .promedio-box .estrellas { display: block; font-size: 1.15rem; }
@@ -99,7 +100,7 @@
     <section class="detalle-grid">
         <div class="galeria-producto" data-galeria>
             <div class="imagen-principal" th:classappend="${producto.imagenPendiente} ? 'img-pendiente'">
-                <img th:src="@{${producto.imagenUrl}}" th:alt="${producto.nombre}" alt="" data-galeria-principal>
+                <img th:src="@{${producto.imagenUrl}}" th:alt="${@contenido.nombre(producto)}" alt="" data-galeria-principal>
                 <span class="foto-pendiente" th:if="${producto.imagenPendiente}" th:text="#{detalle.foto_en_preparacion}">Foto en preparación</span>
             </div>
             <!-- T2: miniaturas solo si hay galeria real (archivos que existen) -->
@@ -113,7 +114,7 @@
         </div>
 
         <div class="info-producto">
-            <h1 th:text="${producto.nombre}">Nombre del producto</h1>
+            <h1 th:text="${@contenido.nombre(producto)}">Nombre del producto</h1>
 
             <div class="info-meta">
                 <span class="codigo-badge" th:text="${producto.codigo}">SKU-000</span>
@@ -151,7 +152,7 @@
             <!-- T2: agotado = mensaje explicito + boton deshabilitado (no solo gris) -->
             <div th:if="${producto.agotado}" class="compra compra-agotada" role="status">
                 <button type="button" class="btn btn-secondary btn-lg" disabled
-                        th:attr="aria-label=#{comercio.aria_agotado(${producto.nombre})}">
+                        th:with="nomLoc=${@contenido.nombre(producto)}" th:attr="aria-label=#{comercio.aria_agotado(${nomLoc})}">
                     <i class="ph ph-prohibit" aria-hidden="true"></i> <span th:text="#{comercio.agotado}">Agotado</span>
                 </button>
                 <p class="precio-nota" th:text="#{comercio.agotado_detalle}">Sin unidades por ahora. Vuelve pronto o diseña una pieza a medida.</p>
@@ -183,6 +184,8 @@
     <section class="resenas-section" id="resenas" aria-labelledby="titulo-resenas">
         <div class="resenas-resumen">
             <h2 id="titulo-resenas" th:text="#{detalle.opiniones_de_clientes}">Opiniones de clientes</h2>
+            <!-- U1: las resenas son texto de los clientes y no se traducen -->
+            <p class="resenas-idioma" th:if="${#locale.language == 'en'}" th:text="#{detalle.resenas_idioma_original}">Reviews are shown in their original language.</p>
             <div class="promedio-box">
                 <span class="promedio-valor" th:text="${promedioCalificacion}">0.0</span>
                 <div>
@@ -216,7 +219,7 @@
                     <div class="form-group">
                         <label for="comentario" th:text="#{detalle.tu_comentario}">Tu comentario</label>
                         <textarea name="comentario" id="comentario" rows="4" maxlength="1000"
-                                  placeholder="¿Qué te pareció la calidad y el acabado de este vidrio?"
+                                  placeholder="¿Qué te pareció la calidad y el acabado de este vidrio?" th:placeholder="#{detalle.comentario_placeholder}"
                                   th:text="${miResena != null ? miResena.comentario : ''}"></textarea>
                     </div>
 

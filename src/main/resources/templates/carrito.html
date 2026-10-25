@@ -90,11 +90,11 @@
         <ul class="items-lista">
             <li th:each="item : ${items}" class="item-carrito">
                 <div class="item-imagen">
-                    <img th:src="@{${item.producto.imagenUrl}}" th:alt="${item.producto.nombre}" alt="">
+                    <img th:src="@{${item.producto.imagenUrl}}" th:alt="${@contenido.nombre(item.producto)}" alt="">
                 </div>
 
                 <div class="item-info">
-                    <h2 th:text="${item.producto.nombre}">Nombre de vidrio</h2>
+                    <h2 th:text="${@contenido.nombre(item.producto)}">Nombre de vidrio</h2>
                     <span class="codigo" th:if="${item.producto.codigo != null}" th:text="${item.producto.codigo}">SKU-000</span>
                     <p class="precio-unitario" th:text="#{carrito.precio_unidad(${item.producto.precioFormateado})}">$0 c/u</p>
                 </div>

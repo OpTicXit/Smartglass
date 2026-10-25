@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EmailValido {
-    String message() default "Correo inválido. Ej.: nombre@gmail.com";
+    String message() default "{valid.email}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -1,5 +1,7 @@
 package com.smartglass.controller;
 
+import com.smartglass.service.Textos;
+
 import com.smartglass.service.Funcion;
 import com.smartglass.service.PlanService;
 
@@ -52,11 +54,16 @@ public class AdminController {
     private final ResenaService resenaService;
     private final NotificacionService notificacionService;
     private final PlanService plan;
+    private final Textos textos;
+    private final com.smartglass.service.ContenidoLocalizado contenido;
 
     public AdminController(UsuarioRepository usuarioRepository, PedidoService pedidoService,
                             ProductoService productoService, ResenaService resenaService,
-                            NotificacionService notificacionService, PlanService plan) {
+                            NotificacionService notificacionService, PlanService plan, Textos textos,
+                            com.smartglass.service.ContenidoLocalizado contenido) {
+        this.contenido = contenido;
         this.plan = plan;
+        this.textos = textos;
         this.usuarioRepository = usuarioRepository;
         this.pedidoService = pedidoService;
         this.productoService = productoService;
@@ -97,7 +104,7 @@ public class AdminController {
             usuario.setTipoUsuario(tipoUsuario);
             usuarioRepository.save(usuario);
         });
-        ra.addFlashAttribute("mensaje", "Rol actualizado.");
+        ra.addFlashAttribute("mensaje", textos.t("flash.rol_actualizado"));
         return "redirect:/admin/usuarios/" + id;
     }
 
@@ -112,7 +119,7 @@ public class AdminController {
     @PostMapping("/pedidos/{id}/estado")
     public String cambiarEstadoPedido(@PathVariable Long id, @RequestParam String estado, RedirectAttributes ra) {
         pedidoService.actualizarEstado(id, estado);
-        ra.addFlashAttribute("mensaje", "Estado del pedido actualizado.");
+        ra.addFlashAttribute("mensaje", textos.t("flash.pedido_estado"));
         return "redirect:/admin/pedidos";
     }
 
@@ -180,7 +187,7 @@ public class AdminController {
             ra.addFlashAttribute("mensaje", e.getMessage());
             return "redirect:/admin/productos";
         } catch (IOException e) {
-            ra.addFlashAttribute("mensaje", "No se pudo guardar la foto. Intenta de nuevo.");
+            ra.addFlashAttribute("mensaje", textos.t("flash.foto_error"));
             return "redirect:/admin/productos";
         }
 
@@ -190,7 +197,7 @@ public class AdminController {
         if (producto.getStock() != null && producto.getStock() < 0) producto.setStock(0);
         CatalogoProducto creado = productoService.guardar(producto);
         notificacionService.productoNuevo(creado);              // T3: novedad para todos
-        ra.addFlashAttribute("mensaje", "Producto agregado al catálogo.");
+        ra.addFlashAttribute("mensaje", textos.t("flash.producto_agregado"));
         return "redirect:/admin/productos";
     }
 
@@ -209,7 +216,7 @@ public class AdminController {
                                      RedirectAttributes ra) {
         CatalogoProducto p = productoService.obtenerPorIdOrNull(id);
         if (p == null) {
-            ra.addFlashAttribute("mensaje", "El producto no existe.");
+            ra.addFlashAttribute("mensaje", textos.t("flash.producto_no_existe"));
             return "redirect:/admin/productos";
         }
         // T5: sin la funcion OFERTAS_PROGRAMADAS (plan Basico) solo se toca el stock; la oferta ya
@@ -225,19 +232,19 @@ public class AdminController {
             inicio = ofertaInicio == null || ofertaInicio.isBlank() ? null : LocalDate.parse(ofertaInicio);
             fin = ofertaFin == null || ofertaFin.isBlank() ? null : LocalDate.parse(ofertaFin);
         } catch (java.time.format.DateTimeParseException e) {
-            ra.addFlashAttribute("mensaje", "Revisa las fechas de la oferta.");
+            ra.addFlashAttribute("mensaje", textos.t("flash.oferta_fechas"));
             return "redirect:/admin/productos";
         }
         if (stock != null && stock < 0) {
-            ra.addFlashAttribute("mensaje", "El stock no puede ser negativo.");
+            ra.addFlashAttribute("mensaje", textos.t("flash.stock_negativo"));
             return "redirect:/admin/productos";
         }
         if (ofertaActiva && (precioOferta == null || precioOferta <= 0 || precioOferta >= p.getPrecio())) {
-            ra.addFlashAttribute("mensaje", "El precio de oferta debe ser mayor que 0 y menor que el precio de lista.");
+            ra.addFlashAttribute("mensaje", textos.t("flash.oferta_precio"));
             return "redirect:/admin/productos";
         }
         if (inicio != null && fin != null && fin.isBefore(inicio)) {
-            ra.addFlashAttribute("mensaje", "La oferta no puede terminar antes de empezar.");
+            ra.addFlashAttribute("mensaje", textos.t("flash.oferta_orden"));
             return "redirect:/admin/productos";
         }
         boolean ofertaAntes = p.isOfertaVigente();
@@ -254,7 +261,7 @@ public class AdminController {
             notificacionService.ofertaNueva(p);
         }
         if (agotadoAntes && p.isStockControlado() && !p.isAgotado()) notificacionService.reposicion(p);
-        ra.addFlashAttribute("mensaje", "Stock y oferta de «" + p.getNombre() + "» actualizados.");
+        ra.addFlashAttribute("mensaje", textos.t("flash.comercio_actualizado", p.getNombre()));
         return "redirect:/admin/productos";
     }
 
@@ -263,7 +270,7 @@ public class AdminController {
 
     private String guardarFoto(MultipartFile foto) throws IOException {
         if (foto.getSize() > MAX_BYTES_FOTO) {
-            throw new IllegalArgumentException("La foto pesa más de 5 MB.");
+            throw new IllegalArgumentException(textos.t("flash.foto_pesada"));
         }
         String tipo = foto.getContentType();
         String extension;
@@ -271,7 +278,7 @@ public class AdminController {
         else if ("image/jpeg".equals(tipo)) extension = ".jpg";
         else if ("image/webp".equals(tipo)) extension = ".webp";
         else if ("image/gif".equals(tipo)) extension = ".gif";
-        else throw new IllegalArgumentException("La foto debe ser PNG, JPG, WEBP o GIF.");
+        else throw new IllegalArgumentException(textos.t("flash.foto_formato"));
 
         Files.createDirectories(carpetaFotos());
         String nombre = "prod-" + UUID.randomUUID() + extension;
@@ -284,7 +291,7 @@ public class AdminController {
     @PostMapping("/productos/{id}/eliminar")
     public String eliminarProducto(@PathVariable String id, RedirectAttributes ra) {
         productoService.eliminarPorId(id);
-        ra.addFlashAttribute("mensaje", "Producto eliminado.");
+        ra.addFlashAttribute("mensaje", textos.t("flash.producto_eliminado"));
         return "redirect:/admin/productos";
     }
 
@@ -297,7 +304,7 @@ public class AdminController {
         Map<String, String> nombresProducto = new HashMap<>();
         for (CatalogoProducto p : productoService.obtenerTodos()) {
             if (p.getId() != null) {
-                nombresProducto.put(String.valueOf(p.getId()), p.getNombre());
+                nombresProducto.put(String.valueOf(p.getId()), contenido.nombre(p));   // U1: idioma activo
             }
         }
 
@@ -309,7 +316,7 @@ public class AdminController {
     @PostMapping("/resenas/{id}/eliminar")
     public String eliminarResena(@PathVariable String id, RedirectAttributes ra) {
         resenaService.eliminarPorId(id);
-        ra.addFlashAttribute("mensaje", "Reseña eliminada.");
+        ra.addFlashAttribute("mensaje", textos.t("flash.resena_eliminada"));
         return "redirect:/admin/resenas";
     }
 }

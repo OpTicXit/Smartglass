@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PasswordValida {
-    String message() default "La contraseña debe tener 8–72 caracteres, sin espacios, con al menos una mayúscula, una minúscula y un dígito, y ser distinta del correo y del usuario";
+    String message() default "{valid.password}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -161,12 +161,12 @@
                 <span class="ph-txt" th:text="#{admin.productos.sin_foto}">Sin foto</span>
                 <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}"
                      th:src="@{/img/{img}(img=${p.imagen})}"
-                     th:alt="${p.nombre}" loading="lazy"
+                     th:alt="${@contenido.nombre(p)}" loading="lazy"
                      onerror="this.remove()">
                 <span class="prod-tipo" th:text="${p.tipo}"></span>
             </div>
             <div class="prod-body">
-                <h3 class="prod-name" th:text="${p.nombre}"></h3>
+                <h3 class="prod-name" th:text="${@contenido.nombre(p)}"></h3>
                 <span class="prod-code" th:text="${p.codigo}"></span>
                 <!-- T2: stock y oferta (texto, no solo color) -->
                 <p class="prod-comercio">
@@ -299,6 +299,17 @@
                 <div>
                     <label for="descripcion" th:text="#{admin.productos.descripcion}">Descripción</label>
                     <textarea id="descripcion" name="descripcion" rows="3"></textarea>
+                </div>
+            </div>
+            <!-- U1: version en ingles (opcional); sin ella el producto se muestra en espanol -->
+            <div class="form-row">
+                <div>
+                    <label for="nombreEn" th:text="#{admin.productos.nombre_en}">Nombre en inglés (opcional)</label>
+                    <input type="text" id="nombreEn" name="nombreEn" maxlength="120">
+                </div>
+                <div>
+                    <label for="descripcionEn" th:text="#{admin.productos.descripcion_en}">Descripción en inglés (opcional)</label>
+                    <textarea id="descripcionEn" name="descripcionEn" rows="2"></textarea>
                 </div>
             </div>
         </div>
@@ -463,7 +474,7 @@
     document.querySelectorAll('[data-cerrar]').forEach(function (b) { b.addEventListener('click', cerrar); });
     // Clic en el fondo oscuro cierra el modal
     dlg.addEventListener('click', function (e) { if (e.target === dlg) cerrar(); });
-    dlg.addEventListener('close', function () { form.reset(); limpiarFoto(); btnEnviar.disabled = false; btnEnviar.textContent = 'Agregar al catálogo'; });
+    dlg.addEventListener('close', function () { form.reset(); limpiarFoto(); btnEnviar.disabled = false; btnEnviar.textContent = sgT('adm_agregar_catalogo', 'Agregar al catálogo'); });
 
     /* ---------- Subida de foto (opcional) ---------- */
     var MAX_BYTES = 5 * 1024 * 1024;

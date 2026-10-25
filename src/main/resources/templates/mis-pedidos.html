@@ -132,7 +132,7 @@
                     <img th:src="${detalle.imagenProducto != null} ? @{/img/{img}(img=${detalle.imagenProducto})} : @{/img/logo-icono.png}"
                          alt="" loading="lazy">
                     <div class="producto-info">
-                        <strong th:text="${detalle.nombreProducto}">Producto</strong>
+                        <strong th:text="${@contenido.nombrePedido(detalle)}">Producto</strong>
                         <span th:text="${detalle.cantidad == 1} ? #{mispedidos.unidad_uno(${#strings.toString(detalle.cantidad)})} : #{mispedidos.unidad_varias(${#strings.toString(detalle.cantidad)})}">1 unidad</span>
                     </div>
                     <div class="producto-subtotal" th:text="${detalle.subtotalFormateado}">$0</div>

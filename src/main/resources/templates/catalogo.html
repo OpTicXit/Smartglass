@@ -182,7 +182,7 @@
 
             <a class="producto-img-wrapper" th:href="@{/detalle/{id}(id=${producto.id})}" tabindex="-1" aria-hidden="true"
                th:classappend="${producto.imagenPendiente} ? 'img-pendiente'">
-                <img th:src="@{${producto.imagenUrl}}" th:alt="${producto.nombre}" alt="" loading="lazy">
+                <img th:src="@{${producto.imagenUrl}}" th:alt="${@contenido.nombre(producto)}" alt="" loading="lazy">
                 <span class="foto-pendiente" th:if="${producto.imagenPendiente}" th:text="#{catalogo.foto_en_preparacion}">Foto en preparación</span>
                 <span class="producto-badge" th:if="${producto.escultura}"
                       th:text="${producto.tamano != null} ? #{${'catalogo.badge.' + producto.tamano}} : #{catalogo.badge.escultura}">Escultura grande</span>
@@ -190,13 +190,13 @@
 
             <label class="comparar-check">
                 <input type="checkbox" class="chk-comparar" th:value="${producto.id}"
-                       th:attr="aria-label=#{catalogo.aria_comparar(${producto.nombre})}">
+                       th:with="nomLoc=${@contenido.nombre(producto)}" th:attr="aria-label=#{catalogo.aria_comparar(${nomLoc})}">
                 <span th:text="#{catalogo.comparar}">Comparar</span>
             </label>
 
             <div class="producto-body">
-                <h3><a th:href="@{/detalle/{id}(id=${producto.id})}" th:text="${producto.nombre}">Producto</a></h3>
-                <p th:text="${producto.descripcionCorta}">Descripción del producto</p>
+                <h3><a th:href="@{/detalle/{id}(id=${producto.id})}" th:text="${@contenido.nombre(producto)}">Producto</a></h3>
+                <p th:text="${@contenido.descripcionCorta(producto)}">Descripción del producto</p>
 
                 <!-- T2: estado comercial con texto + icono (nunca solo color), sin animacion -->
                 <div th:replace="~{fragments/comercio :: estado(${producto})}"></div>
@@ -209,12 +209,12 @@
                         <form th:unless="${producto.agotado}" th:action="@{/carrito/agregar}" method="post">
                             <input type="hidden" name="productoId" th:value="${producto.id}">
                             <button type="submit" class="btn btn-primary btn-sm btn-icon"
-                                    th:attr="aria-label=#{catalogo.aria_agregar(${producto.nombre})}" title="Agregar al carrito" th:title="#{catalogo.agregar_al_carrito}">
+                                    th:with="nomLoc=${@contenido.nombre(producto)}" th:attr="aria-label=#{catalogo.aria_agregar(${nomLoc})}" title="Agregar al carrito" th:title="#{catalogo.agregar_al_carrito}">
                                 <i class="ph ph-shopping-cart-simple" aria-hidden="true"></i>
                             </button>
                         </form>
                         <button th:if="${producto.agotado}" type="button" class="btn btn-secondary btn-sm btn-icon" disabled
-                                th:attr="aria-label=#{comercio.aria_agotado(${producto.nombre})}" th:title="#{comercio.agotado}">
+                                th:with="nomLoc=${@contenido.nombre(producto)}" th:attr="aria-label=#{comercio.aria_agotado(${nomLoc})}" th:title="#{comercio.agotado}">
                             <i class="ph ph-prohibit" aria-hidden="true"></i>
                         </button>
                     </div>

@@ -71,7 +71,7 @@ public class CarritoController {
                 ra.addFlashAttribute("tipoMensaje", "success");
             } else {
                 carritoService.agregarProducto(producto, cantidad);
-                ra.addFlashAttribute("mensaje", "Producto añadido al carrito.");
+                ra.addFlashAttribute("mensaje", texto("flash.carrito_agregado"));
                 ra.addFlashAttribute("tipoMensaje", "success");
             }
         }

@@ -268,7 +268,7 @@
                     <img th:src="@{${item.producto.imagenUrl}}"
                          alt="">
                     <div>
-                        <div class="producto-nombre" th:text="${item.producto.nombre}">Producto</div>
+                        <div class="producto-nombre" th:text="${@contenido.nombre(item.producto)}">Producto</div>
                         <div class="producto-cantidad" th:text="#{checkout.cantidad_n(${#strings.toString(item.cantidad)})}">Cantidad: 1</div>
                     </div>
                 </li>

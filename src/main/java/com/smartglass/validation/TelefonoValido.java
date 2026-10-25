@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TelefonoValido {
-    String message() default "Teléfono inválido. Ej.: +57 300 123 4567";
+    String message() default "{valid.telefono}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

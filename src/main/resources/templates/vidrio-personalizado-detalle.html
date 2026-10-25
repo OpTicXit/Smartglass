@@ -476,7 +476,7 @@
 
         <p class="dictamen">
             <small th:text="#{obra.proceso_diagnostico_del_diseno_y}">Proceso: diagnóstico del diseño y la fabricación</small>
-            <span id="recomendacion-texto" th:text="${vidrio.recomendacion != null} ? ${vidrio.recomendacion} : #{obra.esperando_analisis}">Esperando análisis...</span>
+            <span id="recomendacion-texto" th:text="${vidrio.recomendacion != null} ? ${@contenido.recomendacion(vidrio.recomendacion)} : #{obra.esperando_analisis}">Esperando análisis...</span>
         </p>
     </article>
 </main>

@@ -1,5 +1,7 @@
 package com.smartglass.controller;
 
+import com.smartglass.service.Textos;
+
 import com.smartglass.dto.ComparacionItem;
 import com.smartglass.model.mysql.Usuario;
 import com.smartglass.service.ProductoService;
@@ -36,10 +38,12 @@ public class TiendaController {
 
     private final ProductoService productoService;
     private final ResenaService resenaService;
+    private final Textos textos;
 
-    public TiendaController(ProductoService productoService, ResenaService resenaService) {
+    public TiendaController(ProductoService productoService, ResenaService resenaService, Textos textos) {
         this.productoService = productoService;
         this.resenaService = resenaService;
+        this.textos = textos;
     }
 
     @GetMapping("/catalogo")
@@ -91,17 +95,17 @@ public class TiendaController {
                                  @ModelAttribute(value = "usuario", binding = false) Usuario usuario,
                                  RedirectAttributes ra) {
         if (usuario == null) {
-            ra.addFlashAttribute("mensaje", "Debes iniciar sesión para publicar una reseña.");
+            ra.addFlashAttribute("mensaje", textos.t("flash.resena_login"));
             ra.addFlashAttribute("tipoMensaje", "error");
             return "redirect:/login";
         }
 
         try {
             resenaService.crearOActualizar(id, usuario.getId(), usuario.getNombre(), calificacion, comentario);
-            ra.addFlashAttribute("mensaje", "¡Gracias por tu reseña!");
+            ra.addFlashAttribute("mensaje", textos.t("flash.resena_gracias"));
             ra.addFlashAttribute("tipoMensaje", "success");
         } catch (IllegalArgumentException ex) {
-            ra.addFlashAttribute("mensaje", ex.getMessage());
+            ra.addFlashAttribute("mensaje", textos.traducir(ex.getMessage()));
             ra.addFlashAttribute("tipoMensaje", "error");
         }
         return "redirect:/detalle/" + id;
@@ -111,7 +115,7 @@ public class TiendaController {
     public String comparar(@RequestParam(required = false) List<String> ids,
                             Model model, RedirectAttributes ra) {
         if (ids == null || ids.isEmpty()) {
-            ra.addFlashAttribute("mensaje", "Selecciona al menos 2 productos para comparar.");
+            ra.addFlashAttribute("mensaje", textos.t("flash.comparar_min"));
             ra.addFlashAttribute("tipoMensaje", "error");
             return "redirect:/catalogo";
         }
@@ -122,7 +126,7 @@ public class TiendaController {
             idsUnicos = idsUnicos.subList(0, 3);
         }
         if (idsUnicos.size() < 2) {
-            ra.addFlashAttribute("mensaje", "Selecciona al menos 2 productos para comparar.");
+            ra.addFlashAttribute("mensaje", textos.t("flash.comparar_min"));
             ra.addFlashAttribute("tipoMensaje", "error");
             return "redirect:/catalogo";
         }
@@ -137,7 +141,7 @@ public class TiendaController {
         }
 
         if (items.size() < 2) {
-            ra.addFlashAttribute("mensaje", "No se encontraron suficientes productos para comparar.");
+            ra.addFlashAttribute("mensaje", textos.t("flash.comparar_insuficientes"));
             ra.addFlashAttribute("tipoMensaje", "error");
             return "redirect:/catalogo";
         }

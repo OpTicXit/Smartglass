@@ -112,11 +112,11 @@
                 <div class="producto-columna" th:each="item : ${items}">
                     <div class="producto-image">
                         <img th:src="@{${item.producto.imagenUrl}}"
-                             th:alt="${item.producto.nombre}" alt="">
+                             th:alt="${@contenido.nombre(item.producto)}" alt="">
                     </div>
 
                     <div class="header">
-                        <h3 th:text="${item.producto.nombre}">Producto</h3>
+                        <h3 th:text="${@contenido.nombre(item.producto)}">Producto</h3>
                         <div class="precio" th:text="'$' + ${item.producto.precioVigenteFormateado}">$0</div>
                         <div th:replace="~{fragments/comercio :: estado(${item.producto})}"></div>
                         <div class="chips"></div>
@@ -131,7 +131,7 @@
                     <div class="fila" data-fila="alto" th:text="${item.producto.alto} + ' cm'">0 cm</div>
                     <div class="fila" data-fila="espesor" th:text="${item.producto.espesor} + ' mm'">0 mm</div>
                     <div class="fila" data-fila="codigo" th:text="${item.producto.codigo}">SKU</div>
-                    <div class="fila description-value" data-fila="descripcion" th:text="${item.producto.descripcion}">Descripción</div>
+                    <div class="fila description-value" data-fila="descripcion" th:text="${@contenido.descripcion(item.producto)}">Descripción</div>
 
                     <div class="accion">
                         <a th:href="@{/detalle/{id}(id=${item.producto.id})}" class="btn btn-secondary btn-block" th:text="#{comparar.ver_ficha_completa}">Ver ficha completa</a>

@@ -30,6 +30,9 @@ public class CatalogoProducto implements Serializable {
 
     private String codigo;
     private String descripcion;
+    // U1: nombre y descripcion en ingles (opcionales; sin ellos se muestra el texto en espanol)
+    private String nombreEn;
+    private String descripcionEn;
     private String tipo;
 
     private Double ancho;
@@ -247,6 +250,17 @@ public class CatalogoProducto implements Serializable {
         c.setTamano(tamano);
         c.setImagenPrincipal(imagenPrincipal);
         return c;
+    }
+
+    public String getNombreEn() { return nombreEn; }
+    public void setNombreEn(String nombreEn) { this.nombreEn = nombreEn; }
+    public String getDescripcionEn() { return descripcionEn; }
+    public void setDescripcionEn(String descripcionEn) { this.descripcionEn = descripcionEn; }
+
+    /** U1: recorta un texto a 100 caracteres (misma regla que getDescripcionCorta). */
+    public static String recortar(String texto) {
+        if (texto != null && texto.length() > 100) return texto.substring(0, 97) + "...";
+        return texto;
     }
 
     public String getDescripcionCorta() {
