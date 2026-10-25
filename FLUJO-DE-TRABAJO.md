@@ -1,6 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `cierre-bloqueantes`, 2026-10-24). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `comercio-stock-notif`, actualizado el 2026-10-24 tras el gate de T2). Sustituye a cualquier versión anterior de este documento.
+
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 **sin commitear**). No se ha subido nada (`push`) y `main` no se ha tocado.
 
 ## Leyenda
 
@@ -16,8 +18,86 @@ Estado de cada ítem **leído contra el código del repositorio** (rama `cierre-
 
 - **Infraestructura:** compila y arranca sin ciclo ni placeholder (el log de §0 lo confirma). Arranque del 2026-10-24 12:37 con las **cuatro** variables obligatorias (`JWT_SECRET`, `MYSQL_PASSWORD`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`): `HikariPool-1 - Start completed`, `Tomcat started on port 50500`, `Started SmartglassApplication`; sin `PlaceholderResolutionException` ni `BeanCurrentlyInCreation`. Sin `MYSQL_PASSWORD` el placeholder **no** da error: Hikari recibe el texto literal y MySQL responde `Public Key Retrieval is not allowed`.
 - **Pruebas por línea de comandos (curl, no navegador):** `/js/theme-init.js` → 200; ráfaga de `POST /auth/registro` con cuerpo vacío → 400 en las peticiones 1–10 y 429 desde la 11 (H11).
-- **Comportamiento:** todo 🧪 hasta verlo en navegador. Ningún ítem está ✅ todavía.
-- **Contrato de cálculo:** `AnalisisService` y las funciones del contrato de `glass-preview.js` (`calcular`, `impacto`, `recomendar`, `UMBRAL`, `fmtNum`, `fmtAuto`) no se modificaron en esta tanda.
+- **Comportamiento:** los ítems F y H siguen 🧪. Las tandas de UX y T0–T2 de la reestructuración comercial pasaron el gate del equipo en navegador (✅ donde se indica); lo probado solo con scripts sigue 🧪.
+- **Contrato de cálculo:** `AnalisisService` y las funciones del contrato de `glass-preview.js` (`calcular`, `impacto`, `recomendar`, `UMBRAL`, `fmtNum`, `fmtAuto`) siguen **idénticos a `main`** después de T0, T1 y T2 (`git diff main` vacío). También `PedidoService`, `CheckoutController`, `CustomOAuth2UserService`, `LoginRateLimitFilter`, `theme-init.js` y el logotipo. Las anclas A–D dan las mismas cifras en es-CO, es-ES y en, como visitante y con sesión.
+
+## Tandas de UX (rama `ux-accesibilidad-catalogo`, commit `8c13416`)
+
+| Tanda | Estado | Evidencia |
+|---|---|---|
+| Rediseño de plantillas y JS conservando la paleta | ✅ VERIFICADO (gate del equipo) | `static/css/theme.css`, `static/js/main.js` |
+| T1 · Modo de accesibilidad global: daltónico (Okabe-Ito + icono y patrón) y fotosensible (sin animaciones), sincronizado con la cuenta | ✅ VERIFICADO | `static/js/a11y-init.js`; `PerfilAccesibilidadController.java`; `<html data-a11y>` |
+| T2 · Catálogo con esculturas, *placeholders* y lista de fotos pendientes | ✅ VERIFICADO | `CatalogoEsculturasSeeder.java`; `CatalogoProducto.java` (`categoria`, `tamano`, `getImagenUrl`); `documentos/assets-catalogo-T2.md` |
+| T3 · Pulido visual por tiers (tokens, contraste ≥ 4,5:1, objetivos táctiles de 44 px) | ✅ VERIFICADO | `theme.css` (`--on-*`, `--paper*`, `@media (pointer: coarse)`) |
+| Panel de login y registro con la evolución animada del vidrio | ✅ VERIFICADO | `fragments/auth-visual.html` |
+
+## Reestructuración comercial (rama `comercio-stock-notif`)
+
+Cinco sub-tandas con gate: T0 i18n → T1 login solo al pagar → T2 stock, ofertas y precios → T3 notificaciones → T4 onboarding.
+
+### T0 · i18n de textos (commit `fe2dfe8`)
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Tres idiomas: es-CO (por defecto), es-ES y en; 873 textos | ✅ VERIFICADO | `messages.properties` (es-CO), `messages_es_ES.properties` (solo diferencias), `messages_en.properties` |
+| `MessageSource` explícito (la autoconfiguración quedaba en caché entre reinicios de devtools) | ✅ VERIFICADO | `I18nConfig.java:67` |
+| Idioma en la cookie `sg-lang` y `?lang=`; sin cookie se aplica la preferencia de la cuenta | ✅ VERIFICADO | `I18nConfig.java:76,85`; `Usuario.java:58` (`preferencia_idioma`) |
+| `PATCH /perfil/idioma` (400 si el idioma no es válido) | ✅ VERIFICADO | `PerfilIdiomaController.java:39` |
+| Selector de idioma en la barra pública, el admin y el panel flotante | ✅ VERIFICADO | `fragments/navbar-publico.html:72`; `admin/fragments/nav.html:55`; `main.js:737` |
+| Textos de los scripts (`SG_TXT`, `sgT`, `tx`) | ✅ VERIFICADO | `fragments/recursos.html:23,97`; `main.js:30` |
+| **D2:** los números del contrato no se traducen (`9,8` y `$175.959` en los tres idiomas) | ✅ VERIFICADO | `#numbers.formatDecimal(…,'POINT',…,'COMMA')` y `SGGlass.fmtNum` |
+| Siguen en español en todos los idiomas | Limitación conocida | Frases dinámicas de `glass-preview.js` (congelado), avisos del servidor, recomendación de `AnalisisService`, datos guardados |
+
+### T1 · Login solo al pagar (D4)
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Abiertos a visitantes: `/carrito/**`, `/vidrio-personalizado/cotizar` (GET y POST), `GET /vidrio-personalizado/cotizacion/*` | ✅ VERIFICADO | `SecurityConfig.java:129-131` |
+| Siguen exigiendo cuenta: checkout, mis pedidos, mis cotizaciones, cuenta, admin y aprobar/eliminar/agregar obra; la API REST sigue en 401 | 🧪 ESCRITO (probado con curl) | `SecurityConfig.java:132-147`; `/api/vidrios/**` sigue autenticada (el controlador ya responde 401: `VidrioPersonalizadoController.java:59-65`) |
+| Carrito del visitante en la sesión HTTP (producto → cantidad) | ✅ VERIFICADO | `CarritoService.java:37` |
+| Al iniciar sesión el carrito se suma al de la cuenta sin perder nada | ✅ VERIFICADO | `CarritoService.java:113`; `CustomSuccessHandler.java:46`; `SesionAnonima.java:75` |
+| Respaldo: si queda algo del visitante en la sesión, se transfiere en la siguiente página | 🧪 ESCRITO | `SesionAnonima.java:90`; `VistaGlobalAttributesAdvice.java:90` |
+| Obra cotizada sin cuenta: `usuarioId` null (el del formulario se ignora) y solo la ve la sesión que la creó | 🧪 ESCRITO (probado con curl en dos instancias) | `VidrioPersonalizadoWebController.java:93,125-127`; `SesionAnonima.java:55` |
+| La obra anónima pasa a la cuenta al iniciar sesión | 🧪 ESCRITO (probado de punta a punta con curl; en el recorrido del equipo no se envió una obra) | `VidrioSostenibleService.java:154` |
+| Pagar sin sesión lleva al login con el aviso "Tu carrito se conserva" y vuelve a `/checkout` | ✅ VERIFICADO | `CarritoController.java:86`; `LoginController.java:34`; `login.html:23` |
+| Cotizaciones anónimas limitadas por F41 (solo visitantes) | 🧪 ESCRITO | `RateLimitFilter.java:70` |
+| El admin ve "Visitante sin cuenta" en las obras sin dueño | 🧪 ESCRITO | `AdminCotizacionesController.java:157` |
+| IDOR: obra o pedido ajenos redirigen | 🧪 ESCRITO (curl) | Sin cambios en F5 ni F8 |
+| Login con Google conservando el carrito | POR VERIFICAR | Pasa por el mismo `CustomSuccessHandler`; no se probó |
+
+### T2 · Stock, ofertas y balanceo de precios del catálogo
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| **D1:** stock transaccional, sin azar; solo baja con compras reales | 🧪 ESCRITO (compras 7–10 con la cuenta de prueba: Flotado 40 → 36, Ola 1 → 0) | `StockService.java:67,73` (`findAndModify` con `stock >= cantidad`), `:94` (compensación) |
+| Descuento al confirmar sin tocar `PedidoService` ni `CheckoutController` | 🧪 ESCRITO | `StockCompraAspect.java:31` (`@Around` sobre `crearPedidoDesdeCarrito`) |
+| Compra rechazada si el stock no alcanza: aviso veraz y stock intacto | 🧪 ESCRITO (carrera con dos sesiones: "Solo quedan 37…", sin pedido) | `StockService.java:67`; aviso nuevo en `checkout.html:114` (antes el checkout no mostraba errores) |
+| El carrito no admite más unidades que el stock | ✅ VERIFICADO | `CarritoController.java:61,91` |
+| Stock inicial fijo y plausible (escultura grande 1, mediana 3, pequeña 8; vidrio plano 6–40) | ✅ VERIFICADO | `CatalogoComercioSeeder.java:27,39` |
+| Badge "¡Últimas unidades! · Quedan N" (menos de 5, configurable con `smartglass.stock.umbral-bajo`) | ✅ VERIFICADO | `CatalogoProducto.java:215`; `fragments/comercio.html:15` |
+| Agotado: tarjeta atenuada, texto "Agotado" y botón deshabilitado con `aria-label`; el servidor también bloquea | ✅ VERIFICADO | `CatalogoProducto.java:212`; `catalogo.html:181`; `detalle.html:152` |
+| Ofertas con precio, fechas y activa; precio de lista tachado; se cobra la oferta | ✅ VERIFICADO (vistas y modal); cobro 🧪 (pedido 10 a $75.000) | `CatalogoProducto.java:220,242`; `fragments/comercio.html:34` |
+| Panel admin "Stock y oferta" (solo `ROLE_ADMIN`, parámetros explícitos, validación) | ✅ VERIFICADO | `AdminController.java:190`; `admin/productos.html:312` |
+| Badges accesibles: icono, texto y borde; sin animación; sin colores del semáforo (F24) | ✅ VERIFICADO | `theme.css:1394` |
+| **D3:** balanceo solo del catálogo, con la regla "solo baja" (decisión del equipo) | ✅ VERIFICADO | `EsquemaPreciosCatalogo.java:26,94` (versión `T2-v3`); precio original en `precioAnterior` (reversible); lo que crea el admin queda `manual` (`AdminController.java:177`) |
+
+Precios tras el balanceo `T2-v3`: bajan 12 productos y 15 se quedan igual. Por ejemplo, el espejo solar pasa de 1.200.000 a 485.000; las esculturas pequeñas, de 180.000–320.000 a 90.000–100.000; las grandes, de 4,8–6,2 M a 3,96–4,1 M. La cotización personalizada no cambió.
+
+### T3 · Notificaciones y T4 · Onboarding
+
+| Ítem | Estado |
+|---|---|
+| T3 · Notificaciones admin y usuario por *polling*, también para cotizaciones anónimas | POR HACER |
+| T4 · Tour guiado descartable, con i18n y respetando fotosensible | POR HACER |
+
+### Decisiones D1–D4
+
+| Decisión | Estado |
+|---|---|
+| D1 · Stock transaccional, no aleatorio | Aplicada la recomendación |
+| D2 · Sin i18n de números | Aplicada la recomendación |
+| D3 · Balancear solo precios de catálogo | Aplicada la recomendación, con la regla "solo baja" del equipo |
+| D4 · Login solo al pagar con gate estricto | Aplicada; gate pasado |
 
 ## Ítems F (funcionalidad)
 
@@ -25,10 +105,10 @@ Estado de cada ítem **leído contra el código del repositorio** (rama `cierre-
 |---|---|---|
 | F1–F4, F6 | NO VISTO | Sin definición en el repositorio |
 | F5 · Anti-IDOR en la API de cotizaciones | 🧪 ESCRITO | `VidrioPersonalizadoController.java:67,80-85` |
-| F7 · Eliminar: dueño solo COTIZACION/RECHAZADA, admin cualquiera | 🧪 ESCRITO | `VidrioPersonalizadoWebController.java:137-138` |
-| F8 · Detalle solo dueño o admin | 🧪 ESCRITO | `VidrioPersonalizadoWebController.java:77-90` |
-| F9 · Sin `@ModelAttribute("usuario")` en rutas con `{id}` | 🧪 ESCRITO | `VidrioPersonalizadoWebController.java:49-52` |
-| F10 · Aprobar: solo admin y solo desde COTIZACION | 🧪 ESCRITO | `VidrioPersonalizadoWebController.java:107-127` |
+| F7 · Eliminar: dueño solo COTIZACION/RECHAZADA, admin cualquiera | 🧪 ESCRITO | `VidrioPersonalizadoWebController.java:162-163` |
+| F8 · Detalle solo dueño o admin (T1: o la sesión anónima que la cotizó) | 🧪 ESCRITO | `VidrioPersonalizadoWebController.java:89-113` |
+| F9 · Sin `@ModelAttribute("usuario")` en rutas con `{id}` | 🧪 ESCRITO | `VidrioPersonalizadoWebController.java:56-59` |
+| F10 · Aprobar: solo admin y solo desde COTIZACION | 🧪 ESCRITO | `VidrioPersonalizadoWebController.java:132-152` |
 | F11 · Intensidad de carbono en la entidad | 🧪 ESCRITO | `VidrioSostenible.java:99,111` |
 | F12 · Huella almacenada de la obra × cantidad en el checkout | 🧪 ESCRITO | `PedidoService.java:62-81` |
 | F13 · Densidad por tipo en la huella de catálogo | 🧪 ESCRITO | `AnalisisService.java:91` |
@@ -41,7 +121,7 @@ Estado de cada ítem **leído contra el código del repositorio** (rama `cierre-
 | F21 · Fila tipada del panel (sin `BeanWrapper`) | 🧪 ESCRITO | `AdminCotizacionesController.java:121-152` |
 | F22 · `normalizarTipo` sin espacios ni `/` | 🧪 ESCRITO | `AnalisisService.java:274` |
 | F23 | NO VISTO | Sin definición en el repositorio |
-| F24 · Semáforo solo por intensidad; absoluto neutro | 🧪 ESCRITO | `VidrioSostenible.java:99-115`; `AdminCotizacionesController.java:158-159`; `vidrio-personalizado-detalle.html:482-485` |
+| F24 · Semáforo solo por intensidad; absoluto neutro | 🧪 ESCRITO | `VidrioSostenible.java:99-115`; `AdminCotizacionesController.java:161-162`; `vidrio-personalizado-detalle.html:482-485` |
 | F25 · Anatomía de la pieza cierra con el peso | 🧪 ESCRITO | `AnalisisService.java:184-190` |
 | F26 · Botones separados por rol | 🧪 ESCRITO | `vidrio-personalizado-detalle.html:206,292` |
 | F27 · Mínimo 1 capa en la resistencia | 🧪 ESCRITO | `AnalisisService.java:216`; `CotizacionVidrioRequest.java:15` |
@@ -76,7 +156,7 @@ Estado de cada ítem **leído contra el código del repositorio** (rama `cierre-
 | H06 · `GET /registro/disponible` | 🧪 ESCRITO | `RegistroController.java:50`; llamador en `registro.html:517,607` |
 | H07 · `theme-init.js` sin 404 | 🧪 ESCRITO | `static/js/theme-init.js`; 26 referencias exactas |
 | H08 · `requirements.txt` | 🧪 ESCRITO | Raíz; instalación probada con Python 3.13 |
-| H09 · Este documento | 🧪 ESCRITO | Sin commitear; lo decide el equipo |
+| H09 · Este documento | 🧪 ESCRITO | Actualizado tras el gate de T2; sin commitear |
 | H10 · Archivo basura `how --stat ce8af77` | 🧪 ESCRITO | Borrado del índice (`git rm`) |
 | H11 · Límite en `POST /auth/registro` | 🧪 ESCRITO | `RateLimitFilter.java:65-66,97`; la petición 11 por minuto devuelve 429 |
 
@@ -87,7 +167,7 @@ Estado de cada ítem **leído contra el código del repositorio** (rama `cierre-
 | AUD-01 | Validación de entrada de la cotización (medidas ≤ 0 o negativas, perforaciones negativas) | `CotizacionVidrioRequest.java` |
 | AUD-02 | El rol de un usuario de Google se toma sin normalizar | `CustomOAuth2UserService.java:113-114` |
 | AUD-03 | `cambiarRol` acepta cualquier texto | `AdminController.java:85-88` |
-| AUD-04 | `accessDeniedPage("/error/403")` sin controlador | `SecurityConfig.java` |
+| AUD-04 | `accessDeniedPage("/error/403")` sin controlador: un usuario sin rol de admin que entra a `/admin` recibe 404 | `SecurityConfig.java` |
 | AUD-05 | Índices compuestos de `VidrioSostenible` | `VidrioSostenible.java:20` |
 | AUD-06 | Mensajes de error, SQL y Security en modo detallado | `application.properties` |
 | AUD-07 | Logout por GET y cookie con otro nombre | `SecurityConfig.java` |
@@ -95,6 +175,10 @@ Estado de cada ítem **leído contra el código del repositorio** (rama `cierre-
 | AUD-09 | Una obra aprobada se puede comprar varias veces | `CarritoService.java:74-85` |
 | AUD-10 | Pruebas de permisos (solo existe `contextLoads`) | `src/test` |
 | AUD-11 | Medidas y huella por línea en `DetallePedido` | `DetallePedido.java:59-66` |
+| AUD-12 | La app guarda los datos en la base Mongo `test`, no en `smartglass_catalog`: probablemente Spring Boot 4 ignora `spring.data.mongodb.uri`. Revisar también F35 | `application.properties:13` |
+| AUD-13 | Pedidos, factura y carrito muestran los miles con coma (`$ 180,000`): `String.format` usa el idioma de la JVM | `Pedido.java:132`; `DetallePedido.java:116`; `ItemCarrito.java:48`; `admin/dashboard.html:25` |
+| AUD-14 | VS Code compila al guardar y devtools reinicia la app: cierra la sesión y puede ejecutar estados intermedios del código | Entorno de desarrollo |
+| AUD-15 | Datos de prueba de T1 y T2 por limpiar: usuario `pruebat1…` (id 105) con sus pedidos 7–10, carrito y obras; obras anónimas de prueba; el Craquelado y el Flotado sumados al carrito del admin | MySQL `smartglass_db`, Mongo `test` |
 
 ## Lo que debe verificar el equipo en navegador
 
@@ -108,5 +192,10 @@ Estado de cada ítem **leído contra el código del repositorio** (rama `cierre-
 | Fuerza bruta de login | Al 11.º intento seguido: `/login?bloqueado` con aviso |
 | `POST /auth/registro` en ráfaga | La petición 11 en un minuto devuelve 429 |
 | Login con Google | Entra con las credenciales rotadas; la cuenta local con el mismo correo queda vinculada |
+| Login con Google desde el pago (T1) | Vuelve a `/checkout` con el carrito del visitante sumado |
+| Obra cotizada sin cuenta (T1) | Tras iniciar sesión aparece en Mis cotizaciones, sin el aviso azul |
+| Compra real (T2) | El stock del producto baja en lo comprado (Mongo `catalogo_productos.stock`) |
+| Oferta con fecha futura (T2) | El Laminado Opal (oferta desde el 26/10) muestra su precio normal hasta ese día |
+| Agotado (T2) | La Ola Templada sigue en 0 a propósito; se devuelve a 1 desde "Stock y oferta" |
 
-Nada se da por cerrado hasta que los greps den el resultado esperado, la app arranque con las variables documentadas sin secretos en claro ni 404 del tema, y los casos A–D se vean en navegador.
+Nada se da por cerrado hasta que los greps den el resultado esperado, el app arranque con las env vars, el toggle de idioma mantenga las anclas en es-CO, el flujo anónimo→pago-con-login conserve el carrito, el stock sea transaccional y veraz, las notificaciones y el tour respeten i18n y accesibilidad, y los casos A–D se vean en navegador; ningún cambio movió un decimal del contrato ni tocó el logotipo, y D1–D4 no se aplicaron sin mi visto bueno.

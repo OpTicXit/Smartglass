@@ -8,7 +8,8 @@
     - main.js marca la pagina activa, controla los menus y rellena la barra
       secundaria (.subnav) segun la seccion: Tienda, Vidrio personalizado o Mi cuenta.
     - Visitante: ve Inicio, Tienda, Vidrio personalizado, Acerca de e "Iniciar sesion".
-      Usuario: ademas ve el carrito y el menu "Mi cuenta". Admin: el menu suma el panel.
+      Todos ven el carrito (T1: el visitante compra sin cuenta y entra al pagar).
+      Usuario: ademas ve el menu "Mi cuenta". Admin: el menu suma el panel.
 -->
 <nav th:fragment="navbar-publico"
      id="smartglass-navbar"
@@ -119,8 +120,8 @@
             <!-- Visitante -->
             <a th:unless="${auth}" th:href="@{/login}" class="btn-nav-cta" th:text="#{nav.iniciar_sesion}">Iniciar sesión</a>
 
-            <!-- Usuario registrado -->
-            <a th:if="${auth}" th:href="@{/carrito}" class="nav-cart" title="Carrito" th:title="#{nav.carrito}" aria-label="Carrito" th:aria-label="#{nav.carrito}" data-match="=/carrito">
+            <!-- Carrito: visitante (en su sesion) y usuario registrado -->
+            <a th:href="@{/carrito}" class="nav-cart" title="Carrito" th:title="#{nav.carrito}" aria-label="Carrito" th:aria-label="#{nav.carrito}" data-match="=/carrito">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 11.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.5L21 7H6"/></svg>
                 <span class="cart-count" th:classappend="${cartCount == 0} ? 'is-empty'" th:text="${cartCount}">0</span>
             </a>

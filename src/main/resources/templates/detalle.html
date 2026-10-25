@@ -123,14 +123,23 @@
                 </a>
             </div>
 
-            <p class="precio" th:text="'$' + ${producto.precioFormateado}">$0</p>
+            <p class="precio"><span th:replace="~{fragments/comercio :: precio(${producto}, 'precio-valor')}"></span></p>
+            <!-- T2: estado comercial y existencias reales (D1) -->
+            <div th:replace="~{fragments/comercio :: estado(${producto})}"></div>
+            <p class="stock-linea" th:if="${producto.stockControlado and !producto.agotado}">
+                <i class="ph ph-package" aria-hidden="true"></i>
+                <span th:text="#{comercio.disponibles_n(${#strings.toString(producto.stock)})}">Disponibles: 12</span>
+                <span th:if="${producto.ofertaVigente and producto.ofertaFin != null}" class="oferta-hasta"
+                      th:text="#{comercio.oferta_hasta(${#temporals.format(producto.ofertaFin, 'dd/MM/yyyy')})}">· Oferta hasta 31/10/2026</span>
+            </p>
             <p class="precio-nota" th:text="#{detalle.impuestos_incluidos_envio_calculado_al}">Impuestos incluidos. Envío calculado al finalizar la compra.</p>
 
-            <form th:if="${usuarioLogueado}" th:action="@{/carrito/agregar}" method="post" class="compra">
+            <form th:unless="${producto.agotado}" th:action="@{/carrito/agregar}" method="post" class="compra">
                 <input type="hidden" name="productoId" th:value="${producto.id}">
                 <div class="stepper" data-stepper>
                     <button type="button" data-step="-1" aria-label="Quitar una unidad" th:aria-label="#{detalle.quitar_una_unidad}"><i class="ph ph-minus" aria-hidden="true"></i></button>
-                    <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="99" aria-label="Cantidad" th:aria-label="#{detalle.cantidad}" inputmode="numeric">
+                    <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="99" aria-label="Cantidad" th:aria-label="#{detalle.cantidad}" inputmode="numeric"
+                           th:attr="max=${producto.stockControlado and producto.stock < 99} ? ${producto.stock} : 99">
                     <button type="button" data-step="1" aria-label="Agregar una unidad" th:aria-label="#{detalle.agregar_una_unidad}"><i class="ph ph-plus" aria-hidden="true"></i></button>
                 </div>
                 <button type="submit" class="btn btn-primary btn-lg">
@@ -138,11 +147,19 @@
                 </button>
             </form>
 
-            <div th:unless="${usuarioLogueado}" class="compra">
-                <a th:href="@{/login}" class="btn btn-secondary btn-lg compra-login">
-                    <i class="ph ph-lock-key" aria-hidden="true"></i> <span th:text="#{detalle.inicia_sesion_para_comprar}">Inicia sesión para comprar</span>
-                </a>
+            <!-- T1 (D4): el visitante compra sin cuenta; el login se pide al pagar -->
+            <!-- T2: agotado = mensaje explicito + boton deshabilitado (no solo gris) -->
+            <div th:if="${producto.agotado}" class="compra compra-agotada" role="status">
+                <button type="button" class="btn btn-secondary btn-lg" disabled
+                        th:attr="aria-label=#{comercio.aria_agotado(${producto.nombre})}">
+                    <i class="ph ph-prohibit" aria-hidden="true"></i> <span th:text="#{comercio.agotado}">Agotado</span>
+                </button>
+                <p class="precio-nota" th:text="#{comercio.agotado_detalle}">Sin unidades por ahora. Vuelve pronto o diseña una pieza a medida.</p>
             </div>
+
+            <p th:unless="${usuarioLogueado or producto.agotado}" class="precio-nota compra-aviso">
+                <i class="ph ph-lock-key" aria-hidden="true"></i> <span th:text="#{detalle.login_al_pagar}">Te pediremos iniciar sesión solo al pagar.</span>
+            </p>
 
             <div class="especificaciones">
                 <h2><i class="ph ph-sliders-horizontal" aria-hidden="true"></i> <span th:text="#{detalle.ficha_tecnica}">Ficha técnica</span></h2>

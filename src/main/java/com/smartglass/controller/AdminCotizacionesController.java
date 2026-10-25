@@ -152,7 +152,10 @@ public class AdminCotizacionesController {
     }
 
     private FilaCotizacion aFila(VidrioSostenible v, Map<Long, String> clientes) {
-        String cliente = clientes.getOrDefault(v.getUsuarioId(), "Usuario #" + v.getUsuarioId());
+        // T1: una obra cotizada sin cuenta no tiene usuarioId hasta que su autor inicia sesion
+        String cliente = v.getUsuarioId() == null
+                ? "Visitante sin cuenta"
+                : clientes.getOrDefault(v.getUsuarioId(), "Usuario #" + v.getUsuarioId());
         // F24: fuente unica de intensidad y nivel = la entidad (umbrales 12/20), la misma
         // que usa el detalle. El nivel sale SIEMPRE de la intensidad, nunca del absoluto.
         double intensidad = v.getIntensidadCarbono();

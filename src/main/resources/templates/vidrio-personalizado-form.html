@@ -342,6 +342,12 @@
         <!-- ================= FORMULARIO ================= -->
         <form th:action="@{/vidrio-personalizado/cotizar}" method="post" id="formCotizacion" class="atelier-form">
 
+            <!-- T1 (D4): un visitante supero el limite de obras por minuto (F41) -->
+            <div th:if="${param.limite}" class="alert alert--error" role="alert" data-persistente>
+                <i class="ph ph-clock-countdown" aria-hidden="true"></i>
+                <span th:text="#{cotizar.limite_visitante}">Has creado varias obras seguidas. Espera un minuto o inicia sesión para seguir.</span>
+            </div>
+
             <div class="aviso-balance" id="avisoBalance" hidden th:text="#{cotizar.partimos_de_tu_obra_anterior}">
                 Partimos de tu obra anterior y aplicamos la configuración recomendada para reducir su impacto ambiental.
                 Ajusta lo que quieras antes de generar la cotización.

@@ -111,6 +111,12 @@
         </div>
     </header>
 
+    <!-- T2: el pedido no se pudo crear (p. ej. stock insuficiente); antes este aviso no se mostraba -->
+    <div th:if="${mensaje}" class="alert alert--error" role="alert" data-persistente>
+        <i class="ph ph-warning-circle" aria-hidden="true"></i>
+        <span th:text="${mensaje}">No se pudo procesar el pedido.</span>
+    </div>
+
     <div class="checkout-grid">
 
         <form th:action="@{/checkout/procesar}" method="post" id="formCheckout">

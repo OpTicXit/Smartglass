@@ -110,7 +110,7 @@
                 <div class="producto-cuerpo">
                     <h3><a th:href="@{/detalle/{id}(id=${producto.id})}" th:text="${producto.nombre}">Vidrio</a></h3>
                     <p class="detalle" th:text="${producto.descripcionCorta}">Descripción</p>
-                    <div class="precio-badge" th:text="'$' + ${producto.precioFormateado}">$0</div>
+                    <div class="precio-badge" th:text="'$' + ${producto.precioVigenteFormateado}">$0</div>
                 </div>
             </article>
         </div>

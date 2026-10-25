@@ -178,7 +178,7 @@
 
     <section class="productos-grid" th:if="${not #lists.isEmpty(productos)}" aria-label="Productos" th:aria-label="#{catalogo.productos}">
 
-        <article class="producto-card" th:each="producto : ${productos}">
+        <article class="producto-card" th:each="producto : ${productos}" th:classappend="${producto.agotado} ? 'is-agotado'">
 
             <a class="producto-img-wrapper" th:href="@{/detalle/{id}(id=${producto.id})}" tabindex="-1" aria-hidden="true"
                th:classappend="${producto.imagenPendiente} ? 'img-pendiente'">
@@ -198,18 +198,25 @@
                 <h3><a th:href="@{/detalle/{id}(id=${producto.id})}" th:text="${producto.nombre}">Producto</a></h3>
                 <p th:text="${producto.descripcionCorta}">Descripción del producto</p>
 
+                <!-- T2: estado comercial con texto + icono (nunca solo color), sin animacion -->
+                <div th:replace="~{fragments/comercio :: estado(${producto})}"></div>
+
                 <div class="producto-pie">
-                    <span class="producto-precio" th:text="'$' + ${producto.precioFormateado}">$0</span>
+                    <div th:replace="~{fragments/comercio :: precio(${producto}, 'producto-precio')}"></div>
 
                     <div class="producto-acciones">
                         <a th:href="@{/detalle/{id}(id=${producto.id})}" class="btn btn-secondary btn-sm" th:text="#{catalogo.ver_ficha}">Ver ficha</a>
-                        <form th:if="${usuarioLogueado}" th:action="@{/carrito/agregar}" method="post">
+                        <form th:unless="${producto.agotado}" th:action="@{/carrito/agregar}" method="post">
                             <input type="hidden" name="productoId" th:value="${producto.id}">
                             <button type="submit" class="btn btn-primary btn-sm btn-icon"
                                     th:attr="aria-label=#{catalogo.aria_agregar(${producto.nombre})}" title="Agregar al carrito" th:title="#{catalogo.agregar_al_carrito}">
                                 <i class="ph ph-shopping-cart-simple" aria-hidden="true"></i>
                             </button>
                         </form>
+                        <button th:if="${producto.agotado}" type="button" class="btn btn-secondary btn-sm btn-icon" disabled
+                                th:attr="aria-label=#{comercio.aria_agotado(${producto.nombre})}" th:title="#{comercio.agotado}">
+                            <i class="ph ph-prohibit" aria-hidden="true"></i>
+                        </button>
                     </div>
                 </div>
             </div>

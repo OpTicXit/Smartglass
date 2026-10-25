@@ -42,6 +42,12 @@ import java.util.Set;
  * F41: RateLimitFilter (429 + Retry-After) tras la autenticacion; ver su javadoc.
  * CAMBIO: las rutas /api/** sin sesion responden 401 (antes redirigian a
  * /login con 302, porque el entry point por defecto es el del formLogin).
+ * T1 (D4) login solo al pagar: carrito (/carrito/**), configurador
+ * (/vidrio-personalizado/cotizar GET y POST) y la obra recien cotizada (GET
+ * /vidrio-personalizado/cotizacion/*, el controller exige dueno, admin o la
+ * sesion anonima que la creo) quedan abiertos. Checkout, cuenta, mis
+ * cotizaciones, aprobar/eliminar/agregar-al-carrito de obras, admin y la API
+ * REST siguen autenticados. El carrito anonimo se fusiona en CustomSuccessHandler.
  */
 @Configuration
 @EnableWebSecurity
@@ -120,11 +126,12 @@ public class SecurityConfig {
                 .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
                 // Acciones autenticadas
                 .requestMatchers(HttpMethod.POST, "/detalle/*/resenas").authenticated()
+                // T1 (D4): carrito y diseno/cotizacion abiertos a visitantes; el login se pide al pagar
+                .requestMatchers("/carrito", "/carrito/**", "/vidrio-personalizado/cotizar").permitAll()
+                .requestMatchers(HttpMethod.GET, "/vidrio-personalizado/cotizacion/*").permitAll()
                 .requestMatchers(
                     "/usuario",
                     "/usuario/**",
-                    "/carrito",
-                    "/carrito/**",
                     "/checkout",
                     "/checkout/**",
                     "/vidrio-personalizado",

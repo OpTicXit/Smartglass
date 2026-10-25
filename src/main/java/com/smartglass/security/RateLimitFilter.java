@@ -18,7 +18,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * F41: limitador de solicitudes por actor (usuario autenticado o IP).
  *
  * - Se aplica a /api/** y a las rutas sensibles (POST /registro, POST /auth/registro,
- *   GET /registro/disponible, POST /api/vidrios/cotizar). Las paginas HTML y los estaticos (/css, /js, /img) NO
+ *   GET /registro/disponible, POST /api/vidrios/cotizar y, solo para visitantes sin cuenta (T1),
+ *   POST /vidrio-personalizado/cotizar). Las paginas HTML y los estaticos (/css, /js, /img) NO
  *   gastan fichas: una sola carga de pagina pide varios recursos y agotaria el limite.
  * - Limites por minuto: anonimo, usuario, admin y "sensible" (adicional, por actor).
  * - NO es un @Component a proposito: Spring Boot registraria el filtro dos veces (una como
@@ -63,7 +64,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
         boolean disponibilidad = ruta.equals("/registro/disponible");
         // H11: POST /auth/registro (API REST) entra en el mismo bucket sensible que POST /registro
         boolean registroApi = "POST".equals(req.getMethod()) && ruta.equals("/auth/registro");
-        boolean sensible = disponibilidad || registroApi
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean anonimo = auth == null || auth instanceof AnonymousAuthenticationToken || !auth.isAuthenticated();
+        // T1 (D4): el configurador HTML guarda obras sin cuenta; un visitante entra en el bucket sensible
+        boolean cotizacionAnonima = anonimo && "POST".equals(req.getMethod())
+                && ruta.equals("/vidrio-personalizado/cotizar");
+        boolean sensible = disponibilidad || registroApi || cotizacionAnonima
                 || ("POST".equals(req.getMethod()) && (ruta.equals("/api/vidrios/cotizar") || ruta.equals("/registro")));
 
         if (!api && !sensible) {
@@ -71,8 +77,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean anonimo = auth == null || auth instanceof AnonymousAuthenticationToken || !auth.isAuthenticated();
         boolean admin = !anonimo && auth.getAuthorities().stream()
                 .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
         String actor = anonimo ? "ip:" + ipDe(req) : "u:" + auth.getName();
@@ -100,6 +104,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
             String msg = "Demasiadas solicitudes. Intenta de nuevo en un minuto.";
             res.getOutputStream().write(
                     ("{\"error\":\"" + msg + "\",\"mensaje\":\"" + msg + "\"}").getBytes(StandardCharsets.UTF_8));
+        } else if (cotizacionAnonima) {
+            res.sendRedirect(req.getContextPath() + "/vidrio-personalizado/cotizar?limite");
         } else {
             // POST /registro desde el formulario HTML: volver al formulario con aviso (no Whitelabel)
             res.sendRedirect(req.getContextPath() + "/registro?limite");

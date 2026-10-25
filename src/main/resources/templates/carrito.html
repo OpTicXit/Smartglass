@@ -146,6 +146,9 @@
                         <i class="ph ph-lock-simple" aria-hidden="true"></i> <span th:text="#{carrito.finalizar_compra}">Finalizar compra</span>
                     </button>
                 </form>
+                <p th:unless="${usuarioLogueado}" class="resumen-nota" role="note">
+                    <i class="ph ph-sign-in" aria-hidden="true"></i> <span th:text="#{carrito.login_al_pagar}">Al finalizar te pediremos iniciar sesión o crear tu cuenta. Tu carrito se conserva.</span>
+                </p>
                 <a th:href="@{/catalogo}" class="btn btn-secondary btn-block" th:text="#{carrito.seguir_comprando}">Seguir comprando</a>
                 <form th:action="@{/carrito/limpiar}" method="post"
                       data-confirm-title="¿Vaciar el carrito?" th:data-confirm-title="#{carrito.vaciar_el_carrito}"

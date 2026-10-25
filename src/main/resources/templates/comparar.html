@@ -117,7 +117,8 @@
 
                     <div class="header">
                         <h3 th:text="${item.producto.nombre}">Producto</h3>
-                        <div class="precio" th:text="'$' + ${item.producto.precioFormateado}">$0</div>
+                        <div class="precio" th:text="'$' + ${item.producto.precioVigenteFormateado}">$0</div>
+                        <div th:replace="~{fragments/comercio :: estado(${item.producto})}"></div>
                         <div class="chips"></div>
                     </div>
 

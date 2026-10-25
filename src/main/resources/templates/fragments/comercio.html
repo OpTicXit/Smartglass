@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    T2 comercio: piezas compartidas por catalogo, detalle, destacados y comparar.
+    - Accesibilidad: cada estado lleva texto + icono (nunca solo color) y no se anima,
+      asi que respeta el modo fotosensible sin reglas extra.
+    - D1: "Ultimas unidades" y "Agotado" salen del stock REAL (CatalogoProducto.stock).
+    - D2: las cifras van con separadores es-CO en todos los idiomas.
+    Estilos: theme.css, seccion "Comercio (T2)".
+-->
+
+<!-- Badges de estado: agotado / oferta vigente / ultimas unidades -->
+<div th:fragment="estado(p)" class="estado-comercial"
+     th:if="${p.agotado or p.ultimasUnidades or p.ofertaVigente}">
+    <span th:if="${p.agotado}" class="badge-com badge-agotado">
+        <i class="ph ph-prohibit" aria-hidden="true"></i> <span th:text="#{comercio.agotado}">Agotado</span>
+    </span>
+    <th:block th:unless="${p.agotado}">
+        <span th:if="${p.ofertaVigente}" class="badge-com badge-oferta">
+            <i class="ph ph-tag" aria-hidden="true"></i>
+            <span th:text="#{comercio.oferta_pct(${#strings.toString(p.descuentoPorcentaje)})}">Oferta −15 %</span>
+        </span>
+        <span th:if="${p.ultimasUnidades}" class="badge-com badge-ultimas">
+            <i class="ph ph-hourglass-medium" aria-hidden="true"></i>
+            <span th:text="${p.ofertaVigente} ? #{comercio.ultima_oferta} : #{comercio.ultimas_unidades}">¡Últimas unidades!</span>
+            <span class="badge-com-n" th:text="#{comercio.quedan_n(${#strings.toString(p.stock)})}">Quedan 3</span>
+        </span>
+    </th:block>
+</div>
+
+<!-- Precio: con oferta vigente muestra el de lista tachado y el de oferta (con texto para lectores de pantalla) -->
+<span th:fragment="precio(p, clase)" th:class="${clase + (p.ofertaVigente ? ' con-oferta' : '')}">
+    <th:block th:if="${p.ofertaVigente}">
+        <del class="precio-lista"><span class="visually-hidden" th:text="#{comercio.antes}">Antes</span> <span th:text="'$' + ${p.precioFormateado}">$0</span></del>
+        <ins class="precio-oferta"><span class="visually-hidden" th:text="#{comercio.ahora}">Ahora</span> <span th:text="'$' + ${p.precioVigenteFormateado}">$0</span></ins>
+    </th:block>
+    <th:block th:unless="${p.ofertaVigente}" th:text="'$' + ${p.precioFormateado}">$0</th:block>
+</span>
+
+</body>
+</html>

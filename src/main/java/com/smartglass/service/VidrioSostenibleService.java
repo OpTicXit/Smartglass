@@ -6,6 +6,7 @@ import com.smartglass.repository.mongo.VidrioSostenibleRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -143,5 +144,22 @@ public class VidrioSostenibleService {
 
     public void eliminarPorId(String id) {
         vidrioSostenibleRepository.deleteById(id);
+    }
+
+    /**
+     * T1 (D4): al autenticarse, las obras que la MISMA sesion cotizo como anonima
+     * pasan a ser del usuario. Solo las que siguen sin dueno (usuarioId null): una
+     * obra con dueno nunca cambia de manos. No toca estado ni calculo.
+     */
+    public int reclamarCotizacionesAnonimas(Collection<String> ids, Long usuarioId) {
+        if (ids == null || ids.isEmpty() || usuarioId == null) return 0;
+        int reclamadas = 0;
+        for (VidrioSostenible v : vidrioSostenibleRepository.findAllById(ids)) {
+            if (v.getUsuarioId() != null) continue;
+            v.setUsuarioId(usuarioId);
+            vidrioSostenibleRepository.save(v);
+            reclamadas++;
+        }
+        return reclamadas;
     }
 }

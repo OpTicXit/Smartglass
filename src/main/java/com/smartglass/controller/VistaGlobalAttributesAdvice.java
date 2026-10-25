@@ -1,9 +1,11 @@
 package com.smartglass.controller;
 
+import com.smartglass.config.SesionAnonima;
 import com.smartglass.model.mysql.Usuario;
 import com.smartglass.repository.mysql.UsuarioRepository;
 import com.smartglass.service.CarritoService;
 import com.smartglass.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -38,19 +40,22 @@ public class VistaGlobalAttributesAdvice {
     private final CarritoService carritoService;
     private final UsuarioRepository usuarioRepository;
     private final UserService userService;
+    private final SesionAnonima sesionAnonima;
 
     public VistaGlobalAttributesAdvice(
             CarritoService carritoService,
             UsuarioRepository usuarioRepository,
-            UserService userService
+            UserService userService,
+            SesionAnonima sesionAnonima
     ) {
         this.carritoService = carritoService;
         this.usuarioRepository = usuarioRepository;
         this.userService = userService;
+        this.sesionAnonima = sesionAnonima;
     }
 
     @ModelAttribute
-    public void addGlobalAttributes(Authentication authentication, Model model) {
+    public void addGlobalAttributes(Authentication authentication, Model model, HttpServletRequest request) {
 
         boolean autenticado = authentication != null
                 && authentication.isAuthenticated()
@@ -80,6 +85,9 @@ public class VistaGlobalAttributesAdvice {
 
         // Compatibilidad por si algun template usa isAdmin.
         model.addAttribute("isAdmin", esAdmin);
+
+        // T1 (D4): respaldo de la transferencia del login (antes de contar el carrito)
+        if (usuario != null) sesionAnonima.transferirSiQueda(request.getSession(false), usuario.getId());
 
         model.addAttribute("cantidadCarrito", carritoService.getCantidadTotal());
     }

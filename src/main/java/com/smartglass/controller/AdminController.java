@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -172,8 +173,60 @@ public class AdminController {
             return "redirect:/admin/productos";
         }
 
+        // T2: el precio que fija el admin es suyo (el balanceo D3 no lo toca) y el stock no puede ser negativo
+        producto.setEsquemaPrecio("manual");
+        producto.setPrecioAnterior(null);
+        if (producto.getStock() != null && producto.getStock() < 0) producto.setStock(0);
         productoService.guardar(producto);
         ra.addFlashAttribute("mensaje", "Producto agregado al catálogo.");
+        return "redirect:/admin/productos";
+    }
+
+    /**
+     * T2: stock y oferta de un producto. Parametros explicitos (nunca @ModelAttribute sobre
+     * la entidad: evita asignacion masiva). Solo ROLE_ADMIN (regla /admin/** de SecurityConfig).
+     * Stock vacio = sin control de inventario.
+     */
+    @PostMapping("/productos/{id}/comercio")
+    public String actualizarComercio(@PathVariable String id,
+                                     @RequestParam(required = false) Integer stock,
+                                     @RequestParam(required = false) Double precioOferta,
+                                     @RequestParam(required = false) String ofertaInicio,
+                                     @RequestParam(required = false) String ofertaFin,
+                                     @RequestParam(defaultValue = "false") boolean ofertaActiva,
+                                     RedirectAttributes ra) {
+        CatalogoProducto p = productoService.obtenerPorIdOrNull(id);
+        if (p == null) {
+            ra.addFlashAttribute("mensaje", "El producto no existe.");
+            return "redirect:/admin/productos";
+        }
+        LocalDate inicio, fin;
+        try {
+            inicio = ofertaInicio == null || ofertaInicio.isBlank() ? null : LocalDate.parse(ofertaInicio);
+            fin = ofertaFin == null || ofertaFin.isBlank() ? null : LocalDate.parse(ofertaFin);
+        } catch (java.time.format.DateTimeParseException e) {
+            ra.addFlashAttribute("mensaje", "Revisa las fechas de la oferta.");
+            return "redirect:/admin/productos";
+        }
+        if (stock != null && stock < 0) {
+            ra.addFlashAttribute("mensaje", "El stock no puede ser negativo.");
+            return "redirect:/admin/productos";
+        }
+        if (ofertaActiva && (precioOferta == null || precioOferta <= 0 || precioOferta >= p.getPrecio())) {
+            ra.addFlashAttribute("mensaje", "El precio de oferta debe ser mayor que 0 y menor que el precio de lista.");
+            return "redirect:/admin/productos";
+        }
+        if (inicio != null && fin != null && fin.isBefore(inicio)) {
+            ra.addFlashAttribute("mensaje", "La oferta no puede terminar antes de empezar.");
+            return "redirect:/admin/productos";
+        }
+        p.setStock(stock);
+        p.setPrecioOferta(precioOferta);
+        p.setOfertaInicio(inicio);
+        p.setOfertaFin(fin);
+        p.setOfertaActiva(ofertaActiva);
+        productoService.guardar(p);
+        ra.addFlashAttribute("mensaje", "Stock y oferta de «" + p.getNombre() + "» actualizados.");
         return "redirect:/admin/productos";
     }
 

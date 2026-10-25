@@ -1,10 +1,12 @@
 package com.smartglass.controller;
 
+import com.smartglass.config.SesionAnonima;
 import com.smartglass.dto.CotizacionVidrioRequest;
 import com.smartglass.model.mongo.VidrioSostenible;
 import com.smartglass.model.mysql.Usuario;
 import com.smartglass.service.CarritoService;
 import com.smartglass.service.VidrioSostenibleService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +31,11 @@ import java.util.List;
  *   RECHAZADA es exclusivo del panel /admin/cotizaciones.
  * - F7: eliminar: dueno solo COTIZACION/RECHAZADA; admin cualquiera.
  * - agregar-al-carrito: dueno + estado APROBADO.
+ * - T1 (D4): cotizar (GET y POST) y ver la obra recien cotizada son anonimos.
+ *   La obra anonima se guarda con usuarioId null (el del formulario se ignora)
+ *   y solo la ve la sesion que la creo (SesionAnonima); al iniciar sesion pasa a
+ *   ser del usuario. Mis cotizaciones, aprobar, eliminar y agregar-al-carrito
+ *   siguen exigiendo cuenta.
  */
 @Controller
 @RequestMapping("/vidrio-personalizado")
@@ -49,6 +56,11 @@ public class VidrioPersonalizadoWebController {
     private Usuario usuarioActual(Model model) {
         Object u = model.getAttribute("usuario");
         return (u instanceof Usuario) ? (Usuario) u : null;
+    }
+
+    /** Visitante sin cuenta (T1). Con sesion pero sin Usuario en BD NO cuenta como anonimo. */
+    private static boolean esVisitante(Model model) {
+        return !Boolean.TRUE.equals(model.getAttribute("autenticado"));
     }
 
     private static boolean esDueno(VidrioSostenible v, Usuario usuario) {
@@ -73,11 +85,22 @@ public class VidrioPersonalizadoWebController {
         return "mis-cotizaciones";
     }
 
-    /** F8: solo el dueno o un admin abren el detalle. */
+    /** F8: solo el dueno o un admin abren el detalle. T1: o la sesion anonima que la cotizo. */
     @GetMapping("/cotizacion/{id}")
-    public String verCotizacion(@PathVariable String id, Model model, Authentication auth) {
+    public String verCotizacion(@PathVariable String id, Model model, Authentication auth, HttpSession sesion) {
         Usuario usuario = usuarioActual(model);
-        if (usuario == null) return "redirect:/login";
+        if (usuario == null) {
+            if (!esVisitante(model) || !SesionAnonima.esCotizacionDeLaSesion(sesion, id)) return "redirect:/login";
+            return vidrioSostenibleService.obtenerPorId(id)
+                    .filter(v -> v.getUsuarioId() == null)
+                    .map(vidrio -> {
+                        model.addAttribute("vidrio", vidrio);
+                        model.addAttribute("esDueno", false);
+                        model.addAttribute("obraAnonima", true);
+                        return "vidrio-personalizado-detalle";
+                    })
+                    .orElse("redirect:/login");
+        }
         boolean admin = PermisosAdvice.esAdmin(auth);
         return vidrioSostenibleService.obtenerPorId(id)
                 .filter(v -> admin || esDueno(v, usuario))
@@ -95,11 +118,13 @@ public class VidrioPersonalizadoWebController {
     }
 
     @PostMapping("/cotizar")
-    public String cotizar(CotizacionVidrioRequest request, Model model) {
+    public String cotizar(CotizacionVidrioRequest request, Model model, HttpSession sesion) {
         Usuario usuario = usuarioActual(model);
-        if (usuario == null) return "redirect:/login";
-        request.setUsuarioId(usuario.getId()); // el dueno lo define la sesion, no el formulario
+        if (usuario == null && !esVisitante(model)) return "redirect:/login";
+        // el dueno lo define la sesion, no el formulario: anonimo -> null (T1)
+        request.setUsuarioId(usuario != null ? usuario.getId() : null);
         VidrioSostenible creado = vidrioSostenibleService.generarCotizacion(request);
+        if (usuario == null) SesionAnonima.registrarCotizacion(sesion, creado.getId());
         return "redirect:/vidrio-personalizado/cotizacion/" + creado.getId();
     }
 

@@ -19,6 +19,12 @@
             <h1 th:text="#{login.te_damos_la_bienvenida}">Te damos la bienvenida</h1>
             <p class="lead" th:text="#{login.ingresa_a_tu_cuenta_para}">Ingresa a tu cuenta para continuar.</p>
 
+            <!-- T1 (D4): viene de pagar sin sesion; el carrito anonimo se fusiona al entrar -->
+            <div th:if="${paraPagar}" class="alert alert--info" role="status" data-persistente>
+                <i class="ph ph-shopping-cart-simple" aria-hidden="true"></i>
+                <span th:text="#{login.para_pagar}">Para pagar, inicia sesión o crea tu cuenta. Tu carrito se conserva.</span>
+            </div>
+
             <div th:if="${param.error}" class="alert alert--error" role="alert" data-persistente>
                 <i class="ph ph-warning-circle" aria-hidden="true"></i>
                 <span th:text="#{login.usuario_o_contrasena_incorrectos_revisa}">Usuario o contraseña incorrectos. Revisa los datos e inténtalo de nuevo.</span>

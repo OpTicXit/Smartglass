@@ -29,6 +29,11 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 
     private final RequestCache requestCache = new HttpSessionRequestCache();
     private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+    private final SesionAnonima sesionAnonima;
+
+    public CustomSuccessHandler(SesionAnonima sesionAnonima) {
+        this.sesionAnonima = sesionAnonima;
+    }
 
     @Override
     public void onAuthenticationSuccess(
@@ -36,6 +41,9 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             HttpServletResponse response,
             Authentication authentication
     ) throws IOException {
+
+        // T1 (D4): el carrito y las obras del visitante pasan a su cuenta antes de volver a /checkout
+        sesionAnonima.transferir(request, authentication);
 
         SavedRequest savedRequest = requestCache.getRequest(request, response);
 
