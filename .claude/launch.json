@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "visor-plantillas",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-I", "C:\\Users\\SSS\\AppData\\Local\\Temp\\claude\\C--Users-SSS-Smartglass\\aadc5d59-8ff6-4ef9-a7d9-13db15a2f241\\scratchpad\\preview.py", "C:\\Users\\SSS\\Smartglass\\src\\main\\resources", "8765"],
+      "port": 8765
+    }
+  ]
+}

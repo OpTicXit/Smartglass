@@ -670,5 +670,11 @@
     "seen": 1792862051.5428836,
     "ast_hash": "3d642fa571824fb1b7cce307070ed8af",
     "semantic_hash": "3d642fa571824fb1b7cce307070ed8af"
+  },
+  "FLUJO-DE-TRABAJO.md": {
+    "mtime": 1792863501.3082066,
+    "seen": 1792863832.0692935,
+    "ast_hash": "5b57aae475c20152290c69901b3e641e",
+    "semantic_hash": "5b57aae475c20152290c69901b3e641e"
   }
 }
