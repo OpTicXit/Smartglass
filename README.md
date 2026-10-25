@@ -301,6 +301,8 @@ Después de activar el entorno, instala las dependencias de nuevo si es necesari
 
 ## ▶️ Ejecución del proyecto
 
+> Para publicar la aplicación en Render o Railway (Docker, perfil `prod`, MongoDB Atlas y MySQL gestionado), sigue [DESPLIEGUE.md](DESPLIEGUE.md).
+
 ### 1. Iniciar el backend
 
 Desde la raíz del proyecto, ejecuta el Maven Wrapper.

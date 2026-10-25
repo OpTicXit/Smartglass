@@ -127,6 +127,8 @@ public class SecurityConfig {
                 // T5: la consola SaaS la protege SuperadminController (lista SUPERADMIN_USUARIOS);
                 // a cualquier otro, con o sin sesion, le responde 404 para no anunciar que existe
                 .requestMatchers("/superadmin", "/superadmin/**").permitAll()
+                // T6: chequeo de salud de la plataforma de despliegue
+                .requestMatchers(HttpMethod.GET, "/salud").permitAll()
                 // Acciones autenticadas
                 .requestMatchers(HttpMethod.POST, "/detalle/*/resenas").authenticated()
                 // T1 (D4): carrito y diseno/cotizacion abiertos a visitantes; el login se pide al pagar

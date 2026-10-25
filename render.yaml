@@ -1,0 +1,38 @@
+# T6 · Blueprint de Render para SmartGlass (servicio web con Docker).
+# Render no ofrece MySQL gestionado: MYSQL_URL apunta a un MySQL externo (Railway, Aiven u otro)
+# y MONGODB_URI a MongoDB Atlas. Los valores con sync: false se escriben en el panel de Render.
+services:
+  - type: web
+    name: smartglass
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter            # el disco persistente para las fotos requiere un plan de pago
+    healthCheckPath: /salud
+    autoDeploy: false
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: UPLOADS_DIR
+        value: /data/uploads
+      - key: MYSQL_URL
+        sync: false
+      - key: MYSQL_USER
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SUPERADMIN_USUARIOS
+        sync: false
+    disk:
+      name: fotos
+      mountPath: /data
+      sizeGB: 1

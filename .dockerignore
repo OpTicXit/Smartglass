@@ -1,0 +1,17 @@
+# T6: el contexto de la imagen solo necesita mvnw, .mvn, pom.xml y src
+.git
+.gitignore
+.vscode
+.idea
+.claude
+target
+uploads
+data
+documentos
+graphify-out
+mineria de datos
+*.md
+.env
+.env.*
+requirements.txt
+skills-lock.json

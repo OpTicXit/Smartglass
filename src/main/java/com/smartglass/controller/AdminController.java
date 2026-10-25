@@ -154,7 +154,9 @@ public class AdminController {
     }
 
     /** Carpeta donde se guardan las fotos subidas (la sirve UploadsWebConfig bajo /img/**). */
-    private static final Path CARPETA_FOTOS = Paths.get("uploads", "img");
+    // T6: smartglass.uploads.dir (UPLOADS_DIR); en produccion es un volumen persistente
+    @org.springframework.beans.factory.annotation.Value("${smartglass.uploads.dir:uploads}")
+    private String carpetaUploads;
     private static final long MAX_BYTES_FOTO = 5L * 1024 * 1024;
 
     /**
@@ -257,6 +259,8 @@ public class AdminController {
     }
 
     /** Valida y guarda la foto con un nombre generado (nunca el nombre original, para evitar choques y rutas raras). */
+    private Path carpetaFotos() { return Paths.get(carpetaUploads, "img"); }
+
     private String guardarFoto(MultipartFile foto) throws IOException {
         if (foto.getSize() > MAX_BYTES_FOTO) {
             throw new IllegalArgumentException("La foto pesa más de 5 MB.");
@@ -269,10 +273,10 @@ public class AdminController {
         else if ("image/gif".equals(tipo)) extension = ".gif";
         else throw new IllegalArgumentException("La foto debe ser PNG, JPG, WEBP o GIF.");
 
-        Files.createDirectories(CARPETA_FOTOS);
+        Files.createDirectories(carpetaFotos());
         String nombre = "prod-" + UUID.randomUUID() + extension;
         try (InputStream in = foto.getInputStream()) {
-            Files.copy(in, CARPETA_FOTOS.resolve(nombre), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(in, carpetaFotos().resolve(nombre), StandardCopyOption.REPLACE_EXISTING);
         }
         return nombre;
     }

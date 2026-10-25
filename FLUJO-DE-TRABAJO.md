@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con T5 · SaaS escrito). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con T6 · despliegue escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS **sin commitear**). No se ha subido nada (`push`).
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue **sin commitear**). No se ha subido nada (`push`).
 
 ## Leyenda
 
@@ -165,6 +165,18 @@ Seis tandas con gate: T1 responsive → T2 plano y cotizaciones → T3 sostenibi
 | El servidor aplica el plan aunque se envíen datos a mano: forma no incluida → Rectangular, compromisos → apagados, idioma → es-CO, ofertas conservadas | 🧪 ESCRITO (POST manual con "Hexagonal" y compromisos en Básico → guardada Rectangular y sin compromisos) | `VidrioSostenibleService.formaSegunPlan`, `CheckoutController`, `AdminController.actualizarComercio`, `I18nConfig` |
 | Consola `/superadmin` aparte del panel: plan, ajustes por función (según plan / activar / desactivar), historial y estudio de mercado. Acceso por la variable `SUPERADMIN_USUARIOS` (el admin de la vidriería no puede dárselo desde /admin/usuarios); para cualquier otro responde 404 | 🧪 ESCRITO (sin sesión: 404; con `admin`: plan, ajuste de corte personalizado e historial probados) | `SuperadminController`, `superadmin.html`, `application.properties` (`smartglass.superadmin.usuarios`) |
 | Pendiente del equipo: añadir `SUPERADMIN_USUARIOS` a `.vscode/launch.json` (en local) y a las variables del despliegue (T6) | POR HACER | — |
+
+### T6 · Despliegue en Render o Railway
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Configuración por variables con valores locales iguales a los de antes: `PORT`, `MYSQL_URL`, `MONGODB_URI`, `UPLOADS_DIR`; URL de vuelta de Google con `{baseUrl}` | 🧪 ESCRITO (la app local sigue igual en 50500) | `application.properties` |
+| **AUD-12 resuelto:** Spring Boot 4 ignora `spring.data.mongodb.uri` (obsoleta con nivel error) y usaba `mongodb://localhost/test`; ahora `spring.mongodb.uri`. En local se mantiene `test` para no mover los datos | 🧪 ESCRITO | Metadatos de `spring-boot-mongodb-4.1.1`; `application.properties` |
+| Perfil `prod`: cookie `Secure`, `forward-headers-strategy=native`, errores sin detalle, sin SQL ni DEBUG, pool de 5, caché de 7 días con versión por contenido en CSS y JS | 🧪 ESCRITO (JAR con perfil prod en 50600: cookie `Secure; HttpOnly; SameSite=Lax`, HSTS, `redirect_uri=https://<dominio>/…`, `/css/theme-<hash>.css`, 404 sin trazas, 0 líneas SQL) | `application-prod.properties` |
+| `Dockerfile` en dos etapas (Temurin 26), usuario sin privilegios con `setpriv`, volumen `/data`; `.dockerignore`; `railway.json` y `render.yaml`; chequeo `/salud` | 🧪 ESCRITO (sin Docker en la máquina: la primera compilación en la plataforma valida la imagen) | `Dockerfile`, `railway.json`, `render.yaml`, `SaludController` |
+| Fotos subidas en carpeta configurable (`UPLOADS_DIR`) para montar un volumen persistente | 🧪 ESCRITO (foto servida desde la carpeta del perfil prod) | `UploadsWebConfig`, `AdminController` |
+| Guía `DESPLIEGUE.md`: plataforma recomendada (Railway), variables, pasos, migración de datos (`mongodump --db test` → Atlas), Google Cloud y comprobaciones | 🧪 ESCRITO | `DESPLIEGUE.md`; enlace en `README.md` |
+| Pendiente del equipo: rotar los secretos del historial (H01) antes de subir el repositorio, push y crear los servicios en la plataforma | POR HACER | — |
 
 ### Decisiones D1–D4
 

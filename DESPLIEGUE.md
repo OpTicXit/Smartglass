@@ -1,0 +1,98 @@
+# Despliegue de SmartGlass (Render o Railway)
+
+Guía para publicar la aplicación con MongoDB Atlas y un MySQL gestionado. La imagen se construye con el `Dockerfile` de la raíz y arranca con el perfil `prod` (`application-prod.properties`).
+
+## Qué plataforma elegir
+
+| | Railway (recomendado) | Render |
+|---|---|---|
+| MySQL gestionado | Sí, dentro del mismo proyecto | No (solo PostgreSQL): hay que usar un MySQL externo, por ejemplo el de Railway o Aiven |
+| Disco para las fotos subidas | Volumen persistente | Disco persistente, solo en planes de pago |
+| Archivo de configuración | `railway.json` | `render.yaml` (Blueprint) |
+| Chequeo de salud | `/salud` | `/salud` |
+
+En los dos casos MongoDB va en **MongoDB Atlas** (el plan M0 gratuito alcanza para empezar).
+
+## Antes de desplegar
+
+1. **Secretos del historial (H01).** Si el repositorio va a GitHub, primero hay que rotar las credenciales que estuvieron en commits antiguos: la clave de MySQL, el `JWT_SECRET` y el secreto de Google.
+2. **MongoDB Atlas.** Crea un clúster, un usuario de base de datos y permite el acceso de red de la plataforma (o `0.0.0.0/0` mientras pruebas). Copia la cadena `mongodb+srv://…` y **añádele el nombre de la base**, por ejemplo `/smartglass`.
+3. **Google Cloud (login con Google).** En la credencial OAuth, añade:
+   - URI de redirección autorizada: `https://<tu-dominio>/login/oauth2/code/google`
+   - Origen de JavaScript autorizado: `https://<tu-dominio>`
+
+   La app construye esa URL sola a partir del dominio con el que se entra (`{baseUrl}`), así que en local sigue funcionando `http://localhost:50500/login/oauth2/code/google`.
+
+## Variables de entorno
+
+| Variable | Obligatoria | Valor |
+|---|---|---|
+| `SPRING_PROFILES_ACTIVE` | Sí | `prod` (el `Dockerfile` ya la pone) |
+| `MYSQL_URL` | Sí | `jdbc:mysql://HOST:PUERTO/BASE?sslMode=REQUIRED&serverTimezone=UTC` (en la red privada de Railway: `?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC`) |
+| `MYSQL_USER` / `MYSQL_PASSWORD` | Sí | Usuario y clave del MySQL gestionado |
+| `MONGODB_URI` | Sí | Cadena de Atlas **con el nombre de la base** |
+| `JWT_SECRET` | Sí | 32 caracteres o más, fijo (si cambia, las sesiones JWT emitidas dejan de valer) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Sí | Credencial OAuth de Google |
+| `ADMIN_PASSWORD` | Solo la primera vez | Crea el usuario `admin` si la base está vacía |
+| `SUPERADMIN_USUARIOS` | Recomendada | Usuarios con acceso a `/superadmin`, separados por comas |
+| `UPLOADS_DIR` | Sí | `/data/uploads` (el `Dockerfile` ya la pone; el volumen se monta en `/data`) |
+| `PORT` | No | Lo asigna la plataforma |
+| `DB_POOL` | No | Conexiones a MySQL (por defecto 5) |
+
+## Railway, paso a paso
+
+1. **New Project → Deploy from GitHub repo** y elige el repositorio. Railway detecta `railway.json` y construye con el `Dockerfile`.
+2. **+ New → Database → MySQL** en el mismo proyecto.
+3. En el servicio de la app, **Variables**, usa referencias a la base:
+   - `MYSQL_URL` = `jdbc:mysql://${{MySQL.MYSQLHOST}}:${{MySQL.MYSQLPORT}}/${{MySQL.MYSQLDATABASE}}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC`
+   - `MYSQL_USER` = `${{MySQL.MYSQLUSER}}`
+   - `MYSQL_PASSWORD` = `${{MySQL.MYSQLPASSWORD}}`
+   - Las demás de la tabla anterior.
+4. **Volume:** añade un volumen al servicio de la app con punto de montaje `/data`. Ahí quedan las fotos que sube el admin.
+5. **Settings → Networking → Generate Domain** y registra ese dominio en Google Cloud (ver arriba).
+6. Despliega. El chequeo `/salud` debe responder `ok`.
+
+## Render, paso a paso
+
+1. **New → Blueprint** y elige el repositorio: Render lee `render.yaml`.
+2. Escribe en el panel los valores marcados `sync: false` (MySQL externo, Atlas, Google, `ADMIN_PASSWORD`, `SUPERADMIN_USUARIOS`). `JWT_SECRET` lo genera Render.
+3. El disco `fotos` se monta en `/data` y requiere un plan de pago. Sin disco, las fotos subidas se pierden en cada despliegue.
+4. Registra el dominio `https://<servicio>.onrender.com` en Google Cloud.
+
+## Llevar los datos de local a producción
+
+- **MySQL** (usuarios y pedidos): `mysqldump smartglass_db > smartglass.sql` y luego importarlo en la base gestionada.
+- **MongoDB** (catálogo, carritos, cotizaciones, notificaciones y plan SaaS). En local los datos están en la base **`test`** (ver AUD-12 abajo). Para pasarlos a Atlas con el nombre `smartglass`:
+
+  ```bash
+  mongodump --db test --out ./volcado
+  mongorestore --uri "<MONGODB_URI sin el nombre de base>" --nsFrom "test.*" --nsTo "smartglass.*" ./volcado
+  ```
+- **Fotos subidas**: la carpeta local `uploads/img` (hoy vacía) se copia al volumen `/data/uploads/img`.
+
+Si arrancas con bases vacías, la app crea las tablas, los índices, el catálogo inicial y, con `ADMIN_PASSWORD`, el usuario `admin`.
+
+## Comprobaciones después de desplegar
+
+1. `https://<dominio>/salud` responde `ok`.
+2. Inicio, catálogo y configurador cargan con estilos (las URL de CSS y JS llevan un hash).
+3. Login con usuario y contraseña, y login con Google (vuelve a `https://<dominio>/…`).
+4. Cotizar una obra, aprobarla desde el admin, añadirla al carrito y pagar.
+5. Subir una foto de producto, volver a desplegar y comprobar que sigue ahí (volumen).
+6. `/superadmin` con un usuario de `SUPERADMIN_USUARIOS`; cualquier otro ve 404.
+
+## Qué cambia el perfil `prod`
+
+- Cookie de sesión `Secure` (solo HTTPS), `HttpOnly` y `SameSite=Lax`; HSTS lo añade Spring Security.
+- `server.forward-headers-strategy=native`: detrás del proxy de la plataforma la app ve `https`, el dominio real y la IP del cliente (login con Google y límite por IP).
+- Errores sin mensaje ni traza para el visitante.
+- Sin SQL en consola y logs de seguridad en `WARN`.
+- Caché de 7 días para estáticos, con versión por contenido en CSS y JS.
+- Pool de MySQL de 5 conexiones (`DB_POOL`).
+
+## Notas conocidas
+
+- **AUD-12 (base `test` de Mongo), resuelto.** Spring Boot 4 ignora `spring.data.mongodb.uri` (obsoleta con nivel *error* desde la 4.0), por eso la app usaba su valor por defecto `mongodb://localhost/test`. Ahora la propiedad es `spring.mongodb.uri`. En local se mantiene `test` a propósito para no mover los datos existentes; en producción manda `MONGODB_URI`.
+- **Una sola instancia.** La sesión y algunas cachés viven en memoria. No escales a varias réplicas sin una sesión compartida.
+- **Servicio externo de resistencia.** El detalle de la obra consulta `api-production-d556.up.railway.app`, que hoy rechaza peticiones de otros dominios (CORS). La página lo maneja mostrando "Referencia externa no disponible"; para mostrar la referencia, ese servicio debe permitir el dominio nuevo.
+- **Imagen sin probar localmente.** En la máquina de desarrollo no hay Docker; se probó el JAR con el perfil `prod`, que es lo que ejecuta la imagen. La primera compilación en la plataforma es la prueba del `Dockerfile`.
