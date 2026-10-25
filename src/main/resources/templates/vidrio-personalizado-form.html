@@ -134,6 +134,38 @@
         .eco-opcion span { color: var(--text-main); font-size: 0.92rem; line-height: 1.4; }
         .eco-opcion small { display: block; margin-top: 2px; color: var(--text-muted); font-size: 0.8rem; }
 
+        /* T3: grupos de opciones sostenibles, dato propio de cada compromiso y sello */
+        .eco-grupo { margin: 4px 0 10px; }
+        .eco-grupo + .eco-opcion { margin-top: 0; }
+        .eco-grupo h3 { margin: 0; font-size: 0.92rem; letter-spacing: -0.01em; }
+        .eco-grupo p { margin: 2px 0 0; color: var(--text-muted); font-size: 0.82rem; }
+        .eco-grupo.sep { margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--border-color); }
+        .eco-opcion > span { flex: 1; }
+        .eco-opcion .eco-dato { display: block; margin-top: 4px; color: var(--color-success); font-size: 0.8rem; font-style: normal; font-weight: 700; }
+        .eco-opcion .eco-dato:empty { display: none; }
+        .eco-opcion .chip-gratis { flex: none; align-self: flex-start; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--color-success); color: var(--color-success); font-size: max(12px, 0.72rem); font-weight: 700; white-space: nowrap; }
+        .eco-opcion:has(input:disabled) { opacity: 0.55; cursor: not-allowed; }
+        .eco-opcion .eco-aviso { display: block; margin-top: 4px; color: var(--color-warning); font-size: 0.8rem; font-weight: 700; }
+        .eco-opcion .eco-aviso[hidden] { display: none; }
+
+        .sello { padding: 16px 20px; border: 1px solid var(--border-color); border-radius: 16px; background: var(--card-bg); }
+        .sello-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .sello-cab span { color: var(--text-muted); font-size: max(12px, 0.74rem); font-weight: 700; }
+        .sello-insignia { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-main); font-size: 0.82rem; font-weight: 800; }
+        .sello-insignia i { font-size: 1rem; }
+        .sello[data-nivel="ORO"] .sello-insignia { border-color: #C9A227; color: #8A6D0B; background: color-mix(in srgb, #F5D76E 30%, var(--bg-secondary)); }
+        .sello[data-nivel="PLATA"] .sello-insignia { border-color: #8E9AAF; color: #4B5568; background: color-mix(in srgb, #C9D1DE 40%, var(--bg-secondary)); }
+        .sello[data-nivel="BRONCE"] .sello-insignia { border-color: #B87333; color: #7A4A1E; background: color-mix(in srgb, #E3B48A 35%, var(--bg-secondary)); }
+        [data-theme="dark"] .sello[data-nivel="ORO"] .sello-insignia { color: #F5D76E; }
+        [data-theme="dark"] .sello[data-nivel="PLATA"] .sello-insignia { color: #D5DCE8; }
+        [data-theme="dark"] .sello[data-nivel="BRONCE"] .sello-insignia { color: #E8B98C; }
+        .sello-barra { position: relative; height: 8px; margin: 12px 0 8px; border-radius: 99px; background: var(--bg-tertiary); overflow: hidden; }
+        .sello-barra i { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--color-success), var(--color-cyan, var(--color-accent))); transition: width 0.35s ease; }
+        .sello p { margin: 0; color: var(--text-muted); font-size: 0.85rem; line-height: 1.45; }
+        .sello p strong { color: var(--text-main); }
+        .sello small { display: block; margin-top: 6px; color: var(--text-subtle, var(--text-muted)); font-size: max(12px, 0.75rem); }
+        @media (prefers-reduced-motion: reduce) { .sello-barra i { transition: none; } }
+
         /* Entrega urgente (opcion premium) */
         .urgente {
             display: flex; align-items: center; gap: 14px; padding: 16px 18px; cursor: pointer;
@@ -343,6 +375,17 @@
                 <button type="button" class="termo-ver" id="termoVer" hidden th:text="#{cotizar.ver_configuracion_recomendada}">Ver configuración recomendada</button>
             </div>
 
+            <!-- T3: sello Compromiso verde (no cambia CO2 ni precio; separado del semaforo F24) -->
+            <div class="sello" id="sello" data-nivel="">
+                <div class="sello-cab">
+                    <span th:text="#{sello.titulo}">Compromiso verde</span>
+                    <span class="sello-insignia"><i class="ph-fill ph-seal-check" aria-hidden="true"></i><span id="selloNivel">—</span></span>
+                </div>
+                <div class="sello-barra" aria-hidden="true"><i id="selloBarra"></i></div>
+                <p><strong id="selloPuntos">0/100</strong> · <span id="selloSiguiente"></span></p>
+                <small th:text="#{sello.nota}">Reconoce tus decisiones; no cambia el cálculo de CO₂ ni el precio.</small>
+            </div>
+
             <div class="precio-caja">
                 <span th:text="#{cotizar.estimacion_actual}">Estimación actual</span>
                 <div class="precio-grande" id="priceText">$175.959</div>
@@ -550,6 +593,11 @@
                     </div>
                 </header>
 
+                <div class="eco-grupo">
+                    <h3 th:text="#{eco.grupo_proceso}">Material y proceso</h3>
+                    <p th:text="#{eco.grupo_proceso_sub}">Reducen la huella de carbono de tu pieza.</p>
+                </div>
+
                 <label class="eco-opcion">
                     <input type="checkbox" name="usarVidrioReciclado" id="opcionEco" checked>
                     <span><span th:text="#{cotizar.integrar}">Integrar</span> <strong th:text="#{cotizar.material_reciclado}">material reciclado</strong><small th:text="#{cotizar.reduce_un_15_la_huella}">Reduce un 15 % la huella de carbono.</small></span>
@@ -563,6 +611,36 @@
                 <label class="eco-opcion">
                     <input type="checkbox" name="compensarCarbono" id="compensar" checked>
                     <span><span th:text="#{cotizar.activar}">Activar</span> <strong th:text="#{cotizar.compensacion_de_co2}">compensación de CO₂</strong><small th:text="#{cotizar.suma_5_000_cop_a}">Suma 5.000 COP a tu estimación.</small></span>
+                </label>
+
+                <!-- T3: compromisos sin costo (no entran en AnalisisService ni en el precio) -->
+                <div class="eco-grupo sep">
+                    <h3 th:text="#{eco.grupo_compromisos}">Compromisos sin costo</h3>
+                    <p th:text="#{eco.grupo_compromisos_sub}">No cambian el precio: reducen residuos y viajes, y suman a tu sello Compromiso verde.</p>
+                </div>
+
+                <label class="eco-opcion">
+                    <input type="checkbox" name="retomaVidrio" id="retomaVidrio">
+                    <span><strong th:text="#{eco.retoma_t}">Retoma del vidrio que reemplazas</strong><small th:text="#{eco.retoma_d}">Lo recogemos en la entrega y lo convertimos en calcín para nuevas piezas.</small><em class="eco-dato" id="datoRetoma"></em></span>
+                    <span class="chip-gratis" th:text="#{eco.gratis}">Sin costo</span>
+                </label>
+
+                <label class="eco-opcion">
+                    <input type="checkbox" name="empaqueReutilizable" id="empaqueReutilizable" checked>
+                    <span><strong th:text="#{eco.empaque_t}">Empaque reutilizable</strong><small th:text="#{eco.empaque_d}">Caballete de madera retornable y separadores de corcho, sin espuma plástica.</small></span>
+                    <span class="chip-gratis" th:text="#{eco.gratis}">Sin costo</span>
+                </label>
+
+                <label class="eco-opcion">
+                    <input type="checkbox" name="entregaConsolidada" id="entregaConsolidada">
+                    <span><strong th:text="#{eco.consolidada_t}">Entrega consolidada</strong><small th:text="#{eco.consolidada_d}">Agrupamos tu entrega con otras de tu zona: menos viajes de camión. Puede tardar de 1 a 3 días más.</small><em class="eco-aviso" id="avisoConsolidada" hidden th:text="#{eco.consolidada_urgente}">No disponible con entrega urgente.</em></span>
+                    <span class="chip-gratis" th:text="#{eco.gratis}">Sin costo</span>
+                </label>
+
+                <label class="eco-opcion">
+                    <input type="checkbox" name="usarRetazos" id="usarRetazos">
+                    <span><strong th:text="#{eco.retazos_t}">Cortar de sobrantes de lámina</strong><small th:text="#{eco.retazos_d}">Si en planta hay un retazo compatible, tu pieza sale de ahí. Misma calidad y precio.</small></span>
+                    <span class="chip-gratis" th:text="#{eco.gratis}">Sin costo</span>
                 </label>
             </section>
 
@@ -615,6 +693,10 @@
 <th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>
 <script th:src="@{/js/corte-editor.js}"></script>
+<script th:inline="javascript">
+    /* T3: pesos y cortes del sello Compromiso verde (fuente unica: CompromisoVerde.java) */
+    window.SG_COMPROMISO = /*[[${compromisoVerde}]]*/ { pesos: { usarVidrioReciclado: 20, energiaRenovable: 20, compensarCarbono: 15, retomaVidrio: 15, empaqueReutilizable: 10, entregaConsolidada: 10, usarRetazos: 10 }, oro: 85, plata: 60, bronce: 35 };
+</script>
 <script>
 (function () {
     function $(id) { return document.getElementById(id); }
@@ -642,6 +724,10 @@
         var bool = function (v) { return v === '1' || v === 'true'; };
         if (q.has('reciclado')) $('opcionEco').checked = bool(q.get('reciclado'));
         if (q.has('renovable')) $('energiaRenovable').checked = bool(q.get('renovable'));
+        /* T3: compromisos sin costo */
+        [ ['retoma', 'retomaVidrio'], ['empaque', 'empaqueReutilizable'], ['consolidada', 'entregaConsolidada'], ['retazos', 'usarRetazos'] ].forEach(function (par) {
+            if (q.has(par[0])) $(par[1]).checked = bool(q.get(par[0]));
+        });
         balancear = q.get('balancear') === '1';
         /* F45: una obra personalizada vuelve con sus vertices; el servidor los valida igualmente */
         if (q.get('forma') === 'Personalizada' && q.has('puntos')) {
@@ -798,10 +884,31 @@
         contar($('termoValor'), imp.valor, function (v) { return G.fmtNum(v, 1); });
         $('termoFrase').textContent = imp.frase;
         $('termoPunto').style.left = Math.min(imp.valor / 30, 1) * 100 + '%';
+        pintarCompromisos(r);
 
         var objetivo = imp.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable;
         gestionarAviso(imp, G.recomendar(cc, objetivo));
         actualizarFades();
+    }
+    /* ---------- T3: compromisos sin costo y sello Compromiso verde (no tocan CO2 ni precio) ---------- */
+    var CV = window.SG_COMPROMISO;
+    function pintarCompromisos(r) {
+        /* la entrega consolidada no es compatible con la urgente (el servidor tambien lo aplica) */
+        var urg = $('urgente').checked, cons = $('entregaConsolidada');
+        if (urg && cons.checked) cons.checked = false;
+        cons.disabled = urg;
+        $('avisoConsolidada').hidden = !urg;
+        $('datoRetoma').textContent = $('retomaVidrio').checked ? sgT('eco_retoma_dato', '≈ {0} kg de vidrio que no va al relleno sanitario', G.fmtNum(r.peso, 1)) : '';
+        var puntos = 0, campos = { usarVidrioReciclado: 'opcionEco', energiaRenovable: 'energiaRenovable', compensarCarbono: 'compensar',
+            retomaVidrio: 'retomaVidrio', empaqueReutilizable: 'empaqueReutilizable', entregaConsolidada: 'entregaConsolidada', usarRetazos: 'usarRetazos' };
+        Object.keys(campos).forEach(function (k) { if ($(campos[k]).checked) puntos += (CV.pesos[k] || 0); });
+        var nivel = puntos >= CV.oro ? 'ORO' : puntos >= CV.plata ? 'PLATA' : puntos >= CV.bronce ? 'BRONCE' : '';
+        $('sello').setAttribute('data-nivel', nivel);
+        $('selloNivel').textContent = nivel ? sgT('sello_' + nivel, nivel) : sgT('sello_ninguno', 'Sin sello aún');
+        $('selloPuntos').textContent = sgT('sello_puntos', '{0}/100 puntos', puntos);
+        $('selloBarra').style.width = Math.min(puntos, 100) + '%';
+        var meta = puntos < CV.bronce ? ['BRONCE', CV.bronce] : puntos < CV.plata ? ['PLATA', CV.plata] : puntos < CV.oro ? ['ORO', CV.oro] : null;
+        $('selloSiguiente').textContent = meta ? sgT('sello_siguiente', 'Te faltan {0} puntos para el sello {1}.', meta[1] - puntos, sgT('sello_' + meta[0], meta[0])) : sgT('sello_maximo', 'Tienes el sello más alto.');
     }
     function programar() {
         if (raf) return;

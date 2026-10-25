@@ -480,3 +480,6 @@ T3: clases que reemplazan estilos en linea del panel
     .chip, a.ver, .filtros a { min-height: 44px; }
     .table-admin button, .btn-eliminar, .chip { min-width: 44px; }
 }
+
+/* T3: compromisos logisticos del pedido (iconos junto a la factura) */
+.compromisos-ped { display: inline-flex; gap: 4px; margin-left: 8px; color: var(--color-success); font-size: 1.05rem; vertical-align: middle; }

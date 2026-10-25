@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{ficha.titulo_pagina}">SmartGlass - Ficha ambiental</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+    <!--
+        T3 · Ficha ambiental de una obra (imprimible o "guardar como PDF" desde el navegador).
+        Solo muestra datos ya guardados por AnalisisService: no recalcula nada (contrato intacto).
+        Numeros en formato es-CO en todos los idiomas (D2). Acceso: las mismas reglas que el detalle.
+    -->
+    <style>
+        .ficha-hoja { width: 100%; max-width: 920px; margin: 0 auto; padding: 32px clamp(16px, 3vw, 32px) 48px; }
+        .ficha-acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+        .ficha-papel { padding: clamp(20px, 4vw, 40px); border: 1px solid var(--border-color); border-radius: 22px; background: var(--card-bg); box-shadow: var(--shadow-main); }
+        .ficha-cab { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 20px; border-bottom: 2px solid var(--border-color); }
+        .ficha-marca { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; }
+        .ficha-marca img { width: 34px; height: 34px; }
+        .ficha-cab h1 { margin: 14px 0 6px; font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: -0.03em; }
+        .ficha-cab p { margin: 0; max-width: 56ch; color: var(--text-muted); font-size: 0.92rem; line-height: 1.5; }
+        .ficha-meta { display: grid; gap: 6px; min-width: 200px; margin: 0; font-size: 0.88rem; }
+        .ficha-meta div { display: flex; justify-content: space-between; gap: 14px; }
+        .ficha-meta dt { color: var(--text-muted); }
+        .ficha-meta dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .ficha-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px 32px; margin-top: 24px; }
+        .ficha-bloque h2 { margin: 0 0 10px; font-size: 1rem; letter-spacing: -0.01em; }
+        .ficha-tabla { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .ficha-tabla th, .ficha-tabla td { padding: 8px 0; border-bottom: 1px solid var(--border-color); text-align: left; vertical-align: top; }
+        .ficha-tabla th { color: var(--text-muted); font-weight: 600; }
+        .ficha-tabla td { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .ficha-tabla tr.total th, .ficha-tabla tr.total td { color: var(--text-main); border-top: 2px solid var(--border-color); }
+        .ficha-vista { grid-column: 1 / -1; }
+        .ficha-vista .sg-stage { max-width: 520px; margin: 0 auto; }
+        .ficha-decisiones { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+        .ficha-decisiones li { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+        .ficha-decisiones i { font-size: 1.1rem; }
+        .ficha-decisiones .si i { color: var(--color-success); }
+        .ficha-decisiones .no { color: var(--text-muted); }
+        .ficha-aviso { margin: 26px 0 0; padding: 14px 16px; border: 1px dashed var(--border-color); border-radius: 12px; color: var(--text-muted); font-size: 0.82rem; line-height: 1.55; }
+        @media (max-width: 680px) { .ficha-cuerpo { grid-template-columns: 1fr; } .ficha-meta { width: 100%; } }
+
+        /* Impresion: hoja limpia en blanco y negro legible */
+        @media print {
+            @page { margin: 14mm; }
+            /* el tema oscuro no llega al papel: tinta oscura sobre blanco en cualquier tema */
+            :root, :root[data-theme] {
+                --text-main: #111; --text-muted: #333; --text-subtle: #444; --border-color: #bbb;
+                --card-bg: #fff; --bg-secondary: #fff; --bg-tertiary: #f2f2f2;
+                --color-success: #1f7a4d; --color-accent-text: #1d4ed8;
+            }
+            body { background: #fff !important; color: #000; }
+            .sg-stage { background: #f4f7fb !important; }
+            nav, footer, .ficha-acciones, .sg-theme-switch, .notif-panel, [data-tour] { display: none !important; }
+            .ficha-hoja { max-width: none; padding: 0; }
+            .ficha-papel { border: 0; box-shadow: none; padding: 0; background: #fff; }
+            .ficha-tabla th, .ficha-tabla td, .ficha-cab { border-color: #999 !important; }
+            .ficha-meta dt, .ficha-tabla th, .ficha-aviso, .ficha-cab p { color: #333 !important; }
+            .sg-stage { border: 1px solid #ccc; break-inside: avoid; }
+            .ficha-bloque { break-inside: avoid; }
+            .sg-glass .sg-sweep, .sg-glass .sg-float { animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
+
+<main class="ficha-hoja" th:if="${vidrio != null}" id="ficha"
+      th:attr="data-id=${vidrio.id},data-tipo=${vidrio.tipoVidrio},data-ancho=${vidrio.ancho},data-alto=${vidrio.alto},data-espesor=${vidrio.espesor},data-forma=${vidrio.forma},data-reciclado=${vidrio.usarVidrioReciclado},data-puntos=${vidrio.puntosTexto}">
+
+    <div class="ficha-acciones">
+        <button type="button" class="btn btn-primary" onclick="window.print()"><i class="ph ph-printer" aria-hidden="true"></i> <span th:text="#{ficha.imprimir}">Imprimir o guardar en PDF</span></button>
+        <a class="btn btn-secondary" th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${vidrio.id})}"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="#{ficha.volver}">Volver a la obra</span></a>
+    </div>
+
+    <article class="ficha-papel">
+        <header class="ficha-cab">
+            <div>
+                <div class="ficha-marca"><img th:src="@{/img/logo-icono.png}" alt="" aria-hidden="true"> SmartGlass</div>
+                <h1 th:text="#{ficha.titulo}">Ficha ambiental de la pieza</h1>
+                <p th:text="#{ficha.subtitulo}">Datos estimados de esta obra para tu proyecto.</p>
+            </div>
+            <dl class="ficha-meta">
+                <div><dt th:text="#{ficha.referencia}">Referencia</dt><dd id="fichaRef" th:text="${#strings.toUpperCase(#strings.substring(vidrio.id, #strings.length(vidrio.id) - 6))}">000000</dd></div>
+                <div><dt th:text="#{ficha.fecha}">Fecha de la cotización</dt><dd th:text="${vidrio.fechaCreacion != null ? #temporals.format(vidrio.fechaCreacion, 'dd/MM/yyyy') : '—'}">01/01/2026</dd></div>
+                <div><dt th:text="#{obra.tipo_de_vidrio}">Tipo de vidrio</dt><dd th:text="${#messages.msgOrNull('vidrio.tipo.' + vidrio.tipoVidrio)} ?: ${vidrio.tipoVidrio}">Templado</dd></div>
+                <div th:if="${!#strings.isEmpty(vidrio.compromisoNivel)}"><dt th:text="#{sello.titulo}">Compromiso verde</dt>
+                    <dd th:text="${#messages.msg('sello.' + vidrio.compromisoNivel)} + ' · ' + #{sello.puntos(${#strings.toString(vidrio.compromisoPuntos)})}">Plata</dd></div>
+            </dl>
+        </header>
+
+        <div class="ficha-cuerpo">
+            <div class="ficha-vista"><div class="sg-stage"><div id="fichaEscenario"></div></div></div>
+
+            <section class="ficha-bloque">
+                <h2 th:text="#{ficha.pieza}">La pieza</h2>
+                <table class="ficha-tabla">
+                    <tr><th th:text="#{obra.dimensiones}">Dimensiones</th><td th:text="${#numbers.formatDecimal(vidrio.ancho, 1, 'POINT', 0, 'COMMA')} + ' × ' + ${#numbers.formatDecimal(vidrio.alto, 1, 'POINT', 0, 'COMMA')} + ' cm'">0 × 0 cm</td></tr>
+                    <tr><th th:text="#{obra.espesor}">Espesor</th><td th:text="${#numbers.formatDecimal(vidrio.espesor, 1, 'POINT', 0, 'COMMA')} + ' mm'">0 mm</td></tr>
+                    <tr><th th:text="#{obra.geometria}">Geometría</th><td th:text="${#messages.msgOrNull('forma.' + vidrio.forma)} ?: ${vidrio.forma}">—</td></tr>
+                    <tr><th th:text="#{obra.area_total}">Área total</th><td th:text="${#numbers.formatDecimal(vidrio.areaTotal, 1, 'POINT', 2, 'COMMA')} + ' m²'">0 m²</td></tr>
+                    <tr th:if="${vidrio.tratamiento != null and !#strings.isEmpty(vidrio.tratamiento)}"><th th:text="#{obra.tratamiento}">Tratamiento</th><td th:text="${#messages.msgOrNull('tratamiento.' + vidrio.tratamiento)} ?: ${vidrio.tratamiento}">—</td></tr>
+                    <tr th:if="${vidrio.acabadoBordes != null and !#strings.isEmpty(vidrio.acabadoBordes)}"><th th:text="#{obra.acabado_de_bordes}">Acabado de bordes</th><td th:text="${#messages.msgOrNull('bordes.' + vidrio.acabadoBordes)} ?: ${vidrio.acabadoBordes}">—</td></tr>
+                    <tr class="total"><th th:text="#{obra.peso_estimado}">Peso estimado</th><td th:text="${#numbers.formatDecimal(vidrio.pesoEstimado, 1, 'POINT', 2, 'COMMA')} + ' kg'">0 kg</td></tr>
+                </table>
+            </section>
+
+            <section class="ficha-bloque">
+                <h2 th:text="#{ficha.composicion}">Composición estimada</h2>
+                <table class="ficha-tabla">
+                    <tr><th th:text="#{obra.silice_arena}">Sílice (arena)</th><td th:text="${#numbers.formatDecimal(vidrio.cantidadSilice, 1, 'POINT', 2, 'COMMA')} + ' kg'">0 kg</td></tr>
+                    <tr><th th:text="#{obra.sosa}">Sosa</th><td th:text="${#numbers.formatDecimal(vidrio.cantidadSosa, 1, 'POINT', 2, 'COMMA')} + ' kg'">0 kg</td></tr>
+                    <tr><th th:text="#{obra.caliza}">Caliza</th><td th:text="${#numbers.formatDecimal(vidrio.cantidadCaliza, 1, 'POINT', 2, 'COMMA')} + ' kg'">0 kg</td></tr>
+                    <tr><th th:text="#{obra.alumina}">Alúmina</th><td th:text="${#numbers.formatDecimal(vidrio.cantidadAlumina, 1, 'POINT', 2, 'COMMA')} + ' kg'">0 kg</td></tr>
+                    <tr th:if="${vidrio.cantidadOtros > 0}"><th th:text="#{obra.otros_oxidos_mgo_k2o}">Otros óxidos</th><td th:text="${#numbers.formatDecimal(vidrio.cantidadOtros, 1, 'POINT', 2, 'COMMA')} + ' kg'">0 kg</td></tr>
+                    <tr th:if="${vidrio.usarVidrioReciclado}"><th th:text="#{obra.vidrio_reciclado_calcin}">Vidrio reciclado (calcín)</th><td th:text="${#numbers.formatDecimal(vidrio.vidrioRecicladoKg, 1, 'POINT', 2, 'COMMA')} + ' kg'">0 kg</td></tr>
+                    <tr class="total"><th th:text="#{obra.total_de_la_pieza}">Total de la pieza</th><td th:text="${#numbers.formatDecimal(vidrio.pesoEstimado, 1, 'POINT', 2, 'COMMA')} + ' kg'">0 kg</td></tr>
+                </table>
+            </section>
+
+            <section class="ficha-bloque">
+                <h2 th:text="#{ficha.huella}">Huella de carbono</h2>
+                <table class="ficha-tabla">
+                    <tr><th th:text="#{ficha.co2_total}">CO₂e de la pieza</th><td th:text="${#numbers.formatDecimal(vidrio.huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">0 kg</td></tr>
+                    <tr><th th:text="#{ficha.intensidad}">Intensidad del proceso</th><td th:text="${#numbers.formatDecimal(vidrio.intensidadCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e/m²'">0</td></tr>
+                    <tr><th th:text="#{ficha.nivel}">Nivel del proceso</th><td th:text="${#messages.msgOrNull('cotizacion.nivel.' + vidrio.nivelImpacto)} ?: ${vidrio.nivelImpacto}">Favorable</td></tr>
+                    <tr th:if="${vidrio.resistenciaEstimada != null}"><th th:text="#{obra.indice_de_resistencia}">Índice de resistencia</th><td th:text="${#numbers.formatDecimal(vidrio.resistenciaEstimada, 1, 'POINT', 1, 'COMMA')} + ' MPa'">0 MPa</td></tr>
+                </table>
+            </section>
+
+            <section class="ficha-bloque">
+                <h2 th:text="#{ficha.decisiones}">Decisiones sostenibles</h2>
+                <ul class="ficha-decisiones">
+                    <li th:class="${vidrio.usarVidrioReciclado} ? 'si' : 'no'"><i th:class="${vidrio.usarVidrioReciclado} ? 'ph-fill ph-check-circle' : 'ph ph-minus-circle'" aria-hidden="true"></i> <span th:text="#{obra.material_reciclado}">Material reciclado</span></li>
+                    <li th:class="${vidrio.energiaRenovable} ? 'si' : 'no'"><i th:class="${vidrio.energiaRenovable} ? 'ph-fill ph-check-circle' : 'ph ph-minus-circle'" aria-hidden="true"></i> <span th:text="#{obra.energia_renovable}">Energía renovable</span></li>
+                    <li th:class="${vidrio.compensarCarbono} ? 'si' : 'no'"><i th:class="${vidrio.compensarCarbono} ? 'ph-fill ph-check-circle' : 'ph ph-minus-circle'" aria-hidden="true"></i> <span th:text="#{obra.compensacion_de_co2}">Compensación de CO₂</span></li>
+                    <li th:class="${vidrio.retomaVidrio} ? 'si' : 'no'"><i th:class="${vidrio.retomaVidrio} ? 'ph-fill ph-check-circle' : 'ph ph-minus-circle'" aria-hidden="true"></i> <span th:text="#{eco.retoma_t}">Retoma del vidrio</span></li>
+                    <li th:class="${vidrio.empaqueReutilizable} ? 'si' : 'no'"><i th:class="${vidrio.empaqueReutilizable} ? 'ph-fill ph-check-circle' : 'ph ph-minus-circle'" aria-hidden="true"></i> <span th:text="#{eco.empaque_t}">Empaque reutilizable</span></li>
+                    <li th:class="${vidrio.entregaConsolidada} ? 'si' : 'no'"><i th:class="${vidrio.entregaConsolidada} ? 'ph-fill ph-check-circle' : 'ph ph-minus-circle'" aria-hidden="true"></i> <span th:text="#{eco.consolidada_t}">Entrega consolidada</span></li>
+                    <li th:class="${vidrio.usarRetazos} ? 'si' : 'no'"><i th:class="${vidrio.usarRetazos} ? 'ph-fill ph-check-circle' : 'ph ph-minus-circle'" aria-hidden="true"></i> <span th:text="#{eco.retazos_t}">Cortar de sobrantes de lámina</span></li>
+                </ul>
+            </section>
+        </div>
+
+        <p class="ficha-aviso" th:text="#{ficha.aviso}">Valores calculados por el modelo paramétrico de SmartGlass. No es una certificación emitida por un tercero.</p>
+    </article>
+</main>
+
+<th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
+<script th:src="@{/js/glass-preview.js}"></script>
+<script>
+(function () {
+    var raiz = document.getElementById('ficha');
+    if (!raiz) return;
+    var d = raiz.dataset, puntos;
+    if (d.forma === 'Personalizada' && d.puntos) {
+        puntos = d.puntos.split(';').map(function (par) { var xy = par.split(','); return { x: parseFloat(xy[0]), y: parseFloat(xy[1]) }; })
+            .filter(function (p) { return isFinite(p.x) && isFinite(p.y); });
+        if (puntos.length < 3) puntos = undefined;
+    }
+    SGGlass.render(document.getElementById('fichaEscenario'), {
+        tipo: d.tipo, ancho: d.ancho, alto: d.alto, espesor: d.espesor, forma: d.forma, reciclado: d.reciclado === 'true', puntos: puntos
+    });
+})();
+</script>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

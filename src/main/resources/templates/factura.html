@@ -150,8 +150,9 @@
 
     <div class="resumen-factura">
         <div class="totales-container">
-            <div class="total-row"><span th:text="#{factura.subtotal}">Subtotal</span><span th:text="${pedido.totalFormateado}">$0</span></div>
-            <div class="total-row"><span th:text="#{factura.envio}">Envío</span><span>$ 0</span></div>
+            <div class="total-row"><span th:text="#{factura.subtotal}">Subtotal</span><span th:text="${pedido.subtotalProductosFormateado}">$0</span></div>
+            <div class="total-row"><span th:text="#{factura.envio}">Envío</span><span th:text="${pedido.costoEnvioFormateado}">$ 0</span></div>
+            <div class="total-row" th:if="${pedido.recargoCompensacion > 0}"><span th:text="#{factura.compensacion}">Compensación de CO₂</span><span th:text="${pedido.recargoCompensacionFormateado}">$ 5.000</span></div>
             <div class="total-row final"><span th:text="#{factura.total}">Total</span><span th:text="${pedido.totalFormateado}">$0</span></div>
         </div>
     </div>
@@ -167,6 +168,8 @@
         <p>
             <span th:text="#{factura.factura_generada_electronicamente_huella_de}">Factura generada electrónicamente. Huella de carbono estimada:</span>
             <strong class="carbono-value" th:text="${#numbers.formatDecimal(pedido.huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">0 kg CO₂e</strong>
+            <th:block th:if="${pedido.conCompromisos}"><br><span th:text="#{pedido.compromisos}">Compromisos de este pedido</span>:
+                <span><th:block th:if="${pedido.empaqueReutilizable}" th:text="#{eco.empaque_t}">Empaque</th:block><th:block th:if="${pedido.empaqueReutilizable and (pedido.entregaConsolidada or pedido.retomaVidrio)}"> · </th:block><th:block th:if="${pedido.entregaConsolidada}" th:text="#{eco.consolidada_t}">Consolidada</th:block><th:block th:if="${pedido.entregaConsolidada and pedido.retomaVidrio}"> · </th:block><th:block th:if="${pedido.retomaVidrio}" th:text="#{eco.retoma_t}">Retoma</th:block></span></th:block>
         </p>
     </footer>
 

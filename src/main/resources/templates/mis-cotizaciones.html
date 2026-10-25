@@ -50,6 +50,14 @@
         .obra-acciones .btn { flex: 1 1 0; }
         .obra-acciones .btn-borrar { flex: none; }
 
+        /* T3: sello Compromiso verde (separado del semaforo de impacto, F24) */
+        .sello-mini { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border: 1px solid var(--border-color); border-radius: 999px; font-size: max(12px, 0.76rem); font-weight: 700; white-space: nowrap; }
+        .sello-mini.ORO { border-color: #C9A227; background: color-mix(in srgb, #F5D76E 30%, var(--bg-secondary)); color: #8A6D0B; }
+        .sello-mini.PLATA { border-color: #8E9AAF; background: color-mix(in srgb, #C9D1DE 40%, var(--bg-secondary)); color: #4B5568; }
+        .sello-mini.BRONCE { border-color: #B87333; background: color-mix(in srgb, #E3B48A 35%, var(--bg-secondary)); color: #7A4A1E; }
+        [data-theme="dark"] .sello-mini.ORO { color: #F5D76E; }
+        [data-theme="dark"] .sello-mini.PLATA { color: #D5DCE8; }
+        [data-theme="dark"] .sello-mini.BRONCE { color: #E8B98C; }
         /* T2: filtro por estado (en el navegador; la lista ya viene completa y ordenada) */
         .filtro-estado { display: flex; flex-wrap: wrap; gap: 8px; margin: -8px 0 22px; }
         .filtro-estado button {
@@ -153,6 +161,8 @@
                 </p>
 
                 <div class="obra-meta">
+                    <span class="sello-mini" th:if="${!#strings.isEmpty(cot.compromisoNivel)}" th:classappend="${cot.compromisoNivel}"
+                          th:title="#{sello.puntos(${#strings.toString(cot.compromisoPuntos)})}"><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{sello.chip(${#messages.msg('sello.' + cot.compromisoNivel)})}">Sello Plata</span></span>
                     <span class="obra-eco" th:if="${cot.usarVidrioReciclado}"><i class="ph ph-recycle" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.contiene_vidrio_reciclado}">Contiene vidrio reciclado</span></span>
                     <span class="obra-espera" th:if="${!admin and cot.estado == 'COTIZACION'}"><i class="ph ph-hourglass-medium" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.en_revision_por_smartglass}">En revisión por SmartGlass</span></span>
                     <span class="obra-rechazo" th:if="${cot.estado == 'RECHAZADA'}"><i class="ph ph-x-circle" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.no_fue_aprobada_puedes_eliminarla}">No fue aprobada. Puedes eliminarla o crear una nueva.</span></span>

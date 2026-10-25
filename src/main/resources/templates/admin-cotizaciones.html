@@ -65,6 +65,20 @@
         .btn-aprobar-admin:focus-visible, .btn-eliminar:focus-visible, a.ver:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 
         .vacio { padding: 44px 20px; text-align: center; color: var(--text-muted); }
+        /* T3: sello Compromiso verde (separado del semaforo de impacto, F24) */
+        .sello-mini { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border: 1px solid var(--border-color); border-radius: 999px; font-size: max(12px, 0.76rem); font-weight: 700; white-space: nowrap; }
+        .sello-mini.ORO { border-color: #C9A227; background: color-mix(in srgb, #F5D76E 30%, var(--bg-secondary)); color: #8A6D0B; }
+        .sello-mini.PLATA { border-color: #8E9AAF; background: color-mix(in srgb, #C9D1DE 40%, var(--bg-secondary)); color: #4B5568; }
+        .sello-mini.BRONCE { border-color: #B87333; background: color-mix(in srgb, #E3B48A 35%, var(--bg-secondary)); color: #7A4A1E; }
+        [data-theme="dark"] .sello-mini.ORO { color: #F5D76E; }
+        [data-theme="dark"] .sello-mini.PLATA { color: #D5DCE8; }
+        [data-theme="dark"] .sello-mini.BRONCE { color: #E8B98C; }
+        /* T3: resumen de compromisos de los clientes */
+        .cot-compromisos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 10px; margin: 0 0 18px; padding: 16px; border: 1px solid var(--admin-card-border, var(--border-color)); border-radius: 16px; background: var(--bg-secondary); }
+        .cot-compromisos h2 { grid-column: 1 / -1; margin: 0; font-size: 0.95rem; }
+        .cot-compromisos p { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--text-muted); font-size: 0.86rem; }
+        .cot-compromisos p i { color: var(--color-success); font-size: 1.15rem; }
+        .cot-compromisos p b { color: var(--text-main); }
         /* T2: busqueda en la tabla (cliente, referencia, tipo o forma) */
         .cot-buscar { position: relative; max-width: 420px; margin: 0 0 16px; }
         .cot-buscar i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
@@ -124,6 +138,15 @@
         <a th:href="@{/admin/cotizaciones(estado='RECHAZADA')}" th:classappend="${filtro == 'RECHAZADA'} ? 'activo'"><span th:text="#{admin.cotizaciones.rechazadas}">Rechazadas</span> <span class="n" th:text="${conteos['RECHAZADA']}">0</span></a>
     </nav>
 
+    <section class="cot-compromisos" th:if="${compromisos != null and conteos['TODAS'] > 0}" aria-labelledby="tituloCompromisos">
+        <h2 id="tituloCompromisos" th:text="#{admin.cotizaciones.compromisos_t}">Compromisos de tus clientes</h2>
+        <p><i class="ph ph-recycle" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.retoma_n(${#strings.toString(compromisos['retoma'])}, ${compromisos['kgRetoma']})}">0 con retoma</span></p>
+        <p><i class="ph ph-package" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.empaque_n(${#strings.toString(compromisos['empaque'])})}">0 con empaque</span></p>
+        <p><i class="ph ph-truck" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.consolidada_n(${#strings.toString(compromisos['consolidada'])})}">0 consolidadas</span></p>
+        <p><i class="ph ph-scissors" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.retazos_n(${#strings.toString(compromisos['retazos'])})}">0 retazos</span></p>
+        <p><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.sellos_n(${#strings.toString(compromisos['oro'])}, ${#strings.toString(compromisos['plata'])}, ${#strings.toString(compromisos['bronce'])})}">Sellos</span></p>
+    </section>
+
     <label class="cot-buscar" th:unless="${#lists.isEmpty(filas)}">
         <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
         <span class="visually-hidden" th:text="#{admin.cotizaciones.buscar}">Buscar</span>
@@ -154,6 +177,7 @@
                                 <strong data-tipo-txt th:text="${f.tipo}">Templado</strong>
                                 <span class="cot-medidas" data-medidas th:text="${f.ancho} + ' × ' + ${f.alto} + ' cm · ' + ${f.espesor} + ' mm'">105 × 105 cm · 7 mm</span>
                                 <span class="cot-ref"><span th:text="#{admin.cotizaciones.obra_no}">Obra Nº</span> <b data-ref th:text="${f.id}">000000</b></span>
+                                <span class="sello-mini" th:if="${!#strings.isEmpty(f.sello)}" th:classappend="${f.sello}"><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{sello.chip(${#messages.msg('sello.' + f.sello)})}">Sello</span></span>
                             </div>
                         </div>
                     </td>

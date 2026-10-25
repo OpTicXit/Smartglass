@@ -29,6 +29,9 @@ import java.util.Optional;
 @Service
 public class PedidoService {
 
+    /** Recargo por compensar la huella del pedido en el checkout (mismo valor que anuncia la vista). */
+    public static final double RECARGO_COMPENSACION_PEDIDO = 5000;
+
     private final PedidoRepository pedidoRepository;
     private final CarritoService carritoService;
     private final AnalisisService analisisService;
@@ -83,6 +86,12 @@ public class PedidoService {
     // --- GESTION DE PEDIDOS ---
 
     public Pedido crearPedidoDesdeCarrito(Usuario usuario, String direccion, String metodo, boolean compensar) {
+        return crearPedidoDesdeCarrito(usuario, direccion, metodo, compensar, false, false, false);
+    }
+
+    /** T3: igual que el anterior, con los compromisos logisticos sin costo (no tocan total ni huella). */
+    public Pedido crearPedidoDesdeCarrito(Usuario usuario, String direccion, String metodo, boolean compensar,
+                                          boolean empaqueReutilizable, boolean entregaConsolidada, boolean retomaVidrio) {
         List<ItemCarrito> items = carritoService.getItems();
         if (items.isEmpty()) throw new IllegalStateException("Carrito vacío");
 
@@ -93,12 +102,20 @@ public class PedidoService {
         pedido.setDireccionEnvio(direccion);
         pedido.setMetodoPago(metodo);
         pedido.setCompensacionCarbono(compensar);
+        pedido.setEmpaqueReutilizable(empaqueReutilizable);
+        pedido.setEntregaConsolidada(entregaConsolidada);
+        pedido.setRetomaVidrio(retomaVidrio);
 
         items.forEach(item -> pedido.agregarDetalle(new DetallePedido(item.getProducto(), item.getCantidad())));
 
         pedido.recalcularTotales();
 
         pedido.setTotal(pedido.getTotal() + calcularCostoEnvio(subtotal));
+        // La compensacion que anuncia el checkout ("+$5.000") se cobra en el pedido y queda desglosada
+        if (compensar) {
+            pedido.setRecargoCompensacion(RECARGO_COMPENSACION_PEDIDO);
+            pedido.setTotal(pedido.getTotal() + RECARGO_COMPENSACION_PEDIDO);
+        }
         pedido.setHuellaCarbono(calcularHuellaCarbono(items));
 
         Pedido guardado = pedidoRepository.save(pedido);

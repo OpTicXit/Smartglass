@@ -67,7 +67,14 @@
                 </thead>
                 <tbody>
                     <tr th:each="pedido : ${pedidos}">
-                        <td class="td-strong" th:text="${pedido.numeroFactura}"></td>
+                        <td class="td-strong"><span th:text="${pedido.numeroFactura}"></span>
+                            <!-- T3: compromisos logisticos que planta y despacho deben atender -->
+                            <span class="compromisos-ped" th:if="${pedido.conCompromisos}" th:attr="aria-label=#{admin.pedidos.compromisos}">
+                                <i class="ph ph-package" th:if="${pedido.empaqueReutilizable}" th:title="#{eco.empaque_t}" aria-hidden="true"></i>
+                                <i class="ph ph-truck" th:if="${pedido.entregaConsolidada}" th:title="#{eco.consolidada_t}" aria-hidden="true"></i>
+                                <i class="ph ph-recycle" th:if="${pedido.retomaVidrio}" th:title="#{eco.retoma_t}" aria-hidden="true"></i>
+                                <span class="visually-hidden"><th:block th:if="${pedido.empaqueReutilizable}" th:text="#{eco.empaque_t}">Empaque</th:block><th:block th:if="${pedido.empaqueReutilizable and (pedido.entregaConsolidada or pedido.retomaVidrio)}">, </th:block><th:block th:if="${pedido.entregaConsolidada}" th:text="#{eco.consolidada_t}">Consolidada</th:block><th:block th:if="${pedido.entregaConsolidada and pedido.retomaVidrio}">, </th:block><th:block th:if="${pedido.retomaVidrio}" th:text="#{eco.retoma_t}">Retoma</th:block></span>
+                            </span></td>
                         <td th:text="${pedido.usuario != null ? pedido.usuario.nombre : '—'}"></td>
                         <td th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy')}"></td>
                         <td>

@@ -1,10 +1,12 @@
 package com.smartglass.controller;
 
+import com.smartglass.model.mongo.VidrioSostenible;
 import com.smartglass.model.mysql.Pedido;
 import com.smartglass.model.mysql.Usuario;
 import com.smartglass.repository.mysql.UsuarioRepository;
 import com.smartglass.service.CarritoService;
 import com.smartglass.service.PedidoService;
+import com.smartglass.service.VidrioSostenibleService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,11 +23,24 @@ public class CheckoutController {
     private final CarritoService carritoService;
     private final PedidoService pedidoService;
     private final UsuarioRepository usuarioRepository;
+    private final VidrioSostenibleService vidrioSostenibleService;
 
-    public CheckoutController(CarritoService carritoService, PedidoService pedidoService, UsuarioRepository usuarioRepository) {
+    public CheckoutController(CarritoService carritoService, PedidoService pedidoService, UsuarioRepository usuarioRepository,
+                              VidrioSostenibleService vidrioSostenibleService) {
         this.carritoService = carritoService;
         this.pedidoService = pedidoService;
         this.usuarioRepository = usuarioRepository;
+        this.vidrioSostenibleService = vidrioSostenibleService;
+    }
+
+    /** T3: obras a medida del carrito (el id del item es el de la cotizacion); los productos de catalogo no cuentan. */
+    private List<VidrioSostenible> obrasDelCarrito() {
+        return carritoService.getItems().stream()
+                .map(i -> i.getProducto() == null || i.getProducto().getId() == null ? null : i.getProducto().getId())
+                .filter(java.util.Objects::nonNull)
+                .map(id -> vidrioSostenibleService.obtenerPorId(id).orElse(null))
+                .filter(java.util.Objects::nonNull)
+                .toList();
     }
 
     @GetMapping
@@ -42,6 +57,13 @@ public class CheckoutController {
         model.addAttribute("costoEnvio", costoEnvio);
         model.addAttribute("huellaCarbono", huellaCarbono);
         model.addAttribute("total", subtotal + costoEnvio);
+        model.addAttribute("recargoCompensacion", PedidoService.RECARGO_COMPENSACION_PEDIDO);
+        // T3: lo que el cliente ya eligio al cotizar sus obras llega marcado al pagar
+        List<VidrioSostenible> obras = obrasDelCarrito();
+        model.addAttribute("preEmpaque", obras.stream().anyMatch(VidrioSostenible::isEmpaqueReutilizable));
+        model.addAttribute("preConsolidada", obras.stream().anyMatch(VidrioSostenible::isEntregaConsolidada));
+        model.addAttribute("preRetoma", obras.stream().anyMatch(VidrioSostenible::isRetomaVidrio));
+        model.addAttribute("hayUrgente", obras.stream().anyMatch(VidrioSostenible::isUrgente));
         return "checkout";
     }
 
@@ -50,12 +72,18 @@ public class CheckoutController {
                                  @RequestParam String ciudad,
                                  @RequestParam String metodoPago,
                                  @RequestParam(defaultValue = "false") boolean compensarCarbono,
+                                 @RequestParam(defaultValue = "false") boolean empaqueReutilizable,
+                                 @RequestParam(defaultValue = "false") boolean entregaConsolidada,
+                                 @RequestParam(defaultValue = "false") boolean retomaVidrio,
                                  Principal principal, HttpSession session, RedirectAttributes ra) {
         Usuario usuario = usuarioRepository.findByUsername(principal.getName()).orElse(null);
         if (usuario == null) return "redirect:/login";
         try {
             String direccionCompleta = direccionEnvio + ", " + ciudad;
-            Pedido pedido = pedidoService.crearPedidoDesdeCarrito(usuario, direccionCompleta, metodoPago, compensarCarbono);
+            // T3: una obra urgente no puede esperar a una ruta consolidada
+            boolean hayUrgente = obrasDelCarrito().stream().anyMatch(VidrioSostenible::isUrgente);
+            Pedido pedido = pedidoService.crearPedidoDesdeCarrito(usuario, direccionCompleta, metodoPago, compensarCarbono,
+                    empaqueReutilizable, entregaConsolidada && !hayUrgente, retomaVidrio);
             session.setAttribute("ultimoPedidoId", pedido.getId());
             return "redirect:/checkout/confirmacion/" + pedido.getId();
         } catch (Exception e) {

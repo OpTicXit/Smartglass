@@ -69,6 +69,11 @@ public class VidrioSostenible {
     private boolean energiaRenovable;
     private boolean compensarCarbono;
     private boolean urgente;
+    // T3: compromisos sostenibles sin costo (no cambian CO2 ni precio). Las obras anteriores los leen como false.
+    private boolean retomaVidrio;
+    private boolean empaqueReutilizable;
+    private boolean entregaConsolidada;
+    private boolean usarRetazos;
     private double precioEstimado;
     private Double resistenciaEstimada;
     private String recomendacion;
@@ -190,6 +195,29 @@ public class VidrioSostenible {
     public void setCompensarCarbono(boolean v) { this.compensarCarbono = v; }
     public boolean isUrgente() { return urgente; }
     public void setUrgente(boolean urgente) { this.urgente = urgente; }
+
+    public boolean isRetomaVidrio() { return retomaVidrio; }
+    public void setRetomaVidrio(boolean retomaVidrio) { this.retomaVidrio = retomaVidrio; }
+
+    public boolean isEmpaqueReutilizable() { return empaqueReutilizable; }
+    public void setEmpaqueReutilizable(boolean empaqueReutilizable) { this.empaqueReutilizable = empaqueReutilizable; }
+
+    public boolean isEntregaConsolidada() { return entregaConsolidada; }
+    public void setEntregaConsolidada(boolean entregaConsolidada) { this.entregaConsolidada = entregaConsolidada; }
+
+    public boolean isUsarRetazos() { return usarRetazos; }
+    public void setUsarRetazos(boolean usarRetazos) { this.usarRetazos = usarRetazos; }
+
+    /** T3: puntos del sello "Compromiso verde" (0-100). Derivado, no se guarda. */
+    public int getCompromisoPuntos() {
+        return com.smartglass.service.CompromisoVerde.puntos(usarVidrioReciclado, energiaRenovable, compensarCarbono,
+                retomaVidrio, empaqueReutilizable, entregaConsolidada, usarRetazos);
+    }
+
+    /** T3: "ORO", "PLATA", "BRONCE" o "" (sin sello). */
+    public String getCompromisoNivel() {
+        return com.smartglass.service.CompromisoVerde.nivel(getCompromisoPuntos());
+    }
     public Double getResistenciaEstimada() { return resistenciaEstimada; }
     public void setResistenciaEstimada(Double resistenciaEstimada) { this.resistenciaEstimada = resistenciaEstimada; }
     public String getRecomendacion() { return recomendacion; }

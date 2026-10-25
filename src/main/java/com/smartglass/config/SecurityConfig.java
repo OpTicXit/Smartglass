@@ -128,7 +128,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/detalle/*/resenas").authenticated()
                 // T1 (D4): carrito y diseno/cotizacion abiertos a visitantes; el login se pide al pagar
                 .requestMatchers("/carrito", "/carrito/**", "/vidrio-personalizado/cotizar").permitAll()
-                .requestMatchers(HttpMethod.GET, "/vidrio-personalizado/cotizacion/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/vidrio-personalizado/cotizacion/*", "/vidrio-personalizado/cotizacion/*/ficha").permitAll()
                 .requestMatchers(
                     "/usuario",
                     "/usuario/**",

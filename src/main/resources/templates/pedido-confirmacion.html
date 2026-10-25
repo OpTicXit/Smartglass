@@ -73,7 +73,12 @@
             <li><span th:text="#{confirmacion.fecha_y_hora}">Fecha y hora</span><span th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</span></li>
             <li><span th:text="#{confirmacion.metodo_de_pago}">Método de pago</span><span th:text="${pedido.metodoPago}">TARJETA</span></li>
             <li><span th:text="#{confirmacion.huella_de_carbono}">Huella de carbono</span><span th:text="${#numbers.formatDecimal(pedido.huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">0 kg CO₂e</span></li>
+            <li th:if="${pedido.conCompromisos}"><span th:text="#{pedido.compromisos}">Compromisos de este pedido</span><span>
+                <th:block th:if="${pedido.empaqueReutilizable}"><span th:text="#{eco.empaque_t}">Empaque reutilizable</span><br></th:block>
+                <th:block th:if="${pedido.entregaConsolidada}"><span th:text="#{eco.consolidada_t}">Entrega consolidada</span><br></th:block>
+                <th:block th:if="${pedido.retomaVidrio}"><span th:text="#{eco.retoma_t}">Retoma del vidrio</span></th:block></span></li>
             <li><span th:text="#{confirmacion.direccion_de_envio}">Dirección de envío</span><span th:text="${pedido.direccionEnvio}">Dirección</span></li>
+            <li th:if="${pedido.recargoCompensacion > 0}"><span th:text="#{checkout.compensacion_linea}">Compensación de CO₂</span><span th:text="${pedido.recargoCompensacionFormateado}">$ 5.000</span></li>
             <li><span th:text="#{confirmacion.total_pagado}">Total pagado</span><span class="payment-total" th:text="${pedido.totalFormateado}">$0</span></li>
         </ul>
     </section>

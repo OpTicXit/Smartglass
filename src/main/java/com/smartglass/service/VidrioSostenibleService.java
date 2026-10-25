@@ -78,6 +78,11 @@ public class VidrioSostenibleService {
         vidrio.setEnergiaRenovable(request.isEnergiaRenovable());
         vidrio.setCompensarCarbono(request.isCompensarCarbono());
         vidrio.setUrgente(request.isUrgente());
+        // T3: compromisos sin costo; la entrega consolidada no es compatible con la urgente
+        vidrio.setRetomaVidrio(request.isRetomaVidrio());
+        vidrio.setEmpaqueReutilizable(request.isEmpaqueReutilizable());
+        vidrio.setEntregaConsolidada(request.isEntregaConsolidada() && !request.isUrgente());
+        vidrio.setUsarRetazos(request.isUsarRetazos());
         // F45: los vertices deben estar puestos ANTES del analisis (AnalisisService decide si son validos)
         vidrio.setPuntosPersonalizados(request.getPuntosPersonalizados());
 

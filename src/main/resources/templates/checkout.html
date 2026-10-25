@@ -56,6 +56,18 @@
         .compensacion-option input { width: 20px; height: 20px; margin: 0; flex: none; }
         .compensacion-option strong { color: var(--text-main); font-size: 0.95rem; }
         .compensacion-option small { display: block; color: var(--text-muted); font-size: 0.82rem; font-weight: 400; }
+        /* T3: compromisos de entrega sin costo */
+        .compromisos-entrega { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--border-color); }
+        .compromisos-entrega h3 { margin: 0; font-size: 0.95rem; }
+        .compromisos-entrega > p { margin: 2px 0 12px; color: var(--text-muted); font-size: 0.84rem; }
+        .compromiso-op { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: var(--r-md); background: var(--input-bg); cursor: pointer; }
+        .compromiso-op:has(input:checked) { border-color: var(--color-success); background: var(--color-success-dim); }
+        .compromiso-op:has(input:disabled) { opacity: 0.6; cursor: not-allowed; }
+        .compromiso-op input { width: 20px; height: 20px; margin: 2px 0 0; flex: none; accent-color: var(--color-success); }
+        .compromiso-op strong { display: block; color: var(--text-main); font-size: 0.92rem; }
+        .compromiso-op small { display: block; color: var(--text-muted); font-size: 0.82rem; line-height: 1.45; }
+        .compromiso-op em { display: block; margin-top: 3px; color: var(--color-success); font-size: 0.8rem; font-style: normal; font-weight: 700; }
+        .compromiso-op em.aviso { color: var(--color-warning); }
         .chip-premium { margin-left: auto; padding: 4px 10px; border-radius: 999px; background: var(--color-warning-dim); color: var(--color-warning); font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
 
         /* ---------- Resumen ---------- */
@@ -67,6 +79,10 @@
         .resumen-item img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--r-sm); background: var(--bg-tertiary); }
         .producto-nombre { color: var(--text-main); font-weight: 600; font-size: 0.92rem; line-height: 1.3; }
         .producto-cantidad { color: var(--text-muted); font-size: 0.82rem; }
+        .desglose { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 0.9rem; }
+        .desglose li { display: flex; justify-content: space-between; gap: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+        .desglose li span:last-child { color: var(--text-main); font-weight: 600; }
+        .desglose li[hidden] { display: none; }
         .total-final { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 10px 0 18px; padding-top: 16px; border-top: 1px solid var(--border-color); }
         .total-label { color: var(--text-muted); font-weight: 600; }
         .total-amount { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
@@ -204,13 +220,35 @@
                 </div>
 
                 <label class="compensacion-option sg-rainbow">
-                    <input type="checkbox" name="compensarCarbono" value="true">
+                    <input type="checkbox" name="compensarCarbono" value="true" id="compensarPedido">
                     <span>
                         <strong th:text="#{checkout.deseo_compensar_mi_huella_5}">Deseo compensar mi huella (+$5.000)</strong>
                         <small th:text="#{checkout.smartglass_compensa_las_emisiones_de}">SmartGlass compensa las emisiones de este pedido.</small>
                     </span>
                     <span class="chip-premium" th:text="#{checkout.premium}">Premium</span>
                 </label>
+
+                <!-- T3: compromisos de entrega sin costo (no cambian el total ni la huella) -->
+                <div class="compromisos-entrega">
+                    <h3 th:text="#{checkout.compromisos_t}">Compromisos de entrega sin costo</h3>
+                    <p th:text="#{checkout.compromisos_sub}">Ayudan a reducir residuos y viajes; no cambian el total.</p>
+                    <label class="compromiso-op">
+                        <input type="checkbox" name="empaqueReutilizable" value="true" th:checked="${preEmpaque}">
+                        <span><strong th:text="#{eco.empaque_t}">Empaque reutilizable</strong><small th:text="#{eco.empaque_d}">Caballete retornable.</small>
+                            <em th:if="${preEmpaque}" th:text="#{checkout.ya_elegido}">Lo elegiste al cotizar tu obra.</em></span>
+                    </label>
+                    <label class="compromiso-op">
+                        <input type="checkbox" name="entregaConsolidada" value="true" th:checked="${preConsolidada and !hayUrgente}" th:disabled="${hayUrgente}">
+                        <span><strong th:text="#{eco.consolidada_t}">Entrega consolidada</strong><small th:text="#{eco.consolidada_d}">Menos viajes de camión.</small>
+                            <em class="aviso" th:if="${hayUrgente}" th:text="#{checkout.consolidada_no}">Tu carrito tiene una obra urgente.</em>
+                            <em th:if="${preConsolidada and !hayUrgente}" th:text="#{checkout.ya_elegido}">Lo elegiste al cotizar tu obra.</em></span>
+                    </label>
+                    <label class="compromiso-op">
+                        <input type="checkbox" name="retomaVidrio" value="true" th:checked="${preRetoma}">
+                        <span><strong th:text="#{eco.retoma_t}">Retoma del vidrio que reemplazas</strong><small th:text="#{eco.retoma_d}">Lo recogemos en la entrega.</small>
+                            <em th:if="${preRetoma}" th:text="#{checkout.ya_elegido}">Lo elegiste al cotizar tu obra.</em></span>
+                    </label>
+                </div>
             </section>
 
             <div class="enviar-movil">
@@ -236,9 +274,15 @@
                 </li>
             </ul>
 
+            <!-- Desglose: productos, envio y (si se marca) la compensacion que se cobra en el pedido -->
+            <ul class="desglose">
+                <li><span th:text="#{checkout.subtotal_productos}">Productos</span><span th:text="'$ ' + ${#numbers.formatDecimal(subtotal, 1, 'POINT', 0, 'COMMA')}">$0</span></li>
+                <li><span th:text="#{checkout.envio}">Envío</span><span th:text="${costoEnvio > 0} ? '$ ' + ${#numbers.formatDecimal(costoEnvio, 1, 'POINT', 0, 'COMMA')} : #{checkout.envio_gratis}">$0</span></li>
+                <li id="lineaCompensacion" hidden><span th:text="#{checkout.compensacion_linea}">Compensación de CO₂</span><span th:text="'$ ' + ${#numbers.formatDecimal(recargoCompensacion, 1, 'POINT', 0, 'COMMA')}">$5.000</span></li>
+            </ul>
             <div class="total-final">
                 <span class="total-label" th:text="#{checkout.total_a_pagar}">Total a pagar</span>
-                <span class="total-amount" th:text="'$ ' + ${#numbers.formatDecimal(total, 1, 'POINT', 0, 'COMMA')}">$0</span>
+                <span class="total-amount" id="totalPagar" th:attr="data-base=${total},data-recargo=${recargoCompensacion}" th:text="'$ ' + ${#numbers.formatDecimal(total, 1, 'POINT', 0, 'COMMA')}">$0</span>
             </div>
 
             <button type="submit" form="formCheckout" class="btn btn-primary btn-lg btn-block">
@@ -250,6 +294,18 @@
     </div>
 </main>
 
+<script>
+/* El total mostrado incluye la compensacion si se marca (el servidor la cobra igual: PedidoService) */
+(function () {
+    var chk = document.getElementById('compensarPedido'), tot = document.getElementById('totalPagar'), linea = document.getElementById('lineaCompensacion');
+    if (!chk || !tot) return;
+    var base = parseFloat(tot.dataset.base) || 0, recargo = parseFloat(tot.dataset.recargo) || 0;
+    function pesos(v) { return '$ ' + Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }   /* es-CO (D2) */
+    function pintar() { tot.textContent = pesos(base + (chk.checked ? recargo : 0)); linea.hidden = !chk.checked; }
+    chk.addEventListener('change', pintar);
+    pintar();
+})();
+</script>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con T2 · plano y cotizaciones escrito). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con T3 · sostenibilidad escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones **sin commitear**). No se ha subido nada (`push`).
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad **sin commitear**). No se ha subido nada (`push`).
 
 ## Leyenda
 
@@ -136,6 +136,17 @@ Seis tandas con gate: T1 responsive → T2 plano y cotizaciones → T3 sostenibi
 | Textos de JS del configurador, editor y detalle en los tres idiomas; avisos del servidor con `MessageSource` | 🧪 ESCRITO (navegador en es-CO, es-ES y en) | `fragments/textos-vidrio.html`; `messages*.properties`, sección "T2 plano y cotizaciones" |
 | Contrato: fórmulas, constantes y umbrales sin cambios; en `impacto` y `recomendar` solo pasan los textos por el traductor | 🧪 ESCRITO | Anclas A–D idénticas en los tres idiomas (ver abajo) |
 
+### T3 · Sostenibilidad sin tocar el cálculo
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Configurador: "Material y proceso" (reciclado, renovable, compensación, como antes) y 4 **compromisos sin costo** con su propio dato: retoma del vidrio que se reemplaza (≈ kg = peso de la pieza), empaque reutilizable (marcado por defecto), entrega consolidada (excluyente con urgente, también en el servidor) y cortar de retazos | 🧪 ESCRITO (navegador: con los 4 activos el precio y el CO₂ no cambian) | `vidrio-personalizado-form.html`; `CotizacionVidrioRequest`, `VidrioSostenible`, `VidrioSostenibleService` |
+| Sello **Compromiso verde** (Bronce ≥ 35, Plata ≥ 60, Oro ≥ 85 de 100 puntos), en vivo en el configurador y en detalle, Mis cotizaciones y panel; separado del semáforo de impacto (F24) | 🧪 ESCRITO | `CompromisoVerde.java` (fuente única de pesos; el configurador los recibe del servidor) |
+| **Ficha ambiental imprimible** por obra (`/cotizacion/{id}/ficha`, mismas reglas de acceso que el detalle): pieza, composición, huella, decisiones y aviso de que no es una certificación de terceros | 🧪 ESCRITO (navegador; la impresión en tema oscuro fuerza tinta oscura, falta verla en vista previa de impresión) | `vidrio-ficha.html`; `VidrioPersonalizadoWebController.verFicha`; `SecurityConfig` |
+| Checkout: compromisos de entrega para el pedido, preseleccionados desde las obras del carrito; se guardan en `pedidos` (columnas nuevas en 0 para los anteriores) y se ven en confirmación, factura y pedidos del admin | 🧪 ESCRITO (vista del checkout probada; falta un pago real con compromisos) | `Pedido`, `PedidoService` (sobrecarga), `CheckoutController`, `checkout.html` |
+| Panel del admin: resumen de compromisos de los clientes (retoma con kg recuperables, empaque, consolidada, retazos y sellos) | 🧪 ESCRITO (navegador) | `AdminCotizacionesController.listar`; `admin-cotizaciones.html` |
+| Compensación del checkout (+$5.000): ahora se cobra en el pedido (decisión del equipo) y queda en `pedidos.recargo_compensacion` (0 en los pedidos anteriores, que la marcaban sin cobrarla); el resumen del checkout la suma al marcarla; confirmación y factura la desglosan. La factura además desglosa bien productos y envío (antes "Subtotal" era el total y "Envío" estaba fijo en $ 0) y los importes salen en formato es-CO | 🧪 ESCRITO (vista del checkout y facturas #6 y #13 en navegador; falta un pago con compensación) | `PedidoService.RECARGO_COMPENSACION_PEDIDO`; `Pedido` (`getSubtotalProductos`, `getCostoEnvio`); `checkout.html`, `factura.html`, `pedido-confirmacion.html` |
+
 ### Decisiones D1–D4
 
 | Decisión | Estado |
@@ -250,6 +261,7 @@ Seis tandas con gate: T1 responsive → T2 plano y cotizaciones → T3 sostenibi
 | Oferta o producto nuevo (T3) | Aparece en la campana de un visitante como "Nueva" (pendiente) |
 | Plano (mejoras T2) | Lienzo grande con el precio visible; cotas, escala humana y ampliar; 14 formas; el editor F45 arranca con la forma elegida y permite medidas exactas, girar, reflejar y editar puntos |
 | Cotizaciones (mejoras T2) | Estados y nombres traducidos; filtros en Mis cotizaciones; búsqueda en el panel; aprobar o rechazar desde el detalle; "Crear una variante" |
+| Sostenibilidad (mejoras T3) | Los 4 compromisos no cambian precio ni CO₂; el sello sube de Bronce a Oro; la urgente bloquea la consolidada; la ficha se imprime legible; al pagar llegan marcados y aparecen en confirmación, factura y pedidos del admin; con compensación el total sube $5.000 y la factura la desglosa |
 | Recorrido guiado (T4) | Sale solo la primera vez; "Saltar" o Esc lo cierran; con fotosensible no se mueve nada; se relanza desde "Guía de compra" en el pie |
 
 Nada se da por cerrado hasta que los greps den el resultado esperado, el app arranque con las env vars, el toggle de idioma mantenga las anclas en es-CO, el flujo anónimo→pago-con-login conserve el carrito, el stock sea transaccional y veraz, las notificaciones y el tour respeten i18n y accesibilidad, y los casos A–D se vean en navegador; ningún cambio movió un decimal del contrato ni tocó el logotipo, y D1–D4 no se aplicaron sin mi visto bueno.

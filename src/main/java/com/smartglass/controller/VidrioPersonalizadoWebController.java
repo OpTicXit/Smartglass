@@ -5,6 +5,7 @@ import com.smartglass.dto.CotizacionVidrioRequest;
 import com.smartglass.model.mongo.VidrioSostenible;
 import com.smartglass.model.mysql.Usuario;
 import com.smartglass.service.CarritoService;
+import com.smartglass.service.CompromisoVerde;
 import com.smartglass.service.VidrioSostenibleService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.context.MessageSource;
@@ -100,6 +101,16 @@ public class VidrioPersonalizadoWebController {
     /** F8: solo el dueno o un admin abren el detalle. T1: o la sesion anonima que la cotizo. */
     @GetMapping("/cotizacion/{id}")
     public String verCotizacion(@PathVariable String id, Model model, Authentication auth, HttpSession sesion) {
+        return mostrarObra(id, model, auth, sesion, "vidrio-personalizado-detalle");
+    }
+
+    /** T3: ficha ambiental imprimible de la obra; mismas reglas de acceso que el detalle. */
+    @GetMapping("/cotizacion/{id}/ficha")
+    public String verFicha(@PathVariable String id, Model model, Authentication auth, HttpSession sesion) {
+        return mostrarObra(id, model, auth, sesion, "vidrio-ficha");
+    }
+
+    private String mostrarObra(String id, Model model, Authentication auth, HttpSession sesion, String vista) {
         Usuario usuario = usuarioActual(model);
         if (usuario == null) {
             if (!esVisitante(model) || !SesionAnonima.esCotizacionDeLaSesion(sesion, id)) return "redirect:/login";
@@ -109,7 +120,7 @@ public class VidrioPersonalizadoWebController {
                         model.addAttribute("vidrio", vidrio);
                         model.addAttribute("esDueno", false);
                         model.addAttribute("obraAnonima", true);
-                        return "vidrio-personalizado-detalle";
+                        return vista;
                     })
                     .orElse("redirect:/login");
         }
@@ -119,13 +130,15 @@ public class VidrioPersonalizadoWebController {
                 .map(vidrio -> {
                     model.addAttribute("vidrio", vidrio);
                     model.addAttribute("esDueno", esDueno(vidrio, usuario));
-                    return "vidrio-personalizado-detalle";
+                    return vista;
                 })
                 .orElse(REDIRECT_MIS_COTIZACIONES);
     }
 
     @GetMapping("/cotizar")
-    public String mostrarFormulario() {
+    public String mostrarFormulario(Model model) {
+        // T3: pesos y cortes del sello "Compromiso verde" (fuente unica: CompromisoVerde.java)
+        model.addAttribute("compromisoVerde", CompromisoVerde.paraVista());
         return "vidrio-personalizado-form";
     }
 

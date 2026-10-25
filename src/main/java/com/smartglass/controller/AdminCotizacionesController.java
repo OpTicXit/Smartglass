@@ -81,6 +81,17 @@ public class AdminCotizacionesController {
                 .map(v -> aFila(v, clientes))
                 .toList();
 
+        // T3: compromisos de los clientes (ventaja operativa: retazos, rutas, empaques y calcin recuperable)
+        Map<String, Object> compromisos = new LinkedHashMap<>();
+        compromisos.put("retoma", todas.stream().filter(VidrioSostenible::isRetomaVidrio).count());
+        compromisos.put("kgRetoma", fmt1(todas.stream().filter(VidrioSostenible::isRetomaVidrio).mapToDouble(VidrioSostenible::getPesoEstimado).sum()));
+        compromisos.put("empaque", todas.stream().filter(VidrioSostenible::isEmpaqueReutilizable).count());
+        compromisos.put("consolidada", todas.stream().filter(VidrioSostenible::isEntregaConsolidada).count());
+        compromisos.put("retazos", todas.stream().filter(VidrioSostenible::isUsarRetazos).count());
+        compromisos.put("oro", todas.stream().filter(v -> "ORO".equals(v.getCompromisoNivel())).count());
+        compromisos.put("plata", todas.stream().filter(v -> "PLATA".equals(v.getCompromisoNivel())).count());
+        compromisos.put("bronce", todas.stream().filter(v -> "BRONCE".equals(v.getCompromisoNivel())).count());
+        model.addAttribute("compromisos", compromisos);
         model.addAttribute("filas", filas);
         model.addAttribute("conteos", conteos);
         model.addAttribute("filtro", filtro);
@@ -138,19 +149,19 @@ public class AdminCotizacionesController {
     // ------------------------------------------------------------------ vista
     /** Fila lista para la plantilla (getters clasicos, SpEL los lee sin friccion). */
     public static class FilaCotizacion {
-        private final String id, fecha, cliente, tipo, forma, medidas, precio, estado, nivel, puntos;
+        private final String id, fecha, cliente, tipo, forma, medidas, precio, estado, nivel, puntos, sello;
         private final double ancho, alto, espesor, co2, intensidad;
         private final boolean reciclado;
 
         FilaCotizacion(String id, String fecha, String cliente, String tipo, String forma,
                        double ancho, double alto, double espesor, String medidas,
                        String precio, String estado, String nivel,
-                       double co2, double intensidad, boolean reciclado, String puntos) {
+                       double co2, double intensidad, boolean reciclado, String puntos, String sello) {
             this.id = id; this.fecha = fecha; this.cliente = cliente; this.tipo = tipo;
             this.forma = forma; this.ancho = ancho; this.alto = alto; this.espesor = espesor;
             this.medidas = medidas; this.precio = precio;
             this.estado = estado; this.nivel = nivel; this.co2 = co2; this.intensidad = intensidad; this.reciclado = reciclado;
-            this.puntos = puntos;
+            this.puntos = puntos; this.sello = sello;
         }
         public String getId() { return id; }
         public String getFecha() { return fecha; }
@@ -171,6 +182,8 @@ public class AdminCotizacionesController {
         public boolean isReciclado() { return reciclado; }
         /** F45: vertices del corte personalizado ("x,y;x,y;..."); vacio si es una forma fija. */
         public String getPuntos() { return puntos; }
+        /** T3: sello "Compromiso verde" (ORO, PLATA, BRONCE o vacio). */
+        public String getSello() { return sello; }
     }
 
     private FilaCotizacion aFila(VidrioSostenible v, Map<Long, String> clientes) {
@@ -198,7 +211,8 @@ public class AdminCotizacionesController {
                 v.getHuellaCarbono(),
                 intensidad,
                 v.isUsarVidrioReciclado(),
-                v.getPuntosTexto());
+                v.getPuntosTexto(),
+                v.getCompromisoNivel());
     }
 
     // ------------------------------------------------------------- utilidades
@@ -210,6 +224,13 @@ public class AdminCotizacionesController {
 
     private static String estadoDe(VidrioSostenible v) {
         return v.getEstado() == null ? "" : v.getEstado().toUpperCase();
+    }
+
+    /** Un decimal con coma decimal y punto de miles (D2: formato es-CO en todos los idiomas). */
+    private static String fmt1(double d) {
+        java.text.DecimalFormatSymbols s = new java.text.DecimalFormatSymbols(Locale.forLanguageTag("es-CO"));
+        s.setDecimalSeparator(','); s.setGroupingSeparator('.');
+        return new java.text.DecimalFormat("#,##0.0", s).format(d);
     }
 
     /** Medidas sin ceros sobrantes: 400 en vez de 400.0 */

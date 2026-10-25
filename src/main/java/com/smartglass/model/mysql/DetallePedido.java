@@ -113,11 +113,11 @@ public class DetallePedido {
 
     // --- Formateo para vista ---
     public String getSubtotalFormateado() {
-        return String.format("$ %,.0f", subtotal);
+        return String.format(java.util.Locale.forLanguageTag("es-CO"), "$ %,.0f", subtotal);
     }
 
     public String getPrecioUnitarioFormateado() {
-        return String.format("$ %,.0f", precioUnitario);
+        return String.format(java.util.Locale.forLanguageTag("es-CO"), "$ %,.0f", precioUnitario);
     }
 
     public boolean esPersonalizado() {

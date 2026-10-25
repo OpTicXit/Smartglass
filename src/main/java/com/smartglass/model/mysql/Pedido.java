@@ -53,6 +53,22 @@ public class Pedido {
     @Column(name = "es_personalizado")
     private boolean esPersonalizado;
 
+    // T3: compromisos logisticos sin costo elegidos al pagar (no cambian total ni huella).
+    // Con ddl-auto=update las columnas nuevas nacen en 0 para los pedidos anteriores.
+    @Column(name = "empaque_reutilizable", nullable = false, columnDefinition = "boolean not null default false")
+    private boolean empaqueReutilizable;
+
+    @Column(name = "entrega_consolidada", nullable = false, columnDefinition = "boolean not null default false")
+    private boolean entregaConsolidada;
+
+    @Column(name = "retoma_vidrio", nullable = false, columnDefinition = "boolean not null default false")
+    private boolean retomaVidrio;
+
+    // Recargo de compensacion de CO2 realmente cobrado (ya incluido en total). Se guarda aparte porque
+    // los pedidos anteriores marcaban la compensacion sin cobrarla: para ellos vale 0.
+    @Column(name = "recargo_compensacion", nullable = false, columnDefinition = "double not null default 0")
+    private double recargoCompensacion;
+
     /**
      * Constructor base
      */
@@ -127,8 +143,37 @@ public class Pedido {
     public boolean isEsPersonalizado() { return esPersonalizado; }
     public void setEsPersonalizado(boolean esPersonalizado) { this.esPersonalizado = esPersonalizado; }
 
+    public boolean isEmpaqueReutilizable() { return empaqueReutilizable; }
+    public void setEmpaqueReutilizable(boolean empaqueReutilizable) { this.empaqueReutilizable = empaqueReutilizable; }
+
+    public boolean isEntregaConsolidada() { return entregaConsolidada; }
+    public void setEntregaConsolidada(boolean entregaConsolidada) { this.entregaConsolidada = entregaConsolidada; }
+
+    public boolean isRetomaVidrio() { return retomaVidrio; }
+    public void setRetomaVidrio(boolean retomaVidrio) { this.retomaVidrio = retomaVidrio; }
+
+    public double getRecargoCompensacion() { return recargoCompensacion; }
+    public void setRecargoCompensacion(double recargoCompensacion) { this.recargoCompensacion = recargoCompensacion; }
+
+    /** Suma de los productos (sin envio ni compensacion), para el desglose de la factura. */
+    public double getSubtotalProductos() {
+        return detalles.stream().mapToDouble(DetallePedido::getSubtotal).sum();
+    }
+
+    /** Envio cobrado = total - productos - compensacion (nunca negativo). */
+    public double getCostoEnvio() {
+        return Math.max(0, total - getSubtotalProductos() - recargoCompensacion);
+    }
+
+    public String getSubtotalProductosFormateado() { return String.format(java.util.Locale.forLanguageTag("es-CO"), "$ %,.0f", getSubtotalProductos()); }
+    public String getCostoEnvioFormateado() { return String.format(java.util.Locale.forLanguageTag("es-CO"), "$ %,.0f", getCostoEnvio()); }
+    public String getRecargoCompensacionFormateado() { return String.format(java.util.Locale.forLanguageTag("es-CO"), "$ %,.0f", recargoCompensacion); }
+
+    /** T3: hay al menos un compromiso logistico en el pedido. */
+    public boolean isConCompromisos() { return empaqueReutilizable || entregaConsolidada || retomaVidrio; }
+
     // --- Formato ---
     public String getTotalFormateado() {
-        return String.format("$ %,.0f", total);
+        return String.format(java.util.Locale.forLanguageTag("es-CO"), "$ %,.0f", total);
     }
 }

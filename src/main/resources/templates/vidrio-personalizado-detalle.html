@@ -77,6 +77,26 @@
             border: 1px dashed var(--border-hover); border-radius: 12px; color: var(--color-accent-text); font-size: 0.88rem; font-weight: 700; text-decoration: none; }
         .variante:hover { background: var(--color-accent-dim); }
         .obra > .alert { margin-bottom: 18px; }
+        /* T3: sello Compromiso verde y compromisos sin costo */
+        .chip-sello { border: 1px solid var(--border-color); }
+        .chip-sello.ORO { border-color: #C9A227; background: color-mix(in srgb, #F5D76E 30%, var(--bg-secondary)); color: #8A6D0B; }
+        .chip-sello.PLATA { border-color: #8E9AAF; background: color-mix(in srgb, #C9D1DE 40%, var(--bg-secondary)); color: #4B5568; }
+        .chip-sello.BRONCE { border-color: #B87333; background: color-mix(in srgb, #E3B48A 35%, var(--bg-secondary)); color: #7A4A1E; }
+        [data-theme="dark"] .chip-sello.ORO { color: #F5D76E; }
+        [data-theme="dark"] .chip-sello.PLATA { color: #D5DCE8; }
+        [data-theme="dark"] .chip-sello.BRONCE { color: #E8B98C; }
+        .compromisos { margin-top: 22px; padding: 26px; }
+        .compromisos-cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+        .compromisos-cab .tarjeta-titulo { margin: 0; }
+        .compromisos-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+        .compromisos-lista li { display: flex; gap: 12px; padding: 14px 16px; border: 1px solid var(--color-success); border-radius: 14px; background: var(--color-success-dim); }
+        .compromisos-lista li > i { flex: none; color: var(--color-success); font-size: 1.3rem; }
+        .compromisos-lista strong { display: block; color: var(--text-main); font-size: 0.92rem; }
+        .compromisos-lista small { display: block; margin-top: 2px; color: var(--text-muted); font-size: 0.82rem; line-height: 1.45; }
+        .compromisos-lista em { display: block; margin-top: 4px; color: var(--color-success); font-size: 0.82rem; font-style: normal; font-weight: 700; }
+        .compromisos-vacio { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+        .ficha-enlace { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-main); font-size: 0.88rem; font-weight: 700; text-decoration: none; }
+        .ficha-enlace:hover { border-color: var(--border-hover); background: var(--color-accent-dim); }
         .enlaces { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
         .enlaces a {
             flex: 1; min-width: 140px; padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 12px;
@@ -205,7 +225,7 @@
 <main class="obra" th:if="${vidrio != null}"
       th:with="admin=${puedeAprobar != null ? puedeAprobar : (esAdmin != null ? esAdmin : false)}"
       id="obra"
-      th:attr="data-id=${vidrio.id},data-tipo=${vidrio.tipoVidrio},data-ancho=${vidrio.ancho},data-alto=${vidrio.alto},data-espesor=${vidrio.espesor},data-forma=${vidrio.forma},data-reciclado=${vidrio.usarVidrioReciclado},data-silice=${vidrio.cantidadSilice},data-sosa=${vidrio.cantidadSosa},data-caliza=${vidrio.cantidadCaliza},data-alumina=${vidrio.cantidadAlumina},data-otros=${vidrio.cantidadOtros},data-calcin=${vidrio.vidrioRecicladoKg},data-peso=${vidrio.pesoEstimado},data-co2=${vidrio.huellaCarbono},data-intensidad=${vidrio.intensidadCarbono},data-nivel=${vidrio.nivelImpacto},data-mpa=${vidrio.resistenciaEstimada},data-area-total=${vidrio.areaTotal},data-puntos=${vidrio.puntosTexto},data-uso=${vidrio.usoPrincipal},data-trat=${vidrio.tratamiento},data-bordes=${vidrio.acabadoBordes},data-perf=${vidrio.perforaciones},data-renovable=${vidrio.energiaRenovable}">
+      th:attr="data-id=${vidrio.id},data-tipo=${vidrio.tipoVidrio},data-ancho=${vidrio.ancho},data-alto=${vidrio.alto},data-espesor=${vidrio.espesor},data-forma=${vidrio.forma},data-reciclado=${vidrio.usarVidrioReciclado},data-silice=${vidrio.cantidadSilice},data-sosa=${vidrio.cantidadSosa},data-caliza=${vidrio.cantidadCaliza},data-alumina=${vidrio.cantidadAlumina},data-otros=${vidrio.cantidadOtros},data-calcin=${vidrio.vidrioRecicladoKg},data-peso=${vidrio.pesoEstimado},data-co2=${vidrio.huellaCarbono},data-intensidad=${vidrio.intensidadCarbono},data-nivel=${vidrio.nivelImpacto},data-mpa=${vidrio.resistenciaEstimada},data-area-total=${vidrio.areaTotal},data-puntos=${vidrio.puntosTexto},data-uso=${vidrio.usoPrincipal},data-trat=${vidrio.tratamiento},data-bordes=${vidrio.acabadoBordes},data-perf=${vidrio.perforaciones},data-renovable=${vidrio.energiaRenovable},data-retoma=${vidrio.retomaVidrio},data-empaque=${vidrio.empaqueReutilizable},data-consolidada=${vidrio.entregaConsolidada},data-retazos=${vidrio.usarRetazos}">
 
     <div th:if="${mensaje}" class="alert" th:classappend="${tipoMensaje == 'error'} ? 'alert--error' : 'alert--success'" role="status">
         <i th:class="${tipoMensaje == 'error'} ? 'ph ph-warning-circle' : 'ph ph-check-circle'" aria-hidden="true"></i>
@@ -252,6 +272,8 @@
             <div class="chips">
                 <span class="chip chip-estado" th:classappend="${#strings.toString(vidrio.estado) == 'APROBADO'} ? 'chip-aprobado' : (${#strings.toString(vidrio.estado) == 'RECHAZADA'} ? 'chip-rechazada')" th:text="${#messages.msgOrNull('cotizacion.estado.' + #strings.toString(vidrio.estado))} ?: ${vidrio.estado}">Pendiente</span>
                 <span class="chip-nivel" id="chipNivel" hidden></span>
+                <span class="chip chip-sello" th:if="${!#strings.isEmpty(vidrio.compromisoNivel)}" th:classappend="${vidrio.compromisoNivel}"
+                      th:title="#{sello.puntos(${#strings.toString(vidrio.compromisoPuntos)})}"><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{sello.chip(${#messages.msg('sello.' + vidrio.compromisoNivel)})}">Sello Plata</span></span>
                 <span class="chip chip-eco" th:if="${vidrio.usarVidrioReciclado}"><i class="ph ph-recycle" aria-hidden="true"></i> <span th:text="#{obra.material_reciclado}">Material reciclado</span></span>
                 <span class="chip chip-urgente sg-rainbow" th:if="${vidrio.urgente}"><i class="ph ph-lightning" aria-hidden="true"></i> <span th:text="#{obra.entrega_urgente_20}">Entrega urgente (+20 %)</span></span>
                 <!-- F28: todo modificador que afecta precio, resistencia o huella es visible -->
@@ -423,6 +445,26 @@
         </article>
     </div>
 
+    <!-- ================= T3 · COMPROMISOS SIN COSTO ================= -->
+    <article class="tech-card compromisos">
+        <div class="compromisos-cab">
+            <h3 class="tarjeta-titulo"><i class="ph ph-hand-heart" aria-hidden="true"></i><span th:text="#{obra.compromisos}">Compromisos de esta obra</span></h3>
+            <a class="ficha-enlace" th:href="@{/vidrio-personalizado/cotizacion/{id}/ficha(id=${vidrio.id})}"><i class="ph ph-file-text" aria-hidden="true"></i> <span th:text="#{obra.ver_ficha}">Ficha ambiental imprimible</span></a>
+        </div>
+        <ul class="compromisos-lista" th:if="${vidrio.retomaVidrio or vidrio.empaqueReutilizable or vidrio.entregaConsolidada or vidrio.usarRetazos}">
+            <li th:if="${vidrio.retomaVidrio}"><i class="ph ph-recycle" aria-hidden="true"></i><div>
+                <strong th:text="#{eco.retoma_t}">Retoma del vidrio que reemplazas</strong><small th:text="#{eco.retoma_d}">Lo recogemos en la entrega.</small>
+                <em th:text="#{obra.retoma_dato(${#numbers.formatDecimal(vidrio.pesoEstimado, 1, 'POINT', 1, 'COMMA')})}">≈ 0 kg</em></div></li>
+            <li th:if="${vidrio.empaqueReutilizable}"><i class="ph ph-package" aria-hidden="true"></i><div>
+                <strong th:text="#{eco.empaque_t}">Empaque reutilizable</strong><small th:text="#{eco.empaque_d}">Caballete retornable.</small></div></li>
+            <li th:if="${vidrio.entregaConsolidada}"><i class="ph ph-truck" aria-hidden="true"></i><div>
+                <strong th:text="#{eco.consolidada_t}">Entrega consolidada</strong><small th:text="#{eco.consolidada_d}">Menos viajes de camión.</small></div></li>
+            <li th:if="${vidrio.usarRetazos}"><i class="ph ph-scissors" aria-hidden="true"></i><div>
+                <strong th:text="#{eco.retazos_t}">Cortar de sobrantes de lámina</strong><small th:text="#{eco.retazos_d}">Si hay un retazo compatible.</small></div></li>
+        </ul>
+        <p class="compromisos-vacio" th:unless="${vidrio.retomaVidrio or vidrio.empaqueReutilizable or vidrio.entregaConsolidada or vidrio.usarRetazos}" th:text="#{obra.sin_compromisos}">Esta obra no tiene compromisos sin costo.</p>
+    </article>
+
     <!-- ================= ESTRUCTURA ================= -->
     <article class="tech-card estructura">
         <div class="resistencia">
@@ -560,7 +602,9 @@
     var qv = new URLSearchParams({
         ancho: d.ancho || '', alto: d.alto || '', espesor: d.espesor || '', tipo: d.tipo || '', forma: d.forma || '',
         uso: d.uso || '', trat: d.trat || '', bordes: d.bordes || '', perf: d.perf || '0',
-        reciclado: d.reciclado === 'true' ? '1' : '0', renovable: d.renovable === 'true' ? '1' : '0'
+        reciclado: d.reciclado === 'true' ? '1' : '0', renovable: d.renovable === 'true' ? '1' : '0',
+        retoma: d.retoma === 'true' ? '1' : '0', empaque: d.empaque === 'true' ? '1' : '0',
+        consolidada: d.consolidada === 'true' ? '1' : '0', retazos: d.retazos === 'true' ? '1' : '0'
     });
     if (puntos.length >= 3) qv.set('puntos', d.puntos);
     var lv = document.getElementById('lnkVariante');

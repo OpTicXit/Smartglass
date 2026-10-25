@@ -29,6 +29,12 @@ public class CotizacionVidrioRequest {
     private boolean compensarCarbono;
     private boolean urgente;
 
+    // T3: compromisos sostenibles sin costo (no entran en AnalisisService ni en el precio)
+    private boolean retomaVidrio;
+    private boolean empaqueReutilizable;
+    private boolean entregaConsolidada;
+    private boolean usarRetazos;
+
     // F45: vertices del corte personalizado (solo se usan si forma = "Personalizada").
     // La validacion vive en AnalisisService (cae a bbox si son invalidos), no en anotaciones del DTO.
     private List<PuntoCorte> puntosPersonalizados;
@@ -92,6 +98,18 @@ public class CotizacionVidrioRequest {
 
     public boolean isUrgente() { return urgente; }
     public void setUrgente(boolean urgente) { this.urgente = urgente; }
+
+    public boolean isRetomaVidrio() { return retomaVidrio; }
+    public void setRetomaVidrio(boolean retomaVidrio) { this.retomaVidrio = retomaVidrio; }
+
+    public boolean isEmpaqueReutilizable() { return empaqueReutilizable; }
+    public void setEmpaqueReutilizable(boolean empaqueReutilizable) { this.empaqueReutilizable = empaqueReutilizable; }
+
+    public boolean isEntregaConsolidada() { return entregaConsolidada; }
+    public void setEntregaConsolidada(boolean entregaConsolidada) { this.entregaConsolidada = entregaConsolidada; }
+
+    public boolean isUsarRetazos() { return usarRetazos; }
+    public void setUsarRetazos(boolean usarRetazos) { this.usarRetazos = usarRetazos; }
 
     public List<PuntoCorte> getPuntosPersonalizados() { return puntosPersonalizados; }
     public void setPuntosPersonalizados(List<PuntoCorte> puntosPersonalizados) { this.puntosPersonalizados = puntosPersonalizados; }
