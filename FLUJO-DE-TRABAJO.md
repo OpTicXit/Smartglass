@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `comercio-stock-notif`, actualizado el 2026-10-24 con T3 escrito). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `comercio-stock-notif`, actualizado el 2026-10-24 con T4 escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 **sin commitear**). No se ha subido nada (`push`) y `main` no se ha tocado.
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 **sin commitear**). No se ha subido nada (`push`) y `main` no se ha tocado.
 
 ## Leyenda
 
@@ -88,7 +88,7 @@ Precios tras el balanceo `T2-v3`: bajan 12 productos y 15 se quedan igual. Por e
 | Ítem | Estado | Evidencia |
 |---|---|---|
 | Entidad `Notificacion` en Mongo: clave i18n + parámetros como texto (D2); destino `ADMIN`, `USUARIO` o `TODOS`; leída por usuario | 🧪 ESCRITO | `Notificacion.java:25` |
-| Polling: `GET /api/notificaciones` cada 60 s, en pausa con la pestaña oculta, con caché de 30 s; `PATCH /{id}/leida` y `PATCH /leida` | 🧪 ESCRITO (curl: GET 200 en los tres idiomas, PATCH 204 con cuenta y 401 sin ella) | `NotificacionController.java:26,31,38`; `SecurityConfig.java:145`; `main.js:768` |
+| Polling: `GET /api/notificaciones` cada 60 s, en pausa con la pestaña oculta, con caché de 30 s; `PATCH /{id}/leida` y `PATCH /leida` | 🧪 ESCRITO (curl: GET 200 en los tres idiomas, PATCH 204 con cuenta y 401 sin ella) | `NotificacionController.java:26,31,38`; `SecurityConfig.java:145`; `main.js:769` |
 | Cada quien ve solo lo suyo: admin `ADMIN`; usuario `TODOS` + las suyas; visitante solo `TODOS` (su "visto" queda en el navegador) | 🧪 ESCRITO | `NotificacionService.java:181,200` |
 | Admin: cotización nueva, **también anónima** ("visitante sin cuenta") | ✅ VERIFICADO (campana del admin; la del equipo, FF57D3, también llegó) | `NotificacionService.java:92`; `NotificacionEventosAspect.java:34` (sin tocar `VidrioSostenibleService`) |
 | Admin y usuario: aprobación o rechazo de la obra (solo si la máquina de estados aceptó la transición) | ✅ VERIFICADO (10 aprobaciones del equipo; las obras anónimas solo avisan al admin) | `NotificacionEventosAspect.java:41` |
@@ -102,11 +102,17 @@ Precios tras el balanceo `T2-v3`: bajan 12 productos y 15 se quedan igual. Por e
 
 Limitación: una oferta con fecha de inicio futura no genera aviso el día que empieza (no hay tarea programada); sí aparece desde ese día en "Ofertas activas".
 
-### T4 · Onboarding
+### T4 · Onboarding (solo front-end)
 
-| Ítem | Estado |
-|---|---|
-| T4 · Tour guiado descartable, con i18n y respetando fotosensible | POR HACER |
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Recorrido guiado de 6 pasos (bienvenida → tienda → diseñar → carrito → pagar con cuenta → idioma y accesibilidad) que resalta cada elemento de la barra | 🧪 ESCRITO (probado en el navegador como visitante, en escritorio y en móvil) | `main.js:880`; `fragments/tour.html:12`; atributos `data-tour` en `navbar-publico.html:40` y siguientes |
+| Aparece una sola vez a un visitante o usuario nuevo (`localStorage` "sg-tour-visto"); no sale en login, registro ni checkout | 🧪 ESCRITO | `main.js:880` |
+| Descartable con Esc o "Saltar recorrido"; diálogo **no modal** que no atrapa el foco; al cerrar, el foco vuelve a donde estaba | 🧪 ESCRITO | `main.js:880` |
+| Resaltado estático (contorno cian), sin animación en fotosensible ni con movimiento reducido; foco visible; objetivos táctiles de 44 px; no tapa el switch de tema | 🧪 ESCRITO | `theme.css:1460` |
+| Página `/guia` con los mismos pasos (funciona sin JS) y botón para relanzar el recorrido; enlace "Guía de compra" en el pie | 🧪 ESCRITO | `HomeController.java:30`; `guia.html:32`; `footer.html:41` |
+| Textos en los tres idiomas | 🧪 ESCRITO (curl y navegador en es-CO y en) | `messages*.properties`, sección "T4 recorrido guiado" |
+| Flag "visto" en `Usuario` | No se hizo (opcional en el prompt) | El recorrido sale una vez por navegador |
 
 ### Decisiones D1–D4
 
@@ -175,7 +181,7 @@ Limitación: una oferta con fecha de inicio futura no genera aviso el día que e
 | H06 · `GET /registro/disponible` | 🧪 ESCRITO | `RegistroController.java:50`; llamador en `registro.html:517,607` |
 | H07 · `theme-init.js` sin 404 | 🧪 ESCRITO | `static/js/theme-init.js`; 26 referencias exactas |
 | H08 · `requirements.txt` | 🧪 ESCRITO | Raíz; instalación probada con Python 3.13 |
-| H09 · Este documento | 🧪 ESCRITO | Actualizado con T3; sin commitear |
+| H09 · Este documento | 🧪 ESCRITO | Actualizado con T4; sin commitear |
 | H10 · Archivo basura `how --stat ce8af77` | 🧪 ESCRITO | Borrado del índice (`git rm`) |
 | H11 · Límite en `POST /auth/registro` | 🧪 ESCRITO | `RateLimitFilter.java:65-66,97`; la petición 11 por minuto devuelve 429 |
 
@@ -219,6 +225,7 @@ Limitación: una oferta con fecha de inicio futura no genera aviso el día que e
 | Campana del admin (T3) | ✅ Verificado: cotización nueva (anónima y con cuenta), pedido nuevo y stock bajo aparecen con enlace y quedan leídas |
 | Aprobar una obra (T3) | ✅ Verificado: su dueño recibe "Tu obra Nº … fue aprobada" con enlace |
 | Cambiar el estado de un pedido (T3) | ✅ Verificado: el cliente recibe "Tu pedido … está enviado / en preparación / entregado" |
-| Oferta o producto nuevo (T3) | Aparece en la campana de un visitante como "Nueva" |
+| Oferta o producto nuevo (T3) | Aparece en la campana de un visitante como "Nueva" (pendiente) |
+| Recorrido guiado (T4) | Sale solo la primera vez; "Saltar" o Esc lo cierran; con fotosensible no se mueve nada; se relanza desde "Guía de compra" en el pie |
 
 Nada se da por cerrado hasta que los greps den el resultado esperado, el app arranque con las env vars, el toggle de idioma mantenga las anclas en es-CO, el flujo anónimo→pago-con-login conserve el carrito, el stock sea transaccional y veraz, las notificaciones y el tour respeten i18n y accesibilidad, y los casos A–D se vean en navegador; ningún cambio movió un decimal del contrato ni tocó el logotipo, y D1–D4 no se aplicaron sin mi visto bueno.

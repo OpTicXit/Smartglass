@@ -37,7 +37,7 @@
             </li>
 
             <li class="nav-item has-menu">
-                <button type="button" class="nav-link nav-trigger" aria-haspopup="true" aria-expanded="false">
+                <button type="button" class="nav-link nav-trigger" data-tour="tienda" aria-haspopup="true" aria-expanded="false">
                     <span th:text="#{nav.tienda}">Tienda</span>
                     <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
@@ -58,7 +58,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/vidrio-personalizado/cotizar}" data-key="cotizar" data-match="/vidrio-personalizado" th:text="#{nav.vidrio_personalizado}">Vidrio personalizado</a>
+                <a class="nav-link" th:href="@{/vidrio-personalizado/cotizar}" data-key="cotizar" data-tour="disenar" data-match="/vidrio-personalizado" th:text="#{nav.vidrio_personalizado}">Vidrio personalizado</a>
             </li>
 
             <li class="nav-item">
@@ -72,7 +72,7 @@
             <div th:replace="~{fragments/notificaciones :: campana}"></div>
 
             <!-- T0 i18n: selector de idioma. Enlaces ?lang= (funcionan sin JS); main.js ademas lo guarda en la cuenta -->
-            <div class="nav-item has-menu nav-idioma" data-idioma-control>
+            <div class="nav-item has-menu nav-idioma" data-idioma-control data-tour="ajustes">
                 <button type="button" class="nav-link nav-trigger nav-idioma-trigger" aria-haspopup="true" aria-expanded="false"
                         th:title="#{idioma.abrir}" th:attr="aria-label=#{idioma.abrir}" title="Cambiar idioma" aria-label="Cambiar idioma">
                     <svg class="ico-idioma" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
@@ -121,16 +121,16 @@
             </div>
 
             <!-- Visitante -->
-            <a th:unless="${auth}" th:href="@{/login}" class="btn-nav-cta" th:text="#{nav.iniciar_sesion}">Iniciar sesión</a>
+            <a th:unless="${auth}" th:href="@{/login}" class="btn-nav-cta" data-tour="cuenta" th:text="#{nav.iniciar_sesion}">Iniciar sesión</a>
 
             <!-- Carrito: visitante (en su sesion) y usuario registrado -->
-            <a th:href="@{/carrito}" class="nav-cart" title="Carrito" th:title="#{nav.carrito}" aria-label="Carrito" th:aria-label="#{nav.carrito}" data-match="=/carrito">
+            <a th:href="@{/carrito}" class="nav-cart" data-tour="carrito" title="Carrito" th:title="#{nav.carrito}" aria-label="Carrito" th:aria-label="#{nav.carrito}" data-match="=/carrito">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 11.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.5L21 7H6"/></svg>
                 <span class="cart-count" th:classappend="${cartCount == 0} ? 'is-empty'" th:text="${cartCount}">0</span>
             </a>
 
             <div th:if="${auth}" class="nav-item has-menu nav-account">
-                <button type="button" class="nav-link nav-trigger" aria-haspopup="true" aria-expanded="false">
+                <button type="button" class="nav-link nav-trigger" data-tour="cuenta" aria-haspopup="true" aria-expanded="false">
                     <span class="nav-avatar" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
                     </span>
@@ -172,6 +172,9 @@
     <!-- Barra secundaria: la rellena main.js solo cuando la seccion tiene opciones propias -->
     <div class="subnav" role="navigation" aria-label="Opciones de la sección" th:aria-label="#{nav.opciones_de_la_seccion}" hidden></div>
 
+
+    <!-- T4: textos del recorrido guiado (main.js: inicializarTour). <template> es inerte: no se lee ni se pinta -->
+    <template th:replace="~{fragments/tour :: tour}"></template>
 </nav>
 
 </body>

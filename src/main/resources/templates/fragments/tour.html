@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    T4 · recorrido guiado. main.js (inicializarTour) lo muestra la primera vez
+    (localStorage "sg-tour-visto") o con ?tour=1 / [data-tour-iniciar] (pagina /guia).
+    Cada paso resalta el elemento de la barra con data-tour="<objetivo>"; si no se ve
+    (menu movil cerrado) el paso se muestra sin resaltar.
+    Textos en el idioma activo (T0). Accesibilidad: ver la seccion "Recorrido (T4)" de theme.css.
+-->
+<template th:fragment="tour" id="sg-tour-datos"
+          th:attr="data-paso=#{tour.paso},data-anterior=#{tour.anterior},data-siguiente=#{tour.siguiente},data-terminar=#{tour.terminar},data-saltar=#{tour.saltar}">
+    <section data-objetivo="">
+        <h2 th:text="#{tour.p1_titulo}">Te damos la bienvenida a SmartGlass</h2>
+        <p th:text="#{tour.p1_texto}">En un minuto te mostramos cómo comprar vidrio de catálogo o diseñar una pieza a medida. Puedes saltar el recorrido cuando quieras.</p>
+    </section>
+    <section data-objetivo="tienda">
+        <h2 th:text="#{tour.p2_titulo}">1 · Explora la tienda</h2>
+        <p th:text="#{tour.p2_texto}">En Tienda están el catálogo de vidrio plano y las esculturas. Cada ficha muestra su huella de carbono, el stock y las ofertas.</p>
+    </section>
+    <section data-objetivo="disenar">
+        <h2 th:text="#{tour.p3_titulo}">2 · Diseña una pieza a medida</h2>
+        <p th:text="#{tour.p3_texto}">En Vidrio personalizado eliges medidas y opciones y ves al instante el precio y el CO₂ de tu obra.</p>
+    </section>
+    <section data-objetivo="carrito">
+        <h2 th:text="#{tour.p4_titulo}">3 · Llena tu carrito</h2>
+        <p th:text="#{tour.p4_texto}">Añade productos sin necesidad de cuenta. Tu carrito se guarda mientras navegas.</p>
+    </section>
+    <section data-objetivo="cuenta">
+        <h2 th:text="#{tour.p5_titulo}">4 · Paga con tu cuenta</h2>
+        <p th:text="#{tour.p5_texto}">Solo al pagar te pedimos iniciar sesión o crear tu cuenta, y tu carrito pasa con todo lo que tenía.</p>
+    </section>
+    <section data-objetivo="ajustes">
+        <h2 th:text="#{tour.p6_titulo}">Idioma y accesibilidad</h2>
+        <p th:text="#{tour.p6_texto}">Cambia el idioma aquí. En el botón de accesibilidad puedes activar colores para daltonismo o quitar las animaciones. La guía siempre está en el pie de página.</p>
+    </section>
+</template>
+
+</body>
+</html>

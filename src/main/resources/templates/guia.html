@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es" th:lang="${#locale.toLanguageTag()}">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="#{guia.titulo_pagina}">SmartGlass - Guía de compra</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+
+    <style>
+        /* T4: la guia es la version estatica del recorrido (funciona sin JS) */
+        .guia-hero { padding: clamp(40px, 7vw, 80px) 0 clamp(24px, 4vw, 40px); }
+        .guia-hero h1 { max-width: 18ch; margin: 0 0 16px; font-size: var(--fs-4xl); line-height: 1; letter-spacing: -0.045em; }
+        .guia-hero p { max-width: 58ch; margin: 0 0 24px; color: var(--text-muted); font-size: 1.1rem; }
+        .guia-pasos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 0 0 48px; padding: 0; list-style: none; counter-reset: paso; }
+        .guia-paso { display: grid; grid-template-columns: 48px 1fr; gap: 16px; padding: 22px; border: 1px solid var(--border-color); border-radius: var(--r-lg); background: var(--card-bg-soft); counter-increment: paso; }
+        .guia-paso i { font-size: 1.6rem; color: var(--color-accent-text); }
+        .guia-paso h2 { margin: 0 0 6px; font-size: 1.1rem; }
+        .guia-paso h2::before { content: counter(paso) " · "; color: var(--text-muted); }
+        .guia-paso p { margin: 0 0 10px; color: var(--text-muted); font-size: 0.94rem; }
+        .guia-paso a { font-weight: 600; }
+        @media (max-width: 760px) { .guia-pasos { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
+
+<main class="container">
+
+    <header class="guia-hero">
+        <h1 th:text="#{guia.titulo}">Cómo comprar en SmartGlass</h1>
+        <p th:text="#{guia.lead}">Cuatro pasos, sin crear una cuenta hasta el momento de pagar.</p>
+        <button type="button" class="btn btn-primary" data-tour-iniciar>
+            <i class="ph ph-play" aria-hidden="true"></i> <span th:text="#{guia.iniciar_recorrido}">Hacer el recorrido guiado</span>
+        </button>
+    </header>
+
+    <ol class="guia-pasos">
+        <li class="guia-paso">
+            <i class="ph ph-storefront" aria-hidden="true"></i>
+            <div>
+                <h2 th:text="#{guia.p1_titulo}">Explora la tienda</h2>
+                <p th:text="#{tour.p2_texto}">En Tienda están el catálogo de vidrio plano y las esculturas.</p>
+                <a th:href="@{/catalogo}" th:text="#{guia.ir_catalogo}">Ir al catálogo</a>
+            </div>
+        </li>
+        <li class="guia-paso">
+            <i class="ph ph-ruler" aria-hidden="true"></i>
+            <div>
+                <h2 th:text="#{guia.p2_titulo}">Diseña una pieza a medida</h2>
+                <p th:text="#{tour.p3_texto}">Eliges medidas y opciones y ves al instante el precio y el CO₂.</p>
+                <a th:href="@{/vidrio-personalizado/cotizar}" th:text="#{guia.ir_disenar}">Diseñar una pieza</a>
+            </div>
+        </li>
+        <li class="guia-paso">
+            <i class="ph ph-shopping-cart-simple" aria-hidden="true"></i>
+            <div>
+                <h2 th:text="#{guia.p3_titulo}">Llena tu carrito</h2>
+                <p th:text="#{tour.p4_texto}">Añade productos sin necesidad de cuenta.</p>
+                <a th:href="@{/carrito}" th:text="#{guia.ir_carrito}">Ver el carrito</a>
+            </div>
+        </li>
+        <li class="guia-paso">
+            <i class="ph ph-lock-key" aria-hidden="true"></i>
+            <div>
+                <h2 th:text="#{guia.p4_titulo}">Paga con tu cuenta</h2>
+                <p th:text="#{tour.p5_texto}">Solo al pagar te pedimos iniciar sesión o crear tu cuenta.</p>
+                <a th:href="@{/registro}" th:text="#{guia.ir_registro}">Crear una cuenta</a>
+            </div>
+        </li>
+    </ol>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

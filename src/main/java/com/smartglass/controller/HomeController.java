@@ -25,4 +25,10 @@ public class HomeController {
     public String acerca() {
         return "acerca";
     }
+
+    /** T4: guia de compra (version estatica del recorrido guiado; funciona sin JS). */
+    @GetMapping("/guia")
+    public String guia() {
+        return "guia";
+    }
 }
