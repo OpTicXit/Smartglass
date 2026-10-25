@@ -51,6 +51,9 @@
         </ul>
 
         <div class="nav-actions">
+            <!-- T3: campana de notificaciones (polling) -->
+            <div th:replace="~{fragments/notificaciones :: campana}"></div>
+
             <!-- T0 i18n: selector de idioma. Enlaces ?lang= (funcionan sin JS); main.js ademas lo guarda en la cuenta -->
             <div class="nav-item has-menu nav-idioma" data-idioma-control>
                 <button type="button" class="nav-link nav-trigger nav-idioma-trigger" aria-haspopup="true" aria-expanded="false"

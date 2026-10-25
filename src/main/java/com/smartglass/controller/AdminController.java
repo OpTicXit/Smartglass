@@ -3,6 +3,7 @@ package com.smartglass.controller;
 import com.smartglass.model.mongo.CatalogoProducto;
 import com.smartglass.model.mysql.Usuario;
 import com.smartglass.repository.mysql.UsuarioRepository;
+import com.smartglass.service.NotificacionService;
 import com.smartglass.service.PedidoService;
 import com.smartglass.service.ProductoService;
 import com.smartglass.service.ResenaService;
@@ -46,13 +47,16 @@ public class AdminController {
     private final PedidoService pedidoService;
     private final ProductoService productoService;
     private final ResenaService resenaService;
+    private final NotificacionService notificacionService;
 
     public AdminController(UsuarioRepository usuarioRepository, PedidoService pedidoService,
-                            ProductoService productoService, ResenaService resenaService) {
+                            ProductoService productoService, ResenaService resenaService,
+                            NotificacionService notificacionService) {
         this.usuarioRepository = usuarioRepository;
         this.pedidoService = pedidoService;
         this.productoService = productoService;
         this.resenaService = resenaService;
+        this.notificacionService = notificacionService;
     }
 
     @GetMapping("/dashboard")
@@ -177,7 +181,8 @@ public class AdminController {
         producto.setEsquemaPrecio("manual");
         producto.setPrecioAnterior(null);
         if (producto.getStock() != null && producto.getStock() < 0) producto.setStock(0);
-        productoService.guardar(producto);
+        CatalogoProducto creado = productoService.guardar(producto);
+        notificacionService.productoNuevo(creado);              // T3: novedad para todos
         ra.addFlashAttribute("mensaje", "Producto agregado al catálogo.");
         return "redirect:/admin/productos";
     }
@@ -220,12 +225,20 @@ public class AdminController {
             ra.addFlashAttribute("mensaje", "La oferta no puede terminar antes de empezar.");
             return "redirect:/admin/productos";
         }
+        boolean ofertaAntes = p.isOfertaVigente();
+        Double ofertaPrecioAntes = p.getPrecioOferta();
+        boolean agotadoAntes = p.isAgotado();
         p.setStock(stock);
         p.setPrecioOferta(precioOferta);
         p.setOfertaInicio(inicio);
         p.setOfertaFin(fin);
         p.setOfertaActiva(ofertaActiva);
         productoService.guardar(p);
+        // T3: novedades para todos solo cuando algo cambia de verdad
+        if (p.isOfertaVigente() && (!ofertaAntes || !java.util.Objects.equals(ofertaPrecioAntes, precioOferta))) {
+            notificacionService.ofertaNueva(p);
+        }
+        if (agotadoAntes && p.isStockControlado() && !p.isAgotado()) notificacionService.reposicion(p);
         ra.addFlashAttribute("mensaje", "Stock y oferta de «" + p.getNombre() + "» actualizados.");
         return "redirect:/admin/productos";
     }

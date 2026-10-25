@@ -53,6 +53,7 @@
       inicializarSelectorDeTema,
       inicializarAccesibilidad,
       inicializarIdioma,
+      inicializarNotificaciones,
       inicializarEvolucionVidrio,
       inicializarAlertas,
       inicializarToastsDeclarativos,
@@ -755,6 +756,116 @@
         window.location.href = destino.toString();
       }).catch(function () { window.location.href = destino.toString(); });
     });
+  }
+
+  /* ==========================================================
+     NOTIFICACIONES (T3) · campana de fragments/notificaciones.html
+     Polling de GET /api/notificaciones cada 60 s, en pausa con la pestana
+     oculta (sin WebSocket). Cache de 30 s en sessionStorage para que navegar
+     no gaste el limite de F41. Todo se pinta con textContent (sin innerHTML).
+     Visitante: "visto" se guarda en su navegador; con cuenta, en el servidor.
+  ========================================================== */
+  function inicializarNotificaciones() {
+    var ctl = document.querySelector('[data-notif-control]');
+    if (!ctl || !window.fetch) return;
+    var boton = ctl.querySelector('.nav-notif-trigger');
+    var contador = ctl.querySelector('[data-notif-count]');
+    var estado = ctl.querySelector('[data-notif-estado]');
+    var lista = ctl.querySelector('[data-notif-lista]');
+    var marcar = ctl.querySelector('[data-notif-marcar]');
+    var titulo = ctl.getAttribute('data-titulo') || 'Notificaciones';
+    var nav = document.querySelector('.navbar[data-nav]');
+    var conCuenta = !!nav && (nav.getAttribute('data-nav') === 'admin' || nav.getAttribute('data-auth') === 'true');
+    var VISTO = 'sg-notif-visto', CACHE = 'sg-notif-cache-' + (conCuenta ? 'c' : 'v') + '-' + (window.SG_LANG || '');
+
+    function leer(store, k) { try { return window[store].getItem(k); } catch (e) { return null; } }
+    function escribir(store, k, v) { try { window[store].setItem(k, v); } catch (e) { /* almacenamiento bloqueado */ } }
+    function interno(url) { return typeof url === 'string' && url.charAt(0) === '/' && url.charAt(1) !== '/'; }
+
+    function fila(item, conEstado) {
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.className = 'notif-item' + (conEstado && !item.leida ? ' is-nueva' : '');
+      a.href = interno(item.enlace) ? item.enlace : '#';
+      if (conEstado && !item.leida) {
+        var tag = document.createElement('span');
+        tag.className = 'notif-tag';
+        tag.textContent = ctl.getAttribute('data-nueva') || 'Nueva';
+        a.appendChild(tag);
+      }
+      var txt = document.createElement('span');
+      txt.className = 'notif-texto';
+      txt.textContent = item.texto;
+      a.appendChild(txt);
+      if (item.fecha) {
+        var f = document.createElement('small');
+        f.className = 'notif-fecha';
+        f.textContent = item.fecha;
+        a.appendChild(f);
+      }
+      if (conEstado && conCuenta && !item.leida && item.id) {
+        a.addEventListener('click', function () {
+          fetch('/api/notificaciones/' + encodeURIComponent(item.id) + '/leida',
+                { method: 'PATCH', credentials: 'same-origin', keepalive: true });
+          try { sessionStorage.removeItem(CACHE); } catch (e) { /* nada */ }
+        });
+      }
+      li.appendChild(a);
+      return li;
+    }
+
+    function seccion(clave, items) {
+      var caja = ctl.querySelector('[data-notif-' + clave + '-box]');
+      var ul = ctl.querySelector('[data-notif-' + clave + ']');
+      if (!caja || !ul) return;
+      ul.replaceChildren();
+      (items || []).forEach(function (it) { ul.appendChild(fila(it, false)); });
+      caja.hidden = !(items && items.length);
+    }
+
+    function pintar(d) {
+      var n = d.noLeidas || 0;
+      contador.textContent = n > 9 ? '9+' : String(n);
+      contador.hidden = n === 0;
+      boton.setAttribute('aria-label', titulo + ': ' + (d.etiqueta || ''));
+      boton.title = titulo + ': ' + (d.etiqueta || '');
+      lista.replaceChildren();
+      (d.items || []).forEach(function (it) { lista.appendChild(fila(it, true)); });
+      estado.textContent = (d.items && d.items.length) ? '' : (ctl.getAttribute('data-vacio') || '');
+      estado.hidden = !!(d.items && d.items.length);
+      marcar.hidden = n === 0;
+      seccion('ofertas', d.ofertas);
+      seccion('vendidos', d.masVendidos);
+    }
+
+    function cargar(forzar) {
+      if (!forzar) {
+        var c = leer('sessionStorage', CACHE);
+        if (c) {
+          try { var g = JSON.parse(c); if (Date.now() - g.t < 30000) { pintar(g.d); return; } } catch (e) { /* recarga */ }
+        }
+      }
+      var url = '/api/notificaciones';
+      var visto = !conCuenta && leer('localStorage', VISTO);
+      if (visto) url += '?desde=' + encodeURIComponent(visto);
+      fetch(url, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (d) { escribir('sessionStorage', CACHE, JSON.stringify({ t: Date.now(), d: d })); pintar(d); })
+        .catch(function () { estado.hidden = false; estado.textContent = ctl.getAttribute('data-error') || ''; });
+    }
+
+    marcar.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (!conCuenta) { escribir('localStorage', VISTO, String(Date.now())); cargar(true); return; }
+      fetch('/api/notificaciones/leida', { method: 'PATCH', credentials: 'same-origin' })
+        .then(function () { cargar(true); });
+    });
+    // inicializarNavegacion ya abrio/cerro el menu: al abrirlo se refresca (con la cache de 30 s)
+    boton.addEventListener('click', function () { if (ctl.classList.contains('open')) cargar(false); });
+
+    cargar(false);
+    setInterval(function () { if (!document.hidden) cargar(true); }, 60000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) cargar(false); });
   }
 
   /* ==========================================================

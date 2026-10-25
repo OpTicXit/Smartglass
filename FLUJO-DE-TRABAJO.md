@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `comercio-stock-notif`, actualizado el 2026-10-24 tras el gate de T2). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `comercio-stock-notif`, actualizado el 2026-10-24 con T3 escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 **sin commitear**). No se ha subido nada (`push`) y `main` no se ha tocado.
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 **sin commitear**). No se ha subido nada (`push`) y `main` no se ha tocado.
 
 ## Leyenda
 
@@ -43,7 +43,7 @@ Cinco sub-tandas con gate: T0 i18n → T1 login solo al pagar → T2 stock, ofer
 | `MessageSource` explícito (la autoconfiguración quedaba en caché entre reinicios de devtools) | ✅ VERIFICADO | `I18nConfig.java:67` |
 | Idioma en la cookie `sg-lang` y `?lang=`; sin cookie se aplica la preferencia de la cuenta | ✅ VERIFICADO | `I18nConfig.java:76,85`; `Usuario.java:58` (`preferencia_idioma`) |
 | `PATCH /perfil/idioma` (400 si el idioma no es válido) | ✅ VERIFICADO | `PerfilIdiomaController.java:39` |
-| Selector de idioma en la barra pública, el admin y el panel flotante | ✅ VERIFICADO | `fragments/navbar-publico.html:72`; `admin/fragments/nav.html:55`; `main.js:737` |
+| Selector de idioma en la barra pública, el admin y el panel flotante | ✅ VERIFICADO | `fragments/navbar-publico.html:75`; `admin/fragments/nav.html:58`; `main.js:738` |
 | Textos de los scripts (`SG_TXT`, `sgT`, `tx`) | ✅ VERIFICADO | `fragments/recursos.html:23,97`; `main.js:30` |
 | **D2:** los números del contrato no se traducen (`9,8` y `$175.959` en los tres idiomas) | ✅ VERIFICADO | `#numbers.formatDecimal(…,'POINT',…,'COMMA')` y `SGGlass.fmtNum` |
 | Siguen en español en todos los idiomas | Limitación conocida | Frases dinámicas de `glass-preview.js` (congelado), avisos del servidor, recomendación de `AnalisisService`, datos guardados |
@@ -83,11 +83,29 @@ Cinco sub-tandas con gate: T0 i18n → T1 login solo al pagar → T2 stock, ofer
 
 Precios tras el balanceo `T2-v3`: bajan 12 productos y 15 se quedan igual. Por ejemplo, el espejo solar pasa de 1.200.000 a 485.000; las esculturas pequeñas, de 180.000–320.000 a 90.000–100.000; las grandes, de 4,8–6,2 M a 3,96–4,1 M. La cotización personalizada no cambió.
 
-### T3 · Notificaciones y T4 · Onboarding
+### T3 · Notificaciones (polling, sin WebSocket)
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Entidad `Notificacion` en Mongo: clave i18n + parámetros como texto (D2); destino `ADMIN`, `USUARIO` o `TODOS`; leída por usuario | 🧪 ESCRITO | `Notificacion.java:25` |
+| Polling: `GET /api/notificaciones` cada 60 s, en pausa con la pestaña oculta, con caché de 30 s; `PATCH /{id}/leida` y `PATCH /leida` | 🧪 ESCRITO (curl: GET 200 en los tres idiomas, PATCH 204 con cuenta y 401 sin ella) | `NotificacionController.java:26,31,38`; `SecurityConfig.java:145`; `main.js:768` |
+| Cada quien ve solo lo suyo: admin `ADMIN`; usuario `TODOS` + las suyas; visitante solo `TODOS` (su "visto" queda en el navegador) | 🧪 ESCRITO | `NotificacionService.java:181,200` |
+| Admin: cotización nueva, **también anónima** ("visitante sin cuenta") | ✅ VERIFICADO (campana del admin; la del equipo, FF57D3, también llegó) | `NotificacionService.java:92`; `NotificacionEventosAspect.java:34` (sin tocar `VidrioSostenibleService`) |
+| Admin y usuario: aprobación o rechazo de la obra (solo si la máquina de estados aceptó la transición) | ✅ VERIFICADO (10 aprobaciones del equipo; las obras anónimas solo avisan al admin) | `NotificacionEventosAspect.java:41` |
+| Admin: pedido nuevo; usuario: "Recibimos tu pedido" con enlace a la factura | ✅ VERIFICADO (pedido 12 del equipo: aviso al admin y confirmación leída por el cliente) | `NotificacionEventosAspect.java:47` (sin tocar `PedidoService`) |
+| Admin y usuario: cambio de estado del pedido desde el panel (uno o varios) | ✅ VERIFICADO (cambio múltiple de 6 pedidos; el cliente lo recibe en es-CO y en) | `NotificacionEventosAspect.java:54` |
+| Admin: stock bajo o agotado tras una compra real | ✅ VERIFICADO (visto y leído en la campana del admin) | `StockService.java:89` |
+| Todos: producto nuevo, oferta nueva y reposición, desde el panel de admin | 🧪 ESCRITO (falta probarlo con admin) | `AdminController.java:185,239` |
+| Ofertas vigentes y "más vendidos" calculados al leer (solo lectura sobre `DetallePedido`; las obras a medida y los pedidos cancelados no cuentan) | 🧪 ESCRITO | `NotificacionService.java:231,244`; `DetallePedidoRepository.java:16` |
+| Campana en la barra pública y en la del admin: contador con número y `aria-label` "N sin leer", etiqueta "Nueva" en texto, sin animación, sin colores del semáforo, contraste 6,3:1 | 🧪 ESCRITO (vista en el navegador como visitante) | `fragments/notificaciones.html:14`; `navbar-publico.html:72`; `admin/fragments/nav.html:55`; `theme.css:1429` |
+| Textos en los tres idiomas, resueltos por el servidor en el idioma de quien lee | 🧪 ESCRITO (curl en es-CO, es-ES y en) | `messages*.properties`, sección "T3 notificaciones" |
+
+Limitación: una oferta con fecha de inicio futura no genera aviso el día que empieza (no hay tarea programada); sí aparece desde ese día en "Ofertas activas".
+
+### T4 · Onboarding
 
 | Ítem | Estado |
 |---|---|
-| T3 · Notificaciones admin y usuario por *polling*, también para cotizaciones anónimas | POR HACER |
 | T4 · Tour guiado descartable, con i18n y respetando fotosensible | POR HACER |
 
 ### Decisiones D1–D4
@@ -98,6 +116,7 @@ Precios tras el balanceo `T2-v3`: bajan 12 productos y 15 se quedan igual. Por e
 | D2 · Sin i18n de números | Aplicada la recomendación |
 | D3 · Balancear solo precios de catálogo | Aplicada la recomendación, con la regla "solo baja" del equipo |
 | D4 · Login solo al pagar con gate estricto | Aplicada; gate pasado |
+| Notificaciones por *polling*, no WebSocket (nota §5) | Aplicada la recomendación |
 
 ## Ítems F (funcionalidad)
 
@@ -156,7 +175,7 @@ Precios tras el balanceo `T2-v3`: bajan 12 productos y 15 se quedan igual. Por e
 | H06 · `GET /registro/disponible` | 🧪 ESCRITO | `RegistroController.java:50`; llamador en `registro.html:517,607` |
 | H07 · `theme-init.js` sin 404 | 🧪 ESCRITO | `static/js/theme-init.js`; 26 referencias exactas |
 | H08 · `requirements.txt` | 🧪 ESCRITO | Raíz; instalación probada con Python 3.13 |
-| H09 · Este documento | 🧪 ESCRITO | Actualizado tras el gate de T2; sin commitear |
+| H09 · Este documento | 🧪 ESCRITO | Actualizado con T3; sin commitear |
 | H10 · Archivo basura `how --stat ce8af77` | 🧪 ESCRITO | Borrado del índice (`git rm`) |
 | H11 · Límite en `POST /auth/registro` | 🧪 ESCRITO | `RateLimitFilter.java:65-66,97`; la petición 11 por minuto devuelve 429 |
 
@@ -197,5 +216,9 @@ Precios tras el balanceo `T2-v3`: bajan 12 productos y 15 se quedan igual. Por e
 | Compra real (T2) | El stock del producto baja en lo comprado (Mongo `catalogo_productos.stock`) |
 | Oferta con fecha futura (T2) | El Laminado Opal (oferta desde el 26/10) muestra su precio normal hasta ese día |
 | Agotado (T2) | La Ola Templada sigue en 0 a propósito; se devuelve a 1 desde "Stock y oferta" |
+| Campana del admin (T3) | ✅ Verificado: cotización nueva (anónima y con cuenta), pedido nuevo y stock bajo aparecen con enlace y quedan leídas |
+| Aprobar una obra (T3) | ✅ Verificado: su dueño recibe "Tu obra Nº … fue aprobada" con enlace |
+| Cambiar el estado de un pedido (T3) | ✅ Verificado: el cliente recibe "Tu pedido … está enviado / en preparación / entregado" |
+| Oferta o producto nuevo (T3) | Aparece en la campana de un visitante como "Nueva" |
 
 Nada se da por cerrado hasta que los greps den el resultado esperado, el app arranque con las env vars, el toggle de idioma mantenga las anclas en es-CO, el flujo anónimo→pago-con-login conserve el carrito, el stock sea transaccional y veraz, las notificaciones y el tour respeten i18n y accesibilidad, y los casos A–D se vean en navegador; ningún cambio movió un decimal del contrato ni tocó el logotipo, y D1–D4 no se aplicaron sin mi visto bueno.

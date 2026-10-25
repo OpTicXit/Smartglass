@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    T3 · campana de notificaciones (barra publica y barra del admin).
+    - main.js (inicializarNotificaciones) la llena con GET /api/notificaciones cada 60 s
+      (polling, sin WebSocket) y la pausa con la pestana oculta.
+    - Accesibilidad: el boton dice cuantas hay sin leer en su aria-label y el contador
+      muestra el numero (no solo un punto de color); las nuevas llevan la etiqueta "Nueva".
+      Sin animaciones: respeta el modo fotosensible por construccion.
+    - Los textos de cada notificacion los resuelve el servidor en el idioma activo (T0).
+-->
+<div th:fragment="campana" class="nav-item has-menu nav-notif" data-notif-control
+     th:attr="data-titulo=#{notif.titulo},data-error=#{notif.error},data-vacio=#{notif.vacio},data-nueva=#{notif.nueva}">
+    <button type="button" class="nav-link nav-trigger nav-notif-trigger" aria-haspopup="true" aria-expanded="false"
+            title="Notificaciones" th:title="#{notif.titulo}" aria-label="Notificaciones" th:attr="aria-label=#{notif.titulo}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="notif-count" data-notif-count hidden aria-hidden="true">0</span>
+    </button>
+    <div class="nav-dropdown nav-dropdown--right notif-panel" role="region" aria-label="Notificaciones" th:attr="aria-label=#{notif.titulo}">
+        <div class="notif-head">
+            <strong th:text="#{notif.titulo}">Notificaciones</strong>
+            <button type="button" class="notif-marcar" data-notif-marcar hidden th:text="#{notif.marcar_todas}">Marcar todas como leídas</button>
+        </div>
+        <p class="notif-estado" data-notif-estado role="status" th:text="#{notif.cargando}">Cargando…</p>
+        <ul class="notif-lista" data-notif-lista></ul>
+        <div class="notif-seccion" data-notif-ofertas-box hidden>
+            <p class="notif-subtitulo"><i class="ph ph-tag" aria-hidden="true"></i> <span th:text="#{notif.ofertas}">Ofertas activas</span></p>
+            <ul class="notif-lista notif-lista--simple" data-notif-ofertas></ul>
+        </div>
+        <div class="notif-seccion" data-notif-vendidos-box hidden>
+            <p class="notif-subtitulo"><i class="ph ph-trend-up" aria-hidden="true"></i> <span th:text="#{notif.mas_vendidos}">Más vendidos</span></p>
+            <ul class="notif-lista notif-lista--simple" data-notif-vendidos></ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -36,12 +36,15 @@ public class StockService {
     private final MongoTemplate mongoTemplate;
     private final ProductoService productoService;
     private final MessageSource messageSource;
+    private final NotificacionService notificacionService;
 
     public StockService(MongoTemplate mongoTemplate, ProductoService productoService, MessageSource messageSource,
+                        NotificacionService notificacionService,
                         @Value("${smartglass.stock.umbral-bajo:5}") int umbralBajo) {
         this.mongoTemplate = mongoTemplate;
         this.productoService = productoService;
         this.messageSource = messageSource;
+        this.notificacionService = notificacionService;
         CatalogoProducto.setUmbralStockBajo(umbralBajo);
     }
 
@@ -82,6 +85,8 @@ public class StockService {
                         : texto("stock.checkout_quedan", String.valueOf(quedan), actual.getNombre()));
             }
             reservado.put(e.getKey(), e.getValue());
+            // T3: tras la compra real el admin se entera si queda poco o nada
+            if (tras.isUltimasUnidades() || tras.isAgotado()) notificacionService.stockBajo(tras);
         }
         return reservado;
     }

@@ -140,6 +140,10 @@ public class SecurityConfig {
                     "/api/carrito/**",
                     "/api/checkout/**"
                 ).authenticated()
+                // T3: polling de la campana. Leer es abierto (un visitante solo ve novedades del
+                // catalogo); marcar como leida exige cuenta (401 por la regla de /api/**)
+                .requestMatchers(HttpMethod.GET, "/api/notificaciones").permitAll()
+                .requestMatchers("/api/notificaciones/**").authenticated()
                 // API de vidrios (REST)
                 .requestMatchers(HttpMethod.GET, "/api/vidrios/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/vidrios/**").authenticated()
