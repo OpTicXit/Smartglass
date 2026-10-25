@@ -120,7 +120,7 @@ public class I18nConfig implements WebMvcConfigurer {
                 }
                 return true;
             }
-        }).excludePathPatterns("/css/**", "/js/**", "/img/**", "/favicon.ico");
+        }).excludePathPatterns("/css/**", "/js/**", "/img/**", "/vendor/**", "/favicon.ico");
     }
 
     private static boolean tieneCookie(HttpServletRequest req) {

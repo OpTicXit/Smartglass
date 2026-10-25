@@ -103,13 +103,14 @@
         return s.replace(/\{(\d+)\}/g, function (m, i) { return a[i] != null ? a[i] : m; });
     };
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist:wght@400..700&display=swap">
-    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
-    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <!-- U2: fuentes e iconos alojados aqui (scripts/fuentes_google.py y scripts/iconos_phosphor.py):
+         sin conexiones a terceros que bloqueen el pintado; los iconos son solo los que se usan -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin th:href="@{/vendor/fuentes/geist-latin.woff2}">
+    <link rel="preload" as="font" type="font/woff2" crossorigin th:href="@{/vendor/fuentes/bricolage-grotesque-latin.woff2}">
+    <link rel="stylesheet" th:href="@{/vendor/fuentes/fuentes.css}">
+    <link rel="stylesheet" th:href="@{/vendor/phosphor/phosphor.css}">
     <link rel="stylesheet" th:href="@{/css/theme.css}">
-    <link rel="icon" type="image/png" th:href="@{/img/logo-icono.png}">
+    <link rel="icon" type="image/png" th:href="@{/img/logo-icono-sm.png}">
 </th:block>
 </head>
 </html>

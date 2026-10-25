@@ -1,20 +1,15 @@
 package com.smartglass.controller;
 
 import com.smartglass.config.SesionAnonima;
+import com.smartglass.config.UsuarioSesion;
 import com.smartglass.model.mysql.Usuario;
-import com.smartglass.repository.mysql.UsuarioRepository;
 import com.smartglass.service.CarritoService;
-import com.smartglass.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
-
-import java.util.Optional;
 
 /**
  * Atributos globales para vistas MVC/Thymeleaf.
@@ -38,19 +33,16 @@ import java.util.Optional;
 public class VistaGlobalAttributesAdvice {
 
     private final CarritoService carritoService;
-    private final UsuarioRepository usuarioRepository;
-    private final UserService userService;
+    private final UsuarioSesion usuarioSesion;
     private final SesionAnonima sesionAnonima;
 
     public VistaGlobalAttributesAdvice(
             CarritoService carritoService,
-            UsuarioRepository usuarioRepository,
-            UserService userService,
+            UsuarioSesion usuarioSesion,
             SesionAnonima sesionAnonima
     ) {
         this.carritoService = carritoService;
-        this.usuarioRepository = usuarioRepository;
-        this.userService = userService;
+        this.usuarioSesion = usuarioSesion;
         this.sesionAnonima = sesionAnonima;
     }
 
@@ -92,60 +84,9 @@ public class VistaGlobalAttributesAdvice {
         model.addAttribute("cantidadCarrito", carritoService.getCantidadTotal());
     }
 
+    /** U2: mismo criterio de siempre (OAuth2 por correo; local/JWT por username o correo), compartido
+     *  con el interceptor de idioma en una sola consulta por peticion. */
     private Usuario resolverUsuarioActual(Authentication authentication) {
-        if (authentication == null) {
-            return null;
-        }
-
-        // OAuth2 / Google
-        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
-            OAuth2User oauth2User = oauthToken.getPrincipal();
-
-            String email = oauth2User.getAttribute("email");
-
-            if (email != null) {
-                Optional<Usuario> usuarioByEmail = usuarioRepository.findByEmail(email);
-
-                if (usuarioByEmail.isPresent()) {
-                    return usuarioByEmail.get();
-                }
-            }
-
-            // Fallback si el name del OAuth2 coincide con username/email local.
-            String oauthName = authentication.getName();
-
-            if (oauthName != null) {
-                return buscarUsuarioPorUsernameOEmail(oauthName).orElse(null);
-            }
-
-            return null;
-        }
-
-        // Login normal o JWT
-        String login = authentication.getName();
-
-        return buscarUsuarioPorUsernameOEmail(login).orElse(null);
-    }
-
-    /**
-     * Busca primero por username usando el mismo servicio que usa UserDetailsServiceImpl.
-     * Si no lo encuentra y el valor parece email, intenta buscar por email.
-     */
-    private Optional<Usuario> buscarUsuarioPorUsernameOEmail(String login) {
-        if (login == null || login.isBlank()) {
-            return Optional.empty();
-        }
-
-        Optional<Usuario> usuarioPorUsername = userService.findByUsername(login);
-
-        if (usuarioPorUsername.isPresent()) {
-            return usuarioPorUsername;
-        }
-
-        if (login.contains("@")) {
-            return usuarioRepository.findByEmail(login);
-        }
-
-        return Optional.empty();
+        return usuarioSesion.buscar(authentication).orElse(null);
     }
 }

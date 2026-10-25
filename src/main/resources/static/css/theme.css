@@ -547,9 +547,12 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.4; }
 .stepper input:focus { box-shadow: none; background: transparent; }
 
 /* ---------- Tarjetas (glass) ---------- */
+/* U2: sin backdrop-filter en tarjetas que se repiten (catalogo, paneles): detras solo esta la luz
+   ambiental difusa, el desenfoque no cambiaba el aspecto y costaba un repintado por tarjeta al desplazar.
+   El vidrio esmerilado queda en las piezas sueltas (barra, dialogos, auth). */
 .card-panel, .producto-card, .info-box, .dashboard-widget {
   position: relative; overflow: hidden;
-  background-color: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  background-color: var(--card-bg);
   border: 1px solid var(--border-color); border-radius: var(--r-md);
   box-shadow: var(--shadow-main), var(--glass-edge); padding: 24px;
   transition: transform 0.4s var(--ease-out), border-color 0.4s ease, box-shadow 0.4s ease;
@@ -566,7 +569,7 @@ input[type="number"]::-webkit-inner-spin-button { opacity: 0.4; }
 
 .tech-card {
   position: relative; overflow: hidden;
-  background-color: var(--card-bg); backdrop-filter: blur(12px);
+  background-color: var(--card-bg);
   border: 1px solid var(--border-color); border-radius: var(--r-md);
   box-shadow: var(--shadow-main), var(--glass-edge);
 }
@@ -1012,9 +1015,12 @@ body:has(> .auth) { padding-bottom: 0; }
 ========================================================= */
 /* Reveal al entrar en pantalla (main.js agrega/quita estas clases) */
 .sg-reveal {
-  opacity: 0; transform: translateY(18px);
-  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+  opacity: 0; transform: translateY(14px);
+  transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
 }
+/* U2 (main.js pausarAnimacionesFuera): animaciones sin fin en pausa fuera de pantalla */
+.sg-fuera, .sg-fuera::before, .sg-fuera::after,
+.sg-fuera *, .sg-fuera *::before, .sg-fuera *::after { animation-play-state: paused !important; }
 .sg-reveal-visible { opacity: 1; transform: none; }
 
 /* Efecto magnetico (main.js mueve el elemento; la transicion la da esta regla) */

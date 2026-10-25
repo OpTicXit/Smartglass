@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con U1 · idiomas escrito). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-25 con U2 · rendimiento escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas **sin commitear**). No se ha subido nada (`push`).
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento **sin commitear**). No se ha subido nada (`push`).
 
 ## Leyenda
 
@@ -193,6 +193,26 @@ Seis tandas con gate: U1 idiomas → U2 rendimiento → U3 SaaS visible (plan ed
 | Scripts del admin (reseñas, pedidos, productos) y 3 textos fijos de plantillas | 🧪 ESCRITO | `RV_TXT` en `admin/resenas.html`; `SG_TXT` |
 | Reseñas: texto de los clientes, no se traduce; en inglés se avisa "Reviews are shown in the language they were written in." | 🧪 ESCRITO | `detalle.html` |
 | Páginas con sesión en inglés: Mis cotizaciones, Mis pedidos, cuenta, checkout, factura, confirmación, ficha y panel admin; líneas de pedido y nombres de producto del admin traducidos (los pedidos guardan el nombre de la compra y se muestra en el idioma activo) | 🧪 ESCRITO (rastreo con sesión: solo quedan reseñas y nombres de personas) | `ContenidoLocalizado.nombrePedido`, `AdminController` (reseñas) |
+
+### U2 · Rendimiento
+
+Medido en local (servidor con curl; navegador con la Performance API). El servidor ya respondía rápido salvo el catálogo en prod; lo que se notaba era peso de red, repintados y registros de desarrollo.
+
+| Ítem | Antes → después | Estado | Evidencia |
+|---|---|---|---|
+| Fondo del inicio y del login: era un PNG de 2,2 MB con extensión `.jpg` | 2.248 KB → 229 KB (JPEG real, misma imagen; original en `scripts/originales/`) | 🧪 ESCRITO | `scripts/Imagenes.java` |
+| Logo en barras, pie y favicon (se muestra a 28–34 px) | 236 KB → 21 KB (copia a 128 px; el logotipo original no se toca y lo siguen usando factura y ficha) | 🧪 ESCRITO | `img/logo-icono-sm.png` |
+| Iconos Phosphor desde unpkg: 164 KB de CSS que bloqueaban el pintado + 280 KB de fuentes, para 83 iconos | 9 KB de CSS (1,5 KB comprimido) + 17 KB de fuentes, alojados aquí | 🧪 ESCRITO (0 iconos vacíos en inicio, catálogo y configurador) | `scripts/iconos_phosphor.py`; `IconosPhosphorTest` falla si se usa un icono sin regenerar |
+| Google Fonts (dos conexiones a terceros antes de pintar) | Alojadas aquí con *preload* (latin y latin-ext); 0 peticiones externas por página | 🧪 ESCRITO | `scripts/fuentes_google.py`; `fragments/recursos.html` |
+| Peso total del inicio | ≈ 2,7 MB → 420 KB | 🧪 ESCRITO | Performance API |
+| Prod: las imágenes de `/img` salían con `no-store` (se bajaban en cada página) | Caché de 7 días como CSS y JS | 🧪 ESCRITO | `UploadsWebConfig` |
+| Prod: el catálogo tardaba ~90 ms (el filtro de versiones buscaba cada enlace `/detalle/…` en el JAR por el patrón `/**`) | ~90 ms → ~28 ms; configurador 18 → 8 ms | 🧪 ESCRITO | `EstaticosWebConfig` (un manejador por carpeta), `spring.web.resources.add-mappings=false` |
+| Con sesión, cada página buscaba al usuario 3 veces en MySQL (≈ 3 viajes a la base remota en prod) | 1 por petición | 🧪 ESCRITO | `UsuarioSesion` (memoria de la petición); `VistaGlobalAttributesAdvice` la reutiliza |
+| Desplazamiento del catálogo: 27 tarjetas con `backdrop-filter` sobre un fondo difuso | Peor fotograma 34,6 ms → 7,5 ms, sin cambio visible | 🧪 ESCRITO | `theme.css` (tarjetas sin desenfoque; barra, diálogos y auth lo conservan) |
+| Animaciones sin fin (arcoíris, paneles del inicio, vidrio del configurador, evolución, fondo del login) repintaban fuera de pantalla | En pausa mientras no se ven | 🧪 ESCRITO | `main.js` `pausarAnimacionesFuera`, `.sg-fuera` |
+| Aparición de tarjetas al desplazar se sentía lenta | 0,7 s + 280 ms de escalonado → 0,45 s + 160 ms | 🧪 ESCRITO | `theme.css` `.sg-reveal`, `main.js` |
+| Desarrollo: SQL y trazas DEBUG de seguridad en cada petición (también por cada CSS e imagen) | Apagados por defecto; `SHOW_SQL=true` y `LOG_SEGURIDAD=DEBUG` los vuelven a encender | 🧪 ESCRITO | `application.properties` |
+| Configurador: redibujo por cambio de campo | 0,16 ms por `render` (ya iba bien; sin cambios) | — | Performance API |
 
 ### Decisiones D1–D4
 

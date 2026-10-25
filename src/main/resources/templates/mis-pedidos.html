@@ -129,7 +129,7 @@
 
             <ul class="pedido-productos" aria-label="Productos del pedido" th:aria-label="#{mis-pedidos.productos_del_pedido}">
                 <li class="producto-item" th:each="detalle : ${pedido.detalles}">
-                    <img th:src="${detalle.imagenProducto != null} ? @{/img/{img}(img=${detalle.imagenProducto})} : @{/img/logo-icono.png}"
+                    <img th:src="${detalle.imagenProducto != null} ? @{/img/{img}(img=${detalle.imagenProducto})} : @{/img/logo-icono-sm.png}"
                          alt="" loading="lazy">
                     <div class="producto-info">
                         <strong th:text="${@contenido.nombrePedido(detalle)}">Producto</strong>

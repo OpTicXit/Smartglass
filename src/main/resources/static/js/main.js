@@ -69,7 +69,8 @@
       scrollSuaveEnAnclas,
       inicializarComparador,
       inicializarLuzDeCursorEnCards,
-      inicializarEfectoMagnetico
+      inicializarEfectoMagnetico,
+      pausarAnimacionesFuera
     ].forEach(function (fn) {
       try { fn(); } catch (e) { if (window.console) console.error('[SmartGlass] ' + fn.name, e); }
     });
@@ -403,7 +404,7 @@
     var observer = new IntersectionObserver(function (entries) {
       var visibles = entries.filter(function (en) { return en.isIntersecting; });
       visibles.forEach(function (entry, i) {
-        entry.target.style.transitionDelay = Math.min(i * 70, 280) + 'ms';
+        entry.target.style.transitionDelay = Math.min(i * 50, 160) + 'ms';   // U2: antes 70/280 ms, se sentia lento al desplazar
         entry.target.classList.add('sg-reveal-visible');
         observer.unobserve(entry.target);
         // Se limpia el retraso para que no afecte al hover despues
@@ -412,6 +413,19 @@
     }, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
 
     elementos.forEach(function (el) { observer.observe(el); });
+  }
+
+  /* --- U2: las animaciones decorativas sin fin (borde arcoiris, paneles del inicio, vidrio del
+     configurador, evolucion, fondo del login) se pausan mientras no se ven: repintaban cada
+     fotograma aunque estuvieran fuera de pantalla. theme.css: .sg-fuera --- */
+  function pausarAnimacionesFuera() {
+    if (!('IntersectionObserver' in window)) return;
+    var piezas = document.querySelectorAll('.sg-rainbow, .hero-visual, .sg-stage, .evolucion, .auth-visual');
+    if (!piezas.length) return;
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { en.target.classList.toggle('sg-fuera', !en.isIntersecting); });
+    }, { rootMargin: '80px 0px' });
+    piezas.forEach(function (el) { obs.observe(el); });
   }
 
   /* --- T4: cifras que cuentan desde 0 al entrar en pantalla ---
