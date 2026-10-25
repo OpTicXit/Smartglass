@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con T3 · sostenibilidad escrito). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con T4 · estética escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad **sin commitear**). No se ha subido nada (`push`).
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética **sin commitear**). No se ha subido nada (`push`).
 
 ## Leyenda
 
@@ -147,6 +147,15 @@ Seis tandas con gate: T1 responsive → T2 plano y cotizaciones → T3 sostenibi
 | Panel del admin: resumen de compromisos de los clientes (retoma con kg recuperables, empaque, consolidada, retazos y sellos) | 🧪 ESCRITO (navegador) | `AdminCotizacionesController.listar`; `admin-cotizaciones.html` |
 | Compensación del checkout (+$5.000): ahora se cobra en el pedido (decisión del equipo) y queda en `pedidos.recargo_compensacion` (0 en los pedidos anteriores, que la marcaban sin cobrarla); el resumen del checkout la suma al marcarla; confirmación y factura la desglosan. La factura además desglosa bien productos y envío (antes "Subtotal" era el total y "Envío" estaba fijo en $ 0) y los importes salen en formato es-CO | 🧪 ESCRITO (vista del checkout y facturas #6 y #13 en navegador; falta un pago con compensación) | `PedidoService.RECARGO_COMPENSACION_PEDIDO`; `Pedido` (`getSubtotalProductos`, `getCostoEnvio`); `checkout.html`, `factura.html`, `pedido-confirmacion.html` |
 
+### T4 · Estética: acerca, inicio y espacios vacíos
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Cifras sin respaldo retiradas (decisión del equipo: "datos reales del modelo"): 98,2 % de claridad, ISO 14001, −25 % de energía, 500 t de CO₂, "carbono cero 2026", −15 % de desperdicio y "hasta 40 % reciclado" | 🧪 ESCRITO | `acerca.html`, `index.html`; claves nuevas `acerca2.*` e `index2.*` (las antiguas quedan sin uso) |
+| Acerca rediseñado: hero con tres piezas dibujadas por el motor; "La plataforma en cifras" con contadores **en vivo** (obras, pedidos, % con reciclado, kg de calcín, kg con retoma, sellos Oro); "Cómo calculamos la huella" con las reglas del contrato (densidades, 1,1 / 0,6, −15 %, ×1,4 / ×1,8, umbrales 12/20); pilares y "Lo que eliges sí cuenta" con hechos | 🧪 ESCRITO (navegador en es-CO, es-ES y en, escritorio y 375 px) | `EstadisticasPlataformaService` (caché de 5 min; si la base falla, el bloque se oculta); `HomeController` |
+| Inicio: datos del hero con respaldo (−45 % con renovable, −15 % con calcín, 14 geometrías), "Huella a la vista", "Así de simple" en 3 pasos y cierre con cifras en vivo; `aria-label` de la muestra traducido | 🧪 ESCRITO | `index.html` |
+| Espacios vacíos: capa de luz ambiental fija y estática detrás de todas las páginas (oculta al imprimir); contadores que cuentan al entrar (respetan "sin animaciones" y movimiento reducido, también si se activan con la página abierta); aparición al hacer scroll con umbral 6 % para bloques altos | 🧪 ESCRITO | `theme.css` (sección "T4 · Ambiente"); `main.js` (`contarAlEntrar`, `revelarAlEntrar`) |
+
 ### Decisiones D1–D4
 
 | Decisión | Estado |
@@ -262,6 +271,7 @@ Seis tandas con gate: T1 responsive → T2 plano y cotizaciones → T3 sostenibi
 | Plano (mejoras T2) | Lienzo grande con el precio visible; cotas, escala humana y ampliar; 14 formas; el editor F45 arranca con la forma elegida y permite medidas exactas, girar, reflejar y editar puntos |
 | Cotizaciones (mejoras T2) | Estados y nombres traducidos; filtros en Mis cotizaciones; búsqueda en el panel; aprobar o rechazar desde el detalle; "Crear una variante" |
 | Sostenibilidad (mejoras T3) | Los 4 compromisos no cambian precio ni CO₂; el sello sube de Bronce a Oro; la urgente bloquea la consolidada; la ficha se imprime legible; al pagar llegan marcados y aparecen en confirmación, factura y pedidos del admin; con compensación el total sube $5.000 y la factura la desglosa |
+| Acerca e inicio (mejoras T4) | Ninguna cifra sin respaldo; contadores en vivo coinciden con el panel del admin; sin desbordes a 375 px; con "sin animaciones" las cifras salen fijas |
 | Recorrido guiado (T4) | Sale solo la primera vez; "Saltar" o Esc lo cierran; con fotosensible no se mueve nada; se relanza desde "Guía de compra" en el pie |
 
 Nada se da por cerrado hasta que los greps den el resultado esperado, el app arranque con las env vars, el toggle de idioma mantenga las anclas en es-CO, el flujo anónimo→pago-con-login conserve el carrito, el stock sea transaccional y veraz, las notificaciones y el tour respeten i18n y accesibilidad, y los casos A–D se vean en navegador; ningún cambio movió un decimal del contrato ni tocó el logotipo, y D1–D4 no se aplicaron sin mi visto bueno.

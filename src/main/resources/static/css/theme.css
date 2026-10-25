@@ -1536,3 +1536,20 @@ button[disabled] { cursor: not-allowed; }
   .navbar { position: relative; }
   .subnav { position: relative; top: auto; }
 }
+
+/* ---------- T4 · Ambiente: luz de vidrio fija detras del contenido ----------
+   Capa estatica (sin animacion): llena los espacios vacios sin distraer.
+   El body queda transparente para que la capa (z-index -1) se vea sobre el fondo del html. */
+body { background: transparent; }
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(60vw 45vh at 96% 2%, color-mix(in srgb, var(--color-accent) var(--ambiente-a, 13%), transparent), transparent 70%),
+    radial-gradient(48vw 50vh at 0% 58%, color-mix(in srgb, var(--color-cyan) var(--ambiente-b, 8%), transparent), transparent 70%),
+    radial-gradient(44vw 34vh at 62% 108%, color-mix(in srgb, var(--color-accent) var(--ambiente-c, 7%), transparent), transparent 70%);
+}
+:root[data-theme="light"] { --ambiente-a: 9%; --ambiente-b: 6%; --ambiente-c: 5%; }
+@media print { body::before { display: none; } }
+
+/* Cifras que cuentan al entrar en pantalla (main.js: contarAlEntrar). Sin JS se ve el valor final. */
+[data-contar] { font-variant-numeric: tabular-nums; }

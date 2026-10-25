@@ -132,6 +132,47 @@
         .a-medida .sg-stage { aspect-ratio: 440 / 340; }
         .a-medida .sg-stage > div { width: 100%; }
 
+        /* ---------- T4 · PASOS: de la idea a la pieza ---------- */
+        .pasos { padding: clamp(64px, 9vw, 112px) 0 0; }
+        .pasos-header { max-width: 640px; margin-bottom: 28px; }
+        .pasos-header h2 { margin: 0 0 10px; font-size: var(--fs-3xl); }
+        .pasos-header p { margin: 0; color: var(--text-muted); }
+        .pasos-lista { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 0; padding: 0; list-style: none; counter-reset: paso; }
+        .pasos-lista::before {
+            content: ""; position: absolute; left: 6%; right: 6%; top: 34px; height: 1px; z-index: 0;
+            background: linear-gradient(90deg, transparent, var(--color-accent), var(--color-cyan), transparent); opacity: 0.6;
+        }
+        .pasos-lista li {
+            position: relative; z-index: 1; padding: 22px 22px 24px; border: 1px solid var(--border-color); border-radius: var(--r-lg);
+            background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: var(--shadow-main), var(--glass-edge);
+        }
+        .pasos-lista li::before {
+            counter-increment: paso; content: counter(paso, decimal-leading-zero);
+            display: grid; place-items: center; width: 46px; height: 46px; margin-bottom: 16px; border-radius: 14px;
+            background: linear-gradient(135deg, var(--color-accent), var(--color-cyan)); color: var(--text-on-accent, #fff);
+            font-family: var(--font-display); font-weight: 700; box-shadow: 0 10px 24px -10px var(--color-accent);
+        }
+        .pasos-lista h3 { margin: 0 0 6px; font-size: 1.12rem; }
+        .pasos-lista p { margin: 0; color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; }
+
+        /* ---------- T4 · CIERRE con cifras reales ---------- */
+        .cierre { padding: clamp(64px, 9vw, 112px) 0 clamp(56px, 8vw, 96px); }
+        .cierre-panel {
+            position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(20px, 4vw, 48px); align-items: center;
+            padding: clamp(26px, 4vw, 48px); border: 1px solid var(--border-hover); border-radius: var(--r-xl);
+            background: linear-gradient(125deg, var(--color-accent-dim), var(--card-bg-soft) 55%), var(--card-bg-soft); box-shadow: var(--shadow-glow);
+        }
+        .cierre-panel::after {
+            content: ""; position: absolute; inset: -40% -20% auto auto; width: 420px; height: 420px; pointer-events: none;
+            background: radial-gradient(circle, color-mix(in srgb, var(--color-cyan) 22%, transparent), transparent 65%);
+        }
+        .cierre h2 { margin: 0 0 10px; font-size: var(--fs-3xl); }
+        .cierre-texto p { margin: 0 0 22px; color: var(--text-muted); }
+        .cierre-cifras { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+        .cierre-cifras li { padding: 18px; border: 1px solid var(--border-color); border-radius: var(--r-lg); background: var(--card-bg); }
+        .cierre-cifras strong { display: block; font-family: var(--font-display); font-size: clamp(1.4rem, 2.4vw, 2.1rem); line-height: 1.05; letter-spacing: -0.03em; white-space: nowrap; }
+        .cierre-cifras span { color: var(--text-muted); font-size: 0.86rem; line-height: 1.4; }
+
         /* ---------- RESPONSIVE ---------- */
         @media (max-width: 1100px) { .hero-flotantes { right: 0; } }
         @media (max-width: 900px) {
@@ -142,7 +183,13 @@
             .beneficios-grid li:nth-child(3) { border-left: 0; }
             .beneficios-grid li:nth-child(n+3) { border-top: 1px solid var(--border-color); }
         }
+        @media (max-width: 900px) {
+            .pasos-lista { grid-template-columns: 1fr; }
+            .pasos-lista::before { left: 45px; right: auto; top: 6%; bottom: 6%; width: 1px; height: auto; background: linear-gradient(180deg, transparent, var(--color-accent), var(--color-cyan), transparent); }
+            .cierre-panel { grid-template-columns: 1fr; }
+        }
         @media (max-width: 640px) {
+            .cierre-cifras { grid-template-columns: 1fr; }
             .vitrina-grid { grid-template-columns: 1fr; grid-template-rows: repeat(3, 220px); }
             .categoria-card:first-child { grid-row: auto; }
             .beneficios-grid { grid-template-columns: 1fr; }
@@ -170,9 +217,10 @@
                     <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-secondary btn-lg"><i class="ph ph-pencil-ruler"></i> <span th:text="#{index.disenar_a_medida}">Diseñar a medida</span></a>
                 </div>
                 <ul class="hero-datos">
-                    <li><strong>98,2 %</strong><span th:text="#{index.claridad_optica}">claridad óptica</span></li>
-                    <li><strong>-15 %</strong><span th:text="#{index.desperdicio_de_corte}">desperdicio de corte</span></li>
-                    <li><strong th:text="#{index.iso_14001}">ISO 14001</strong><span th:text="#{index.gestion_ambiental}">gestión ambiental</span></li>
+                    <!-- T4: solo cifras con respaldo (reglas del contrato de calculo y del configurador) -->
+                    <li><strong>−45 %</strong><span th:text="#{index2.dato_renovable}">CO₂ del proceso con energía renovable</span></li>
+                    <li><strong>−15 %</strong><span th:text="#{index2.dato_calcin}">CO₂ con calcín reciclado</span></li>
+                    <li><strong>14</strong><span th:text="#{index2.dato_formas}">geometrías y corte libre</span></li>
                 </ul>
             </div>
 
@@ -184,7 +232,7 @@
                 <div class="hero-flotantes">
                     <div class="badge-flotante">
                         <i class="ph ph-leaf"></i>
-                        <div><h2 th:text="#{index.sostenible}">Sostenible</h2><p th:text="#{index.hasta_40_de_vidrio_reciclado}">Hasta 40 % de vidrio reciclado</p></div>
+                        <div><h2 th:text="#{index.sostenible}">Sostenible</h2><p th:text="#{index2.calcin_mezcla}">Calcín reciclado en la mezcla</p></div>
                     </div>
                     <div class="badge-flotante">
                         <i class="ph ph-shield-check"></i>
@@ -199,12 +247,12 @@
         </div>
     </section>
 
-    <section class="container" aria-label="Por qué SmartGlass" th:aria-label="#{index.por_que_smartglass}">
+    <section class="container" aria-label="Por qué SmartGlass" th:aria-label="#{index.por_que_smartglass}" data-reveal>
         <ul class="beneficios-grid">
             <li>
-                <i class="ph ph-drop"></i>
-                <h2 th:text="#{index.materiales_certificados}">Materiales certificados</h2>
-                <p th:text="#{index.vidrio_de_primera_linea_con}">Vidrio de primera línea con estándares internacionales.</p>
+                <i class="ph ph-leaf"></i>
+                <h2 th:text="#{index2.huella_t}">Huella a la vista</h2>
+                <p th:text="#{index2.huella_d}">Cada pieza con su CO₂, su composición y su ficha ambiental.</p>
             </li>
             <li>
                 <i class="ph ph-ruler"></i>
@@ -230,7 +278,7 @@
                 <h2 th:text="#{index.soluciones_en_vidrio_para_cada}">Soluciones en vidrio para cada proyecto</h2>
                 <p th:text="#{index.productos_que_combinan_estetica_desempeno}">Productos que combinan estética, desempeño térmico y menor impacto ambiental.</p>
             </div>
-            <div class="vitrina-grid">
+            <div class="vitrina-grid" data-reveal>
                 <a th:href="@{/catalogo}" class="categoria-card">
                     <img src="/img/vidrio19.jpg" alt="" loading="lazy">
                     <div class="categoria-overlay">
@@ -258,7 +306,7 @@
 
     <section class="a-medida">
         <div class="container">
-            <div class="a-medida-panel">
+            <div class="a-medida-panel" data-reveal>
                 <div class="a-medida-texto">
                     <h2 th:text="#{index.disena_tu_pieza_y_mirala}">Diseña tu pieza y mírala tomar forma</h2>
                     <p th:text="#{index.elige_el_tipo_de_vidrio}">Elige el tipo de vidrio, las medidas, el espesor y el acabado. Ves el precio y la huella de CO₂ mientras decides, y nosotros la fabricamos.</p>
@@ -276,11 +324,45 @@
             </div>
         </div>
     </section>
+
+    <!-- T4: de la idea a la pieza -->
+    <section class="pasos">
+        <div class="container">
+            <div class="pasos-header">
+                <h2 th:text="#{index2.pasos_t}">Así de simple</h2>
+                <p th:text="#{index2.pasos_sub}">De la idea a la pieza instalada, sin llamadas ni hojas de cálculo.</p>
+            </div>
+            <ol class="pasos-lista" data-reveal>
+                <li><h3 th:text="#{index2.paso1_t}">Diseña</h3><p th:text="#{index2.paso1_d}">Elige tipo, medidas y acabados, o dibuja tu corte.</p></li>
+                <li><h3 th:text="#{index2.paso2_t}">Revisamos y aprobamos</h3><p th:text="#{index2.paso2_d}">Validamos la pieza en planta.</p></li>
+                <li><h3 th:text="#{index2.paso3_t}">Paga y recíbela</h3><p th:text="#{index2.paso3_d}">Solo inicias sesión al pagar.</p></li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- T4: cierre con cifras reales de la plataforma (EstadisticasPlataformaService) -->
+    <section class="cierre" th:if="${plataforma != null and plataforma.hayDatos}">
+        <div class="container">
+            <div class="cierre-panel" data-reveal>
+                <div class="cierre-texto">
+                    <h2 th:text="#{index2.cierre_t}">Vidrio con datos, no con promesas</h2>
+                    <p th:text="#{index2.cierre_d}">Esto es lo que ya hacen quienes diseñan con SmartGlass.</p>
+                    <a th:href="@{/acerca#como-calculamos}" class="btn btn-secondary"><i class="ph ph-chart-line-up" aria-hidden="true"></i> <span th:text="#{acerca2.metodo_t}">Cómo calculamos la huella</span></a>
+                </div>
+                <ul class="cierre-cifras">
+                    <li><strong th:attr="data-contar=${plataforma.obras}" th:text="${#numbers.formatInteger(plataforma.obras, 1, 'POINT')}">0</strong><span th:text="#{acerca2.c_obras}">obras cotizadas</span></li>
+                    <li><strong th:attr="data-contar=${plataforma.pctReciclado},data-sufijo=' %'" th:text="${plataforma.pctReciclado} + ' %'">0 %</strong><span th:text="#{acerca2.c_reciclado}">de las obras usa material reciclado</span></li>
+                    <li><strong th:attr="data-contar=${plataforma.kgCalcin},data-decimales=1,data-sufijo=' kg'" th:text="${#numbers.formatDecimal(plataforma.kgCalcin, 1, 'POINT', 1, 'COMMA')} + ' kg'">0 kg</strong><span th:text="#{acerca2.c_calcin}">de vidrio reciclado en las obras</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
 </main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
+<script th:inline="javascript">window.SG_TXT.index_vista_previa = /*[[#{index2.vista_previa}]]*/ 'Vista previa de una pieza de vidrio {0}';</script>
 <script th:src="@{/js/glass-preview.js}"></script>
 <script>
 /* Muestra del configurador: cada boton redibuja la pieza con otro tipo de vidrio */
@@ -295,7 +377,7 @@
         var op = Object.assign({ tipo: tipo }, base);
         SGGlass.render(lienzo, op);
         frase.textContent = SGGlass.describir(op).frase;
-        lienzo.setAttribute('aria-label', 'Vista previa de una pieza de vidrio ' + SGGlass.nombreTipo(tipo).toLowerCase());
+        lienzo.setAttribute('aria-label', sgT('index_vista_previa', 'Vista previa de una pieza de vidrio {0}', SGGlass.nombreTipo(tipo).toLowerCase()));
         botones.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-tipo') === tipo)); });
     }
     botones.forEach(function (b) {

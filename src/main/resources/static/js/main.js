@@ -64,6 +64,7 @@
       inicializarVerPassword,
       inicializarImagenesDeRespaldo,
       revelarAlEntrar,
+      contarAlEntrar,
       rebotarCarritoSiHuboExito,
       scrollSuaveEnAnclas,
       inicializarComparador,
@@ -408,9 +409,39 @@
         // Se limpia el retraso para que no afecte al hover despues
         setTimeout(function () { entry.target.style.transitionDelay = ''; }, 1100);
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    }, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
 
     elementos.forEach(function (el) { observer.observe(el); });
+  }
+
+  /* --- T4: cifras que cuentan desde 0 al entrar en pantalla ---
+     <strong data-contar="1234.5" data-decimales="1" data-sufijo=" kg">1.234,5 kg</strong>
+     El servidor ya pinta el valor final (sin JS o con movimiento reducido se queda asi). Formato es-CO (D2). */
+  function contarAlEntrar() {
+    var els = document.querySelectorAll('[data-contar]');
+    if (!els.length || menosMovimiento() || !('IntersectionObserver' in window)) return;
+    function fmt(v, dec) {
+      var p = Math.abs(v).toFixed(dec).split('.');
+      return (v < 0 ? '-' : '') + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.') + (dec ? ',' + p[1] : '');
+    }
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        obs.unobserve(en.target);
+        var el = en.target, fin = parseFloat(el.getAttribute('data-contar')) || 0;
+        var dec = parseInt(el.getAttribute('data-decimales') || '0', 10), suf = el.getAttribute('data-sufijo') || '';
+        if (menosMovimiento()) { el.textContent = fmt(fin, dec) + suf; return; }   // el modo puede activarse sin recargar
+        var t0 = null, dur = 1100;
+        function paso(t) {
+          if (t0 === null) t0 = t;
+          var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+          el.textContent = fmt(fin * e, dec) + suf;
+          if (k < 1) requestAnimationFrame(paso); else el.textContent = fmt(fin, dec) + suf;
+        }
+        requestAnimationFrame(paso);
+      });
+    }, { threshold: 0.4 });
+    Array.prototype.forEach.call(els, function (el) { obs.observe(el); });
   }
 
   /* --- Rebote del icono del carrito cuando hubo un "agregado" exitoso --- */

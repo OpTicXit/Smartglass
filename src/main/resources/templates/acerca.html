@@ -5,48 +5,147 @@
     <title th:text="#{acerca.smartglass_nuestra_mision_y_sostenibilidad}">SmartGlass - Nuestra misión y sostenibilidad</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
 
+    <!--
+        T4 · Acerca. Solo afirmaciones con respaldo:
+        - "La plataforma en cifras" sale de la base (EstadisticasPlataformaService, cache de 5 min).
+        - "Cómo calculamos la huella" repite las reglas del contrato de calculo (AnalisisService /
+          glass-preview.js); aqui solo se describen, no se calculan. Numeros en es-CO (D2).
+        - La vitrina del hero la dibuja SGGlass (decorativa: aria-hidden).
+    -->
     <style>
-        .acerca-hero { padding: clamp(48px, 8vw, 96px) 0 clamp(40px, 6vw, 64px); }
-        .acerca-hero h1 { max-width: 16ch; margin: 0 0 20px; font-size: var(--fs-4xl); line-height: 1; letter-spacing: -0.045em; }
-        .acerca-hero p { max-width: 58ch; margin: 0; color: var(--text-muted); font-size: 1.12rem; }
+        /* ---------- Hero ---------- */
+        .acerca-hero { overflow-x: clip; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(24px, 4vw, 56px); align-items: center; padding: clamp(40px, 7vw, 88px) 0 clamp(36px, 5vw, 56px); }
+        .acerca-hero .eyebrow { margin-bottom: 14px; }
+        .acerca-hero h1 { max-width: 14ch; margin: 0 0 20px; font-size: var(--fs-4xl); line-height: 0.98; letter-spacing: -0.045em; }
+        .acerca-hero p { max-width: 54ch; margin: 0 0 28px; color: var(--text-muted); font-size: 1.1rem; line-height: 1.65; }
+        .acerca-hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
 
-        .bloque { display: grid; grid-template-columns: minmax(200px, 320px) 1fr; gap: clamp(20px, 4vw, 64px); padding: clamp(40px, 6vw, 64px) 0; border-top: 1px solid var(--border-color); }
-        .bloque > h2 { margin: 0; font-size: var(--fs-2xl); }
-        .bloque-cuerpo > p { max-width: 64ch; margin: 0 0 16px; color: var(--text-muted); font-size: 1.02rem; }
-        .bloque-cuerpo > p:first-child { color: var(--text-main); font-size: 1.15rem; }
+        /* Vitrina: tres piezas reales del motor, abiertas en abanico */
+        .vitrina-material { position: relative; height: clamp(300px, 34vw, 430px); }
+        .vitrina-material::before {
+            content: ""; position: absolute; inset: 6% 10%; border-radius: 50%; pointer-events: none;
+            background: radial-gradient(closest-side, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent);
+        }
+        .vitrina-material .pieza { position: absolute; width: 72%; filter: drop-shadow(0 30px 40px var(--glass-shadow)); transition: transform 0.6s var(--ease-out); }
+        .vitrina-material .pieza.v1 { left: -6%; top: 20%; transform: rotate(-9deg); }
+        .vitrina-material .pieza.v2 { left: 14%; top: 4%; z-index: 2; }
+        .vitrina-material .pieza.v3 { right: -6%; top: 26%; transform: rotate(8deg); }
+        .vitrina-material:hover .pieza.v1 { transform: rotate(-11deg) translateX(-10px); }
+        .vitrina-material:hover .pieza.v3 { transform: rotate(10deg) translateX(10px); }
+        .vitrina-material .pieza .sg-glass .sg-sweep { display: none; }
+        .vitrina-material .etiqueta {
+            position: absolute; z-index: 3; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+            border: 1px solid var(--border-color); border-radius: 999px; background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            color: var(--text-main); font-size: max(12px, 0.78rem); font-weight: 700; box-shadow: var(--shadow-main);
+        }
+        .vitrina-material .etiqueta i { color: var(--color-success); }
+        .vitrina-material .etiqueta.e1 { left: 2%; bottom: 2%; }
+        .vitrina-material .etiqueta.e2 { right: 0; top: 2%; }
 
-        /* Pilares: tres columnas separadas por una linea, sin tarjetas */
-        .pilares { display: grid; grid-template-columns: repeat(3, 1fr); margin: 8px 0 0; padding: 0; list-style: none; }
+        /* ---------- Bloques editoriales: titulo a la izquierda, contenido a la derecha ---------- */
+        .bloque { display: grid; grid-template-columns: minmax(200px, 300px) minmax(0, 1fr); gap: clamp(20px, 4vw, 64px); padding: clamp(40px, 6vw, 72px) 0; border-top: 1px solid var(--border-color); }
+        .bloque-titulo h2 { margin: 0 0 10px; font-size: var(--fs-2xl); line-height: 1.1; }
+        .bloque-titulo p { margin: 0; color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; }
+        .bloque-num { display: block; margin-bottom: 10px; color: var(--color-accent-text); font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.06em; }
+        .bloque-cuerpo > p { max-width: 64ch; margin: 0 0 16px; color: var(--text-muted); font-size: 1.02rem; line-height: 1.7; }
+        .bloque-cuerpo > p:first-child { color: var(--text-main); font-size: 1.18rem; line-height: 1.6; }
+
+        /* ---------- Cifras en vivo ---------- */
+        .cifras-vivo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+        .cifras-vivo li {
+            position: relative; overflow: hidden; padding: 22px 22px 20px; border: 1px solid var(--border-color); border-radius: var(--r-lg);
+            background: var(--card-bg-soft); box-shadow: var(--glass-edge);
+        }
+        .cifras-vivo li::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 64px; height: 1px;
+            background: linear-gradient(90deg, var(--color-accent), var(--color-cyan), transparent);
+        }
+        .cifras-vivo strong { display: block; margin-bottom: 6px; font-family: var(--font-display); font-size: clamp(1.9rem, 3.4vw, 2.6rem); font-weight: 700; line-height: 1; letter-spacing: -0.035em; color: var(--text-main); white-space: nowrap; }
+        .cifras-vivo span { color: var(--text-muted); font-size: 0.9rem; line-height: 1.45; }
+        .cifras-pie { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; color: var(--text-muted); font-size: 0.82rem; }
+        .cifras-pie i { color: var(--color-success); }
+
+        /* ---------- Metodologia: carril de cinco reglas ---------- */
+        .metodo { position: relative; margin: 0; padding: 0; list-style: none; display: grid; gap: 0; counter-reset: regla; }
+        .metodo li { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; padding: 0 0 22px; }
+        .metodo li::before {
+            counter-increment: regla; content: counter(regla);
+            display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; border: 1px solid var(--border-hover);
+            background: var(--color-accent-dim); color: var(--color-accent-text); font-family: var(--font-display); font-weight: 700;
+        }
+        .metodo li::after { content: ""; position: absolute; left: 21px; top: 48px; bottom: 4px; width: 1px; background: var(--border-color); }
+        .metodo li:last-child::after { display: none; }
+        .metodo h3 { margin: 10px 0 4px; font-size: 1.02rem; }
+        .metodo p { margin: 0; color: var(--text-muted); font-size: 0.94rem; line-height: 1.6; }
+        .semaforo { position: relative; display: grid; grid-template-columns: 40% 26.67% 1fr; height: 10px; margin: 12px 0 22px; border-radius: 99px; overflow: hidden; max-width: 420px; }
+        .semaforo i:nth-child(1) { background: var(--color-success); }
+        .semaforo i:nth-child(2) { background: var(--color-warning); }
+        .semaforo i:nth-child(3) { background: var(--color-error); }
+        .semaforo-escala { position: relative; max-width: 420px; height: 18px; margin-top: -18px; color: var(--text-muted); font-size: max(12px, 0.75rem); font-weight: 700; font-variant-numeric: tabular-nums; }
+        .semaforo-escala span { position: absolute; top: 0; transform: translateX(-50%); }
+        .metodo-nota { display: flex; gap: 8px; margin: 4px 0 0; padding: 12px 14px; border: 1px dashed var(--border-color); border-radius: 12px; color: var(--text-muted); font-size: 0.86rem; }
+        .metodo-nota i { color: var(--color-accent-text); font-size: 1.1rem; }
+
+        /* ---------- Pilares ---------- */
+        .pilares { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
         .pilares li { padding: 4px 24px 0; }
         .pilares li:first-child { padding-left: 0; }
         .pilares li + li { border-left: 1px solid var(--border-color); }
-        .pilares i { display: block; margin-bottom: 14px; color: var(--color-accent-text); font-size: 1.8rem; }
+        .pilares i { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 16px; border-radius: 14px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 1.5rem; }
         .pilares h3 { margin: 0 0 8px; font-size: 1.1rem; }
-        .pilares p { margin: 0; color: var(--text-muted); font-size: 0.93rem; }
+        .pilares p { margin: 0; color: var(--text-muted); font-size: 0.93rem; line-height: 1.6; }
 
-        .cifras { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 28px 0 0; }
-        .cifra { padding: 22px; border: 1px solid var(--border-color); border-radius: var(--r-lg); background: var(--card-bg-soft); box-shadow: var(--glass-edge); }
-        .cifra strong { display: block; margin-bottom: 4px; font-family: var(--font-display); font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 700; letter-spacing: -0.03em; }
-        .cifra span { color: var(--text-muted); font-size: 0.9rem; }
+        /* ---------- Compromiso ---------- */
+        .eleccion { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 22px 0 0; padding: 0; list-style: none; }
+        .eleccion li { padding: 20px; border: 1px solid var(--border-color); border-radius: var(--r-lg); background: var(--card-bg-soft); }
+        .eleccion i { color: var(--color-success); font-size: 1.5rem; }
+        .eleccion h3 { margin: 10px 0 6px; font-size: 1rem; }
+        .eleccion p { margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; }
+        .sellos { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
+        .sellos span { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1px solid var(--border-color); border-radius: 999px; font-size: max(12px, 0.8rem); font-weight: 700; }
+        .sellos .b { border-color: #B87333; color: #7A4A1E; background: color-mix(in srgb, #E3B48A 35%, var(--bg-secondary)); }
+        .sellos .p { border-color: #8E9AAF; color: #4B5568; background: color-mix(in srgb, #C9D1DE 40%, var(--bg-secondary)); }
+        .sellos .o { border-color: #C9A227; color: #8A6D0B; background: color-mix(in srgb, #F5D76E 30%, var(--bg-secondary)); }
+        :root:not([data-theme="light"]) .sellos .b { color: #E8B98C; }
+        :root:not([data-theme="light"]) .sellos .p { color: #D5DCE8; }
+        :root:not([data-theme="light"]) .sellos .o { color: #F5D76E; }
 
-        /* ODS: el numero es el identificador oficial del objetivo */
-        .ods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 32px; margin: 8px 0 0; padding: 0; list-style: none; }
-        .ods li { display: grid; grid-template-columns: 64px 1fr; gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--border-color); }
+        /* ---------- ODS: el numero es el identificador oficial del objetivo ---------- */
+        .ods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; margin: 8px 0 0; padding: 0; list-style: none; }
+        .ods li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--border-color); }
         .ods-num { font-family: var(--font-display); font-size: 2.4rem; font-weight: 700; line-height: 1; letter-spacing: -0.04em; color: var(--color-accent-text); }
         .ods h3 { margin: 0 0 6px; font-size: 1.02rem; }
         .ods p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
 
-        .acerca-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; margin-top: 24px; padding: clamp(24px, 4vw, 40px); border: 1px solid var(--border-color); border-radius: var(--r-xl); background: var(--card-bg-soft); }
+        /* ---------- Cierre ---------- */
+        .acerca-cta {
+            position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;
+            margin: 24px 0 clamp(32px, 5vw, 56px); padding: clamp(26px, 4vw, 44px); border: 1px solid var(--border-hover); border-radius: var(--r-xl);
+            background: linear-gradient(120deg, var(--color-accent-dim), var(--card-bg-soft) 60%); box-shadow: var(--shadow-glow);
+        }
         .acerca-cta h2 { margin: 0 0 6px; font-size: var(--fs-xl); }
         .acerca-cta p { margin: 0; color: var(--text-muted); }
 
+        @media (max-width: 960px) {
+            .acerca-hero { grid-template-columns: 1fr; }
+            .vitrina-material { max-width: 560px; width: 100%; margin: 0 auto; }
+            .vitrina-material .pieza { width: 64%; }
+            .vitrina-material .pieza.v1 { left: 0; }
+            .vitrina-material .pieza.v3 { right: 0; }
+            .cifras-vivo, .eleccion { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
         @media (max-width: 860px) {
             .bloque { grid-template-columns: 1fr; }
-            .pilares, .cifras { grid-template-columns: 1fr; }
+            .pilares { grid-template-columns: 1fr; }
             .pilares li { padding: 18px 0; }
             .pilares li + li { border-left: 0; border-top: 1px solid var(--border-color); }
             .ods { grid-template-columns: 1fr; }
         }
+        @media (max-width: 560px) {
+            .cifras-vivo, .eleccion { grid-template-columns: 1fr; }
+            .vitrina-material { height: 260px; }
+        }
+        @media (prefers-reduced-motion: reduce) { .vitrina-material .pieza { transition: none; } }
     </style>
 </head>
 <body>
@@ -56,55 +155,115 @@
 <main class="container">
 
     <header class="acerca-hero">
-        <h1 th:text="#{acerca.ingenieria_en_vidrio_sostenible}">Ingeniería en vidrio sostenible</h1>
-        <p th:text="#{acerca.llevamos_la_industria_del_vidrio}">Llevamos la industria del vidrio a una operación digital y más limpia, con datos, análisis y transparencia total sobre el impacto de cada pieza.</p>
+        <div>
+            <span class="eyebrow" th:text="#{acerca2.eyebrow}">Acerca de SmartGlass</span>
+            <h1 th:text="#{acerca.ingenieria_en_vidrio_sostenible}">Ingeniería en vidrio sostenible</h1>
+            <p th:text="#{acerca.llevamos_la_industria_del_vidrio}">Llevamos la industria del vidrio a una operación digital y más limpia, con datos, análisis y transparencia total sobre el impacto de cada pieza.</p>
+            <div class="acerca-hero-cta">
+                <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler" aria-hidden="true"></i> <span th:text="#{acerca.disenar_a_medida}">Diseñar a medida</span></a>
+                <a th:href="@{/catalogo}" class="btn btn-secondary btn-lg"><i class="ph ph-storefront" aria-hidden="true"></i> <span th:text="#{acerca2.cta_catalogo}">Ver catálogo</span></a>
+            </div>
+        </div>
+        <div class="vitrina-material" aria-hidden="true">
+            <div class="pieza v1" data-pieza="Laminado"></div>
+            <div class="pieza v2" data-pieza="Templado"></div>
+            <div class="pieza v3" data-pieza="Fotovoltaico"></div>
+            <span class="etiqueta e1"><i class="ph ph-recycle"></i> <span th:text="#{index2.calcin_mezcla}">Calcín reciclado en la mezcla</span></span>
+            <span class="etiqueta e2"><i class="ph ph-leaf"></i> <span th:text="#{index2.huella_t}">Huella a la vista</span></span>
+        </div>
     </header>
 
-    <section class="bloque">
-        <h2 th:text="#{acerca.nuestra_vision}">Nuestra visión</h2>
+    <section class="bloque" data-reveal>
+        <div class="bloque-titulo"><span class="bloque-num">01</span><h2 th:text="#{acerca.nuestra_vision}">Nuestra visión</h2></div>
         <div class="bloque-cuerpo">
             <p th:text="#{acerca.smartglass_no_es_solo_una}">SmartGlass no es solo una plataforma de pedidos: es un ecosistema digital para optimizar una de las industrias que más energía consume en el mundo.</p>
-            <p th:text="#{acerca.conectamos_al_disenador_o_arquitecto}">Conectamos al diseñador o arquitecto directamente con la línea de producción. Nuestros algoritmos de optimización de corte reducen en promedio un 15 % el desperdicio de retal por pedido.</p>
+            <p th:text="#{acerca2.vision_2}">Conectamos al diseñador o arquitecto directamente con la línea de producción.</p>
         </div>
     </section>
 
-    <section class="bloque">
-        <h2 th:text="#{acerca.pilares_de_innovacion}">Pilares de innovación</h2>
+    <section class="bloque" data-reveal th:if="${plataforma != null and plataforma.hayDatos}">
+        <div class="bloque-titulo">
+            <span class="bloque-num">02</span>
+            <h2 th:text="#{acerca2.cifras_t}">La plataforma en cifras</h2>
+            <p th:text="#{acerca2.cifras_sub}">Datos reales de las obras y pedidos de SmartGlass.</p>
+        </div>
+        <div class="bloque-cuerpo">
+            <ul class="cifras-vivo">
+                <li><strong th:attr="data-contar=${plataforma.obras}" th:text="${#numbers.formatInteger(plataforma.obras, 1, 'POINT')}">0</strong><span th:text="#{acerca2.c_obras}">obras cotizadas</span></li>
+                <li><strong th:attr="data-contar=${plataforma.pedidos}" th:text="${#numbers.formatInteger(plataforma.pedidos, 1, 'POINT')}">0</strong><span th:text="#{acerca2.c_pedidos}">pedidos realizados</span></li>
+                <li><strong th:attr="data-contar=${plataforma.pctReciclado},data-sufijo=' %'" th:text="${plataforma.pctReciclado} + ' %'">0 %</strong><span th:text="#{acerca2.c_reciclado}">de las obras usa material reciclado</span></li>
+                <li><strong th:attr="data-contar=${plataforma.kgCalcin},data-decimales=1,data-sufijo=' kg'" th:text="${#numbers.formatDecimal(plataforma.kgCalcin, 1, 'POINT', 1, 'COMMA')} + ' kg'">0 kg</strong><span th:text="#{acerca2.c_calcin}">de vidrio reciclado (calcín) en las obras</span></li>
+                <li><strong th:attr="data-contar=${plataforma.kgRetoma},data-decimales=1,data-sufijo=' kg'" th:text="${#numbers.formatDecimal(plataforma.kgRetoma, 1, 'POINT', 1, 'COMMA')} + ' kg'">0 kg</strong><span th:text="#{acerca2.c_retoma}">de vidrio viejo con retoma para reciclar</span></li>
+                <li><strong th:attr="data-contar=${plataforma.sellosOro}" th:text="${#numbers.formatInteger(plataforma.sellosOro, 1, 'POINT')}">0</strong><span th:text="#{acerca2.c_oro}">obras con sello Compromiso verde Oro</span></li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="bloque" id="como-calculamos" data-reveal>
+        <div class="bloque-titulo">
+            <span class="bloque-num" th:text="${plataforma != null and plataforma.hayDatos} ? '03' : '02'">03</span>
+            <h2 th:text="#{acerca2.metodo_t}">Cómo calculamos la huella</h2>
+            <p th:text="#{acerca2.metodo_sub}">Transparencia total: estas son las reglas que usa el configurador.</p>
+        </div>
+        <div class="bloque-cuerpo">
+            <ol class="metodo">
+                <li><div><h3 th:text="#{acerca2.m1_t}">Peso de la pieza</h3><p th:text="#{acerca2.m1_d}">Área × espesor × densidad.</p></div></li>
+                <li><div><h3 th:text="#{acerca2.m2_t}">Proceso</h3><p th:text="#{acerca2.m2_d}">1,1 kg de CO₂e por kg.</p></div></li>
+                <li><div><h3 th:text="#{acerca2.m3_t}">Material reciclado</h3><p th:text="#{acerca2.m3_d}">−15 % con calcín.</p></div></li>
+                <li><div><h3 th:text="#{acerca2.m4_t}">Tecnología</h3><p th:text="#{acerca2.m4_d}">×1,4 y ×1,8.</p></div></li>
+                <li><div><h3 th:text="#{acerca2.m5_t}">Nivel del proceso</h3><p th:text="#{acerca2.m5_d}">12 y 20 kg/m².</p>
+                    <div class="semaforo" aria-hidden="true"><i></i><i></i><i></i></div>
+                    <div class="semaforo-escala" aria-hidden="true"><span style="left:40%">12</span><span style="left:66.67%">20</span></div></div></li>
+            </ol>
+            <p class="metodo-nota"><i class="ph ph-info" aria-hidden="true"></i> <span th:text="#{acerca2.m_nota}">Las cifras del configurador y de la ficha ambiental salen de estas mismas reglas.</span></p>
+        </div>
+    </section>
+
+    <section class="bloque" data-reveal>
+        <div class="bloque-titulo"><span class="bloque-num" th:text="${plataforma != null and plataforma.hayDatos} ? '04' : '03'">04</span><h2 th:text="#{acerca.pilares_de_innovacion}">Pilares de innovación</h2></div>
         <ul class="pilares">
             <li>
                 <i class="ph ph-polygon" aria-hidden="true"></i>
                 <h3 th:text="#{acerca.geometria_de_precision}">Geometría de precisión</h3>
-                <p th:text="#{acerca.cualquier_forma_es_posible_nuestro}">Cualquier forma es posible. Nuestro motor calcula al instante la viabilidad estructural de cortes no rectangulares.</p>
+                <p th:text="#{acerca2.p1_d}">14 geometrías y corte libre de hasta 64 vértices.</p>
             </li>
             <li>
                 <i class="ph ph-leaf" aria-hidden="true"></i>
                 <h3 th:text="#{acerca.transparencia_ambiental}">Transparencia ambiental</h3>
-                <p th:text="#{acerca.calculamos_la_huella_de_carbono}">Calculamos la huella de carbono real de cada pieza según su peso, su espesor y el tratamiento térmico aplicado.</p>
+                <p th:text="#{acerca2.p2_d}">Cada pieza muestra su CO₂.</p>
             </li>
             <li>
                 <i class="ph ph-recycle" aria-hidden="true"></i>
                 <h3 th:text="#{acerca.economia_circular}">Economía circular</h3>
-                <p th:text="#{acerca.usamos_vidrio_con_hasta_un}">Usamos vidrio con hasta un 40 % de composición reciclada, sin perder los estándares ópticos de grado industrial.</p>
+                <p th:text="#{acerca2.p3_d}">Calcín, retoma y retazos.</p>
             </li>
         </ul>
     </section>
 
-    <section class="bloque">
-        <h2 th:text="#{acerca.compromiso_carbono_cero_2026}">Compromiso carbono cero 2026</h2>
+    <section class="bloque" data-reveal>
+        <div class="bloque-titulo"><span class="bloque-num" th:text="${plataforma != null and plataforma.hayDatos} ? '05' : '04'">05</span><h2 th:text="#{acerca2.comp_t}">Lo que eliges sí cuenta</h2></div>
         <div class="bloque-cuerpo">
-            <p th:text="#{acerca.proyectamos_evitar_la_emision_de}">Proyectamos evitar la emisión de 500 toneladas de CO₂ al año optimizando procesos y usando solo energías renovables en nuestras plantas.</p>
-            <div class="cifras">
-                <div class="cifra"><strong>98,2 %</strong><span th:text="#{acerca.claridad_optica_certificada}">Claridad óptica certificada</span></div>
-                <div class="cifra"><strong th:text="#{acerca.iso_14001}">ISO 14001</strong><span th:text="#{acerca.sistema_de_gestion_ambiental}">Sistema de gestión ambiental</span></div>
-                <div class="cifra"><strong>-25 %</strong><span th:text="#{acerca.energia_frente_al_proceso_tradicional}">Energía frente al proceso tradicional</span></div>
+            <p th:text="#{acerca2.comp_d}">En cada obra decides cómo se fabrica y cómo llega.</p>
+            <ul class="eleccion">
+                <li><i class="ph ph-flask" aria-hidden="true"></i><h3 th:text="#{acerca2.comp_1_t}">Material y proceso</h3><p th:text="#{acerca2.comp_1_d}">Calcín y energía renovable.</p></li>
+                <li><i class="ph ph-hand-heart" aria-hidden="true"></i><h3 th:text="#{acerca2.comp_2_t}">Compromisos sin costo</h3><p th:text="#{acerca2.comp_2_d}">Retoma, empaque, entrega consolidada y retazos.</p></li>
+                <li><i class="ph ph-leaf" aria-hidden="true"></i><h3 th:text="#{acerca2.comp_3_t}">Compensación</h3><p th:text="#{acerca2.comp_3_d}">Compensa la huella al pagar.</p></li>
+            </ul>
+            <div class="sellos" role="list" th:attr="aria-label=#{sello.titulo}">
+                <span class="b" role="listitem"><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{sello.chip(${#messages.msg('sello.BRONCE')})}">Sello Bronce</span> · 35</span>
+                <span class="p" role="listitem"><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{sello.chip(${#messages.msg('sello.PLATA')})}">Sello Plata</span> · 60</span>
+                <span class="o" role="listitem"><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{sello.chip(${#messages.msg('sello.ORO')})}">Sello Oro</span> · 85</span>
             </div>
         </div>
     </section>
 
-    <section class="bloque">
-        <h2 th:text="#{acerca.objetivos_de_desarrollo_sostenible}">Objetivos de Desarrollo Sostenible</h2>
-        <div class="bloque-cuerpo">
+    <section class="bloque" data-reveal>
+        <div class="bloque-titulo">
+            <span class="bloque-num" th:text="${plataforma != null and plataforma.hayDatos} ? '06' : '05'">06</span>
+            <h2 th:text="#{acerca.objetivos_de_desarrollo_sostenible}">Objetivos de Desarrollo Sostenible</h2>
             <p th:text="#{acerca.nuestra_operacion_y_nuestro_software}">Nuestra operación y nuestro software están diseñados de acuerdo con la Agenda 2030 de la ONU.</p>
+        </div>
+        <div class="bloque-cuerpo">
             <ul class="ods">
                 <li>
                     <span class="ods-num" aria-hidden="true">9</span>
@@ -138,7 +297,7 @@
         </div>
     </section>
 
-    <aside class="acerca-cta">
+    <aside class="acerca-cta" data-reveal>
         <div>
             <h2 th:text="#{acerca.tienes_un_proyecto_en_mente}">¿Tienes un proyecto en mente?</h2>
             <p th:text="#{acerca.disena_tu_pieza_y_conoce}">Diseña tu pieza y conoce su precio y su huella antes de pedirla.</p>
@@ -150,6 +309,19 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
+<th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
+<script th:src="@{/js/glass-preview.js}"></script>
+<script>
+/* Vitrina del hero: tres piezas reales del motor (decorativas) */
+(function () {
+    if (!window.SGGlass) return;
+    var medidas = { Laminado: [120, 150, 10], Templado: [110, 160, 8], Fotovoltaico: [130, 140, 12] };
+    Array.prototype.forEach.call(document.querySelectorAll('.vitrina-material [data-pieza]'), function (el) {
+        var t = el.getAttribute('data-pieza'), m = medidas[t];
+        SGGlass.render(el, { tipo: t, ancho: m[0], alto: m[1], espesor: m[2], forma: 'Rectangular', reciclado: t === 'Templado', mini: true });
+    });
+})();
+</script>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>
