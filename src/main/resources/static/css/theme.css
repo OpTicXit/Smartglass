@@ -226,7 +226,7 @@ html, body {
   font-size: var(--base-font-size);
   line-height: 1.6;
   margin: 0; padding: 0;
-  min-height: 100vh;
+  min-height: 100vh; min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -321,7 +321,7 @@ html { scrollbar-color: var(--bg-tertiary) var(--bg-primary); }
 .logo-tag {
   margin-left: 2px; padding: 3px 9px; border-radius: var(--r-pill);
   background: var(--color-accent-dim); color: var(--color-accent-text);
-  font-family: var(--font-primary); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.02em;
+  font-family: var(--font-primary); font-size: max(12px, 0.7rem); font-weight: 700; letter-spacing: 0.02em;
 }
 
 .nav-panel { display: flex; align-items: center; justify-content: space-between; flex: 1 1 auto; gap: 24px; min-width: 0; }
@@ -379,7 +379,7 @@ html { scrollbar-color: var(--bg-tertiary) var(--bg-primary); }
 .nav-cart .cart-count {
   position: absolute; top: -7px; right: -7px; min-width: 20px; height: 20px; padding: 0 5px;
   display: grid; place-items: center; border-radius: var(--r-pill);
-  background: var(--color-accent-solid); color: var(--on-accent-solid); font-size: 0.7rem; font-weight: 700;
+  background: var(--color-accent-solid); color: var(--on-accent-solid); font-size: max(12px, 0.7rem); font-weight: 700;
   box-shadow: 0 0 0 2px var(--bg-primary);
 }
 .nav-cart .cart-count.is-empty { display: none; }
@@ -681,12 +681,12 @@ tbody tr:hover td { background-color: var(--surface-hover); }
    formulario); la cuadricula lo coloca a la izquierda. En movil queda solo
    el formulario. */
 .auth {
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 100vh;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 100vh; min-height: 100dvh;
 }
 body:has(> .auth) { padding-bottom: 0; }
 .auth-visual {
   grid-column: 1; grid-row: 1;
-  position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; gap: 20px;
+  position: sticky; top: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; gap: 20px;
   padding: clamp(28px, 4vw, 48px); overflow: hidden; color: var(--on-media);
   background: linear-gradient(180deg, var(--media-scrim-soft), var(--media-scrim)), url('/img/hero-mountains.jpg') center / cover no-repeat;
   border-right: 1px solid var(--border-color);
@@ -938,7 +938,7 @@ body:has(> .auth) { padding-bottom: 0; }
   color: var(--text-muted); font-size: 0.9rem;
 }
 .site-footer-inner {
-  display: grid; grid-template-columns: minmax(220px, 1.4fr) repeat(3, minmax(140px, 1fr)); gap: 32px;
+  display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 32px;
   padding-block: 48px 32px;
 }
 .site-footer .footer-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text-main); font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
@@ -952,7 +952,9 @@ body:has(> .auth) { padding-bottom: 0; }
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px;
   padding-block: 18px 24px; border-top: 1px solid var(--border-color); font-size: 0.82rem; color: var(--text-subtle);
 }
-@media (max-width: 760px) { .site-footer-inner { grid-template-columns: 1fr 1fr; } .site-footer-inner > :first-child { grid-column: 1 / -1; } }
+/* T1 responsive: a 4 columnas no cabia en tablet (768px); 2 columnas hasta 900px y 1 en telefonos estrechos */
+@media (max-width: 900px) { .site-footer-inner { grid-template-columns: 1fr 1fr; } .site-footer-inner > :first-child { grid-column: 1 / -1; } }
+@media (max-width: 400px) { .site-footer-inner { grid-template-columns: 1fr; } }
 
 /* Footer heredado (vistas que aun no usan el fragmento) */
 .footer-main {
@@ -1311,7 +1313,7 @@ html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-tr
 .a11y-opcion[aria-pressed="true"] .a11y-switch { background: var(--color-accent-solid); border-color: var(--color-accent-solid); }
 .a11y-opcion[aria-pressed="true"] .a11y-switch::after {
   content: "\2713"; display: grid; place-items: center; transform: translateX(16px);
-  background: var(--on-accent-solid); color: var(--color-accent-solid); font-size: 0.65rem; font-weight: 900; line-height: 15px; text-align: center;
+  background: var(--on-accent-solid); color: var(--color-accent-solid); font-size: max(12px, 0.65rem); font-weight: 900; line-height: 15px; text-align: center;
 }
 .a11y-estado { margin: 4px 12px 6px; color: var(--text-subtle); font-size: 0.76rem; }
 .a11y-estado:empty { display: none; }
@@ -1323,7 +1325,7 @@ html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-tr
 .nav-idioma > .nav-link { gap: 6px; padding: 9px 11px; border: 1px solid var(--border-color); }
 .nav-idioma > .nav-link::after { display: none; }
 .nav-idioma .ico-idioma { width: 18px; height: 18px; flex: none; }
-.nav-idioma-codigo { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em; }
+.nav-idioma-codigo { font-size: max(12px, 0.74rem); font-weight: 700; letter-spacing: 0.02em; }
 .idioma-panel { min-width: 240px; }
 .idioma-panel a[aria-current="true"], .idioma-flotante a[aria-current="true"] {
   background: var(--color-accent-dim); color: var(--color-accent-text);
@@ -1333,7 +1335,7 @@ html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-tr
   content: "\2713"; margin-left: auto; font-weight: 800;
 }
 .idioma-panel a, .idioma-flotante a { flex-direction: row; align-items: center; gap: 8px; }
-.idioma-nota { margin: 6px 12px 6px; color: var(--text-subtle); font-size: 0.74rem; line-height: 1.35; list-style: none; }
+.idioma-nota { margin: 6px 12px 6px; color: var(--text-subtle); font-size: max(12px, 0.74rem); line-height: 1.35; list-style: none; }
 .idioma-flotante { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-color); }
 .idioma-flotante a {
   display: flex; padding: 9px 12px; border-radius: var(--r-sm); color: var(--text-main); font-size: 0.9rem; font-weight: 600;
@@ -1412,7 +1414,7 @@ html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-tr
 .badge-agotado .ph { color: var(--text-muted); }
 
 .con-oferta { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
-.con-oferta .precio-lista { font-size: 0.62em; font-weight: 500; color: var(--text-muted); text-decoration-thickness: 2px; }
+.con-oferta .precio-lista { font-size: max(12px, 0.62em); font-weight: 500; color: var(--text-muted); text-decoration-thickness: 2px; }
 .con-oferta .precio-oferta { text-decoration: none; color: inherit; }
 
 /* Agotado: atenuado pero legible; el texto "Agotado" y el boton deshabilitado dicen lo que pasa */
@@ -1434,7 +1436,7 @@ button[disabled] { cursor: not-allowed; }
 .notif-count {
   position: absolute; top: 2px; right: 0; min-width: 18px; height: 18px; padding: 0 5px;
   border-radius: 999px; background: var(--color-indigo); color: #fff;   /* blanco sobre indigo: 6,3:1 */
-  font-size: 0.68rem; font-weight: 700; line-height: 18px; text-align: center;
+  font-size: max(12px, 0.68rem); font-weight: 700; line-height: 18px; text-align: center;
   box-shadow: 0 0 0 2px var(--bg-primary);
 }
 .notif-panel { width: min(360px, calc(100vw - 32px)); max-height: min(70vh, 560px); overflow-y: auto; padding: 10px; }
@@ -1450,11 +1452,11 @@ button[disabled] { cursor: not-allowed; }
 }
 .notif-panel .notif-item:hover, .notif-panel .notif-item:focus-visible { background: var(--color-accent-dim); }
 .notif-panel .notif-item.is-nueva { border-left-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 7%, transparent); }
-.notif-tag { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-accent-text); border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; }
+.notif-tag { font-size: max(12px, 0.68rem); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-accent-text); border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; }
 .notif-texto { flex: 1 1 auto; min-width: 0; }
-.notif-panel .notif-fecha { flex-basis: 100%; color: var(--text-muted); font-size: 0.74rem; }
+.notif-panel .notif-fecha { flex-basis: 100%; color: var(--text-muted); font-size: max(12px, 0.74rem); }
 .notif-seccion { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-color); }
-.notif-subtitulo { display: flex; align-items: center; gap: 6px; margin: 0 6px 4px; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+.notif-subtitulo { display: flex; align-items: center; gap: 6px; margin: 0 6px 4px; font-size: max(12px, 0.74rem); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
 @media (pointer: coarse) { .notif-panel .notif-item { min-height: 44px; } .notif-marcar { min-height: 44px; } }
 
 /* ---------- Recorrido guiado (T4) ----------
@@ -1468,7 +1470,7 @@ button[disabled] { cursor: not-allowed; }
   background: var(--bg-primary); color: var(--text-main);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
 }
-.sg-tour-n { margin: 0 0 4px; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
+.sg-tour-n { margin: 0 0 4px; font-size: max(12px, 0.74rem); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
 .sg-tour-titulo { margin: 0 0 8px; font-size: 1.1rem; outline: none; }
 .sg-tour-titulo:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 4px; }
 .sg-tour-texto { margin: 0 0 14px; color: var(--text-muted); font-size: 0.92rem; line-height: 1.5; }
@@ -1479,3 +1481,36 @@ button[disabled] { cursor: not-allowed; }
 @media (max-width: 600px) { .sg-tour { right: 16px; left: 16px; bottom: 84px; width: auto; } }
 @media (pointer: coarse) { .sg-tour-saltar, .sg-tour-acciones .btn { min-height: 44px; } }
 @media print { .sg-tour { display: none; } }
+
+/* ---------- Responsive en todos los dispositivos (mejoras T1) ----------
+   Telefonos, tablets, portatiles y pantallas grandes: el contenido se adapta solo,
+   no se asume 1920x1080. */
+
+/* iOS amplia la pagina al enfocar un campo con letra menor de 16px */
+@media (max-width: 1024px), (pointer: coarse) {
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=color]),
+  select, textarea { font-size: max(16px, 1rem) !important; }   /* gana a estilos de pagina mas especificos */
+}
+
+/* Objetivos tactiles de 44px en pantallas tactiles (WCAG 2.5.5) */
+@media (pointer: coarse) {
+  .btn-sm { --btn-h: 44px; }
+  .btn-icon { min-width: 44px; }
+  .subnav a { min-height: 44px; display: inline-flex; align-items: center; }
+  .sg-theme-switch { min-height: 44px; padding: 8px; align-items: center; }
+  /* Enlaces de una linea dentro de tarjetas: mas area sin mover el diseno */
+  .producto-body h3 a, .info-meta a, .producto-cuerpo h3 a, .producto-card h3 a { display: inline-block; padding-block: 11px; margin-block: -11px; }
+  .stepper button { min-width: 44px; min-height: 44px; }
+  .stepper input { min-height: 44px; }
+}
+
+/* Pantallas grandes (QHD, 4K, ultrapanoramicas): mas ancho util y letra algo mayor */
+@media (min-width: 1680px) { :root { --content-max: 1440px; } }
+@media (min-width: 2200px) { :root { --content-max: 1600px; } html { font-size: 17px; } }
+@media (min-width: 2800px) { :root { --content-max: 1840px; } html { font-size: 18px; } }
+
+/* Telefono en horizontal (poca altura): la barra no se queda fija ocupando media pantalla */
+@media (max-height: 500px) and (orientation: landscape) {
+  .navbar { position: relative; }
+  .subnav { position: relative; top: auto; }
+}

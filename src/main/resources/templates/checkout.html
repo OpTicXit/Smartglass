@@ -15,7 +15,7 @@
         .progreso { display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; list-style: none; font-size: 0.86rem; }
         .progreso li { display: inline-flex; align-items: center; gap: 8px; color: var(--text-subtle); }
         .progreso li + li::before { content: ""; width: 28px; height: 1px; background: var(--border-strong); }
-        .progreso .n { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border-strong); font-size: 0.72rem; font-weight: 700; }
+        .progreso .n { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border-strong); font-size: max(12px, 0.72rem); font-weight: 700; }
         .progreso .hecho { color: var(--text-muted); }
         .progreso .hecho .n { border-color: var(--color-success); background: var(--color-success); color: var(--on-success); }
         .progreso [aria-current="step"] { color: var(--text-main); font-weight: 600; }
@@ -83,6 +83,12 @@
         @media (max-width: 640px) {
             .progreso li:not([aria-current]) .t { display: none; }
             .form-row, .metodos-pago { grid-template-columns: 1fr; }
+            /* T1 responsive: logo, progreso y volver caben en una fila de 320px */
+            .checkout-nav { gap: 10px; }
+            .brand-link span, .volver-carrito .t { display: none; }
+            .progreso { gap: 6px; }
+            .progreso li + li::before { width: 12px; }
+            .volver-carrito { padding-inline: 12px; }
         }
     </style>
 </head>
@@ -99,7 +105,7 @@
         <li aria-current="step"><span class="n">2</span><span class="t" th:text="#{checkout.entrega_y_pago}">Entrega y pago</span></li>
         <li><span class="n">3</span><span class="t" th:text="#{checkout.confirmacion}">Confirmación</span></li>
     </ol>
-    <a th:href="@{/carrito}" class="btn btn-ghost btn-sm"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="#{checkout.carrito}">Carrito</span></a>
+    <a th:href="@{/carrito}" class="btn btn-ghost btn-sm volver-carrito" aria-label="Volver al carrito" th:aria-label="#{checkout.volver_al_carrito}"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span class="t" th:text="#{checkout.carrito}">Carrito</span></a>
 </header>
 
 <main class="container">

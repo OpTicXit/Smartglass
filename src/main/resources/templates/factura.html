@@ -36,6 +36,12 @@
         .parte p { margin: 0; color: var(--ink-muted); font-size: 0.9rem; line-height: 1.55; }
 
         .factura-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+        /* T1 responsive: en un telefono estrecho la tabla se desplaza sola, sin romper la pagina */
+        .factura-tabla-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        @media (max-width: 480px) {
+            .factura-table th, .factura-table td { padding-inline: 8px; }
+            .factura-table { font-size: 0.86rem; }
+        }
         .factura-table th { padding: 10px 12px; background: var(--paper-soft); color: var(--ink-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; border-bottom: 1px solid var(--line); }
         .factura-table td { padding: 14px 12px; color: var(--ink); border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
         .factura-table tbody tr:hover td { background: transparent; }
@@ -121,6 +127,7 @@
         </div>
     </section>
 
+    <div class="factura-tabla-scroll">
     <table class="factura-table">
         <thead>
             <tr>
@@ -139,6 +146,7 @@
             </tr>
         </tbody>
     </table>
+    </div>
 
     <div class="resumen-factura">
         <div class="totales-container">

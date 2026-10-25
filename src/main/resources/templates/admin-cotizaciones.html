@@ -30,7 +30,7 @@
         .filtros a.activo { border-color: var(--color-accent); background: var(--color-accent-dim); color: var(--color-accent-text); }
         .filtros .n {
             min-width: 22px; padding: 1px 7px; border-radius: 999px; background: var(--bg-tertiary);
-            color: var(--text-main); font-size: 0.74rem; text-align: center; font-variant-numeric: tabular-nums;
+            color: var(--text-main); font-size: max(12px, 0.74rem); text-align: center; font-variant-numeric: tabular-nums;
         }
         .filtros a.activo .n { background: var(--color-accent-solid); color: var(--on-accent-solid); }
 
@@ -45,7 +45,7 @@
         .cot-obra-txt { display: grid; gap: 2px; min-width: 0; }
         .cot-obra-txt strong { color: var(--text-main); font-size: 0.95rem; }
         .cot-medidas { color: var(--text-muted); font-size: 0.82rem; line-height: 1.35; }
-        .cot-ref { color: var(--text-label); font-size: 0.7rem; font-weight: 700; letter-spacing: 0; }
+        .cot-ref { color: var(--text-label); font-size: max(12px, 0.7rem); font-weight: 700; letter-spacing: 0; }
         .cot-ref b { font-weight: 700; }
 
         /* F24: PROCESO (.metrica-proceso, con color) y PIEZA (.metrica-pieza, neutro): estilos en admin.css */
@@ -78,7 +78,7 @@
             }
             .cot-tabla td { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 0; border: 0; }
             .cot-tabla td::before {
-                content: attr(data-label); flex: none; color: var(--text-label); font-size: 0.7rem;
+                content: attr(data-label); flex: none; color: var(--text-label); font-size: max(12px, 0.7rem);
                 font-weight: 700; letter-spacing: 0;
             }
             .cot-tabla td.obra-celda { display: block; padding-top: 0; }

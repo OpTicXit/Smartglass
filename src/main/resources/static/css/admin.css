@@ -468,3 +468,15 @@ T3: clases que reemplazan estilos en linea del panel
 .admin-subtitle { margin: 0 0 16px; color: var(--text-main); font-size: var(--fs-xl, 1.375rem); }
 .table-admin td.td-vacio { padding: 28px 20px; color: var(--text-muted); text-align: center; }
 .form-row.form-row--1 { grid-template-columns: 1fr; }
+
+/* ---------- Responsive en todos los dispositivos (mejoras T1) ----------
+   admin.css carga despues de theme.css: repite aqui las reglas tactiles para que no las pise. */
+@media (max-width: 1024px), (pointer: coarse) {
+    input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=color]),
+    select, textarea { font-size: max(16px, 1rem) !important; }   /* gana a estilos de pagina mas especificos */
+}
+@media (pointer: coarse) {
+    .table-admin select, .table-admin button, .btn-crear, .btn-volver, .btn-eliminar, .btn-aprobar-admin,
+    .chip, a.ver, .filtros a { min-height: 44px; }
+    .table-admin button, .btn-eliminar, .chip { min-width: 44px; }
+}
