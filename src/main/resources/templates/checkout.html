@@ -229,7 +229,7 @@
                 </label>
 
                 <!-- T3: compromisos de entrega sin costo (no cambian el total ni la huella) -->
-                <div class="compromisos-entrega">
+                <div class="compromisos-entrega" th:if="${@plan.activa('COMPROMISOS_VERDES')}">
                     <h3 th:text="#{checkout.compromisos_t}">Compromisos de entrega sin costo</h3>
                     <p th:text="#{checkout.compromisos_sub}">Ayudan a reducir residuos y viajes; no cambian el total.</p>
                     <label class="compromiso-op">

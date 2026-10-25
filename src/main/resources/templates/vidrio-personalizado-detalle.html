@@ -272,7 +272,7 @@
             <div class="chips">
                 <span class="chip chip-estado" th:classappend="${#strings.toString(vidrio.estado) == 'APROBADO'} ? 'chip-aprobado' : (${#strings.toString(vidrio.estado) == 'RECHAZADA'} ? 'chip-rechazada')" th:text="${#messages.msgOrNull('cotizacion.estado.' + #strings.toString(vidrio.estado))} ?: ${vidrio.estado}">Pendiente</span>
                 <span class="chip-nivel" id="chipNivel" hidden></span>
-                <span class="chip chip-sello" th:if="${!#strings.isEmpty(vidrio.compromisoNivel)}" th:classappend="${vidrio.compromisoNivel}"
+                <span class="chip chip-sello" th:if="${@plan.activa('COMPROMISOS_VERDES') and !#strings.isEmpty(vidrio.compromisoNivel)}" th:classappend="${vidrio.compromisoNivel}"
                       th:title="#{sello.puntos(${#strings.toString(vidrio.compromisoPuntos)})}"><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{sello.chip(${#messages.msg('sello.' + vidrio.compromisoNivel)})}">Sello Plata</span></span>
                 <span class="chip chip-eco" th:if="${vidrio.usarVidrioReciclado}"><i class="ph ph-recycle" aria-hidden="true"></i> <span th:text="#{obra.material_reciclado}">Material reciclado</span></span>
                 <span class="chip chip-urgente sg-rainbow" th:if="${vidrio.urgente}"><i class="ph ph-lightning" aria-hidden="true"></i> <span th:text="#{obra.entrega_urgente_20}">Entrega urgente (+20 %)</span></span>
@@ -446,12 +446,12 @@
     </div>
 
     <!-- ================= T3 · COMPROMISOS SIN COSTO ================= -->
-    <article class="tech-card compromisos">
+    <article class="tech-card compromisos" th:if="${@plan.activa('COMPROMISOS_VERDES') or @plan.activa('FICHA_AMBIENTAL')}">
         <div class="compromisos-cab">
-            <h3 class="tarjeta-titulo"><i class="ph ph-hand-heart" aria-hidden="true"></i><span th:text="#{obra.compromisos}">Compromisos de esta obra</span></h3>
-            <a class="ficha-enlace" th:href="@{/vidrio-personalizado/cotizacion/{id}/ficha(id=${vidrio.id})}"><i class="ph ph-file-text" aria-hidden="true"></i> <span th:text="#{obra.ver_ficha}">Ficha ambiental imprimible</span></a>
+            <h3 class="tarjeta-titulo"><i class="ph ph-hand-heart" aria-hidden="true"></i><span th:text="${@plan.activa('COMPROMISOS_VERDES')} ? #{obra.compromisos} : #{ficha.titulo}">Compromisos de esta obra</span></h3>
+            <a class="ficha-enlace" th:if="${@plan.activa('FICHA_AMBIENTAL')}" th:href="@{/vidrio-personalizado/cotizacion/{id}/ficha(id=${vidrio.id})}"><i class="ph ph-file-text" aria-hidden="true"></i> <span th:text="#{obra.ver_ficha}">Ficha ambiental imprimible</span></a>
         </div>
-        <ul class="compromisos-lista" th:if="${vidrio.retomaVidrio or vidrio.empaqueReutilizable or vidrio.entregaConsolidada or vidrio.usarRetazos}">
+        <ul class="compromisos-lista" th:if="${@plan.activa('COMPROMISOS_VERDES') and (vidrio.retomaVidrio or vidrio.empaqueReutilizable or vidrio.entregaConsolidada or vidrio.usarRetazos)}">
             <li th:if="${vidrio.retomaVidrio}"><i class="ph ph-recycle" aria-hidden="true"></i><div>
                 <strong th:text="#{eco.retoma_t}">Retoma del vidrio que reemplazas</strong><small th:text="#{eco.retoma_d}">Lo recogemos en la entrega.</small>
                 <em th:text="#{obra.retoma_dato(${#numbers.formatDecimal(vidrio.pesoEstimado, 1, 'POINT', 1, 'COMMA')})}">≈ 0 kg</em></div></li>
@@ -462,7 +462,7 @@
             <li th:if="${vidrio.usarRetazos}"><i class="ph ph-scissors" aria-hidden="true"></i><div>
                 <strong th:text="#{eco.retazos_t}">Cortar de sobrantes de lámina</strong><small th:text="#{eco.retazos_d}">Si hay un retazo compatible.</small></div></li>
         </ul>
-        <p class="compromisos-vacio" th:unless="${vidrio.retomaVidrio or vidrio.empaqueReutilizable or vidrio.entregaConsolidada or vidrio.usarRetazos}" th:text="#{obra.sin_compromisos}">Esta obra no tiene compromisos sin costo.</p>
+        <p class="compromisos-vacio" th:if="${@plan.activa('COMPROMISOS_VERDES') and !(vidrio.retomaVidrio or vidrio.empaqueReutilizable or vidrio.entregaConsolidada or vidrio.usarRetazos)}" th:text="#{obra.sin_compromisos}">Esta obra no tiene compromisos sin costo.</p>
     </article>
 
     <!-- ================= ESTRUCTURA ================= -->

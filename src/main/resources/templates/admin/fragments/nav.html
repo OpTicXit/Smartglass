@@ -55,7 +55,7 @@
             <div th:replace="~{fragments/notificaciones :: campana}"></div>
 
             <!-- T0 i18n: selector de idioma. Enlaces ?lang= (funcionan sin JS); main.js ademas lo guarda en la cuenta -->
-            <div class="nav-item has-menu nav-idioma" data-idioma-control>
+            <div class="nav-item has-menu nav-idioma" data-idioma-control th:if="${@plan.activa('MULTI_IDIOMA')}">
                 <button type="button" class="nav-link nav-trigger nav-idioma-trigger" aria-haspopup="true" aria-expanded="false"
                         th:title="#{idioma.abrir}" th:attr="aria-label=#{idioma.abrir}" title="Cambiar idioma" aria-label="Cambiar idioma">
                     <svg class="ico-idioma" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>

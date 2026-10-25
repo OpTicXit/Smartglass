@@ -6,6 +6,8 @@ import com.smartglass.model.mongo.VidrioSostenible;
 import com.smartglass.model.mysql.Usuario;
 import com.smartglass.service.CarritoService;
 import com.smartglass.service.CompromisoVerde;
+import com.smartglass.service.Funcion;
+import com.smartglass.service.PlanService;
 import com.smartglass.service.VidrioSostenibleService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.context.MessageSource;
@@ -51,10 +53,12 @@ public class VidrioPersonalizadoWebController {
     private final VidrioSostenibleService vidrioSostenibleService;
     private final CarritoService carritoService;
     private final MessageSource messageSource;
+    private final PlanService plan;
 
     public VidrioPersonalizadoWebController(VidrioSostenibleService vidrioSostenibleService,
                                             CarritoService carritoService,
-                                            MessageSource messageSource) {
+                                            MessageSource messageSource, PlanService plan) {
+        this.plan = plan;
         this.vidrioSostenibleService = vidrioSostenibleService;
         this.carritoService = carritoService;
         this.messageSource = messageSource;
@@ -107,6 +111,7 @@ public class VidrioPersonalizadoWebController {
     /** T3: ficha ambiental imprimible de la obra; mismas reglas de acceso que el detalle. */
     @GetMapping("/cotizacion/{id}/ficha")
     public String verFicha(@PathVariable String id, Model model, Authentication auth, HttpSession sesion) {
+        if (!plan.activa(Funcion.FICHA_AMBIENTAL)) return "redirect:/vidrio-personalizado/cotizacion/" + id;   // T5: plan Avanzado
         return mostrarObra(id, model, auth, sesion, "vidrio-ficha");
     }
 

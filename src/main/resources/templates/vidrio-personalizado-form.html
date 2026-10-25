@@ -376,7 +376,7 @@
             </div>
 
             <!-- T3: sello Compromiso verde (no cambia CO2 ni precio; separado del semaforo F24) -->
-            <div class="sello" id="sello" data-nivel="">
+            <div class="sello" id="sello" data-nivel="" th:if="${@plan.activa('COMPROMISOS_VERDES')}">
                 <div class="sello-cab">
                     <span th:text="#{sello.titulo}">Compromiso verde</span>
                     <span class="sello-insignia"><i class="ph-fill ph-seal-check" aria-hidden="true"></i><span id="selloNivel">—</span></span>
@@ -536,19 +536,19 @@
                     <span class="campo-titulo" id="lblForma" th:text="#{cotizar.geometria_de_corte}">Geometría de corte</span>
                     <select name="forma" id="forma" aria-labelledby="lblForma">
                         <option value="Rectangular" th:text="#{cotizar.rectangular_cuadrado}">Rectangular / Cuadrado</option>
-                        <option value="EsquinasRedondeadas" th:text="#{cotizar.forma_esquinas}">Esquinas redondeadas (Mesas y espejos)</option>
+                        <option value="EsquinasRedondeadas" th:if="${@plan.activa('FORMAS_AVANZADAS')}" th:text="#{cotizar.forma_esquinas}">Esquinas redondeadas (Mesas y espejos)</option>
                         <option value="Circular" th:text="#{cotizar.circular_eliptico}">Circular / Elíptico</option>
-                        <option value="Capsula" th:text="#{cotizar.forma_capsula}">Cápsula (Espejos de baño)</option>
-                        <option value="Arco" th:text="#{cotizar.forma_arco}">Arco de medio punto (Puertas y ventanas)</option>
+                        <option value="Capsula" th:if="${@plan.activa('FORMAS_AVANZADAS')}" th:text="#{cotizar.forma_capsula}">Cápsula (Espejos de baño)</option>
+                        <option value="Arco" th:if="${@plan.activa('FORMAS_AVANZADAS')}" th:text="#{cotizar.forma_arco}">Arco de medio punto (Puertas y ventanas)</option>
                         <option value="Triangular" th:text="#{cotizar.forma_trapezoidal}">Trapezoidal (Fachadas y vitrinas)</option>
-                        <option value="TrianguloRectangulo" th:text="#{cotizar.forma_triangulo_rect}">Triángulo rectángulo (Esquineros y escaleras)</option>
-                        <option value="TrapecioRectangulo" th:text="#{cotizar.forma_inclinada}">Inclinada (Bajo escalera o techo)</option>
-                        <option value="Fronton" th:text="#{cotizar.forma_fronton}">Frontón (Ventanas de buhardilla)</option>
-                        <option value="Rombo" th:text="#{cotizar.forma_rombo}">Rombo (Decorativo)</option>
-                        <option value="Hexagonal" th:text="#{cotizar.forma_hexagonal}">Hexagonal (Decorativo)</option>
-                        <option value="Octogonal" th:text="#{cotizar.forma_octogonal}">Octogonal (Ojos de buey y mesas)</option>
+                        <option value="TrianguloRectangulo" th:if="${@plan.activa('FORMAS_AVANZADAS')}" th:text="#{cotizar.forma_triangulo_rect}">Triángulo rectángulo (Esquineros y escaleras)</option>
+                        <option value="TrapecioRectangulo" th:if="${@plan.activa('FORMAS_AVANZADAS')}" th:text="#{cotizar.forma_inclinada}">Inclinada (Bajo escalera o techo)</option>
+                        <option value="Fronton" th:if="${@plan.activa('FORMAS_AVANZADAS')}" th:text="#{cotizar.forma_fronton}">Frontón (Ventanas de buhardilla)</option>
+                        <option value="Rombo" th:if="${@plan.activa('FORMAS_AVANZADAS')}" th:text="#{cotizar.forma_rombo}">Rombo (Decorativo)</option>
+                        <option value="Hexagonal" th:if="${@plan.activa('FORMAS_AVANZADAS')}" th:text="#{cotizar.forma_hexagonal}">Hexagonal (Decorativo)</option>
+                        <option value="Octogonal" th:if="${@plan.activa('FORMAS_AVANZADAS')}" th:text="#{cotizar.forma_octogonal}">Octogonal (Ojos de buey y mesas)</option>
                         <option value="Irregular" th:text="#{cotizar.corte_irregular_requiere_plano_cad}">Corte irregular (Requiere plano CAD)</option>
-                        <option value="Personalizada" th:text="#{cotizar.corte_personalizado_dibuja_tu_pieza}">Corte personalizado (Dibuja tu pieza)</option>
+                        <option value="Personalizada" th:if="${@plan.activa('CORTE_PERSONALIZADO')}" th:text="#{cotizar.corte_personalizado_dibuja_tu_pieza}">Corte personalizado (Dibuja tu pieza)</option>
                     </select>
                     <p class="hint" th:text="#{cotizar.forma_nota}">Toda forma se cotiza por el rectángulo que la contiene, porque así se corta de la lámina. El corte personalizado se cobra por su área real.</p>
                     <!-- F45: vertices del corte ("x,y;x,y;..."); Spring los enlaza con CotizacionVidrioRequest.setPuntosTexto -->
@@ -613,7 +613,8 @@
                     <span><span th:text="#{cotizar.activar}">Activar</span> <strong th:text="#{cotizar.compensacion_de_co2}">compensación de CO₂</strong><small th:text="#{cotizar.suma_5_000_cop_a}">Suma 5.000 COP a tu estimación.</small></span>
                 </label>
 
-                <!-- T3: compromisos sin costo (no entran en AnalisisService ni en el precio) -->
+                <!-- T3: compromisos sin costo (no entran en AnalisisService ni en el precio). T5: plan Avanzado -->
+                <th:block th:if="${@plan.activa('COMPROMISOS_VERDES')}">
                 <div class="eco-grupo sep">
                     <h3 th:text="#{eco.grupo_compromisos}">Compromisos sin costo</h3>
                     <p th:text="#{eco.grupo_compromisos_sub}">No cambian el precio: reducen residuos y viajes, y suman a tu sello Compromiso verde.</p>
@@ -642,6 +643,7 @@
                     <span><strong th:text="#{eco.retazos_t}">Cortar de sobrantes de lámina</strong><small th:text="#{eco.retazos_d}">Si en planta hay un retazo compatible, tu pieza sale de ahí. Misma calidad y precio.</small></span>
                     <span class="chip-gratis" th:text="#{eco.gratis}">Sin costo</span>
                 </label>
+                </th:block>
             </section>
 
             <!-- V · EL TIEMPO -->
@@ -692,7 +694,7 @@
 
 <th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>
-<script th:src="@{/js/corte-editor.js}"></script>
+<script th:src="@{/js/corte-editor.js}" th:if="${@plan.activa('CORTE_PERSONALIZADO')}"></script>
 <script th:inline="javascript">
     /* T3: pesos y cortes del sello Compromiso verde (fuente unica: CompromisoVerde.java) */
     window.SG_COMPROMISO = /*[[${compromisoVerde}]]*/ { pesos: { usarVidrioReciclado: 20, energiaRenovable: 20, compensarCarbono: 15, retomaVidrio: 15, empaqueReutilizable: 10, entregaConsolidada: 10, usarRetazos: 10 }, oro: 85, plata: 60, bronce: 35 };
@@ -726,7 +728,7 @@
         if (q.has('renovable')) $('energiaRenovable').checked = bool(q.get('renovable'));
         /* T3: compromisos sin costo */
         [ ['retoma', 'retomaVidrio'], ['empaque', 'empaqueReutilizable'], ['consolidada', 'entregaConsolidada'], ['retazos', 'usarRetazos'] ].forEach(function (par) {
-            if (q.has(par[0])) $(par[1]).checked = bool(q.get(par[0]));
+            if (q.has(par[0]) && $(par[1])) $(par[1]).checked = bool(q.get(par[0]));
         });
         balancear = q.get('balancear') === '1';
         /* F45: una obra personalizada vuelve con sus vertices; el servidor los valida igualmente */
@@ -894,7 +896,8 @@
     var CV = window.SG_COMPROMISO;
     function pintarCompromisos(r) {
         /* la entrega consolidada no es compatible con la urgente (el servidor tambien lo aplica) */
-        var urg = $('urgente').checked, cons = $('entregaConsolidada');
+        if (!$('sello')) return;   /* T5: plan sin compromisos verdes */
+    var urg = $('urgente').checked, cons = $('entregaConsolidada');
         if (urg && cons.checked) cons.checked = false;
         cons.disabled = urg;
         $('avisoConsolidada').hidden = !urg;

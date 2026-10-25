@@ -7,6 +7,8 @@ import com.smartglass.repository.mysql.UsuarioRepository;
 import com.smartglass.service.CarritoService;
 import com.smartglass.service.PedidoService;
 import com.smartglass.service.VidrioSostenibleService;
+import com.smartglass.service.Funcion;
+import com.smartglass.service.PlanService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,9 +26,11 @@ public class CheckoutController {
     private final PedidoService pedidoService;
     private final UsuarioRepository usuarioRepository;
     private final VidrioSostenibleService vidrioSostenibleService;
+    private final PlanService plan;
 
     public CheckoutController(CarritoService carritoService, PedidoService pedidoService, UsuarioRepository usuarioRepository,
-                              VidrioSostenibleService vidrioSostenibleService) {
+                              VidrioSostenibleService vidrioSostenibleService, PlanService plan) {
+        this.plan = plan;
         this.carritoService = carritoService;
         this.pedidoService = pedidoService;
         this.usuarioRepository = usuarioRepository;
@@ -82,8 +86,9 @@ public class CheckoutController {
             String direccionCompleta = direccionEnvio + ", " + ciudad;
             // T3: una obra urgente no puede esperar a una ruta consolidada
             boolean hayUrgente = obrasDelCarrito().stream().anyMatch(VidrioSostenible::isUrgente);
+            boolean compromisos = plan.activa(Funcion.COMPROMISOS_VERDES);   // T5: plan Avanzado
             Pedido pedido = pedidoService.crearPedidoDesdeCarrito(usuario, direccionCompleta, metodoPago, compensarCarbono,
-                    empaqueReutilizable, entregaConsolidada && !hayUrgente, retomaVidrio);
+                    compromisos && empaqueReutilizable, compromisos && entregaConsolidada && !hayUrgente, compromisos && retomaVidrio);
             session.setAttribute("ultimoPedidoId", pedido.getId());
             return "redirect:/checkout/confirmacion/" + pedido.getId();
         } catch (Exception e) {

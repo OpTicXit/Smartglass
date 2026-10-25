@@ -220,7 +220,8 @@
                     <!-- T4: solo cifras con respaldo (reglas del contrato de calculo y del configurador) -->
                     <li><strong>−45 %</strong><span th:text="#{index2.dato_renovable}">CO₂ del proceso con energía renovable</span></li>
                     <li><strong>−15 %</strong><span th:text="#{index2.dato_calcin}">CO₂ con calcín reciclado</span></li>
-                    <li><strong>14</strong><span th:text="#{index2.dato_formas}">geometrías y corte libre</span></li>
+                    <li th:if="${@plan.activa('FORMAS_AVANZADAS')}"><strong>14</strong><span th:text="#{index2.dato_formas}">geometrías y corte libre</span></li>
+                    <li th:unless="${@plan.activa('FORMAS_AVANZADAS')}"><strong>100 %</strong><span th:text="#{index2.dato_huella}">piezas con su huella calculada</span></li>
                 </ul>
             </div>
 
@@ -252,7 +253,7 @@
             <li>
                 <i class="ph ph-leaf"></i>
                 <h2 th:text="#{index2.huella_t}">Huella a la vista</h2>
-                <p th:text="#{index2.huella_d}">Cada pieza con su CO₂, su composición y su ficha ambiental.</p>
+                <p th:text="${@plan.activa('FICHA_AMBIENTAL')} ? #{index2.huella_d} : #{index2.huella_d_basico}">Cada pieza con su CO₂, su composición y su ficha ambiental.</p>
             </li>
             <li>
                 <i class="ph ph-ruler"></i>
@@ -335,7 +336,7 @@
             <ol class="pasos-lista" data-reveal>
                 <li><h3 th:text="#{index2.paso1_t}">Diseña</h3><p th:text="#{index2.paso1_d}">Elige tipo, medidas y acabados, o dibuja tu corte.</p></li>
                 <li><h3 th:text="#{index2.paso2_t}">Revisamos y aprobamos</h3><p th:text="#{index2.paso2_d}">Validamos la pieza en planta.</p></li>
-                <li><h3 th:text="#{index2.paso3_t}">Paga y recíbela</h3><p th:text="#{index2.paso3_d}">Solo inicias sesión al pagar.</p></li>
+                <li><h3 th:text="#{index2.paso3_t}">Paga y recíbela</h3><p th:text="${@plan.activa('COMPROMISOS_VERDES')} ? #{index2.paso3_d} : #{index2.paso3_d_basico}">Solo inicias sesión al pagar.</p></li>
             </ol>
         </div>
     </section>

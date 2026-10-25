@@ -1,5 +1,8 @@
 package com.smartglass.controller;
 
+import com.smartglass.service.Funcion;
+import com.smartglass.service.PlanService;
+
 import com.smartglass.model.mongo.CatalogoProducto;
 import com.smartglass.model.mysql.Usuario;
 import com.smartglass.repository.mysql.UsuarioRepository;
@@ -48,10 +51,12 @@ public class AdminController {
     private final ProductoService productoService;
     private final ResenaService resenaService;
     private final NotificacionService notificacionService;
+    private final PlanService plan;
 
     public AdminController(UsuarioRepository usuarioRepository, PedidoService pedidoService,
                             ProductoService productoService, ResenaService resenaService,
-                            NotificacionService notificacionService) {
+                            NotificacionService notificacionService, PlanService plan) {
+        this.plan = plan;
         this.usuarioRepository = usuarioRepository;
         this.pedidoService = pedidoService;
         this.productoService = productoService;
@@ -204,6 +209,14 @@ public class AdminController {
         if (p == null) {
             ra.addFlashAttribute("mensaje", "El producto no existe.");
             return "redirect:/admin/productos";
+        }
+        // T5: sin la funcion OFERTAS_PROGRAMADAS (plan Basico) solo se toca el stock; la oferta ya
+        // guardada se conserva tal cual (el formulario la muestra desactivada).
+        if (!plan.activa(Funcion.OFERTAS_PROGRAMADAS)) {
+            precioOferta = p.getPrecioOferta();
+            ofertaInicio = p.getOfertaInicio() != null ? p.getOfertaInicio().toString() : null;
+            ofertaFin = p.getOfertaFin() != null ? p.getOfertaFin().toString() : null;
+            ofertaActiva = p.isOfertaActiva();
         }
         LocalDate inicio, fin;
         try {

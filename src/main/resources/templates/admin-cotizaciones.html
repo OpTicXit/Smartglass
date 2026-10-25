@@ -138,7 +138,7 @@
         <a th:href="@{/admin/cotizaciones(estado='RECHAZADA')}" th:classappend="${filtro == 'RECHAZADA'} ? 'activo'"><span th:text="#{admin.cotizaciones.rechazadas}">Rechazadas</span> <span class="n" th:text="${conteos['RECHAZADA']}">0</span></a>
     </nav>
 
-    <section class="cot-compromisos" th:if="${compromisos != null and conteos['TODAS'] > 0}" aria-labelledby="tituloCompromisos">
+    <section class="cot-compromisos" th:if="${@plan.activa('COMPROMISOS_VERDES') and compromisos != null and conteos['TODAS'] > 0}" aria-labelledby="tituloCompromisos">
         <h2 id="tituloCompromisos" th:text="#{admin.cotizaciones.compromisos_t}">Compromisos de tus clientes</h2>
         <p><i class="ph ph-recycle" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.retoma_n(${#strings.toString(compromisos['retoma'])}, ${compromisos['kgRetoma']})}">0 con retoma</span></p>
         <p><i class="ph ph-package" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.empaque_n(${#strings.toString(compromisos['empaque'])})}">0 con empaque</span></p>
@@ -177,7 +177,7 @@
                                 <strong data-tipo-txt th:text="${f.tipo}">Templado</strong>
                                 <span class="cot-medidas" data-medidas th:text="${f.ancho} + ' × ' + ${f.alto} + ' cm · ' + ${f.espesor} + ' mm'">105 × 105 cm · 7 mm</span>
                                 <span class="cot-ref"><span th:text="#{admin.cotizaciones.obra_no}">Obra Nº</span> <b data-ref th:text="${f.id}">000000</b></span>
-                                <span class="sello-mini" th:if="${!#strings.isEmpty(f.sello)}" th:classappend="${f.sello}"><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{sello.chip(${#messages.msg('sello.' + f.sello)})}">Sello</span></span>
+                                <span class="sello-mini" th:if="${@plan.activa('COMPROMISOS_VERDES') and !#strings.isEmpty(f.sello)}" th:classappend="${f.sello}"><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{sello.chip(${#messages.msg('sello.' + f.sello)})}">Sello</span></span>
                             </div>
                         </div>
                     </td>

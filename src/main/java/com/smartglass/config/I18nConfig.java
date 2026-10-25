@@ -43,9 +43,19 @@ public class I18nConfig implements WebMvcConfigurer {
             POR_DEFECTO, Locale.forLanguageTag("es-ES"), Locale.forLanguageTag("en"));
 
     private final UsuarioSesion usuarioSesion;
+    // T5: se resuelve tarde para no acoplar el arranque de la configuracion web a Mongo
+    private final org.springframework.beans.factory.ObjectProvider<com.smartglass.service.PlanService> plan;
 
-    public I18nConfig(UsuarioSesion usuarioSesion) {
+    public I18nConfig(UsuarioSesion usuarioSesion,
+                      org.springframework.beans.factory.ObjectProvider<com.smartglass.service.PlanService> plan) {
         this.usuarioSesion = usuarioSesion;
+        this.plan = plan;
+    }
+
+    /** T5: sin MULTI_IDIOMA (plan Basico) la tienda queda en es-CO y el selector se oculta. */
+    private boolean multiIdioma() {
+        com.smartglass.service.PlanService p = plan.getIfAvailable();
+        return p == null || p.activa(com.smartglass.service.Funcion.MULTI_IDIOMA);
     }
 
     /** "es-CO" / "es_es" / "EN" -> Locale soportado; vacio si no se reconoce. */
@@ -87,6 +97,11 @@ public class I18nConfig implements WebMvcConfigurer {
         registry.addInterceptor(new HandlerInterceptor() {
             @Override
             public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler) {
+                // 0) Plan sin varios idiomas: siempre es-CO (tambien si quedo una cookie de antes)
+                if (!multiIdioma()) {
+                    if (!POR_DEFECTO.equals(resolver.resolveLocale(req))) resolver.setLocale(req, res, POR_DEFECTO);
+                    return true;
+                }
                 // 1) Cambio explicito por parametro (?lang=en)
                 Optional<Locale> pedido = soportado(req.getParameter(PARAM));
                 if (pedido.isPresent()) {

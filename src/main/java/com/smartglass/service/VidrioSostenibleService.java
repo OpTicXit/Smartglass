@@ -42,6 +42,13 @@ public class VidrioSostenibleService {
             "TrianguloRectangulo", "TrapecioRectangulo", "Fronton", "Rombo", "Hexagonal", "Octogonal",
             "Irregular", "Personalizada");
 
+    /** T5: una forma que el plan no incluye se cotiza como Rectangular (mismo criterio que un valor desconocido). */
+    String formaSegunPlan(String forma) {
+        if ("Personalizada".equals(forma) && !plan.activa(Funcion.CORTE_PERSONALIZADO)) return "Rectangular";
+        if (!FORMAS_CLASICAS.contains(forma) && !plan.activa(Funcion.FORMAS_AVANZADAS)) return "Rectangular";
+        return forma;
+    }
+
     static String normalizarForma(String forma) {
         if (forma == null) return "Rectangular";
         String f = forma.trim();
@@ -50,9 +57,14 @@ public class VidrioSostenibleService {
 
     private final VidrioSostenibleRepository vidrioSostenibleRepository;
     private final AnalisisService analisisService;
+    private final PlanService plan;
+
+    /** T5: las 5 geometrias de siempre; las demas son de FORMAS_AVANZADAS ("Personalizada" va aparte). */
+    static final List<String> FORMAS_CLASICAS = List.of("Rectangular", "Circular", "Triangular", "Irregular", "Personalizada");
 
     public VidrioSostenibleService(VidrioSostenibleRepository vidrioSostenibleRepository,
-                                   AnalisisService analisisService) {
+                                   AnalisisService analisisService, PlanService plan) {
+        this.plan = plan;
         this.vidrioSostenibleRepository = vidrioSostenibleRepository;
         this.analisisService = analisisService;
     }
@@ -64,7 +76,7 @@ public class VidrioSostenibleService {
         vidrio.setAncho(request.getAncho());
         vidrio.setAlto(request.getAlto());
         vidrio.setEspesor(request.getEspesor());
-        vidrio.setForma(normalizarForma(request.getForma()));
+        vidrio.setForma(formaSegunPlan(normalizarForma(request.getForma())));
         vidrio.setTratamiento(request.getTratamiento());
         vidrio.setColor(request.getColor());
         vidrio.setCantidadCapas(request.getCantidadCapas());
@@ -79,12 +91,13 @@ public class VidrioSostenibleService {
         vidrio.setCompensarCarbono(request.isCompensarCarbono());
         vidrio.setUrgente(request.isUrgente());
         // T3: compromisos sin costo; la entrega consolidada no es compatible con la urgente
-        vidrio.setRetomaVidrio(request.isRetomaVidrio());
-        vidrio.setEmpaqueReutilizable(request.isEmpaqueReutilizable());
-        vidrio.setEntregaConsolidada(request.isEntregaConsolidada() && !request.isUrgente());
-        vidrio.setUsarRetazos(request.isUsarRetazos());
+        boolean compromisos = plan.activa(Funcion.COMPROMISOS_VERDES);   // T5: plan Avanzado
+        vidrio.setRetomaVidrio(compromisos && request.isRetomaVidrio());
+        vidrio.setEmpaqueReutilizable(compromisos && request.isEmpaqueReutilizable());
+        vidrio.setEntregaConsolidada(compromisos && request.isEntregaConsolidada() && !request.isUrgente());
+        vidrio.setUsarRetazos(compromisos && request.isUsarRetazos());
         // F45: los vertices deben estar puestos ANTES del analisis (AnalisisService decide si son validos)
-        vidrio.setPuntosPersonalizados(request.getPuntosPersonalizados());
+        vidrio.setPuntosPersonalizados("Personalizada".equals(vidrio.getForma()) ? request.getPuntosPersonalizados() : null);
 
         ResultadoAnalisisVidrio resultado = analisisService.calcularCotizacionVidrio(vidrio);
         vidrio.setAreaTotal(resultado.getAreaTotal());

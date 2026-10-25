@@ -46,6 +46,8 @@
         .prod-code { color: var(--text-label); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; }
         .prod-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 18px 18px; }
         /* T2 stock y oferta */
+        .fieldset-plan { margin: 0; padding: 0; border: 0; min-width: 0; }
+        .fieldset-plan:disabled { opacity: 0.55; }
         .prod-comercio { margin: 6px 0 0; font-size: 0.82rem; color: var(--text-muted); }
         .prod-body .estado-comercial { margin: 6px 0 0; }
         .btn-comercio { cursor: pointer; }
@@ -327,6 +329,9 @@
                 </div>
             </div>
             <p class="sec-titulo" th:text="#{admin.productos.oferta}">Oferta</p>
+            <!-- T5: sin OFERTAS_PROGRAMADAS (plan Basico) la oferta se ve pero no se edita; el servidor la conserva -->
+            <p class="ayuda" th:unless="${@plan.activa('OFERTAS_PROGRAMADAS')}" th:text="#{plan.solo_avanzado}">Disponible en el plan Avanzado.</p>
+            <fieldset class="fieldset-plan" th:disabled="${!@plan.activa('OFERTAS_PROGRAMADAS')}">
             <div class="form-row">
                 <div>
                     <label for="c-oferta"><span th:text="#{admin.productos.precio_oferta}">Precio de oferta (COP)</span> · <span th:text="#{admin.productos.lista}">lista</span> $<span id="c-lista"></span></label>
@@ -346,6 +351,7 @@
                     <input type="date" id="c-fin" name="ofertaFin">
                 </div>
             </div>
+            </fieldset>
         </div>
         <div class="modal-foot">
             <button type="button" class="btn-volver" data-cerrar-comercio th:text="#{admin.productos.cancelar}">Cancelar</button>

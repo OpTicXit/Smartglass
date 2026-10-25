@@ -161,7 +161,7 @@
                 </p>
 
                 <div class="obra-meta">
-                    <span class="sello-mini" th:if="${!#strings.isEmpty(cot.compromisoNivel)}" th:classappend="${cot.compromisoNivel}"
+                    <span class="sello-mini" th:if="${@plan.activa('COMPROMISOS_VERDES') and !#strings.isEmpty(cot.compromisoNivel)}" th:classappend="${cot.compromisoNivel}"
                           th:title="#{sello.puntos(${#strings.toString(cot.compromisoPuntos)})}"><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{sello.chip(${#messages.msg('sello.' + cot.compromisoNivel)})}">Sello Plata</span></span>
                     <span class="obra-eco" th:if="${cot.usarVidrioReciclado}"><i class="ph ph-recycle" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.contiene_vidrio_reciclado}">Contiene vidrio reciclado</span></span>
                     <span class="obra-espera" th:if="${!admin and cot.estado == 'COTIZACION'}"><i class="ph ph-hourglass-medium" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.en_revision_por_smartglass}">En revisión por SmartGlass</span></span>

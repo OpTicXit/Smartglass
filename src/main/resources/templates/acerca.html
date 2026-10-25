@@ -46,6 +46,9 @@
         .bloque { display: grid; grid-template-columns: minmax(200px, 300px) minmax(0, 1fr); gap: clamp(20px, 4vw, 64px); padding: clamp(40px, 6vw, 72px) 0; border-top: 1px solid var(--border-color); }
         .bloque-titulo h2 { margin: 0 0 10px; font-size: var(--fs-2xl); line-height: 1.1; }
         .bloque-titulo p { margin: 0; color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; }
+        .acerca-cuerpo { counter-reset: bloque; }
+        .bloque { counter-increment: bloque; }
+        .bloque-num::before { content: counter(bloque, decimal-leading-zero); }   /* numera solo las secciones visibles */
         .bloque-num { display: block; margin-bottom: 10px; color: var(--color-accent-text); font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.06em; }
         .bloque-cuerpo > p { max-width: 64ch; margin: 0 0 16px; color: var(--text-muted); font-size: 1.02rem; line-height: 1.7; }
         .bloque-cuerpo > p:first-child { color: var(--text-main); font-size: 1.18rem; line-height: 1.6; }
@@ -152,7 +155,7 @@
 
 <nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
 
-<main class="container">
+<main class="container acerca-cuerpo">
 
     <header class="acerca-hero">
         <div>
@@ -174,7 +177,7 @@
     </header>
 
     <section class="bloque" data-reveal>
-        <div class="bloque-titulo"><span class="bloque-num">01</span><h2 th:text="#{acerca.nuestra_vision}">Nuestra visión</h2></div>
+        <div class="bloque-titulo"><span class="bloque-num" aria-hidden="true"></span><h2 th:text="#{acerca.nuestra_vision}">Nuestra visión</h2></div>
         <div class="bloque-cuerpo">
             <p th:text="#{acerca.smartglass_no_es_solo_una}">SmartGlass no es solo una plataforma de pedidos: es un ecosistema digital para optimizar una de las industrias que más energía consume en el mundo.</p>
             <p th:text="#{acerca2.vision_2}">Conectamos al diseñador o arquitecto directamente con la línea de producción.</p>
@@ -183,7 +186,7 @@
 
     <section class="bloque" data-reveal th:if="${plataforma != null and plataforma.hayDatos}">
         <div class="bloque-titulo">
-            <span class="bloque-num">02</span>
+            <span class="bloque-num" aria-hidden="true"></span>
             <h2 th:text="#{acerca2.cifras_t}">La plataforma en cifras</h2>
             <p th:text="#{acerca2.cifras_sub}">Datos reales de las obras y pedidos de SmartGlass.</p>
         </div>
@@ -201,7 +204,7 @@
 
     <section class="bloque" id="como-calculamos" data-reveal>
         <div class="bloque-titulo">
-            <span class="bloque-num" th:text="${plataforma != null and plataforma.hayDatos} ? '03' : '02'">03</span>
+            <span class="bloque-num" aria-hidden="true"></span>
             <h2 th:text="#{acerca2.metodo_t}">Cómo calculamos la huella</h2>
             <p th:text="#{acerca2.metodo_sub}">Transparencia total: estas son las reglas que usa el configurador.</p>
         </div>
@@ -220,28 +223,28 @@
     </section>
 
     <section class="bloque" data-reveal>
-        <div class="bloque-titulo"><span class="bloque-num" th:text="${plataforma != null and plataforma.hayDatos} ? '04' : '03'">04</span><h2 th:text="#{acerca.pilares_de_innovacion}">Pilares de innovación</h2></div>
+        <div class="bloque-titulo"><span class="bloque-num" aria-hidden="true"></span><h2 th:text="#{acerca.pilares_de_innovacion}">Pilares de innovación</h2></div>
         <ul class="pilares">
             <li>
                 <i class="ph ph-polygon" aria-hidden="true"></i>
                 <h3 th:text="#{acerca.geometria_de_precision}">Geometría de precisión</h3>
-                <p th:text="#{acerca2.p1_d}">14 geometrías y corte libre de hasta 64 vértices.</p>
+                <p th:text="${@plan.activa('CORTE_PERSONALIZADO')} ? #{acerca2.p1_d} : #{acerca2.p1_d_basico}">14 geometrías y corte libre de hasta 64 vértices.</p>
             </li>
             <li>
                 <i class="ph ph-leaf" aria-hidden="true"></i>
                 <h3 th:text="#{acerca.transparencia_ambiental}">Transparencia ambiental</h3>
-                <p th:text="#{acerca2.p2_d}">Cada pieza muestra su CO₂.</p>
+                <p th:text="${@plan.activa('FICHA_AMBIENTAL')} ? #{acerca2.p2_d} : #{acerca2.p2_d_basico}">Cada pieza muestra su CO₂.</p>
             </li>
             <li>
                 <i class="ph ph-recycle" aria-hidden="true"></i>
                 <h3 th:text="#{acerca.economia_circular}">Economía circular</h3>
-                <p th:text="#{acerca2.p3_d}">Calcín, retoma y retazos.</p>
+                <p th:text="${@plan.activa('COMPROMISOS_VERDES')} ? #{acerca2.p3_d} : #{acerca2.p3_d_basico}">Calcín, retoma y retazos.</p>
             </li>
         </ul>
     </section>
 
-    <section class="bloque" data-reveal>
-        <div class="bloque-titulo"><span class="bloque-num" th:text="${plataforma != null and plataforma.hayDatos} ? '05' : '04'">05</span><h2 th:text="#{acerca2.comp_t}">Lo que eliges sí cuenta</h2></div>
+    <section class="bloque" data-reveal th:if="${@plan.activa('COMPROMISOS_VERDES')}">
+        <div class="bloque-titulo"><span class="bloque-num" aria-hidden="true"></span><h2 th:text="#{acerca2.comp_t}">Lo que eliges sí cuenta</h2></div>
         <div class="bloque-cuerpo">
             <p th:text="#{acerca2.comp_d}">En cada obra decides cómo se fabrica y cómo llega.</p>
             <ul class="eleccion">
@@ -259,7 +262,7 @@
 
     <section class="bloque" data-reveal>
         <div class="bloque-titulo">
-            <span class="bloque-num" th:text="${plataforma != null and plataforma.hayDatos} ? '06' : '05'">06</span>
+            <span class="bloque-num" aria-hidden="true"></span>
             <h2 th:text="#{acerca.objetivos_de_desarrollo_sostenible}">Objetivos de Desarrollo Sostenible</h2>
             <p th:text="#{acerca.nuestra_operacion_y_nuestro_software}">Nuestra operación y nuestro software están diseñados de acuerdo con la Agenda 2030 de la ONU.</p>
         </div>

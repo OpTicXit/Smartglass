@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con T4 · estética escrito). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con T5 · SaaS escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética **sin commitear**). No se ha subido nada (`push`).
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS **sin commitear**). No se ha subido nada (`push`).
 
 ## Leyenda
 
@@ -156,6 +156,16 @@ Seis tandas con gate: T1 responsive → T2 plano y cotizaciones → T3 sostenibi
 | Inicio: datos del hero con respaldo (−45 % con renovable, −15 % con calcín, 14 geometrías), "Huella a la vista", "Así de simple" en 3 pasos y cierre con cifras en vivo; `aria-label` de la muestra traducido | 🧪 ESCRITO | `index.html` |
 | Espacios vacíos: capa de luz ambiental fija y estática detrás de todas las páginas (oculta al imprimir); contadores que cuentan al entrar (respetan "sin animaciones" y movimiento reducido, también si se activan con la página abierta); aparición al hacer scroll con umbral 6 % para bloques altos | 🧪 ESCRITO | `theme.css` (sección "T4 · Ambiente"); `main.js` (`contarAlEntrar`, `revelarAlEntrar`) |
 
+### T5 · SaaS: planes por funciones y consola de superadmin
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Estudio de mercado (Smart Glazier, eDirectGlass, GlassGo; DANE EMICRON 2024 y adopción digital de mipymes en Colombia) con fuentes, conclusión y siguientes pasos sugeridos (WhatsApp, exportar a Excel, límite de cotizaciones en Básico) | 🧪 ESCRITO | Sección "Estudio de mercado" de la consola; claves `superadmin.m*` |
+| Planes **Básico** y **Avanzado** sobre una sola instalación; 7 funciones con flag (geometrías avanzadas, corte personalizado, compromisos verdes, ficha ambiental, ofertas programadas, cifras públicas, varios idiomas). Sin documento guardado el plan es Avanzado (nadie pierde nada) | 🧪 ESCRITO (navegador: Básico → tienda en es-CO, 4 formas, sin editor ni compromisos, ficha redirige, ofertas desactivadas; vuelta a Avanzado con A–D idénticos en en) | `Funcion`, `PlanService` (bean `@plan`, caché de 60 s), `ConfiguracionPlataforma` (Mongo `configuracion_plataforma`) |
+| El servidor aplica el plan aunque se envíen datos a mano: forma no incluida → Rectangular, compromisos → apagados, idioma → es-CO, ofertas conservadas | 🧪 ESCRITO (POST manual con "Hexagonal" y compromisos en Básico → guardada Rectangular y sin compromisos) | `VidrioSostenibleService.formaSegunPlan`, `CheckoutController`, `AdminController.actualizarComercio`, `I18nConfig` |
+| Consola `/superadmin` aparte del panel: plan, ajustes por función (según plan / activar / desactivar), historial y estudio de mercado. Acceso por la variable `SUPERADMIN_USUARIOS` (el admin de la vidriería no puede dárselo desde /admin/usuarios); para cualquier otro responde 404 | 🧪 ESCRITO (sin sesión: 404; con `admin`: plan, ajuste de corte personalizado e historial probados) | `SuperadminController`, `superadmin.html`, `application.properties` (`smartglass.superadmin.usuarios`) |
+| Pendiente del equipo: añadir `SUPERADMIN_USUARIOS` a `.vscode/launch.json` (en local) y a las variables del despliegue (T6) | POR HACER | — |
+
 ### Decisiones D1–D4
 
 | Decisión | Estado |
@@ -272,6 +282,7 @@ Seis tandas con gate: T1 responsive → T2 plano y cotizaciones → T3 sostenibi
 | Cotizaciones (mejoras T2) | Estados y nombres traducidos; filtros en Mis cotizaciones; búsqueda en el panel; aprobar o rechazar desde el detalle; "Crear una variante" |
 | Sostenibilidad (mejoras T3) | Los 4 compromisos no cambian precio ni CO₂; el sello sube de Bronce a Oro; la urgente bloquea la consolidada; la ficha se imprime legible; al pagar llegan marcados y aparecen en confirmación, factura y pedidos del admin; con compensación el total sube $5.000 y la factura la desglosa |
 | Acerca e inicio (mejoras T4) | Ninguna cifra sin respaldo; contadores en vivo coinciden con el panel del admin; sin desbordes a 375 px; con "sin animaciones" las cifras salen fijas |
+| Planes SaaS (mejoras T5) | Con `SUPERADMIN_USUARIOS` definido, `/superadmin` deja cambiar de plan; en Básico desaparecen las 7 funciones de Avanzado y al volver todo reaparece; un usuario fuera de la lista ve 404 |
 | Recorrido guiado (T4) | Sale solo la primera vez; "Saltar" o Esc lo cierran; con fotosensible no se mueve nada; se relanza desde "Guía de compra" en el pie |
 
 Nada se da por cerrado hasta que los greps den el resultado esperado, el app arranque con las env vars, el toggle de idioma mantenga las anclas en es-CO, el flujo anónimo→pago-con-login conserve el carrito, el stock sea transaccional y veraz, las notificaciones y el tour respeten i18n y accesibilidad, y los casos A–D se vean en navegador; ningún cambio movió un decimal del contrato ni tocó el logotipo, y D1–D4 no se aplicaron sin mi visto bueno.

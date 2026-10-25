@@ -1,6 +1,8 @@
 package com.smartglass.controller;
 
 import com.smartglass.service.EstadisticasPlataformaService;
+import com.smartglass.service.Funcion;
+import com.smartglass.service.PlanService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +16,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
     private final EstadisticasPlataformaService estadisticas;
+    private final PlanService plan;
 
-    public HomeController(EstadisticasPlataformaService estadisticas) {
+    public HomeController(EstadisticasPlataformaService estadisticas, PlanService plan) {
         this.estadisticas = estadisticas;
+        this.plan = plan;
+    }
+
+    /** T5: las cifras en vivo son del plan Avanzado; sin ellas las vistas ocultan esos bloques. */
+    private void cifras(Model model) {
+        if (plan.activa(Funcion.CIFRAS_PUBLICAS)) model.addAttribute("plataforma", estadisticas.cifras());
     }
 
     @GetMapping("/")
@@ -26,13 +35,13 @@ public class HomeController {
 
     @GetMapping("/home")
     public String home(Model model) {
-        model.addAttribute("plataforma", estadisticas.cifras());
+        cifras(model);
         return "index";
     }
 
     @GetMapping("/acerca")
     public String acerca(Model model) {
-        model.addAttribute("plataforma", estadisticas.cifras());
+        cifras(model);
         return "acerca";
     }
 
