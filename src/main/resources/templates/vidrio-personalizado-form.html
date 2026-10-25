@@ -12,19 +12,22 @@
            Los nombres de los campos del formulario no cambian.
            ========================================================= */
 
-        .atelier { width: 100%; max-width: 1320px; margin: 0 auto; padding: 38px clamp(16px, 3vw, 36px) 40px; }
+        .atelier { width: 100%; max-width: min(1560px, 100%); margin: 0 auto; padding: 38px clamp(16px, 3vw, 36px) 40px; }
 
         /* ---------- Encabezado ---------- */
         .atelier-hero { max-width: 760px; margin-bottom: 30px; }
         .atelier-hero h1 { margin: 0 0 12px; font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.02; letter-spacing: -0.045em; }
         .atelier-hero p { margin: 0; color: var(--text-muted); font-size: 1.05rem; line-height: 1.65; max-width: 620px; }
 
-        .atelier-grid { display: grid; grid-template-columns: minmax(340px, 5fr) minmax(0, 6fr); gap: 32px; align-items: start; }
+        .atelier-grid { display: grid; grid-template-columns: minmax(0, 13fr) minmax(380px, 10fr); gap: clamp(20px, 2.4vw, 36px); align-items: start; }
 
         /* ---------- Escenario (columna izquierda) ---------- */
         .atelier-stage { display: grid; gap: 16px; align-content: start; }
-        .stage-wrap { padding: 8px 8px 0; }
+        .stage-wrap { padding: 58px 8px 0; }   /* arriba van los controles de la vista */
         #escenario { min-height: 260px; }
+        .stage-wrap.sg-ampliado { padding-top: 64px; }
+        /* T2: el precio queda siempre a la vista mientras la columna del escenario se desplaza */
+        @media (min-width: 1024px) { .precio-caja { position: sticky; bottom: 0; z-index: 2; } }
         .sg-tilt-host { width: 100%; }
 
         .cartela {
@@ -43,7 +46,7 @@
 
         .precio-caja {
             padding: 18px 22px; border: 1px solid var(--border-hover); border-radius: 18px;
-            background: linear-gradient(135deg, var(--color-accent-dim), var(--card-bg));
+            background: linear-gradient(135deg, var(--color-accent-dim), var(--card-bg)), var(--bg-secondary);
             box-shadow: var(--shadow-glow);
         }
         .precio-caja span { color: var(--text-muted); font-size: max(12px, 0.74rem); font-weight: 700; letter-spacing: 0; }
@@ -262,6 +265,11 @@
                 mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
                 /* sin overscroll-behavior: al agotar su scroll interno, el de la pagina continua (encadenado) */
             }
+            /* T2: la pieza y el precio (fijo abajo) caben juntos en la columna; el SVG conserva su proporcion */
+            .atelier-stage #escenario .sg-glass { max-height: max(300px, calc(100dvh - var(--col-top, 300px) - 250px)); }
+            .atelier-stage .sg-ampliado #escenario .sg-glass { max-height: none; }
+            /* la mascara de desvanecido recortaria la vista ampliada (position: fixed) */
+            body.sg-sin-scroll .atelier-stage { -webkit-mask-image: none; mask-image: none; overflow: visible; }
             .atelier-stage::-webkit-scrollbar, .atelier-form::-webkit-scrollbar { width: 8px; }
             .atelier-stage::-webkit-scrollbar-track, .atelier-form::-webkit-scrollbar-track { background: transparent; }
             .atelier-stage::-webkit-scrollbar-thumb, .atelier-form::-webkit-scrollbar-thumb { border-radius: 99px; background: var(--border-hover); }
@@ -302,7 +310,8 @@
         <!-- ================= ESCENARIO ================= -->
         <aside class="atelier-stage" aria-label="Vista previa de tu pieza" th:aria-label="#{cotizar.vista_previa_de_tu_pieza}">
 
-            <div class="sg-stage stage-wrap">
+            <div class="sg-stage stage-wrap" id="escena">
+                <div id="vistaControles"></div>
                 <div class="sg-tilt sg-tilt-host" id="inclinable">
                     <div id="escenario"></div>
                 </div>
@@ -484,11 +493,21 @@
                     <span class="campo-titulo" id="lblForma" th:text="#{cotizar.geometria_de_corte}">Geometría de corte</span>
                     <select name="forma" id="forma" aria-labelledby="lblForma">
                         <option value="Rectangular" th:text="#{cotizar.rectangular_cuadrado}">Rectangular / Cuadrado</option>
+                        <option value="EsquinasRedondeadas" th:text="#{cotizar.forma_esquinas}">Esquinas redondeadas (Mesas y espejos)</option>
                         <option value="Circular" th:text="#{cotizar.circular_eliptico}">Circular / Elíptico</option>
-                        <option value="Triangular" th:text="#{cotizar.triangular_trapezoidal}">Triangular / Trapezoidal</option>
+                        <option value="Capsula" th:text="#{cotizar.forma_capsula}">Cápsula (Espejos de baño)</option>
+                        <option value="Arco" th:text="#{cotizar.forma_arco}">Arco de medio punto (Puertas y ventanas)</option>
+                        <option value="Triangular" th:text="#{cotizar.forma_trapezoidal}">Trapezoidal (Fachadas y vitrinas)</option>
+                        <option value="TrianguloRectangulo" th:text="#{cotizar.forma_triangulo_rect}">Triángulo rectángulo (Esquineros y escaleras)</option>
+                        <option value="TrapecioRectangulo" th:text="#{cotizar.forma_inclinada}">Inclinada (Bajo escalera o techo)</option>
+                        <option value="Fronton" th:text="#{cotizar.forma_fronton}">Frontón (Ventanas de buhardilla)</option>
+                        <option value="Rombo" th:text="#{cotizar.forma_rombo}">Rombo (Decorativo)</option>
+                        <option value="Hexagonal" th:text="#{cotizar.forma_hexagonal}">Hexagonal (Decorativo)</option>
+                        <option value="Octogonal" th:text="#{cotizar.forma_octogonal}">Octogonal (Ojos de buey y mesas)</option>
                         <option value="Irregular" th:text="#{cotizar.corte_irregular_requiere_plano_cad}">Corte irregular (Requiere plano CAD)</option>
                         <option value="Personalizada" th:text="#{cotizar.corte_personalizado_dibuja_tu_pieza}">Corte personalizado (Dibuja tu pieza)</option>
                     </select>
+                    <p class="hint" th:text="#{cotizar.forma_nota}">Toda forma se cotiza por el rectángulo que la contiene, porque así se corta de la lámina. El corte personalizado se cobra por su área real.</p>
                     <!-- F45: vertices del corte ("x,y;x,y;..."); Spring los enlaza con CotizacionVidrioRequest.setPuntosTexto -->
                     <input type="hidden" name="puntosTexto" id="puntosTexto" value="">
                     <div class="corte-acciones" id="corteAcciones" hidden>
@@ -593,6 +612,7 @@
     </div>
 </div>
 
+<th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>
 <script th:src="@{/js/corte-editor.js}"></script>
 <script>
@@ -696,6 +716,13 @@
     var descartada = false, manual = false, nivelPrevio = '', confirmado = false;
     var form = $('formCotizacion');
 
+    /* plantilla traducida con {0}: ese hueco va en negrita (todo por textContent) */
+    function conNegrita(plantilla, negrita) {
+        var f = document.createDocumentFragment(), partes = plantilla.split('{0}');
+        f.append(partes[0]);
+        if (partes.length > 1) { var b = document.createElement('b'); b.textContent = negrita; f.append(b, partes.slice(1).join('')); }
+        return f;
+    }
     function listar(ul, cambios) {
         ul.replaceChildren();
         cambios.forEach(function (x) { var li = document.createElement('li'); li.textContent = x.texto; ul.append(li); });
@@ -703,10 +730,10 @@
     function resumen(imp, reco) {
         var p = document.createDocumentFragment();
         var a = document.createElement('b');
-        a.textContent = G.fmtNum(imp.valor, 1) + ' kg CO\u2082e/m\u00b2';
-        p.append('Esta pieza emitir\u00eda ', a, ' (nivel ' + imp.etiqueta.toLowerCase() + ').');
-        if (reco.cambios.length) p.append(' La configuraci\u00f3n recomendada aplica estos cambios:');
-        else p.append(' No hay ajustes autom\u00e1ticos que respeten lo que elegiste; considera reducir el espesor o elegir otro tipo de vidrio.');
+        a.textContent = G.fmtNum(imp.valor, 1) + ' kg CO₂e/m²';
+        p.append(conNegrita(sgT('cot_emitiria', 'Esta pieza emitiría {0} (nivel {1}).', '{0}', imp.etiqueta.toLowerCase()), a.textContent));
+        if (reco.cambios.length) p.append(' ' + sgT('cot_reco_aplica', 'La configuración recomendada aplica estos cambios:'));
+        else p.append(' ' + sgT('cot_reco_nada', 'No hay ajustes automáticos que respeten lo que elegiste; considera reducir el espesor o elegir otro tipo de vidrio.'));
         return p;
     }
     function resultado(el, reco) {
@@ -715,9 +742,9 @@
         var n = reco.nivelDespues;
         var pct = reco.antes > 0 ? Math.round((1 - reco.despues / reco.antes) * 100) : 0;
         var b = document.createElement('b');
-        b.textContent = G.fmtNum(reco.despues, 1) + ' kg CO\u2082e/m\u00b2 \u00b7 ' + n.etiqueta;
-        el.append('Resultado: ', b, ' (\u2212' + pct + ' %)');
-        if (!reco.logra) el.append(' \u00b7 sigue siendo alto: la tecnolog\u00eda de este vidrio concentra su huella.');
+        b.textContent = G.fmtNum(reco.despues, 1) + ' kg CO₂e/m² · ' + n.etiqueta;
+        el.append(conNegrita(sgT('cot_resultado', 'Resultado: {0} (−{1} %)', '{0}', pct), b.textContent));
+        if (!reco.logra) el.append(' ' + sgT('cot_sigue_alto', '· sigue siendo alto: la tecnología de este vidrio concentra su huella.'));
     }
     function gestionarAviso(imp, reco) {
         var panel = $('alertaImpacto'), ver = $('termoVer');
@@ -732,7 +759,7 @@
         if (!mostrar) return;
 
         panel.className = 'alerta-impacto nivel-' + imp.nivel;
-        $('alertaTitulo').textContent = imp.nivel === 'alto' ? 'Configuraci\u00f3n de alto impacto ambiental' : 'Tu perfil es aceptable, pero puede mejorar';
+        $('alertaTitulo').textContent = imp.nivel === 'alto' ? sgT('cot_alerta_alto', 'Configuración de alto impacto ambiental') : sgT('cot_alerta_moderado', 'Tu perfil es aceptable, pero puede mejorar');
         $('alertaTexto').replaceChildren(resumen(imp, reco));
         listar($('alertaCambios'), reco.cambios);
         resultado($('alertaResultado'), reco);
@@ -744,12 +771,13 @@
 
     /* ---------- Actualizacion en vivo ---------- */
     var raf = null;
+    var vista = { cotas: true, referencia: false };   /* T2: cotas y escala humana (controles sobre el escenario) */
     function actualizar(instante) {
         var c = leer(), cc = paraCalculo(c), r = G.calcular(cc), imp = G.impacto(r.intensidad), precio = precioDe(c);
         var op = instante === true ? { instantaneo: true } : {};
         function contar(el, v, fmt, dur) { G.contar(el, v, Object.assign({ fmt: fmt, duracion: dur || 500 }, op)); }
 
-        G.render($('escenario'), paraVista(c));
+        G.render($('escenario'), Object.assign(paraVista(c), { cotas: vista.cotas, referencia: vista.referencia }));
         var d = G.describir({ tipo: c.tipo, ancho: c.ancho, alto: c.alto, espesor: c.espesor });
         $('cartelaTitulo').textContent = d.titulo;
         $('cartelaFrase').textContent = d.frase;
@@ -761,7 +789,7 @@
 
         var ah = $('ahorroText');
         if (r.ahorro > 0.05) {
-            ah.textContent = 'Tus decisiones sostenibles evitan ' + G.fmtNum(r.ahorro, 1) + ' kg de CO\u2082 frente a esta misma pieza sin opciones eco';
+            ah.textContent = sgT('cot_ahorro', 'Tus decisiones sostenibles evitan {0} kg de CO₂ frente a esta misma pieza sin opciones eco', G.fmtNum(r.ahorro, 1));
             ah.hidden = false;
         } else ah.hidden = true;
 
@@ -878,6 +906,7 @@
     /* ---------- F45: corte personalizado ---------- */
     var formaPrevia = $('forma').value === 'Personalizada' ? 'Rectangular' : $('forma').value;
     function hayCorte() { return SC.puntosConfirmados().length >= 3; }
+    SC.plantilla = function () { return { forma: formaPrevia, ancho: parseFloat($('ancho').value) || 0, alto: parseFloat($('alto').value) || 0 }; };
     function modoCorte() {
         var esPers = $('forma').value === 'Personalizada', fijo = esPers && hayCorte();
         /* con corte, ancho/alto salen de su caja envolvente: se muestran pero no se editan */
@@ -886,8 +915,8 @@
         $('corteAcciones').hidden = !esPers;
         var p = SC.puntosConfirmados();
         $('corteResumen').textContent = !esPers ? '' : (p.length >= 3
-            ? p.length + ' vértices · área ' + G.fmtNum(G.areaPoligono(p) / 10000, 2) + ' m² · la caja del corte define el ancho y el alto'
-            : 'Aún no has dibujado tu corte.');
+            ? sgT('cot_corte_resumen', '{0} vértices · área {1} m² · la caja del corte define el ancho y el alto', p.length, G.fmtNum(G.areaPoligono(p) / 10000, 2))
+            : sgT('cot_corte_vacio', 'Aún no has dibujado tu corte.'));
     }
     $('forma').addEventListener('input', function () {
         if ($('forma').value === 'Personalizada') { if (!hayCorte()) SC.abrir(); }
@@ -925,6 +954,7 @@
         el.addEventListener('change', programar);
     });
     G.tilt($('inclinable'));
+    vista = G.controlesVista($('vistaControles'), $('escena'), function (st) { vista = st; actualizar(true); });
     altura();
     actualizar(true);
 
@@ -936,7 +966,7 @@
 
     /* ---------- Envio: confirmacion si es de alto impacto + pantalla de espera ---------- */
     var forja = $('forja'), timer = null, dlg = $('dlgImpacto');
-    var mensajes = ['Calculando la huella de carbono\u2026', 'Analizando la resistencia estructural\u2026', 'Puliendo los \u00faltimos detalles\u2026'];
+    var mensajes = [sgT('cot_forja_1', 'Calculando la huella de carbono…'), sgT('cot_forja_2', 'Analizando la resistencia estructural…'), sgT('cot_forja_3', 'Puliendo los últimos detalles…')];
 
     function cerrarDialogo() { if (dlg.open) dlg.close(); }
     $('dlgAplicar').addEventListener('click', function () {

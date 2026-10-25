@@ -32,6 +32,22 @@ public class VidrioSostenibleService {
     /** Resultado de una transicion de estado pedida por controllers/panel. */
     public enum ResultadoCambio { OK, NO_ENCONTRADA, TRANSICION_INVALIDA }
 
+    /**
+     * T2: geometrias que ofrece el configurador (mismos codigos que glass-preview.js).
+     * Solo presentacion: todas se cotizan por caja envolvente salvo "Personalizada" (F45).
+     * Un valor desconocido se guarda como "Rectangular" en vez de texto libre.
+     */
+    public static final List<String> FORMAS = List.of(
+            "Rectangular", "EsquinasRedondeadas", "Circular", "Capsula", "Arco", "Triangular",
+            "TrianguloRectangulo", "TrapecioRectangulo", "Fronton", "Rombo", "Hexagonal", "Octogonal",
+            "Irregular", "Personalizada");
+
+    static String normalizarForma(String forma) {
+        if (forma == null) return "Rectangular";
+        String f = forma.trim();
+        return FORMAS.stream().filter(x -> x.equalsIgnoreCase(f)).findFirst().orElse("Rectangular");
+    }
+
     private final VidrioSostenibleRepository vidrioSostenibleRepository;
     private final AnalisisService analisisService;
 
@@ -48,7 +64,7 @@ public class VidrioSostenibleService {
         vidrio.setAncho(request.getAncho());
         vidrio.setAlto(request.getAlto());
         vidrio.setEspesor(request.getEspesor());
-        vidrio.setForma(request.getForma());
+        vidrio.setForma(normalizarForma(request.getForma()));
         vidrio.setTratamiento(request.getTratamiento());
         vidrio.setColor(request.getColor());
         vidrio.setCantidadCapas(request.getCantidadCapas());

@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `comercio-stock-notif`, actualizado el 2026-10-24 con T4 escrito). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `mejoras-responsive-plano-saas`, actualizado el 2026-10-25 con T2 · plano y cotizaciones escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 **sin commitear**). No se ha subido nada (`push`) y `main` no se ha tocado.
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones **sin commitear**). No se ha subido nada (`push`).
 
 ## Leyenda
 
@@ -114,6 +114,28 @@ Limitación: una oferta con fecha de inicio futura no genera aviso el día que e
 | Textos en los tres idiomas | 🧪 ESCRITO (curl y navegador en es-CO y en) | `messages*.properties`, sección "T4 recorrido guiado" |
 | Flag "visto" en `Usuario` | No se hizo (opcional en el prompt) | El recorrido sale una vez por navegador |
 
+## Mejoras de plataforma (rama `mejoras-responsive-plano-saas`)
+
+Seis tandas con gate: T1 responsive → T2 plano y cotizaciones → T3 sostenibilidad → T4 estética → T5 SaaS (superadmin y planes) → T6 despliegue (Render o Railway). Decisiones del equipo: hosting en Render o Railway con MongoDB Atlas y MySQL gestionado; SaaS por planes de funciones en una sola instalación; sostenibilidad sin tocar el cálculo; F45 aprobado y a pulir.
+
+### T1 · Responsive en todos los dispositivos (commit `901a93f`)
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| 28 páginas sin desborde horizontal, campos de 16 px, textos de 12 px como mínimo y objetivos táctiles de 44 px; contenido más ancho en pantallas de 1680, 2200 y 2800 px | 🧪 ESCRITO (auditoría con script en 375, 768, 1024 y 2560 px) | `theme.css` (sección "Responsive en todos los dispositivos"), `admin.css` |
+
+### T2 · Plano de personalización y cotizaciones
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Lienzo más grande: columna del escenario ~56 % del ancho (703 px a 1440) y pieza más grande dentro del SVG; el precio queda fijo abajo mientras se desplaza la columna | 🧪 ESCRITO (navegador, 1440 y 375 px) | `vidrio-personalizado-form.html` (`.atelier-grid`, `.precio-caja`); `glass-preview.js` (`render`) |
+| Controles de vista: cotas, escala humana (silueta de 1,70 m a la misma escala) y vista ampliada a pantalla completa (Esc la cierra); preferencia por navegador | 🧪 ESCRITO | `glass-preview.js` (`controlesVista`, `silueta`); `theme.css` (`.sg-vista-ctl`, `.sg-ampliado`) |
+| 14 geometrías (antes 5): esquinas redondeadas, cápsula, arco, triángulo rectángulo, inclinada, frontón, rombo, hexagonal y octogonal nuevas. Solo presentación: se cotizan por caja envolvente; nota visible en el formulario | 🧪 ESCRITO | `glass-preview.js` (`POLIGONOS`, `contorno`); `VidrioSostenibleService.FORMAS` (valor desconocido → "Rectangular") |
+| F45 aprobado y pulido: lienzo de 420 × 420 cm, encuadre automático, zoom con rueda y arrastre del fondo, puntos de tamaño táctil, X/Y del punto elegido, medidas exactas, girar 90°, reflejar, centrar, imán de 1/5/10 cm, plantillas de todas las formas y arranque desde la forma y medidas ya elegidas; en móvil el lienzo va arriba | 🧪 ESCRITO (navegador: clic real, deshacer, transformar, confirmar y enviar) | `corte-editor.js` |
+| Cotizaciones: estados, tipos, formas, tratamientos y bordes traducidos; miniaturas con el corte real; filtros por estado en Mis cotizaciones; búsqueda en el panel; el admin aprueba o rechaza desde el detalle y vuelve a él con aviso; "Crear una variante" abre el configurador con la obra cargada | 🧪 ESCRITO (navegador con sesión de admin: rechazar, re-aprobar, añadir al carrito, crear variante y eliminar) | `vidrio-personalizado-detalle.html`, `mis-cotizaciones.html`, `admin-cotizaciones.html`, `AdminCotizacionesController.java`, `VidrioPersonalizadoWebController.java` |
+| Textos de JS del configurador, editor y detalle en los tres idiomas; avisos del servidor con `MessageSource` | 🧪 ESCRITO (navegador en es-CO, es-ES y en) | `fragments/textos-vidrio.html`; `messages*.properties`, sección "T2 plano y cotizaciones" |
+| Contrato: fórmulas, constantes y umbrales sin cambios; en `impacto` y `recomendar` solo pasan los textos por el traductor | 🧪 ESCRITO | Anclas A–D idénticas en los tres idiomas (ver abajo) |
+
 ### Decisiones D1–D4
 
 | Decisión | Estado |
@@ -167,7 +189,7 @@ Limitación: una oferta con fecha de inicio futura no genera aviso el día que e
 | F42 · Paginación | POR HACER | No hay `Pageable` ni `Page` en el código; `VidrioPersonalizadoController.java:86-89` devuelve `List`. Solo existe el ajuste de pool y Tomcat (`application.properties`) |
 | F43 · Validación del registro | 🧪 ESCRITO | `@Valid` + `BindingResult` en `AuthController.java:40-41` y `RegistroController.java`; E.164 en `AuthService.java:105-118`; disponibilidad en vivo en `RegistroController.java:50` (H06) |
 | F44 · Vinculación con Google invalida la contraseña local | 🧪 ESCRITO | `CustomOAuth2UserService.java:56-58` (3 parámetros, `@Lazy`), `:106` (`setPassword`) |
-| F45 · Corte personalizado | DIFERIDO (escrito, sin visto bueno) | Bifurcación aditiva en `AnalisisService.java:145-172`; front en `corte-editor.js` y `glass-preview.js:353-361`. Requiere visto bueno formal por tocar el contrato |
+| F45 · Corte personalizado | 🧪 ESCRITO (aprobado por el equipo el 2026-10-24; pulido en T2) | Bifurcación aditiva en `AnalisisService.java:145-172`; editor en `corte-editor.js`; área en `glass-preview.js` (`areaPoligono`) |
 
 ## Hallazgos H (cierre de bloqueantes)
 
@@ -226,6 +248,8 @@ Limitación: una oferta con fecha de inicio futura no genera aviso el día que e
 | Aprobar una obra (T3) | ✅ Verificado: su dueño recibe "Tu obra Nº … fue aprobada" con enlace |
 | Cambiar el estado de un pedido (T3) | ✅ Verificado: el cliente recibe "Tu pedido … está enviado / en preparación / entregado" |
 | Oferta o producto nuevo (T3) | Aparece en la campana de un visitante como "Nueva" (pendiente) |
+| Plano (mejoras T2) | Lienzo grande con el precio visible; cotas, escala humana y ampliar; 14 formas; el editor F45 arranca con la forma elegida y permite medidas exactas, girar, reflejar y editar puntos |
+| Cotizaciones (mejoras T2) | Estados y nombres traducidos; filtros en Mis cotizaciones; búsqueda en el panel; aprobar o rechazar desde el detalle; "Crear una variante" |
 | Recorrido guiado (T4) | Sale solo la primera vez; "Saltar" o Esc lo cierran; con fotosensible no se mueve nada; se relanza desde "Guía de compra" en el pie |
 
 Nada se da por cerrado hasta que los greps den el resultado esperado, el app arranque con las env vars, el toggle de idioma mantenga las anclas en es-CO, el flujo anónimo→pago-con-login conserve el carrito, el stock sea transaccional y veraz, las notificaciones y el tour respeten i18n y accesibilidad, y los casos A–D se vean en navegador; ningún cambio movió un decimal del contrato ni tocó el logotipo, y D1–D4 no se aplicaron sin mi visto bueno.

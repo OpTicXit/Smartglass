@@ -65,6 +65,13 @@
         .btn-aprobar-admin:focus-visible, .btn-eliminar:focus-visible, a.ver:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 
         .vacio { padding: 44px 20px; text-align: center; color: var(--text-muted); }
+        /* T2: busqueda en la tabla (cliente, referencia, tipo o forma) */
+        .cot-buscar { position: relative; max-width: 420px; margin: 0 0 16px; }
+        .cot-buscar i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+        .cot-buscar input { width: 100%; min-height: 44px; padding: 10px 14px 10px 40px; border: 1px solid var(--admin-card-border, var(--border-color)); border-radius: 12px; background: var(--bg-secondary); color: var(--text-main); font: inherit; }
+        .cot-buscar input:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        .cot-tabla tr[hidden] { display: none; }
+        .vacio[hidden] { display: none; }
         .vacio a { color: var(--color-accent-text); font-weight: 700; }
 
         /* ---------- Movil: la tabla pasa a tarjetas ---------- */
@@ -85,7 +92,11 @@
             .cot-tabla td.obra-celda::before { display: none; }
             .cot-tabla td.acciones { display: block; padding-bottom: 0; }
             .cot-tabla td.acciones::before { display: block; margin-bottom: 8px; }
-            .cot-co2 { justify-items: end; }
+            .cot-co2 { justify-items: end; min-width: 0; text-align: right; }
+            /* T2: con etiquetas traducidas mas largas, el contenido se ajusta en vez de desbordar */
+            .cot-tabla td::before { max-width: 45%; }
+            .cot-tabla td > * { min-width: 0; }
+            .cot-co2 .chip-nivel, .cot-co2 .metrica-pieza { white-space: normal; overflow-wrap: anywhere; }
         }
     </style>
 </head>
@@ -113,6 +124,12 @@
         <a th:href="@{/admin/cotizaciones(estado='RECHAZADA')}" th:classappend="${filtro == 'RECHAZADA'} ? 'activo'"><span th:text="#{admin.cotizaciones.rechazadas}">Rechazadas</span> <span class="n" th:text="${conteos['RECHAZADA']}">0</span></a>
     </nav>
 
+    <label class="cot-buscar" th:unless="${#lists.isEmpty(filas)}">
+        <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+        <span class="visually-hidden" th:text="#{admin.cotizaciones.buscar}">Buscar</span>
+        <input type="search" id="buscarCot" autocomplete="off" placeholder="Buscar por cliente, referencia, tipo o forma" th:placeholder="#{admin.cotizaciones.buscar}">
+    </label>
+
     <div class="table-wrap">
         <table class="table-admin cot-tabla">
             <thead>
@@ -128,9 +145,9 @@
             </thead>
             <tbody>
                 <tr th:each="f : ${filas}"
-                    th:attr="data-id=${f.id},data-tipo=${f.tipo},data-ancho=${f.ancho},data-alto=${f.alto},data-espesor=${f.espesor},data-forma=${f.forma},data-reciclado=${f.reciclado}">
+                    th:attr="data-id=${f.id},data-tipo=${f.tipo},data-ancho=${f.ancho},data-alto=${f.alto},data-espesor=${f.espesor},data-forma=${f.forma},data-reciclado=${f.reciclado},data-puntos=${f.puntos},data-cliente=${f.cliente}">
 
-                    <td class="obra-celda" data-label="Obra">
+                    <td class="obra-celda" data-label="Obra" th:attr="data-label=#{admin.cotizaciones.obra}">
                         <div class="cot-obra">
                             <div class="cot-mini sg-stage" aria-hidden="true"></div>
                             <div class="cot-obra-txt">
@@ -141,30 +158,30 @@
                         </div>
                     </td>
 
-                    <td class="td-strong" data-label="Cliente" th:text="${f.cliente}">Cliente</td>
-                    <td class="fecha" data-label="Fecha" th:text="${f.fecha}">01/01/2026 00:00</td>
+                    <td class="td-strong" data-label="Cliente" th:attr="data-label=#{admin.cotizaciones.cliente}" th:text="${f.cliente}">Cliente</td>
+                    <td class="fecha" data-label="Fecha" th:attr="data-label=#{admin.cotizaciones.fecha}" th:text="${f.fecha}">01/01/2026 00:00</td>
 
-                    <td data-label="Impacto">
+                    <td data-label="Impacto" th:attr="data-label=#{admin.cotizaciones.impacto_ambiental}">
                         <div class="cot-co2">
                             <!-- PROCESO: nivel e intensidad vienen de la entidad (fila.nivel / fila.intensidad); no se recalculan aqui. Unico dato con color de juicio. -->
                             <span class="metrica-proceso chip-nivel" th:if="${f.intensidad > 0}"
                                   th:classappend="'nivel-' + ${#strings.toLowerCase(f.nivel)}"
-                                  th:text="'Proceso · ' + (${f.nivel == 'FAVORABLE'} ? 'Favorable' : (${f.nivel == 'MODERADO'} ? 'Moderado' : 'Alto')) + ' · ' + ${#numbers.formatDecimal(f.intensidad, 1, 'POINT', 1, 'COMMA')} + ' kg/m²'">Proceso</span>
+                                  th:text="#{admin.cotizaciones.proceso_chip(${#messages.msgOrNull('cotizacion.nivel.' + f.nivel) ?: f.nivel}, ${#numbers.formatDecimal(f.intensidad, 1, 'POINT', 1, 'COMMA')})}">Proceso</span>
                             <!-- PIEZA: absoluto, neutro, sin juicio -->
                             <span class="metrica-pieza"
-                                  th:text="'Esta pieza: ' + ${#numbers.formatDecimal(f.co2, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">—</span>
+                                  th:text="#{admin.cotizaciones.esta_pieza(${#numbers.formatDecimal(f.co2, 1, 'POINT', 1, 'COMMA')})}">—</span>
                         </div>
                     </td>
 
-                    <td class="precio" data-label="Precio" th:text="${f.precio}">$0</td>
+                    <td class="precio" data-label="Precio" th:attr="data-label=#{admin.cotizaciones.precio}" th:text="${f.precio}">$0</td>
 
-                    <td data-label="Estado">
+                    <td data-label="Estado" th:attr="data-label=#{admin.cotizaciones.estado}">
                         <span class="badge"
                               th:classappend="${f.estado == 'COTIZACION'} ? 'badge-warning' : (${f.estado == 'APROBADO'} ? 'badge-success' : 'badge-error')"
-                              th:text="${f.estado == 'COTIZACION'} ? 'Pendiente' : (${f.estado == 'APROBADO'} ? 'Aprobada' : 'Rechazada')">Pendiente</span>
+                              th:text="${#messages.msgOrNull('cotizacion.estado.' + f.estado)} ?: ${f.estado}">Pendiente</span>
                     </td>
 
-                    <td class="acciones" data-label="Acciones">
+                    <td class="acciones" data-label="Acciones" th:attr="data-label=#{admin.cotizaciones.acciones}">
                         <div class="acciones-fila">
                             <a class="ver" th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${f.id})}" th:text="#{admin.cotizaciones.ver}">Ver</a>
 
@@ -186,6 +203,8 @@
             </tbody>
         </table>
 
+        <div class="vacio" id="sinResultados" hidden th:text="#{admin.cotizaciones.sin_resultados}">Ninguna cotización coincide con la búsqueda.</div>
+
         <!-- Estado vacio (con o sin filtro) -->
         <div class="vacio" th:if="${#lists.isEmpty(filas)}">
             <span th:if="${filtro == 'TODAS'}" th:text="#{admin.cotizaciones.todavia_no_hay_cotizaciones_en}">Todavía no hay cotizaciones en el sistema.</span>
@@ -197,10 +216,19 @@
     </div>
 </div>
 
+<th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>
 <script>
 (function () {
     /* Filtro activo: se anuncia a lectores de pantalla */
+    /* F45: vertices del corte personalizado ("x,y;x,y;..."); sin ellos se dibuja la forma fija */
+    function puntosDe(d) {
+        if (d.forma !== 'Personalizada' || !d.puntos) return undefined;
+        var pts = d.puntos.split(';').map(function (par) { var xy = par.split(','); return { x: parseFloat(xy[0]), y: parseFloat(xy[1]) }; })
+            .filter(function (p) { return isFinite(p.x) && isFinite(p.y); });
+        return pts.length >= 3 ? pts : undefined;
+    }
+    
     var activo = document.querySelector('.filtros a.activo');
     if (activo) activo.setAttribute('aria-current', 'page');
 
@@ -210,15 +238,28 @@
         /* Miniatura de la obra */
         SGGlass.render(fila.querySelector('.cot-mini'), {
             tipo: d.tipo, ancho: d.ancho, alto: d.alto, espesor: d.espesor, forma: d.forma,
-            reciclado: d.reciclado === 'true', mini: true
+            reciclado: d.reciclado === 'true', mini: true, puntos: puntosDe(d)
         });
 
         /* Textos con el mismo formato (es-CO) que el configurador, el detalle y la galeria */
         fila.querySelector('[data-tipo-txt]').textContent = SGGlass.nombreTipo(d.tipo);
         fila.querySelector('[data-medidas]').textContent =
-            SGGlass.fmtAuto(d.ancho) + ' \u00d7 ' + SGGlass.fmtAuto(d.alto) + ' cm \u00b7 ' + SGGlass.fmtAuto(d.espesor) + ' mm \u00b7 ' + (d.forma || '');
+            SGGlass.fmtAuto(d.ancho) + ' × ' + SGGlass.fmtAuto(d.alto) + ' cm · ' + SGGlass.fmtAuto(d.espesor) + ' mm · ' + SGGlass.nombreForma(d.forma);
         fila.querySelector('[data-ref]').textContent = String(d.id || '').slice(-6).toUpperCase();
+        /* texto que recorre la busqueda */
+        fila.dataset.buscar = [d.cliente, String(d.id || '').slice(-6), SGGlass.nombreTipo(d.tipo), SGGlass.nombreForma(d.forma)].join(' ').toLowerCase();
 
+    });
+
+    /* T2: busqueda en la tabla (sin recargar; combina con el filtro por estado) */
+    var buscar = document.getElementById('buscarCot');
+    if (buscar) buscar.addEventListener('input', function () {
+        var q = buscar.value.trim().toLowerCase(), visibles = 0;
+        Array.prototype.forEach.call(document.querySelectorAll('.cot-tabla tbody tr[data-id]'), function (fila) {
+            var ok = !q || (fila.dataset.buscar || '').indexOf(q) !== -1;
+            fila.hidden = !ok; if (ok) visibles++;
+        });
+        document.getElementById('sinResultados').hidden = visibles > 0;
     });
 })();
 </script>

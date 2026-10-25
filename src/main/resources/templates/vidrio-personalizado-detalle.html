@@ -63,6 +63,20 @@
         .espera strong { display: block; color: var(--text-main); font-size: 0.95rem; }
         .espera small { display: block; margin-top: 3px; color: var(--text-muted); font-size: 0.8rem; line-height: 1.45; }
         .btn-aprobar:focus-visible { outline: 3px solid var(--color-accent-hover); outline-offset: 3px; }
+        /* T2: el admin aprueba o rechaza desde aqui; el dueno puede crear una variante */
+        .acciones-admin { display: grid; gap: 10px; }
+        .acciones-admin form { margin: 0; }
+        .btn-rechazar {
+            display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; padding: 12px 18px;
+            border: 1px solid var(--color-error); border-radius: 14px; background: var(--color-error-dim); color: var(--color-error);
+            font: inherit; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: filter 0.2s ease;
+        }
+        .btn-rechazar:hover { filter: brightness(1.1); }
+        .btn-rechazar:focus-visible { outline: 3px solid var(--color-accent-hover); outline-offset: 3px; }
+        .variante { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; min-height: 46px; padding: 11px 14px;
+            border: 1px dashed var(--border-hover); border-radius: 12px; color: var(--color-accent-text); font-size: 0.88rem; font-weight: 700; text-decoration: none; }
+        .variante:hover { background: var(--color-accent-dim); }
+        .obra > .alert { margin-bottom: 18px; }
         .enlaces { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
         .enlaces a {
             flex: 1; min-width: 140px; padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 12px;
@@ -191,7 +205,12 @@
 <main class="obra" th:if="${vidrio != null}"
       th:with="admin=${puedeAprobar != null ? puedeAprobar : (esAdmin != null ? esAdmin : false)}"
       id="obra"
-      th:attr="data-id=${vidrio.id},data-tipo=${vidrio.tipoVidrio},data-ancho=${vidrio.ancho},data-alto=${vidrio.alto},data-espesor=${vidrio.espesor},data-forma=${vidrio.forma},data-reciclado=${vidrio.usarVidrioReciclado},data-silice=${vidrio.cantidadSilice},data-sosa=${vidrio.cantidadSosa},data-caliza=${vidrio.cantidadCaliza},data-alumina=${vidrio.cantidadAlumina},data-otros=${vidrio.cantidadOtros},data-calcin=${vidrio.vidrioRecicladoKg},data-peso=${vidrio.pesoEstimado},data-co2=${vidrio.huellaCarbono},data-intensidad=${vidrio.intensidadCarbono},data-nivel=${vidrio.nivelImpacto},data-mpa=${vidrio.resistenciaEstimada},data-area-total=${vidrio.areaTotal},data-puntos=${vidrio.puntosTexto}">
+      th:attr="data-id=${vidrio.id},data-tipo=${vidrio.tipoVidrio},data-ancho=${vidrio.ancho},data-alto=${vidrio.alto},data-espesor=${vidrio.espesor},data-forma=${vidrio.forma},data-reciclado=${vidrio.usarVidrioReciclado},data-silice=${vidrio.cantidadSilice},data-sosa=${vidrio.cantidadSosa},data-caliza=${vidrio.cantidadCaliza},data-alumina=${vidrio.cantidadAlumina},data-otros=${vidrio.cantidadOtros},data-calcin=${vidrio.vidrioRecicladoKg},data-peso=${vidrio.pesoEstimado},data-co2=${vidrio.huellaCarbono},data-intensidad=${vidrio.intensidadCarbono},data-nivel=${vidrio.nivelImpacto},data-mpa=${vidrio.resistenciaEstimada},data-area-total=${vidrio.areaTotal},data-puntos=${vidrio.puntosTexto},data-uso=${vidrio.usoPrincipal},data-trat=${vidrio.tratamiento},data-bordes=${vidrio.acabadoBordes},data-perf=${vidrio.perforaciones},data-renovable=${vidrio.energiaRenovable}">
+
+    <div th:if="${mensaje}" class="alert" th:classappend="${tipoMensaje == 'error'} ? 'alert--error' : 'alert--success'" role="status">
+        <i th:class="${tipoMensaje == 'error'} ? 'ph ph-warning-circle' : 'ph ph-check-circle'" aria-hidden="true"></i>
+        <span th:text="${mensaje}">Mensaje</span>
+    </div>
 
     <header class="obra-cabecera">
         <div>
@@ -231,7 +250,7 @@
         <aside class="compra tech-card" aria-label="Inversión y aprobación" th:aria-label="#{obra.inversion_y_aprobacion}">
 
             <div class="chips">
-                <span class="chip chip-estado" th:classappend="${#strings.toString(vidrio.estado) == 'APROBADO'} ? 'chip-aprobado' : (${#strings.toString(vidrio.estado) == 'RECHAZADA'} ? 'chip-rechazada')" th:text="${vidrio.estado}">COTIZACION</span>
+                <span class="chip chip-estado" th:classappend="${#strings.toString(vidrio.estado) == 'APROBADO'} ? 'chip-aprobado' : (${#strings.toString(vidrio.estado) == 'RECHAZADA'} ? 'chip-rechazada')" th:text="${#messages.msgOrNull('cotizacion.estado.' + #strings.toString(vidrio.estado))} ?: ${vidrio.estado}">Pendiente</span>
                 <span class="chip-nivel" id="chipNivel" hidden></span>
                 <span class="chip chip-eco" th:if="${vidrio.usarVidrioReciclado}"><i class="ph ph-recycle" aria-hidden="true"></i> <span th:text="#{obra.material_reciclado}">Material reciclado</span></span>
                 <span class="chip chip-urgente sg-rainbow" th:if="${vidrio.urgente}"><i class="ph ph-lightning" aria-hidden="true"></i> <span th:text="#{obra.entrega_urgente_20}">Entrega urgente (+20 %)</span></span>
@@ -239,9 +258,9 @@
                 <span class="chip chip-eco" th:if="${vidrio.energiaRenovable}"><i class="ph ph-sun" aria-hidden="true"></i> <span th:text="#{obra.energia_renovable}">Energía renovable</span></span>
                 <span class="chip chip-eco" th:if="${vidrio.compensarCarbono}"><i class="ph ph-leaf" aria-hidden="true"></i> <span th:text="#{obra.compensacion_de_co2_5_000}">Compensación de CO₂ (+$5.000)</span></span>
                 <span class="chip" th:if="${vidrio.tratamiento != null and !#strings.isEmpty(vidrio.tratamiento) and vidrio.tratamiento != 'Ninguno'}"
-                      th:attr="data-etq=${vidrio.tratamiento}" data-pref="Tratamiento: " th:text="#{obra.chip_tratamiento(${vidrio.tratamiento})}">Tratamiento</span>
+                      th:text="#{obra.chip_tratamiento(${#messages.msgOrNull('tratamiento.' + vidrio.tratamiento) ?: vidrio.tratamiento})}">Tratamiento</span>
                 <span class="chip" th:if="${vidrio.acabadoBordes != null and !#strings.isEmpty(vidrio.acabadoBordes) and vidrio.acabadoBordes != 'CorteLimpio'}"
-                      th:attr="data-etq=${vidrio.acabadoBordes}" data-pref="Borde: " th:text="#{obra.chip_borde(${vidrio.acabadoBordes})}">Borde</span>
+                      th:text="#{obra.chip_borde(${#messages.msgOrNull('bordes.' + vidrio.acabadoBordes) ?: vidrio.acabadoBordes})}">Borde</span>
                 <span class="chip" th:if="${vidrio.perforaciones > 0}"
                       th:text="${vidrio.perforaciones == 1} ? #{obra.perforacion_una(${#strings.toString(vidrio.perforaciones)})} : #{obra.perforacion_varias(${#strings.toString(vidrio.perforaciones)})}">Perforaciones</span>
             </div>
@@ -261,10 +280,20 @@
             </div>
 
             <!-- F26: Administrador: SOLO aprueba la cotizacion (el servidor tambien lo valida); no añade al carrito -->
-            <form th:if="${admin and #strings.toString(vidrio.estado) == 'COTIZACION'}"
-                  th:action="@{/vidrio-personalizado/aprobar/{id}(id=${vidrio.id})}" method="post">
-                <button type="submit" class="btn-aprobar"><i class="ph ph-check" aria-hidden="true"></i> <span th:text="#{obra.aprobar_cotizacion}">Aprobar cotización</span></button>
-            </form>
+            <div class="acciones-admin" th:if="${admin and #strings.toString(vidrio.estado) == 'COTIZACION'}">
+                <form th:action="@{/vidrio-personalizado/aprobar/{id}(id=${vidrio.id})}" method="post">
+                    <input type="hidden" name="volver" value="detalle">
+                    <button type="submit" class="btn-aprobar"><i class="ph ph-check" aria-hidden="true"></i> <span th:text="#{obra.aprobar_cotizacion}">Aprobar cotización</span></button>
+                </form>
+                <!-- T2: rechazar tambien desde el detalle (misma ruta y validacion que el panel) -->
+                <form th:action="@{/admin/cotizaciones/{id}/rechazar(id=${vidrio.id})}" method="post"
+                      data-confirm-title="¿Rechazar esta cotización?" th:data-confirm-title="#{admin.cotizaciones.rechazar_esta_cotizacion}"
+                      data-confirm="El cliente verá que no fue aprobada." th:data-confirm="#{admin.cotizaciones.el_cliente_vera_que_no}"
+                      data-confirm-ok="Rechazar" th:data-confirm-ok="#{admin.cotizaciones.rechazar}">
+                    <input type="hidden" name="volver" value="detalle">
+                    <button type="submit" class="btn-rechazar"><i class="ph ph-x" aria-hidden="true"></i> <span th:text="#{obra.rechazar_cotizacion}">Rechazar cotización</span></button>
+                </form>
+            </div>
 
             <!-- Obra rechazada: el usuario no puede añadirla al carrito -->
             <div class="espera espera-rechazada" th:if="${!admin and #strings.toString(vidrio.estado) == 'RECHAZADA'}" role="status">
@@ -290,6 +319,8 @@
                 <button type="submit" class="btn-aprobar"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i> <span th:text="#{obra.anadir_al_carrito}">Añadir al carrito</span></button>
             </form>
 
+            <a th:href="@{/vidrio-personalizado/cotizar}" class="variante" id="lnkVariante"><i class="ph ph-copy" aria-hidden="true"></i> <span th:text="#{obra.crear_variante}">Crear una variante de esta obra</span></a>
+
             <div class="enlaces">
                 <a th:href="@{/vidrio-personalizado/cotizar}" th:text="#{obra.crear_otra_obra}">Crear otra obra</a>
                 <a th:href="@{/vidrio-personalizado/mis-cotizaciones}" th:text="#{obra.mis_cotizaciones}">Mis cotizaciones</a>
@@ -311,19 +342,19 @@
         <article class="tech-card">
             <h3 class="tarjeta-titulo"><i class="ph ph-list-bullets" aria-hidden="true"></i><span th:text="#{obra.ficha_tecnica}">Ficha técnica</span></h3>
             <dl class="ficha">
-                <div><dt th:text="#{obra.tipo_de_vidrio}">Tipo de vidrio</dt><dd th:text="${vidrio.tipoVidrio}">—</dd></div>
+                <div><dt th:text="#{obra.tipo_de_vidrio}">Tipo de vidrio</dt><dd th:text="${#messages.msgOrNull('vidrio.tipo.' + vidrio.tipoVidrio)} ?: ${vidrio.tipoVidrio}">—</dd></div>
                 <div><dt th:text="#{obra.dimensiones}">Dimensiones</dt><dd id="fDim" th:text="${vidrio.ancho} + ' × ' + ${vidrio.alto} + ' cm'">—</dd></div>
-                <div th:if="${vidrio.puntosPersonalizados != null and !#lists.isEmpty(vidrio.puntosPersonalizados)}"><dt th:text="#{obra.area_del_corte}">Área del corte</dt><dd th:text="${vidrio.areaPoligonal != null ? #numbers.formatDecimal(vidrio.areaPoligonal, 1, 'POINT', 2, 'COMMA') : '—'} + ' m² · polígono de ' + ${#lists.size(vidrio.puntosPersonalizados)} + ' vértices'">—</dd></div>
+                <div th:if="${vidrio.puntosPersonalizados != null and !#lists.isEmpty(vidrio.puntosPersonalizados)}"><dt th:text="#{obra.area_del_corte}">Área del corte</dt><dd th:text="#{obra.area_del_corte_valor(${vidrio.areaPoligonal != null ? #numbers.formatDecimal(vidrio.areaPoligonal, 1, 'POINT', 2, 'COMMA') : '—'}, ${#strings.toString(#lists.size(vidrio.puntosPersonalizados))})}">—</dd></div>
                 <div><dt th:text="#{obra.espesor}">Espesor</dt><dd id="fEsp" th:text="${vidrio.espesor} + ' mm'">—</dd></div>
                 <div><dt th:text="#{obra.area_total}">Área total</dt><dd id="fArea" th:text="${vidrio.areaTotal} + ' m²'">—</dd></div>
                 <div><dt th:text="#{obra.peso_estimado}">Peso estimado</dt><dd id="fPeso" th:text="${vidrio.pesoEstimado} + ' kg'">—</dd></div>
-                <div><dt th:text="#{obra.geometria}">Geometría</dt><dd th:text="${vidrio.forma}">—</dd></div>
+                <div><dt th:text="#{obra.geometria}">Geometría</dt><dd th:text="${#messages.msgOrNull('forma.' + vidrio.forma)} ?: ${vidrio.forma}">—</dd></div>
                 <div><dt th:text="#{obra.material_reciclado}">Material reciclado</dt><dd th:text="${vidrio.usarVidrioReciclado} ? #{obra.si} : #{obra.no}">—</dd></div>
                 <div><dt th:text="#{obra.energia_renovable}">Energía renovable</dt><dd th:text="${vidrio.energiaRenovable} ? #{obra.si} : #{obra.no}">—</dd></div>
                 <div><dt th:text="#{obra.compensacion_de_co2}">Compensación de CO₂</dt><dd th:text="${vidrio.compensarCarbono} ? #{obra.si_compensacion} : #{obra.no}">—</dd></div>
                 <div><dt th:text="#{obra.entrega_urgente}">Entrega urgente</dt><dd th:text="${vidrio.urgente} ? #{obra.si_urgente} : #{obra.no}">—</dd></div>
-                <div th:if="${vidrio.tratamiento != null and !#strings.isEmpty(vidrio.tratamiento)}"><dt th:text="#{obra.tratamiento}">Tratamiento</dt><dd th:attr="data-etq=${vidrio.tratamiento}" th:text="${vidrio.tratamiento}">—</dd></div>
-                <div th:if="${vidrio.acabadoBordes != null and !#strings.isEmpty(vidrio.acabadoBordes)}"><dt th:text="#{obra.acabado_de_bordes}">Acabado de bordes</dt><dd th:attr="data-etq=${vidrio.acabadoBordes}" th:text="${vidrio.acabadoBordes}">—</dd></div>
+                <div th:if="${vidrio.tratamiento != null and !#strings.isEmpty(vidrio.tratamiento)}"><dt th:text="#{obra.tratamiento}">Tratamiento</dt><dd th:text="${#messages.msgOrNull('tratamiento.' + vidrio.tratamiento)} ?: ${vidrio.tratamiento}">—</dd></div>
+                <div th:if="${vidrio.acabadoBordes != null and !#strings.isEmpty(vidrio.acabadoBordes)}"><dt th:text="#{obra.acabado_de_bordes}">Acabado de bordes</dt><dd th:text="${#messages.msgOrNull('bordes.' + vidrio.acabadoBordes)} ?: ${vidrio.acabadoBordes}">—</dd></div>
                 <div><dt th:text="#{obra.perforaciones}">Perforaciones</dt><dd th:text="${vidrio.perforaciones}">0</dd></div>
             </dl>
         </article>
@@ -408,6 +439,7 @@
     </article>
 </main>
 
+<th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>
 <script>
 (function () {
@@ -483,12 +515,12 @@
     document.getElementById('bloqueProceso').classList.add('nivel-' + imp.nivel);
     var chip = document.getElementById('huellaChip');
     chip.className = 'chip-nivel nivel-' + imp.nivel;
-    chip.textContent = 'Proceso · ' + imp.etiqueta;
+    chip.textContent = sgT('det_proceso_chip', 'Proceso · {0}', imp.etiqueta);
     document.getElementById('huellaInt').textContent = SGGlass.fmtNum(intensidad, 1) + ' kg CO\u2082e/m\u00b2';
     document.getElementById('huellaFrase').textContent = imp.frase;
     var panelChip = document.getElementById('chipNivel');
     panelChip.className = 'chip-nivel nivel-' + imp.nivel;
-    panelChip.textContent = 'Proceso ' + imp.etiqueta.toLowerCase();
+    panelChip.textContent = sgT('det_proceso_panel', 'Proceso {0}', imp.etiqueta.toLowerCase());
     panelChip.hidden = false;
 
     if (imp.nivel !== 'favorable') {
@@ -508,7 +540,8 @@
             var tx = document.getElementById('alertaObraTexto');
             var b = document.createElement('b');
             b.textContent = SGGlass.fmtNum(intensidad, 1) + ' kg CO\u2082e/m\u00b2';
-            tx.append('Su intensidad es ', b, ', por encima de 20. Podemos cargar esta misma pieza con una configuración recomendada que balancea su impacto (material reciclado, energía renovable y ajustes de espesor o tipo cuando es seguro).');
+            var plantilla = sgT('det_alerta', 'Su intensidad es {0}, por encima de 20. Podemos cargar esta misma pieza con una configuración recomendada que balancea su impacto (material reciclado, energía renovable y ajustes de espesor o tipo cuando es seguro).').split('{0}');
+            tx.append(plantilla[0], b, plantilla.slice(1).join(''));
             document.getElementById('alertaObra').hidden = false;
         }
     }
@@ -523,14 +556,15 @@
     document.getElementById('fArea').textContent = SGGlass.fmtNum(area, 2) + ' m\u00b2';
     document.getElementById('fPeso').textContent = SGGlass.fmtNum(peso, 2) + ' kg';
     document.getElementById('fTotal').textContent = SGGlass.fmtNum(peso, 2) + ' kg';
-    /* Etiquetas legibles de tratamiento y acabado (el valor del servidor es el codigo del formulario) */
-    var ETQ = { TintadoGris: 'Tintado gris humo', TintadoBronce: 'Tintado bronce', ControlSolar: 'Control solar (Low-E)',
-                Esmerilado: 'Esmerilado', Serigrafiado: 'Serigrafiado', Antireflejo: 'Antirreflejo',
-                PulidoPlano: 'Pulido plano', Biselado: 'Biselado', CorteLimpio: 'Corte limpio', Ninguno: 'Ninguno' };
-    Array.prototype.forEach.call(document.querySelectorAll('[data-etq]'), function (el) {
-        var v = el.getAttribute('data-etq');
-        el.textContent = (el.getAttribute('data-pref') || '') + (ETQ[v] || v);
+    /* Variante: el configurador con esta misma obra cargada (medidas, materiales y, si lo hay, el corte) */
+    var qv = new URLSearchParams({
+        ancho: d.ancho || '', alto: d.alto || '', espesor: d.espesor || '', tipo: d.tipo || '', forma: d.forma || '',
+        uso: d.uso || '', trat: d.trat || '', bordes: d.bordes || '', perf: d.perf || '0',
+        reciclado: d.reciclado === 'true' ? '1' : '0', renovable: d.renovable === 'true' ? '1' : '0'
     });
+    if (puntos.length >= 3) qv.set('puntos', d.puntos);
+    var lv = document.getElementById('lnkVariante');
+    lv.href = lv.getAttribute('href') + '?' + qv.toString();
     Array.prototype.forEach.call(document.querySelectorAll('[data-kg]'), function (el) {
         el.textContent = SGGlass.fmtNum(mat[el.getAttribute('data-kg')], 2) + ' kg';
     });
@@ -562,10 +596,10 @@
             var ext = parseFloat(data.resistencia), srv = parseFloat(d.mpa);
             var caja = document.getElementById('verificado');
             if (isFinite(ext) && isFinite(srv) && Math.abs(ext - srv) < 0.05) {
-                caja.textContent = '\u2713 Coincide con el servicio estructural externo';
+                caja.textContent = sgT('det_coincide', '✓ Coincide con el servicio estructural externo');
                 caja.classList.add('visible');
             } else if (isFinite(ext)) {
-                caja.textContent = 'Referencia externa: ' + SGGlass.fmtNum(ext, 1) + ' MPa (no considera tipo ni capas)';
+                caja.textContent = sgT('det_ref_externa', 'Referencia externa: {0} MPa (no considera tipo ni capas)', SGGlass.fmtNum(ext, 1));
                 caja.classList.add('referencia', 'visible');
             }
         }
@@ -573,7 +607,7 @@
     .catch(function (err) {
         /* Sin respuesta (timeout, red, HTTP != 200): se avisa y NO se toca resistencia-valor ni recomendacion-texto */
         var caja = document.getElementById('verificado');
-        caja.textContent = 'Referencia externa no disponible';
+        caja.textContent = sgT('det_ref_no', 'Referencia externa no disponible');
         caja.classList.add('referencia', 'visible');
         console.warn('Servicio externo de resistencia:', err && err.message ? err.message : err);
     })

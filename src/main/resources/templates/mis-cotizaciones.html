@@ -50,6 +50,21 @@
         .obra-acciones .btn { flex: 1 1 0; }
         .obra-acciones .btn-borrar { flex: none; }
 
+        /* T2: filtro por estado (en el navegador; la lista ya viene completa y ordenada) */
+        .filtro-estado { display: flex; flex-wrap: wrap; gap: 8px; margin: -8px 0 22px; }
+        .filtro-estado button {
+            display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px;
+            border: 1px solid var(--border-color); border-radius: 999px; background: var(--card-bg-soft);
+            color: var(--text-muted); font: inherit; font-size: 0.86rem; font-weight: 700; cursor: pointer;
+        }
+        .filtro-estado button .n { min-width: 22px; padding: 1px 7px; border-radius: 999px; background: var(--bg-tertiary); color: var(--text-main); font-size: max(12px, 0.75rem); text-align: center; font-variant-numeric: tabular-nums; }
+        .filtro-estado button:hover { border-color: var(--border-hover); color: var(--text-main); }
+        .filtro-estado button[aria-pressed="true"] { border-color: var(--color-accent); color: var(--color-accent-text); background: var(--color-accent-dim); }
+        .filtro-estado button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        @media (pointer: coarse) { .filtro-estado button { min-height: 44px; } }
+        .filtro-vacio { grid-column: 1 / -1; margin: 0; padding: 28px 20px; border: 1px dashed var(--border-color); border-radius: var(--r-lg); color: var(--text-muted); text-align: center; }
+        .obra-card[hidden], .filtro-vacio[hidden] { display: none; }
+
         /* Estado vacio: una invitacion a crear la primera obra */
         .vacio { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: center; padding: clamp(20px, 3vw, 32px); border: 1px solid var(--border-color); border-radius: var(--r-xl); background: var(--card-bg-soft); }
         .vacio h2 { margin: 0 0 10px; font-size: var(--fs-3xl); }
@@ -91,7 +106,7 @@
         <li class="resumen-item"><strong th:text="${totalCots}">0</strong><span th:text="#{mis-cotizaciones.cotizaciones}">Cotizaciones</span></li>
         <li class="resumen-item"><strong th:text="${pendientes}">0</strong><span th:text="#{mis-cotizaciones.pendientes_de_aprobar}">Pendientes de aprobar</span></li>
         <li class="resumen-item"><strong th:text="${aprobadas}">0</strong><span th:text="#{mis-cotizaciones.aprobadas}">Aprobadas</span></li>
-        <li class="resumen-item"><strong th:text="${huellaTotal} + ' kg'">0</strong><span th:text="#{mis-cotizaciones.co2_estimado}">CO₂ estimado</span></li>
+        <li class="resumen-item"><strong th:text="${#numbers.formatDecimal(huellaTotal, 1, 'POINT', 1, 'COMMA')} + ' kg'">0</strong><span th:text="#{mis-cotizaciones.co2_estimado}">CO₂ estimado</span></li>
     </ul>
 
     <!-- Estado vacio -->
@@ -107,15 +122,24 @@
         <div class="sg-stage"><div class="obra-mini" id="demoVacio"></div></div>
     </section>
 
+    <!-- T2: filtro por estado -->
+    <nav class="filtro-estado" th:unless="${#lists.isEmpty(cotizaciones)}" aria-label="Filtrar por estado" th:aria-label="#{admin.cotizaciones.filtrar_por_estado}">
+        <button type="button" data-filtro="TODAS" aria-pressed="true"><span th:text="#{admin.cotizaciones.todas}">Todas</span> <span class="n" th:text="${totalCots}">0</span></button>
+        <button type="button" data-filtro="COTIZACION" aria-pressed="false"><span th:text="#{admin.cotizaciones.pendientes}">Pendientes</span> <span class="n" th:text="${pendientes}">0</span></button>
+        <button type="button" data-filtro="APROBADO" aria-pressed="false"><span th:text="#{admin.cotizaciones.aprobadas}">Aprobadas</span> <span class="n" th:text="${aprobadas}">0</span></button>
+        <button type="button" data-filtro="RECHAZADA" aria-pressed="false"><span th:text="#{admin.cotizaciones.rechazadas}">Rechazadas</span> <span class="n" th:text="${rechazadas}">0</span></button>
+    </nav>
+
     <!-- Galeria -->
     <section class="obras" th:unless="${#lists.isEmpty(cotizaciones)}">
-        <article class="obra-card" th:each="cot : ${cotizaciones}">
+        <p class="filtro-vacio" id="filtroVacio" hidden th:text="#{miscot.sin_resultados}">No tienes cotizaciones con este estado.</p>
+        <article class="obra-card" th:each="cot : ${cotizaciones}" th:attr="data-estado=${cot.estado}">
 
             <div class="sg-stage obra-vista">
                 <span class="chip-nivel" data-nivel hidden></span>
-                <span th:class="'badge-estado estado-' + ${#strings.toLowerCase(cot.estado)}" th:text="${cot.estado}"></span>
+                <span th:class="'badge-estado estado-' + ${#strings.toLowerCase(cot.estado)}" th:text="${#messages.msgOrNull('cotizacion.estado.' + cot.estado)} ?: ${cot.estado}"></span>
                 <div class="obra-mini"
-                     th:attr="data-id=${cot.id},data-tipo=${cot.tipoVidrio},data-ancho=${cot.ancho},data-alto=${cot.alto},data-espesor=${cot.espesor},data-forma=${cot.forma},data-reciclado=${cot.usarVidrioReciclado},data-co2=${cot.huellaCarbono}"></div>
+                     th:attr="data-id=${cot.id},data-tipo=${cot.tipoVidrio},data-ancho=${cot.ancho},data-alto=${cot.alto},data-espesor=${cot.espesor},data-forma=${cot.forma},data-reciclado=${cot.usarVidrioReciclado},data-co2=${cot.huellaCarbono},data-intensidad=${cot.intensidadCarbono},data-puntos=${cot.puntosTexto}"></div>
             </div>
 
             <div class="obra-cuerpo">
@@ -125,7 +149,7 @@
                 <p class="obra-medidas" data-medidas>
                     <span th:text="${cot.ancho} + ' × ' + ${cot.alto} + ' cm'"></span> ·
                     <span th:text="${cot.espesor} + ' mm'"></span> ·
-                    <span th:text="${cot.forma}"></span>
+                    <span th:text="${#messages.msgOrNull('forma.' + cot.forma)} ?: ${cot.forma}"></span>
                 </p>
 
                 <div class="obra-meta">
@@ -158,30 +182,40 @@
     </section>
 </main>
 
+<th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>
 <script>
 (function () {
+    /* F45: vertices del corte personalizado ("x,y;x,y;..."); sin ellos se dibuja la forma fija */
+    function puntosDe(d) {
+        if (d.forma !== 'Personalizada' || !d.puntos) return undefined;
+        var pts = d.puntos.split(';').map(function (par) { var xy = par.split(','); return { x: parseFloat(xy[0]), y: parseFloat(xy[1]) }; })
+            .filter(function (p) { return isFinite(p.x) && isFinite(p.y); });
+        return pts.length >= 3 ? pts : undefined;
+    }
     Array.prototype.forEach.call(document.querySelectorAll('.obra-card'), function (card) {
         var mini = card.querySelector('.obra-mini');
         var d = mini.dataset;
 
         SGGlass.render(mini, {
             tipo: d.tipo, ancho: d.ancho, alto: d.alto, espesor: d.espesor, forma: d.forma,
-            reciclado: d.reciclado === 'true', mini: true
+            reciclado: d.reciclado === 'true', mini: true, puntos: puntosDe(d)
         });
 
         /* Textos en un formato uniforme: nombre legible, referencia corta y medidas sin ceros de mas */
         card.querySelector('[data-titulo]').textContent = SGGlass.nombreTipo(d.tipo);
         card.querySelector('[data-ref]').textContent = sgT('miscot_ref', 'Pieza a medida, N\u00ba {0}', String(d.id || '').slice(-6).toUpperCase());
         card.querySelector('[data-medidas]').textContent =
-            SGGlass.fmtAuto(d.ancho) + ' × ' + SGGlass.fmtAuto(d.alto) + ' cm · ' + SGGlass.fmtAuto(d.espesor) + ' mm · ' + (d.forma || '');
+            SGGlass.fmtAuto(d.ancho) + ' × ' + SGGlass.fmtAuto(d.alto) + ' cm · ' + SGGlass.fmtAuto(d.espesor) + ' mm · ' + SGGlass.nombreForma(d.forma);
 
         /* Nivel de impacto ambiental (kg CO2e por m2) */
+        /* F24: la intensidad la guarda el servidor (con el area real del corte, si lo hay); la cuenta local queda de respaldo */
         var area = (parseFloat(d.ancho) || 0) * (parseFloat(d.alto) || 0) / 10000;
         var co2 = parseFloat(d.co2);
         var chip = card.querySelector('[data-nivel]');
         if (area > 0 && isFinite(co2)) {
-            var imp = SGGlass.impacto(co2 / area);
+            var inten = parseFloat(d.intensidad) > 0 ? parseFloat(d.intensidad) : co2 / area;
+            var imp = SGGlass.impacto(inten);
             chip.className = 'chip-nivel nivel-' + imp.nivel;
             chip.textContent = sgT('miscot_impacto', 'Impacto {0}', sgT('nivel_' + imp.nivel, imp.etiqueta.toLowerCase()));
             chip.title = SGGlass.fmtNum(imp.valor, 1) + ' kg CO\u2082e/m\u00b2 \u00b7 ' + imp.frase;
@@ -189,6 +223,20 @@
         }
     });
 
+    /* T2: filtro por estado */
+    var botones = document.querySelectorAll('.filtro-estado [data-filtro]');
+    Array.prototype.forEach.call(botones, function (b) {
+        b.addEventListener('click', function () {
+            var f = b.getAttribute('data-filtro'), visibles = 0;
+            Array.prototype.forEach.call(botones, function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+            Array.prototype.forEach.call(document.querySelectorAll('.obra-card'), function (card) {
+                var ok = f === 'TODAS' || card.getAttribute('data-estado') === f;
+                card.hidden = !ok; if (ok) visibles++;
+            });
+            var vacio = document.getElementById('filtroVacio'); if (vacio) vacio.hidden = visibles > 0;
+        });
+    });
+    
     var demo = document.getElementById('demoVacio');
     if (demo) SGGlass.render(demo, { tipo: 'Templado', ancho: 120, alto: 90, espesor: 8, forma: 'Rectangular', reciclado: true, mini: true });
 })();

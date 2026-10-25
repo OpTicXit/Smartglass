@@ -21,6 +21,14 @@
 
   var uid = 0;
 
+  /* Textos traducibles (T2): window.SG_TXT lo llena fragments/textos-vidrio.html segun el idioma activo.
+     Sin diccionario se usa el respaldo en espanol. Solo textos: ninguna cifra ni constante pasa por aqui. */
+  function t(k, r) {
+    var s = (window.SG_TXT && window.SG_TXT[k]) || r || '', a = [].slice.call(arguments, 2);
+    return s.replace(/\{(\d+)\}/g, function (m, i) { return a[i] != null ? a[i] : m; });
+  }
+  function esc(v) { return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
   var TIPOS = {
     Crudo:            { nombre: 'Crudo',               marca: '' },
     Templado:         { nombre: 'Templado',            marca: 'TEMPLADO' },
@@ -69,14 +77,80 @@
       return 'M' + f(x + w * 0.22) + ',' + f(y) + ' L' + f(x + w * 0.78) + ',' + f(y) +
         ' L' + f(x + w) + ',' + f(y + h) + ' L' + f(x) + ',' + f(y + h) + ' Z';
     }
-    if (forma === 'Irregular') {
-      var P = [[0.08, 0.14], [0.46, 0.0], [0.93, 0.1], [1.0, 0.56], [0.78, 1.0], [0.3, 0.92], [0.0, 0.62]];
-      return 'M' + P.map(function (p) { return f(x + p[0] * w) + ',' + f(y + p[1] * h); }).join(' L') + ' Z';
+    if (POLIGONOS[forma]) {
+      return 'M' + POLIGONOS[forma].map(function (p) { return f(x + p[0] * w) + ',' + f(y + p[1] * h); }).join(' L') + ' Z';
+    }
+    if (forma === 'EsquinasRedondeadas') r = Math.min(w, h) * 0.18;
+    if (forma === 'Capsula') r = Math.min(w, h) / 2;
+    if (forma === 'Arco') {                       /* arco de medio punto (eliptico si la pieza es baja) */
+      var ry = Math.min(w / 2, h * 0.6);
+      return 'M' + f(x) + ',' + f(y + h) + ' V' + f(y + ry) + ' A' + f(w / 2) + ',' + f(ry) + ' 0 0,1 ' + f(x + w) + ',' + f(y + ry) +
+        ' V' + f(y + h) + ' Z';
+    }
+    if (r > 3) {
+      return 'M' + f(x + r) + ',' + f(y) + ' H' + f(x + w - r) + ' A' + f(r) + ',' + f(r) + ' 0 0,1 ' + f(x + w) + ',' + f(y + r) +
+        ' V' + f(y + h - r) + ' A' + f(r) + ',' + f(r) + ' 0 0,1 ' + f(x + w - r) + ',' + f(y + h) +
+        ' H' + f(x + r) + ' A' + f(r) + ',' + f(r) + ' 0 0,1 ' + f(x) + ',' + f(y + h - r) +
+        ' V' + f(y + r) + ' A' + f(r) + ',' + f(r) + ' 0 0,1 ' + f(x + r) + ',' + f(y) + ' Z';
     }
     return 'M' + f(x + r) + ',' + f(y) + ' H' + f(x + w - r) + ' Q' + f(x + w) + ',' + f(y) + ' ' + f(x + w) + ',' + f(y + r) +
       ' V' + f(y + h - r) + ' Q' + f(x + w) + ',' + f(y + h) + ' ' + f(x + w - r) + ',' + f(y + h) +
       ' H' + f(x + r) + ' Q' + f(x) + ',' + f(y + h) + ' ' + f(x) + ',' + f(y + h - r) +
       ' V' + f(y + r) + ' Q' + f(x) + ',' + f(y) + ' ' + f(x + r) + ',' + f(y) + ' Z';
+  }
+
+  /* T2: formas predefinidas como poligonos normalizados a su caja (0..1). Solo presentacion:
+     todas (menos "Personalizada") se cotizan por su caja envolvente, igual que en fabrica se corta de la lamina. */
+  var POLIGONOS = {
+    Irregular:           [[0.08, 0.14], [0.46, 0.0], [0.93, 0.1], [1.0, 0.56], [0.78, 1.0], [0.3, 0.92], [0.0, 0.62]],
+    Hexagonal:           [[0.25, 0], [0.75, 0], [1, 0.5], [0.75, 1], [0.25, 1], [0, 0.5]],
+    Octogonal:           [[0.29, 0], [0.71, 0], [1, 0.29], [1, 0.71], [0.71, 1], [0.29, 1], [0, 0.71], [0, 0.29]],
+    Rombo:               [[0.5, 0], [1, 0.5], [0.5, 1], [0, 0.5]],
+    TrianguloRectangulo: [[0, 0], [1, 1], [0, 1]],
+    TrapecioRectangulo:  [[0, 0], [1, 0.38], [1, 1], [0, 1]],
+    Fronton:             [[0.5, 0], [1, 0.34], [1, 1], [0, 1], [0, 0.34]]
+  };
+  /* Donde va la insignia de reciclado (fraccion de la caja), para que caiga sobre el vidrio */
+  var INSIGNIA = {
+    Circular: [0.85, 0.15], Capsula: [0.86, 0.2], Arco: [0.93, 0.56], Hexagonal: [0.76, 0.06], Octogonal: [0.8, 0.1],
+    Rombo: [0.68, 0.3], TrianguloRectangulo: [0.14, 0.32], TrapecioRectangulo: [0.96, 0.44], Fronton: [0.9, 0.42],
+    Triangular: [0.78, 0.04], EsquinasRedondeadas: [0.95, 0.06]
+  };
+  var FORMAS = ['Rectangular', 'EsquinasRedondeadas', 'Circular', 'Capsula', 'Arco', 'Triangular', 'TrianguloRectangulo',
+                'TrapecioRectangulo', 'Fronton', 'Rombo', 'Hexagonal', 'Octogonal', 'Irregular', 'Personalizada'];
+
+  /* Contorno de una forma predefinida como poligono en una caja w x h (cm). Las curvas se aproximan con
+     segmentos. Lo usa el editor F45 para empezar desde la forma que ya elegiste. */
+  function poligonoForma(forma, w, h, n) {
+    n = Math.max(8, n || 32);
+    var P = [], i, a;
+    function arco(cx, cy, rx, ry, a0, a1, pasos) {
+      for (var k = 0; k <= pasos; k++) { var b = a0 + (a1 - a0) * k / pasos; P.push([cx + rx * Math.cos(b), cy + ry * Math.sin(b)]); }
+    }
+    if (POLIGONOS[forma]) P = POLIGONOS[forma].map(function (p) { return [p[0] * w, p[1] * h]; });
+    else if (forma === 'Triangular') P = [[0.22 * w, 0], [0.78 * w, 0], [w, h], [0, h]];
+    else if (forma === 'Circular') {
+      for (i = 0; i < n; i++) { a = -Math.PI / 2 + i * 2 * Math.PI / n; P.push([w / 2 + w / 2 * Math.cos(a), h / 2 + h / 2 * Math.sin(a)]); }
+    } else if (forma === 'Arco') {
+      var ry = Math.min(w / 2, h * 0.6);
+      P.push([0, h]); arco(w / 2, ry, w / 2, ry, Math.PI, 2 * Math.PI, 10); P.push([w, h]);
+    } else if (forma === 'EsquinasRedondeadas' || forma === 'Capsula') {
+      var r = forma === 'Capsula' ? Math.min(w, h) / 2 : Math.min(w, h) * 0.18, s = forma === 'Capsula' ? 6 : 4;
+      arco(w - r, r, r, r, -Math.PI / 2, 0, s); arco(w - r, h - r, r, r, 0, Math.PI / 2, s);
+      arco(r, h - r, r, r, Math.PI / 2, Math.PI, s); arco(r, r, r, r, Math.PI, 1.5 * Math.PI, s);
+    } else P = [[0, 0], [w, 0], [w, h], [0, h]];
+    return P.map(function (p) { return { x: p[0], y: p[1] }; });
+  }
+
+  /* Silueta de referencia de 1,70 m (escala humana): pies en (px, base), alto total ph */
+  function silueta(px, base, ph) {
+    var u = ph / 170, cab = 11 * u;
+    return '<g class="sg-humano" style="fill:var(--glass-dim)" opacity="0.55">' +
+      '<circle cx="' + f(px) + '" cy="' + f(base - ph + cab) + '" r="' + f(cab) + '"/>' +
+      '<path d="M' + f(px - 21 * u) + ',' + f(base - ph + 2 * cab + 6 * u) + ' Q' + f(px) + ',' + f(base - ph + 2 * cab) + ' ' + f(px + 21 * u) + ',' + f(base - ph + 2 * cab + 6 * u) +
+      ' L' + f(px + 24 * u) + ',' + f(base - 80 * u) + ' L' + f(px + 15 * u) + ',' + f(base - 80 * u) + ' L' + f(px + 12 * u) + ',' + f(base) +
+      ' L' + f(px + 2 * u) + ',' + f(base) + ' L' + f(px) + ',' + f(base - 70 * u) + ' L' + f(px - 2 * u) + ',' + f(base) +
+      ' L' + f(px - 12 * u) + ',' + f(base) + ' L' + f(px - 15 * u) + ',' + f(base - 80 * u) + ' L' + f(px - 24 * u) + ',' + f(base - 80 * u) + ' Z"/></g>';
   }
 
   function agujeros(n, x, y, w, h) {
@@ -104,13 +178,25 @@
     var nHoles = parseInt(o.perforaciones, 10) || 0;
 
     /* Lienzo */
+    /* T2: la pieza ocupa mas lienzo (antes 272 x 196) sin cambiar la proporcion del SVG */
     var VW = mini ? 220 : 440, VH = mini ? 170 : 340;
-    var maxW = mini ? 150 : 272, maxH = mini ? 104 : 196;
-    var cx = mini ? 106 : 205, cy = mini ? 78 : 146;
-    var ratio = ancho / alto, w, h;
-    if (ratio >= maxW / maxH) { w = maxW; h = maxW / ratio; } else { h = maxH; w = maxH * ratio; }
-    w = Math.max(w, 36); h = Math.max(h, 36);
-    var x = cx - w / 2, y = cy - h / 2;
+    var maxW = mini ? 150 : 292, maxH = mini ? 104 : 208;
+    var cx = mini ? 106 : 207, cy = mini ? 78 : 147;
+    var conCotas = !mini && o.cotas !== false;
+    var humano = !mini && !!o.referencia, escalaH = 0;
+    var ratio = ancho / alto, w, h, x, y;
+    if (humano) {
+      /* Escala humana: pieza y silueta de 170 cm comparten la misma escala, apoyadas en el mismo piso */
+      var anchoTotal = 46 + 24 + ancho, altoTotal = Math.max(alto, 170);
+      escalaH = Math.min(maxW / anchoTotal, maxH / altoTotal);
+      w = Math.max(ancho * escalaH, 6); h = Math.max(alto * escalaH, 6);
+      x = cx - anchoTotal * escalaH / 2 + 70 * escalaH;
+      y = cy + altoTotal * escalaH / 2 - h;
+    } else {
+      if (ratio >= maxW / maxH) { w = maxW; h = maxW / ratio; } else { h = maxH; w = maxH * ratio; }
+      w = Math.max(w, 36); h = Math.max(h, 36);
+      x = cx - w / 2; y = cy - h / 2;
+    }
 
     /* Profundidad del canto (espesor real, comprimido) */
     var depth = Math.max(3, Math.min(mini ? 9 : 17, esp * 0.46));
@@ -138,7 +224,8 @@
     var s = '';
 
     s += '<svg class="sg-glass" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + VW + ' ' + VH + '" role="img" aria-label="' +
-      'Vista previa: vidrio ' + tipo.nombre.toLowerCase() + ', ' + Math.round(ancho) + ' por ' + Math.round(alto) + ' centímetros, ' + esp + ' milímetros de espesor">';
+      esc(t('gv_aria', 'Vista previa: vidrio {0}, {1} por {2} centímetros, {3} milímetros de espesor',
+            nombreTipo(tipoKey).toLowerCase(), Math.round(ancho), Math.round(alto), esp)) + '">';
 
     s += '<defs>' +
       '<clipPath id="' + id + 'c"><path d="' + d + '"/></clipPath>' +
@@ -166,6 +253,15 @@
         '<path d="M8 1.5v23M18 1.5v23" stroke="#C9D8F5" stroke-opacity="0.55" stroke-width="0.9"/></pattern>';
     }
     s += '</defs>';
+
+    /* Escala humana: silueta de 1,70 m y linea de piso comunes */
+    if (humano) {
+      var piso = y + h, pxH = cx - (46 + 24 + ancho) * escalaH / 2 + 23 * escalaH;
+      s += '<path d="M' + f(pxH - 34 * escalaH) + ',' + f(piso) + ' H' + f(x + w + 24 * escalaH) + '" style="stroke:var(--glass-dim)" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"/>' +
+        silueta(pxH, piso, 170 * escalaH) +
+        '<text x="' + f(pxH) + '" y="' + f(piso - 170 * escalaH - 6) + '" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--glass-dim)">' +
+        esc(t('gv_persona', '1,70 m')) + '</text>';
+    }
 
     /* Sombra de contacto */
     s += '<ellipse cx="' + f(cx + dx / 2) + '" cy="' + f(y + h + depth + (mini ? 8 : 16)) + '" rx="' + f(w * 0.46) + '" ry="' + (mini ? 5 : 8) +
@@ -235,15 +331,15 @@
 
     /* Insignia de material reciclado */
     if (o.reciclado) {
-      var bx = x + w - (forma === 'Circular' ? w * 0.15 : 2), by = y + (forma === 'Circular' ? h * 0.15 : 2);
+      var ins = INSIGNIA[forma], bx = ins ? x + w * ins[0] : x + w - 2, by = ins ? y + h * ins[1] : y + 2;
       s += '<g transform="translate(' + f(bx) + ' ' + f(by) + ')">' +
         '<circle r="' + (mini ? 8 : 12) + '" fill="rgba(52,211,153,0.2)" stroke="#34D399" stroke-width="1.4"/>' +
         '<path d="M-4.5 3.2C-4.5-3.6 1.4-6 5-5.2C5.2 0.8 1.4 5-4.5 3.2Z M-4.5 3.2L2.6-2.6" fill="none" stroke="#34D399" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" transform="scale(' + (mini ? 0.7 : 1) + ')"/></g>';
     }
     s += '</g>'; // sg-float
 
-    /* Cotas */
-    if (!mini) {
+    /* Cotas (se pueden ocultar desde los controles de vista) */
+    if (conCotas) {
       var yb = y + h + depth + 30, xr = x + w + depth + 26;
       s += '<g style="stroke:var(--glass-dim)" stroke-width="1" fill="none" opacity="0.9">' +
         '<path d="M' + f(x) + ',' + f(yb) + ' H' + f(x + w) + ' M' + f(x) + ',' + f(yb - 5) + ' V' + f(yb + 5) + ' M' + f(x + w) + ',' + f(yb - 5) + ' V' + f(yb + 5) + '"/>' +
@@ -267,9 +363,9 @@
 
   function describir(o) {
     o = o || {};
-    var frase = FRASES[o.tipo] || FRASES.Templado;
+    var k = FRASES[o.tipo] ? o.tipo : 'Templado', frase = t('gv_frase_' + k, FRASES[k]);
     var med = Math.round(num(o.ancho, 0)) + ' × ' + Math.round(num(o.alto, 0)) + ' cm · ' + num(o.espesor, 0) + ' mm';
-    return { titulo: (TIPOS[o.tipo] || TIPOS.Templado).nombre + ' · ' + med, frase: frase };
+    return { titulo: nombreTipo(k) + ' · ' + med, frase: frase };
   }
 
   function tilt(el, max) {
@@ -319,11 +415,11 @@
   function impacto(intensidad) {
     var v = parseFloat(intensidad);
     if (!isFinite(v) || v < 0) v = 0;
-    if (v <= UMBRAL.favorable) return { nivel: 'favorable', etiqueta: 'Favorable', emoji: '\uD83D\uDFE2', frase: 'Perfil ambiental favorable', valor: v };
-    if (v <= UMBRAL.moderado) return { nivel: 'moderado', etiqueta: 'Moderado', emoji: '\uD83D\uDFE1', frase: 'Perfil aceptable, mejorable con m\u00e1s calc\u00edn', valor: v };
-    return { nivel: 'alto', etiqueta: 'Alto', emoji: '\uD83D\uDD34', frase: 'Configuraci\u00f3n de alto impacto', valor: v };
+    if (v <= UMBRAL.favorable) return { nivel: 'favorable', etiqueta: t('gv_etq_favorable', 'Favorable'), emoji: '\uD83D\uDFE2', frase: t('gv_frase_favorable', 'Perfil ambiental favorable'), valor: v };
+    if (v <= UMBRAL.moderado) return { nivel: 'moderado', etiqueta: t('gv_etq_moderado', 'Moderado'), emoji: '\uD83D\uDFE1', frase: t('gv_frase_moderado', 'Perfil aceptable, mejorable con m\u00e1s calc\u00edn'), valor: v };
+    return { nivel: 'alto', etiqueta: t('gv_etq_alto', 'Alto'), emoji: '\uD83D\uDD34', frase: t('gv_frase_alto', 'Configuraci\u00f3n de alto impacto'), valor: v };
   }
-  function nombreTipo(v) { return (TIPOS[v] || {}).nombre || v || ''; }
+  function nombreTipo(v) { return TIPOS[v] ? t('gv_tipo_' + v, TIPOS[v].nombre) : (v || ''); }
   function fmt(n) {            /* 105.0 -> "105", 7.5 -> "7.5" */
     var x = parseFloat(n);
     if (!isFinite(x)) return '';
@@ -404,8 +500,8 @@
     function int(x) { return calcular(x).intensidad; }
     function conEsp(e) { var d = {}, q; for (q in c) d[q] = c[q]; d.espesor = e; return d; }
 
-    if (!c.eco) { c.eco = true; cambios.push({ campo: 'eco', texto: 'Integrar material reciclado (calc\u00edn)' }); }
-    if (!c.renov) { c.renov = true; cambios.push({ campo: 'renov', texto: 'Procesar con energ\u00eda solar y e\u00f3lica' }); }
+    if (!c.eco) { c.eco = true; cambios.push({ campo: 'eco', texto: t('gv_rec_eco', 'Integrar material reciclado (calc\u00edn)') }); }
+    if (!c.renov) { c.renov = true; cambios.push({ campo: 'renov', texto: t('gv_rec_renov', 'Procesar con energ\u00eda solar y e\u00f3lica') }); }
 
     var r = RANGOS_USO[c.uso];
     var esp = parseFloat(c.espesor) || 0;
@@ -413,13 +509,14 @@
       var e = Math.min(esp, r.max);                       /* primero se entra al rango del uso */
       while (e > r.min && int(conEsp(e)) > objetivo) e = Math.max(r.min, e - 1);
       if (e < esp) {
-        cambios.push({ campo: 'espesor', texto: 'Espesor de ' + fmt(esp) + ' a ' + fmt(e) + ' mm (rango recomendado para ' + r.nombre + ': ' + r.min + '\u2013' + r.max + ' mm)' });
+        cambios.push({ campo: 'espesor', texto: t('gv_rec_espesor', 'Espesor de {0} a {1} mm (rango recomendado para {2}: {3}\u2013{4} mm)',
+                                                    fmt(esp), fmt(e), t('gv_uso_' + c.uso, r.nombre), r.min, r.max) });
         c.espesor = e;
       }
     }
     if (c.tipo === 'TempladoLaminado' && int(c) > objetivo) {
       c.tipo = 'Laminado';
-      cambios.push({ campo: 'tipo', texto: 'Pasar de Templado + Laminado a Laminado (mantiene la seguridad antivandalismo)' });
+      cambios.push({ campo: 'tipo', texto: t('gv_rec_tipo', 'Pasar de Templado + Laminado a Laminado (mantiene la seguridad antivandalismo)') });
     }
     var despues = int(c);
     return { cfg: c, cambios: cambios, antes: antes, despues: despues, nivelDespues: impacto(despues), logra: despues <= objetivo };
@@ -429,16 +526,77 @@
   function equivalencias(co2) {
     var v = parseFloat(co2) || 0;
     var anios = v / 21, meses = anios * 12, arbol;
-    if (v <= 0) arbol = '0 meses';
-    else if (anios >= 1) arbol = fmtNum(anios, 1) + ' a\u00f1os';
-    else if (meses < 1) arbol = 'menos de 1 mes';
-    else arbol = (Math.round(meses) === 1 ? '1 mes' : fmtNum(meses, 0) + ' meses');
+    if (v <= 0) arbol = t('gv_meses', '{0} meses', '0');
+    else if (anios >= 1) arbol = t('gv_anios', '{0} a\u00f1os', fmtNum(anios, 1));
+    else if (meses < 1) arbol = t('gv_menos_mes', 'menos de 1 mes');
+    else arbol = (Math.round(meses) === 1 ? t('gv_un_mes', '1 mes') : t('gv_meses', '{0} meses', fmtNum(meses, 0)));
     return { km: fmtNum(Math.round(v / 0.25), 0) + ' km', arbol: arbol };
+  }
+
+  /* Nombre legible de la geometria de corte (el servidor guarda el codigo del formulario) */
+  var NOMBRES_FORMA = {
+    Rectangular: 'Rectangular', EsquinasRedondeadas: 'Esquinas redondeadas', Circular: 'Circular / Elíptica',
+    Capsula: 'Cápsula', Arco: 'Arco de medio punto', Triangular: 'Trapezoidal', TrianguloRectangulo: 'Triángulo rectángulo',
+    TrapecioRectangulo: 'Inclinada', Fronton: 'Frontón', Rombo: 'Rombo', Hexagonal: 'Hexagonal', Octogonal: 'Octogonal',
+    Irregular: 'Irregular (plano CAD)', Personalizada: 'Corte personalizado'
+  };
+  function nombreForma(v) { return NOMBRES_FORMA[v] ? t('gv_forma_' + v, NOMBRES_FORMA[v]) : (v || ''); }
+
+  /* Controles de la vista previa (T2): cotas, escala humana y ampliar. Preferencia por visitante en localStorage.
+     host = contenedor de la barra; escena = .sg-stage que se amplia; alCambiar(estado) vuelve a dibujar. */
+  var KEY_VISTA = 'sg-vista';
+  function leerVista() {
+    try { var v = JSON.parse(localStorage.getItem(KEY_VISTA) || '{}') || {}; return { cotas: v.cotas !== false, referencia: !!v.referencia }; }
+    catch (e) { return { cotas: true, referencia: false }; }
+  }
+  function controlesVista(host, escena, alCambiar) {
+    var st = leerVista();
+    if (!host) return st;
+    host.classList.add('sg-vista-ctl');
+    host.setAttribute('role', 'toolbar');
+    host.setAttribute('aria-label', t('gv_ctl_titulo', 'Opciones de la vista previa'));
+    function boton(icono, texto) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'sg-vista-btn';
+      b.innerHTML = '<i class="ph ' + icono + '" aria-hidden="true"></i><span></span>';
+      b.lastChild.textContent = texto;
+      host.appendChild(b);
+      return b;
+    }
+    [['cotas', 'ph-ruler', t('gv_ctl_cotas', 'Cotas')], ['referencia', 'ph-person-simple', t('gv_ctl_persona', 'Escala humana')]].forEach(function (d) {
+      var b = boton(d[1], d[2]);
+      b.setAttribute('aria-pressed', String(st[d[0]]));
+      b.addEventListener('click', function () {
+        st[d[0]] = !st[d[0]];
+        b.setAttribute('aria-pressed', String(st[d[0]]));
+        try { localStorage.setItem(KEY_VISTA, JSON.stringify(st)); } catch (e) { /* sin almacenamiento: solo esta visita */ }
+        if (alCambiar) alCambiar(st);
+      });
+    });
+    if (escena) {
+      var amp = boton('ph-arrows-out', t('gv_ctl_ampliar', 'Ampliar'));
+      amp.setAttribute('aria-pressed', 'false');
+      var cerrarAmp = function () {
+        escena.classList.remove('sg-ampliado'); document.body.classList.remove('sg-sin-scroll');
+        amp.setAttribute('aria-pressed', 'false'); amp.querySelector('i').className = 'ph ph-arrows-out';
+        amp.lastChild.textContent = t('gv_ctl_ampliar', 'Ampliar');
+      };
+      amp.addEventListener('click', function () {
+        if (escena.classList.contains('sg-ampliado')) { cerrarAmp(); return; }
+        escena.classList.add('sg-ampliado'); document.body.classList.add('sg-sin-scroll');
+        amp.setAttribute('aria-pressed', 'true'); amp.querySelector('i').className = 'ph ph-arrows-in';
+        amp.lastChild.textContent = t('gv_ctl_reducir', 'Cerrar vista ampliada');
+        amp.focus();
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && escena.classList.contains('sg-ampliado')) cerrarAmp(); });
+    }
+    return st;
   }
 
   window.SGGlass = {
     render: render, describir: describir, tilt: tilt, contar: contar, impacto: impacto, umbral: UMBRAL,
-    nombreTipo: nombreTipo, fmt: fmt, fmtNum: fmtNum, fmtAuto: fmtAuto, calcular: calcular, recomendar: recomendar,
-    equivalencias: equivalencias, rangosUso: RANGOS_USO, areaPoligono: areaPoligono
+    nombreTipo: nombreTipo, nombreForma: nombreForma, formas: FORMAS, fmt: fmt, fmtNum: fmtNum, fmtAuto: fmtAuto,
+    calcular: calcular, recomendar: recomendar, equivalencias: equivalencias, rangosUso: RANGOS_USO, areaPoligono: areaPoligono,
+    controlesVista: controlesVista, poligonoForma: poligonoForma, t: t
   };
 })();

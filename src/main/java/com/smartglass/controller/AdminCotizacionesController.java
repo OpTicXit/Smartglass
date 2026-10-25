@@ -4,6 +4,8 @@ import com.smartglass.model.mongo.VidrioSostenible;
 import com.smartglass.model.mysql.Usuario;
 import com.smartglass.repository.mysql.UsuarioRepository;
 import com.smartglass.service.VidrioSostenibleService;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +28,9 @@ import java.util.stream.Collectors;
  * Maquina de estados: la valida VidrioSostenibleService.cambiarEstado.
  * CSRF desactivado en el proyecto: los forms no llevan token.
  *
+ * T2: los avisos salen de messages*.properties (idioma activo) y, con
+ * volver=detalle, aprobar o rechazar regresa al detalle de la obra.
+ *
  * CORREGIDO: FilaCotizacion ahora expone ancho / alto / espesor. La
  * plantilla admin-cotizaciones.html los lee (${f.ancho}, th:attr
  * data-ancho...) y sin esos getters fallaba con 500 (SpEL).
@@ -39,11 +44,19 @@ public class AdminCotizacionesController {
 
     private final VidrioSostenibleService vidrioSostenibleService;
     private final UsuarioRepository usuarioRepository;
+    private final MessageSource messageSource;
 
     public AdminCotizacionesController(VidrioSostenibleService vidrioSostenibleService,
-                                       UsuarioRepository usuarioRepository) {
+                                       UsuarioRepository usuarioRepository,
+                                       MessageSource messageSource) {
         this.vidrioSostenibleService = vidrioSostenibleService;
         this.usuarioRepository = usuarioRepository;
+        this.messageSource = messageSource;
+    }
+
+    /** Texto en el idioma activo (D2: los numeros llegan ya como texto). */
+    private String texto(String clave, Object... args) {
+        return messageSource.getMessage(clave, args, LocaleContextHolder.getLocale());
     }
 
     // ------------------------------------------------------------------ lista
@@ -78,39 +91,45 @@ public class AdminCotizacionesController {
     @PostMapping("/{id}/aprobar")
     public String aprobar(@PathVariable String id,
                           @RequestParam(required = false) String estado,
+                          @RequestParam(required = false) String volver,
                           Authentication auth, RedirectAttributes ra) {
-        return cambiar(id, VidrioSostenibleService.APROBADO, estado, auth, ra);
+        return cambiar(id, VidrioSostenibleService.APROBADO, estado, volver, auth, ra);
     }
 
     @PostMapping("/{id}/rechazar")
     public String rechazar(@PathVariable String id,
                            @RequestParam(required = false) String estado,
+                           @RequestParam(required = false) String volver,
                            Authentication auth, RedirectAttributes ra) {
-        return cambiar(id, VidrioSostenibleService.RECHAZADA, estado, auth, ra);
+        return cambiar(id, VidrioSostenibleService.RECHAZADA, estado, volver, auth, ra);
     }
 
-    private String cambiar(String id, String nuevoEstado, String filtro,
+    private String cambiar(String id, String nuevoEstado, String filtro, String volver,
                            Authentication auth, RedirectAttributes ra) {
         if (!PermisosAdvice.esAdmin(auth)) {
-            ra.addFlashAttribute("mensaje", "Solo un administrador puede gestionar cotizaciones.");
+            ra.addFlashAttribute("mensaje", texto("cotflash.solo_admin_gestionar"));
             ra.addFlashAttribute("tipoMensaje", "error");
             return "redirect:/vidrio-personalizado/mis-cotizaciones";
         }
         boolean aprobar = VidrioSostenibleService.APROBADO.equals(nuevoEstado);
-        switch (vidrioSostenibleService.cambiarEstado(id, nuevoEstado)) {
+        VidrioSostenibleService.ResultadoCambio resultado = vidrioSostenibleService.cambiarEstado(id, nuevoEstado);
+        switch (resultado) {
             case OK -> {
-                ra.addFlashAttribute("mensaje", aprobar ? "Cotización aprobada." : "Cotización rechazada.");
+                ra.addFlashAttribute("mensaje", texto(aprobar ? "cotflash.aprobada" : "cotflash.rechazada"));
                 ra.addFlashAttribute("tipoMensaje", "success");
             }
             case NO_ENCONTRADA -> {
-                ra.addFlashAttribute("mensaje", "La cotización ya no existe.");
+                ra.addFlashAttribute("mensaje", texto("cotflash.no_existe"));
                 ra.addFlashAttribute("tipoMensaje", "error");
             }
             case TRANSICION_INVALIDA -> {
-                ra.addFlashAttribute("mensaje", "Esa cotización ya no se puede "
-                        + (aprobar ? "aprobar" : "rechazar") + " desde su estado actual.");
+                ra.addFlashAttribute("mensaje", texto(aprobar ? "cotflash.no_aprobar" : "cotflash.no_rechazar"));
                 ra.addFlashAttribute("tipoMensaje", "error");
             }
+        }
+        // T2: desde el detalle de la obra se vuelve a ese mismo detalle (si la obra sigue existiendo)
+        if ("detalle".equals(volver) && resultado != VidrioSostenibleService.ResultadoCambio.NO_ENCONTRADA) {
+            return "redirect:/vidrio-personalizado/cotizacion/" + id;
         }
         String f = normalizarFiltro(filtro);
         return "redirect:/admin/cotizaciones" + ("TODAS".equals(f) ? "" : "?estado=" + f);
@@ -119,18 +138,19 @@ public class AdminCotizacionesController {
     // ------------------------------------------------------------------ vista
     /** Fila lista para la plantilla (getters clasicos, SpEL los lee sin friccion). */
     public static class FilaCotizacion {
-        private final String id, fecha, cliente, tipo, forma, medidas, precio, estado, nivel;
+        private final String id, fecha, cliente, tipo, forma, medidas, precio, estado, nivel, puntos;
         private final double ancho, alto, espesor, co2, intensidad;
         private final boolean reciclado;
 
         FilaCotizacion(String id, String fecha, String cliente, String tipo, String forma,
                        double ancho, double alto, double espesor, String medidas,
                        String precio, String estado, String nivel,
-                       double co2, double intensidad, boolean reciclado) {
+                       double co2, double intensidad, boolean reciclado, String puntos) {
             this.id = id; this.fecha = fecha; this.cliente = cliente; this.tipo = tipo;
             this.forma = forma; this.ancho = ancho; this.alto = alto; this.espesor = espesor;
             this.medidas = medidas; this.precio = precio;
             this.estado = estado; this.nivel = nivel; this.co2 = co2; this.intensidad = intensidad; this.reciclado = reciclado;
+            this.puntos = puntos;
         }
         public String getId() { return id; }
         public String getFecha() { return fecha; }
@@ -149,13 +169,15 @@ public class AdminCotizacionesController {
         /** Intensidad del PROCESO (kg CO2e/m2): es lo que determina el nivel. */
         public double getIntensidad() { return intensidad; }
         public boolean isReciclado() { return reciclado; }
+        /** F45: vertices del corte personalizado ("x,y;x,y;..."); vacio si es una forma fija. */
+        public String getPuntos() { return puntos; }
     }
 
     private FilaCotizacion aFila(VidrioSostenible v, Map<Long, String> clientes) {
         // T1: una obra cotizada sin cuenta no tiene usuarioId hasta que su autor inicia sesion
         String cliente = v.getUsuarioId() == null
-                ? "Visitante sin cuenta"
-                : clientes.getOrDefault(v.getUsuarioId(), "Usuario #" + v.getUsuarioId());
+                ? texto("admin.cotizaciones.visitante")
+                : clientes.getOrDefault(v.getUsuarioId(), texto("admin.cotizaciones.usuario_n", String.valueOf(v.getUsuarioId())));
         // F24: fuente unica de intensidad y nivel = la entidad (umbrales 12/20), la misma
         // que usa el detalle. El nivel sale SIEMPRE de la intensidad, nunca del absoluto.
         double intensidad = v.getIntensidadCarbono();
@@ -175,7 +197,8 @@ public class AdminCotizacionesController {
                 nivel,
                 v.getHuellaCarbono(),
                 intensidad,
-                v.isUsarVidrioReciclado());
+                v.isUsarVidrioReciclado(),
+                v.getPuntosTexto());
     }
 
     // ------------------------------------------------------------- utilidades

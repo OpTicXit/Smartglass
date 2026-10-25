@@ -7,6 +7,8 @@ import com.smartglass.model.mysql.Usuario;
 import com.smartglass.service.CarritoService;
 import com.smartglass.service.VidrioSostenibleService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,6 +38,8 @@ import java.util.List;
  *   y solo la ve la sesion que la creo (SesionAnonima); al iniciar sesion pasa a
  *   ser del usuario. Mis cotizaciones, aprobar, eliminar y agregar-al-carrito
  *   siguen exigiendo cuenta.
+ * - T2: avisos en el idioma activo (messages*.properties) y, al aprobar desde el
+ *   detalle (volver=detalle), se regresa a ese detalle en lugar de a la lista.
  */
 @Controller
 @RequestMapping("/vidrio-personalizado")
@@ -45,11 +49,19 @@ public class VidrioPersonalizadoWebController {
 
     private final VidrioSostenibleService vidrioSostenibleService;
     private final CarritoService carritoService;
+    private final MessageSource messageSource;
 
     public VidrioPersonalizadoWebController(VidrioSostenibleService vidrioSostenibleService,
-                                            CarritoService carritoService) {
+                                            CarritoService carritoService,
+                                            MessageSource messageSource) {
         this.vidrioSostenibleService = vidrioSostenibleService;
         this.carritoService = carritoService;
+        this.messageSource = messageSource;
+    }
+
+    /** Texto en el idioma activo. */
+    private String texto(String clave) {
+        return messageSource.getMessage(clave, null, LocaleContextHolder.getLocale());
     }
 
     /** Usuario logueado, tal como lo publica el advice global en el Model (null si no esta). */
@@ -130,24 +142,26 @@ public class VidrioPersonalizadoWebController {
 
     /** F10: solo admin y solo COTIZACION -> APROBADO; la re-aprobacion es del panel. */
     @PostMapping("/aprobar/{id}")
-    public String aprobar(@PathVariable String id, Authentication auth, RedirectAttributes ra) {
+    public String aprobar(@PathVariable String id, @RequestParam(required = false) String volver,
+                          Authentication auth, RedirectAttributes ra) {
         if (!PermisosAdvice.esAdmin(auth)) {
-            ra.addFlashAttribute("mensaje", "Solo un administrador puede aprobar cotizaciones.");
+            ra.addFlashAttribute("mensaje", texto("cotflash.solo_admin_aprobar"));
             ra.addFlashAttribute("tipoMensaje", "error");
             return REDIRECT_MIS_COTIZACIONES;
         }
         VidrioSostenible v = vidrioSostenibleService.obtenerPorId(id).orElse(null);
         if (v == null) {
-            ra.addFlashAttribute("mensaje", "La cotización no existe.");
+            ra.addFlashAttribute("mensaje", texto("cotflash.no_existe"));
             ra.addFlashAttribute("tipoMensaje", "error");
         } else if (!VidrioSostenibleService.COTIZACION.equals(v.getEstado())) {
-            ra.addFlashAttribute("mensaje", "Esta cotización ya fue gestionada. La re-aprobación se hace desde el panel de admin.");
+            ra.addFlashAttribute("mensaje", texto("cotflash.ya_gestionada"));
             ra.addFlashAttribute("tipoMensaje", "error");
         } else {
             vidrioSostenibleService.cambiarEstado(id, VidrioSostenibleService.APROBADO);
-            ra.addFlashAttribute("mensaje", "Cotización aprobada.");
+            ra.addFlashAttribute("mensaje", texto("cotflash.aprobada"));
             ra.addFlashAttribute("tipoMensaje", "success");
         }
+        if (v != null && "detalle".equals(volver)) return "redirect:/vidrio-personalizado/cotizacion/" + id;
         return REDIRECT_MIS_COTIZACIONES;
     }
 
@@ -163,12 +177,12 @@ public class VidrioPersonalizadoWebController {
                 .filter(v -> admin || !VidrioSostenibleService.APROBADO.equals(v.getEstado()))
                 .map(v -> {
                     vidrioSostenibleService.eliminarPorId(v.getId());
-                    ra.addFlashAttribute("mensaje", "Cotización eliminada.");
+                    ra.addFlashAttribute("mensaje", texto("cotflash.eliminada"));
                     ra.addFlashAttribute("tipoMensaje", "success");
                     return REDIRECT_MIS_COTIZACIONES;
                 })
                 .orElseGet(() -> {
-                    ra.addFlashAttribute("mensaje", "No puedes eliminar esta cotización.");
+                    ra.addFlashAttribute("mensaje", texto("cotflash.no_eliminar"));
                     ra.addFlashAttribute("tipoMensaje", "error");
                     return REDIRECT_MIS_COTIZACIONES;
                 });
@@ -184,12 +198,12 @@ public class VidrioPersonalizadoWebController {
                 .filter(vidrio -> VidrioSostenibleService.APROBADO.equals(vidrio.getEstado()))
                 .map(vidrio -> {
                     carritoService.agregarCotizacionAprobada(vidrio);
-                    ra.addFlashAttribute("mensaje", "Obra añadida al carrito.");
+                    ra.addFlashAttribute("mensaje", texto("cotflash.al_carrito"));
                     ra.addFlashAttribute("tipoMensaje", "success");
                     return "redirect:/carrito";
                 })
                 .orElseGet(() -> {
-                    ra.addFlashAttribute("mensaje", "La obra no existe o aún no está aprobada.");
+                    ra.addFlashAttribute("mensaje", texto("cotflash.no_carrito"));
                     ra.addFlashAttribute("tipoMensaje", "error");
                     return REDIRECT_MIS_COTIZACIONES;
                 });
