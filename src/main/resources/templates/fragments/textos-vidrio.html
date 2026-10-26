@@ -45,7 +45,7 @@ window.SG_TXT = window.SG_TXT || {};
     t['gv_etq_alto'] = /*[[#{cotizacion.nivel.ALTO}]]*/ 'Alto';
     t['gv_aria'] = /*[[#{vidjs.aria}]]*/ 'Vista previa: vidrio {0}, {1} por {2} centímetros, {3} milímetros de espesor';
     t['gv_frase_favorable'] = /*[[#{vidjs.frase_favorable}]]*/ 'Perfil ambiental favorable';
-    t['gv_frase_moderado'] = /*[[#{vidjs.frase_moderado}]]*/ 'Perfil aceptable, mejorable con más calcín';
+    t['gv_frase_moderado'] = /*[[#{vidjs.frase_moderado}]]*/ 'Perfil aceptable; un espesor menor es lo que más la baja';
     t['gv_frase_alto'] = /*[[#{vidjs.frase_alto}]]*/ 'Configuración de alto impacto';
     t['gv_rec_eco'] = /*[[#{vidjs.rec_eco}]]*/ 'Integrar material reciclado (calcín)';
     t['gv_rec_renov'] = /*[[#{vidjs.rec_renov}]]*/ 'Procesar con energía solar y eólica';
@@ -70,7 +70,7 @@ window.SG_TXT = window.SG_TXT || {};
     t['cot_reco_aplica'] = /*[[#{vidjs.cot_reco_aplica}]]*/ 'La configuración recomendada aplica estos cambios:';
     t['cot_reco_nada'] = /*[[#{vidjs.cot_reco_nada}]]*/ 'No hay ajustes automáticos que respeten lo que elegiste; considera reducir el espesor o elegir otro tipo de vidrio.';
     t['cot_resultado'] = /*[[#{vidjs.cot_resultado}]]*/ 'Resultado: {0} (−{1} %)';
-    t['cot_sigue_alto'] = /*[[#{vidjs.cot_sigue_alto}]]*/ '· sigue siendo alto: la tecnología de este vidrio concentra su huella.';
+    t['cot_sigue_alto'] = /*[[#{vidjs.cot_sigue_alto}]]*/ '· sigue siendo alto: con este tipo de vidrio y el espesor que pide el uso, la huella no baja más.';
     t['cot_alerta_alto'] = /*[[#{vidjs.cot_alerta_alto}]]*/ 'Configuración de alto impacto ambiental';
     t['cot_alerta_moderado'] = /*[[#{vidjs.cot_alerta_moderado}]]*/ 'Tu perfil es aceptable, pero puede mejorar';
     t['cot_ahorro'] = /*[[#{vidjs.cot_ahorro}]]*/ 'Tus decisiones sostenibles evitan {0} kg de CO₂ frente a esta misma pieza sin opciones eco';
@@ -170,6 +170,13 @@ window.SG_TXT = window.SG_TXT || {};
     t['sello_siguiente'] = /*[[#{sello.siguiente}]]*/ 'Te faltan {0} puntos para el sello {1}.';
     t['sello_maximo'] = /*[[#{sello.maximo}]]*/ 'Tienes el sello más alto.';
     // T3 sostenibilidad (fin)
+    // U4 huella por etapas (inicio)
+    t['huella_fusion'] = /*[[#{huella.etapa.fusion}]]*/ 'Fusión del vidrio flotado';
+    t['huella_templado'] = /*[[#{huella.etapa.templado}]]*/ 'Templado (electricidad)';
+    t['huella_laminado'] = /*[[#{huella.etapa.laminado}]]*/ 'Lámina de PVB';
+    t['huella_capaActiva'] = /*[[#{huella.etapa.capaActiva}]]*/ 'Capa activa (estimación)';
+    t['huella_transporte'] = /*[[#{huella.etapa.transporte}]]*/ 'Transporte (300 km)';
+    // U4 huella por etapas (fin)
 })(window.SG_TXT);
 </script>
 </th:block>

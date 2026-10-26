@@ -1715,3 +1715,22 @@ body::before {
   .pv-hero, .pv-zona { grid-template-columns: 1fr; }
 }
 @media print { .pv-ventana, .pv-ctl { display: none; } }
+
+/* =========================================================
+   U4 · De donde sale el CO2 (configurador, detalle de la obra; Acerca: fuentes)
+   Cada fila lleva --p (% de la huella total) y lo pinta como barra de fondo.
+========================================================= */
+.etapas-co2 { margin: 4px 0 0; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--r-md); background: var(--card-bg-soft); font-size: 0.88rem; }
+.etapas-co2 > summary { cursor: pointer; color: var(--text-muted); font-weight: 600; }
+.etapas-co2 > summary:hover { color: var(--text-main); }
+.etapas-co2 ul { margin: 10px 0 8px; padding: 0; list-style: none; display: grid; gap: 6px; }
+.etapas-co2 li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 10px; border-radius: var(--r-sm);
+  background: linear-gradient(90deg, var(--color-accent-dim) var(--p, 0%), transparent var(--p, 0%)); }
+.etapas-co2 li strong { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.etapas-co2 > a { color: var(--color-accent-text); font-size: max(12px, 0.8rem); font-weight: 600; }
+.etapas-nota { margin: 6px 0 0; color: var(--text-muted); font-size: max(12px, 0.8rem); }
+.metodo-fuentes { margin-top: 14px; color: var(--text-muted); font-size: 0.86rem; }
+.metodo-fuentes > summary { cursor: pointer; color: var(--color-accent-text); font-weight: 600; }
+.metodo-fuentes ul { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+.metodo-fuentes a { color: var(--text-main); text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; word-break: break-word; }
+@media print { .etapas-co2 { break-inside: avoid; } .etapas-co2:not([open]) > ul { display: grid; } }

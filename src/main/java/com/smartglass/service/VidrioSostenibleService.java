@@ -103,6 +103,8 @@ public class VidrioSostenibleService {
         vidrio.setAreaTotal(resultado.getAreaTotal());
         vidrio.setPesoEstimado(resultado.getPesoEstimado());
         vidrio.setHuellaCarbono(resultado.getHuellaCarbono());
+        vidrio.setHuellaEtapas(resultado.getHuellaEtapas());          // U4: desglose y version del metodo
+        vidrio.setMetodoHuella(AnalisisService.METODO_HUELLA);
         vidrio.setEnergiaRequerida(resultado.getEnergiaRequerida());
         vidrio.setCantidadSilice(resultado.getCantidadSilice());
         vidrio.setCantidadSosa(resultado.getCantidadSosa());

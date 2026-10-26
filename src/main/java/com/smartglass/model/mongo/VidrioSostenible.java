@@ -102,8 +102,11 @@ public class VidrioSostenible {
      * funcion de espesor, tipo y opciones verdes.
      */
     public double getIntensidadCarbono() {
-        if (this.areaTotal <= 0) return 0.0;
-        return Math.round((this.huellaCarbono / this.areaTotal) * 100.0) / 100.0;
+        // U4: con el area exacta (ancho x alto) como el configurador; areaTotal va redondeada a 2 decimales
+        // (1,1025 -> 1,10 desviaba la intensidad ~0,3 %). El corte personalizado conserva su area real.
+        double area = (this.areaPoligonal == null && this.ancho > 0 && this.alto > 0) ? this.ancho * this.alto / 10000.0 : this.areaTotal;
+        if (area <= 0) return 0.0;
+        return Math.round((this.huellaCarbono / area) * 100.0) / 100.0;
     }
 
     /**
@@ -169,6 +172,15 @@ public class VidrioSostenible {
     public void setAreaTotal(double areaTotal) { this.areaTotal = areaTotal; }
     public double getPesoEstimado() { return pesoEstimado; }
     public void setPesoEstimado(double pesoEstimado) { this.pesoEstimado = pesoEstimado; }
+    /** U4: kg CO2e por etapa y version del metodo. Las obras anteriores a U4 no los tienen (null). */
+    private java.util.Map<String, Double> huellaEtapas;
+    private String metodoHuella;
+
+    public java.util.Map<String, Double> getHuellaEtapas() { return huellaEtapas; }
+    public void setHuellaEtapas(java.util.Map<String, Double> huellaEtapas) { this.huellaEtapas = huellaEtapas; }
+    public String getMetodoHuella() { return metodoHuella; }
+    public void setMetodoHuella(String metodoHuella) { this.metodoHuella = metodoHuella; }
+
     public double getHuellaCarbono() { return huellaCarbono; }
     public void setHuellaCarbono(double huellaCarbono) { this.huellaCarbono = huellaCarbono; }
     public double getPrecioEstimado() { return precioEstimado; }

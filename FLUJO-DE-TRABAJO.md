@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-25 con U3 · SaaS visible escrito). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-25 con U4 · CO₂ por etapas escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento en `a2ddb2e`; U3 SaaS visible **sin commitear**). No se ha subido nada (`push`).
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento en `a2ddb2e`; U3 SaaS visible en `823801f`; U4 CO₂ por etapas **sin commitear**). No se ha subido nada (`push`).
 
 ## Leyenda
 
@@ -227,6 +227,40 @@ Decisión del equipo: cualquier admin edita el plan (sin lista de superadmins); 
 | Movimiento de la vista previa: alterna sola cada 5,5 s con botón de pausa (WCAG 2.2.2); elegir un plan la detiene; fuera de pantalla o pestaña oculta no corre; con fotosensible o movimiento reducido ni alterna ni anima | 🧪 ESCRITO (probado: alterna sin modo; quieta y sin botón con fotosensible) | `planes-preview.js` |
 | Barra pública: con «Para empresas» no cabía en una línea; menú hamburguesa hasta 1180 px (antes 950) y franja compacta 1181–1360 px | 🧪 ESCRITO (68 px de alto a 1181, 1200 y 1370 px) | `theme.css` |
 | Barra del admin (7 pestañas, ya se partía entre 951 y ~1220 px antes de U3): hasta 1440 px la cuenta muestra solo el avatar (el nombre queda para lectores de pantalla) y hasta 1360 px enlaces y márgenes más juntos | 🧪 ESCRITO (una línea a 1181, 1361, 1441 y 1600 px; hamburguesa a 1100 px) | `theme.css` (`.navbar--admin`) |
+
+### U4 · CO₂ por etapas (cambio de contrato aprobado)
+
+Decisiones del equipo: la energía renovable cubre solo la electricidad del taller (efecto real); transporte fijo de 300 km; la capa activa de inteligente y fotovoltaico conserva el +80 % del modelo anterior, declarado como estimación.
+
+**Modelo** (`AnalisisService.huellaPorEtapas` = `glass-preview.js` `etapas`), kg CO₂e por pieza:
+
+| Etapa | Fórmula | Fuente |
+|---|---|---|
+| Fusión del vidrio flotado | peso × 1,03 × (1 − 0,5 × 0,15 con calcín) | EPD AGC Planibel (9,8 kg/m² a 4 mm, 5 % bajo la media europea) y Guardian ExtraClear (9,64); calcín medio 26 % (Glass for Europe 2024); −5 % por cada 10 puntos de calcín (FEVE) |
+| Templado (Templado, Templado + Laminado) | área × espesor × 0,8 kWh × (0,220 red SIN │ 0,03 renovable) | Fortemp (4 kWh/m² a 5 mm); UPME Res. 000085 de 2026 (SIN 2024, inventarios); IPCC AR5 Anexo III (solar 48, eólica 11 g/kWh) |
+| Lámina de PVB (Laminado, Templado + Laminado) | área × 3,6 | Eastman Saflex R, LCA revisada por Quantis (4,5 kg/kg; 3,6 kg/m² a 0,76 mm) |
+| Capa activa (Inteligente, Fotovoltaico) | fusión × 0,8 | Estimación (factor del modelo anterior); sin EPD pública comparable por m² |
+| Transporte | peso / 1000 × 300 km × 0,097 | GLEC 2019 vía Climatiq (carretera, del pozo a la rueda); distancia supuesta |
+
+Umbrales de intensidad sin cambios (12 y 20 kg/m²). Precios, composición y energía requerida sin cambios.
+
+**Anclas nuevas** (compensar desactivado; precio igual que antes):
+
+| Ancla | Antes | Ahora |
+|---|---|---|
+| A · Templado 105 × 105 × 7, calcín y renovable | 9,8 kg · 8,9 · Favorable | 19,1 kg · 17,4 · Moderado · $175.959 |
+| B · Templado + Laminado 105 × 105 × 20, sin opciones | 80,1 · Alto | 68,6 kg · 62,2 · Alto · $1.234.800 (recomendación: Laminado 12 mm → 34,2, sigue alto) |
+| C · Templado 105 × 105 × 40, calcín y renovable | 51,0 · Alto | 109,3 kg · 99,1 · Alto (recomienda 8 mm) |
+| D · Templado 400 × 400 × 8, calcín y renovable | 163,2 · 10,2 · Favorable | 317,3 kg · 19,8 · Moderado · $2.918.400 |
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Servidor y configurador con las mismas etapas | 🧪 ESCRITO (anclas idénticas en Java, Node y el configurador del navegador) | `HuellaPorEtapasTest` (6 pruebas); `AnalisisService`, `glass-preview.js` |
+| Productos de catálogo con las mismas etapas (sin calcín extra ni renovable) | 🧪 ESCRITO | `calcularHuellaCarbonoItem` |
+| Cada obra nueva guarda su desglose y la versión del método (`etapas-2026-10`); las anteriores conservan su huella y lo dicen | 🧪 ESCRITO — falta verlo con sesión (guardar una obra nueva y abrir una antigua) | `VidrioSostenible.huellaEtapas` / `metodoHuella` |
+| Intensidad de la obra guardada con el área exacta (antes con el área redondeada a 2 decimales: 62,3 frente a 62,2) | 🧪 ESCRITO | `VidrioSostenible.getIntensidadCarbono` |
+| «De dónde sale el CO₂»: desglose con barras en el configurador, el detalle de la obra y la ficha ambiental | 🧪 ESCRITO (configurador visto) | `vidrio-personalizado-form.html`, `vidrio-personalizado-detalle.html`, `vidrio-ficha.html` |
+| Metodología en Acerca: 6 pasos y 9 fuentes enlazadas; textos de las opciones de calcín y renovable con su efecto real; inicio sin el «−45 %» | 🧪 ESCRITO (es-CO y en revisados, sin restos en español) | `acerca.html`, `index.html`, `messages*.properties` |
 
 ### Decisiones D1–D4
 

@@ -22,6 +22,11 @@ public class ResultadoAnalisisVidrio {
     private String recomendacion;
     // F45: true si el area salio del poligono del corte personalizado (false = caja envolvente)
     private boolean corteAplicado;
+    /** U4: kg CO2e por etapa (fusion, templado, laminado, capaActiva, transporte). */
+    private java.util.Map<String, Double> huellaEtapas;
+
+    public java.util.Map<String, Double> getHuellaEtapas() { return huellaEtapas; }
+    public void setHuellaEtapas(java.util.Map<String, Double> huellaEtapas) { this.huellaEtapas = huellaEtapas; }
 
     public double getAreaTotal() { return areaTotal; }
     public void setAreaTotal(double areaTotal) { this.areaTotal = areaTotal; }

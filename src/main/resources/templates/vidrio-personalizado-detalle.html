@@ -437,6 +437,18 @@
             <a th:href="@{/vidrio-personalizado/cotizar}" id="lnkBalance" class="enlace-balance" hidden th:text="#{obra.ver_una_version_mejorada}">Ver una versión mejorada</a>
             </div>
 
+            <!-- U4: desglose guardado con la obra; las anteriores a U4 conservan su huella y lo dicen -->
+            <details class="etapas-co2" th:if="${vidrio.huellaEtapas != null}">
+                <summary th:text="#{huella.etapas_t}">De dónde sale el CO₂</summary>
+                <ul>
+                    <li th:each="e : ${vidrio.huellaEtapas}" th:style="'--p:' + ${vidrio.huellaCarbono > 0 ? e.value * 100 / vidrio.huellaCarbono : 0} + '%'">
+                        <span th:text="${#messages.msg('huella.etapa.' + e.key)}">Fusión</span>
+                        <strong th:text="${#numbers.formatDecimal(e.value, 1, 'POINT', 1, 'COMMA')} + ' kg'">0,0 kg</strong></li>
+                </ul>
+                <a th:href="@{/acerca#como-calculamos}" th:text="#{huella.ver_metodologia}">Cómo lo calculamos</a>
+            </details>
+            <p class="etapas-nota" th:if="${vidrio.huellaEtapas == null}" th:text="#{huella.metodo_anterior}">Calculada con el método anterior a octubre de 2026.</p>
+
             <ul class="equivale">
                 <li><span th:text="#{obra.equivale_a_recorrer_unos}">Equivale a recorrer unos</span> <b id="eqKm">—</b> <span th:text="#{obra.en_auto}">en auto.</span></li>
                 <li><span th:text="#{obra.un_arbol_tardaria_unos}">Un árbol tardaría unos</span> <b id="eqArbol">—</b> <span th:text="#{obra.en_absorberlo}">en absorberlo.</span></li>

@@ -217,9 +217,9 @@
                     <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-secondary btn-lg"><i class="ph ph-pencil-ruler"></i> <span th:text="#{index.disenar_a_medida}">Diseñar a medida</span></a>
                 </div>
                 <ul class="hero-datos">
-                    <!-- T4: solo cifras con respaldo (reglas del contrato de calculo y del configurador) -->
-                    <li><strong>−45 %</strong><span th:text="#{index2.dato_renovable}">CO₂ del proceso con energía renovable</span></li>
-                    <li><strong>−15 %</strong><span th:text="#{index2.dato_calcin}">CO₂ con calcín reciclado</span></li>
+                    <!-- T4/U4: solo cifras con respaldo (modelo por etapas de AnalisisService; ver Acerca) -->
+                    <li><strong>5</strong><span th:text="#{index2.dato_etapas}">etapas en la huella de cada pieza</span></li>
+                    <li><strong>−7,5 %</strong><span th:text="#{index2.dato_calcin}">CO₂ de fusión con más calcín</span></li>
                     <li th:if="${@plan.activa('FORMAS_AVANZADAS')}"><strong>14</strong><span th:text="#{index2.dato_formas}">geometrías y corte libre</span></li>
                     <li th:unless="${@plan.activa('FORMAS_AVANZADAS')}"><strong>100 %</strong><span th:text="#{index2.dato_huella}">piezas con su huella calculada</span></li>
                 </ul>

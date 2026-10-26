@@ -416,7 +416,7 @@
     var v = parseFloat(intensidad);
     if (!isFinite(v) || v < 0) v = 0;
     if (v <= UMBRAL.favorable) return { nivel: 'favorable', etiqueta: t('gv_etq_favorable', 'Favorable'), emoji: '\uD83D\uDFE2', frase: t('gv_frase_favorable', 'Perfil ambiental favorable'), valor: v };
-    if (v <= UMBRAL.moderado) return { nivel: 'moderado', etiqueta: t('gv_etq_moderado', 'Moderado'), emoji: '\uD83D\uDFE1', frase: t('gv_frase_moderado', 'Perfil aceptable, mejorable con m\u00e1s calc\u00edn'), valor: v };
+    if (v <= UMBRAL.moderado) return { nivel: 'moderado', etiqueta: t('gv_etq_moderado', 'Moderado'), emoji: '\uD83D\uDFE1', frase: t('gv_frase_moderado', 'Perfil aceptable; un espesor menor es lo que m\u00e1s la baja'), valor: v };
     return { nivel: 'alto', etiqueta: t('gv_etq_alto', 'Alto'), emoji: '\uD83D\uDD34', frase: t('gv_frase_alto', 'Configuraci\u00f3n de alto impacto'), valor: v };
   }
   function nombreTipo(v) { return TIPOS[v] ? t('gv_tipo_' + v, TIPOS[v].nombre) : (v || ''); }
@@ -467,18 +467,43 @@
     if (c.tipo === 'Insulado') densidad = 2.0;
     if (c.tipo === 'Laminado' || c.tipo === 'TempladoLaminado') densidad = 2.6;
     var peso = area * esp * densidad;
-    var mult = 1;
-    if (c.tipo === 'TempladoLaminado') mult *= 1.4;
-    if (c.tipo === 'Inteligente' || c.tipo === 'Fotovoltaico') mult *= 1.8;
-    function co2De(renov, eco) { return peso * (renov ? 0.6 : 1.1) * mult * (eco ? 0.85 : 1); }
-    var co2 = co2De(!!c.renov, !!c.eco);
-    var base = co2De(false, false);
+    var et = etapas(c.tipo, area, esp, peso, !!c.eco, !!c.renov);
+    var co2 = totalEtapas(et);
+    var base = totalEtapas(etapas(c.tipo, area, esp, peso, false, false));
     return {
-      area: area, peso: peso, co2: co2, base: base,
+      area: area, peso: peso, co2: co2, base: base, etapas: et,
       ahorro: Math.min(Math.max(0, base - co2), base),          /* nunca supera el baseline */
       intensidad: area > 0 ? co2 / area : 0
     };
   }
+
+  /* U4 · Huella por etapas (kg CO2e). MISMAS constantes que AnalisisService.huellaPorEtapas; las fuentes
+     estan alli y en Acerca (metodologia). Las obras guardadas antes de U4 conservan su huella. */
+  var HUELLA = {
+    flotado: 1.03,          /* kg CO2e por kg de vidrio flotado (media europea, A1-A3) */
+    calcinExtra: 0.15,      /* calcin que suma la opcion reciclado */
+    porCalcin: 0.5,         /* -5 % por cada 10 puntos de calcin (FEVE) */
+    kwhTemplado: 0.8,       /* kWh por m2 y mm */
+    red: 0.220,             /* kg CO2e/kWh, SIN Colombia 2024 (UPME) */
+    renovable: 0.03,        /* kg CO2e/kWh, solar y eolica (IPCC AR5) */
+    pvb: 3.6,               /* kg CO2e por m2 de PVB 0,76 mm */
+    capaActiva: 0.8,        /* inteligente / fotovoltaico: +80 % sobre la fusion (estimacion) */
+    tkm: 0.097, km: 300     /* camion (GLEC) y distancia supuesta */
+  };
+  function etapas(tipo, area, esp, peso, eco, renov) {
+    var fusion = peso * HUELLA.flotado * (eco ? 1 - HUELLA.porCalcin * HUELLA.calcinExtra : 1);
+    var templa = tipo === 'Templado' || tipo === 'TempladoLaminado';
+    var lamina = tipo === 'Laminado' || tipo === 'TempladoLaminado';
+    var activa = tipo === 'Inteligente' || tipo === 'Fotovoltaico';
+    return {
+      fusion: fusion,
+      templado: templa ? area * esp * HUELLA.kwhTemplado * (renov ? HUELLA.renovable : HUELLA.red) : 0,
+      laminado: lamina ? area * HUELLA.pvb : 0,
+      capaActiva: activa ? fusion * HUELLA.capaActiva : 0,
+      transporte: peso / 1000 * HUELLA.km * HUELLA.tkm
+    };
+  }
+  function totalEtapas(e) { return e.fusion + e.templado + e.laminado + e.capaActiva + e.transporte; }
 
   /* Espesores recomendados por uso (referencias del configurador). En los demas usos no se toca el espesor. */
   var RANGOS_USO = {
@@ -595,7 +620,7 @@
 
   window.SGGlass = {
     render: render, describir: describir, tilt: tilt, contar: contar, impacto: impacto, umbral: UMBRAL,
-    nombreTipo: nombreTipo, nombreForma: nombreForma, formas: FORMAS, fmt: fmt, fmtNum: fmtNum, fmtAuto: fmtAuto,
+    nombreTipo: nombreTipo, nombreForma: nombreForma, formas: FORMAS, huella: HUELLA, fmt: fmt, fmtNum: fmtNum, fmtAuto: fmtAuto,
     calcular: calcular, recomendar: recomendar, equivalencias: equivalencias, rangosUso: RANGOS_USO, areaPoligono: areaPoligono,
     controlesVista: controlesVista, poligonoForma: poligonoForma, t: t
   };

@@ -211,14 +211,30 @@
         <div class="bloque-cuerpo">
             <ol class="metodo">
                 <li><div><h3 th:text="#{acerca2.m1_t}">Peso de la pieza</h3><p th:text="#{acerca2.m1_d}">Área × espesor × densidad.</p></div></li>
-                <li><div><h3 th:text="#{acerca2.m2_t}">Proceso</h3><p th:text="#{acerca2.m2_d}">1,1 kg de CO₂e por kg.</p></div></li>
-                <li><div><h3 th:text="#{acerca2.m3_t}">Material reciclado</h3><p th:text="#{acerca2.m3_d}">−15 % con calcín.</p></div></li>
-                <li><div><h3 th:text="#{acerca2.m4_t}">Tecnología</h3><p th:text="#{acerca2.m4_d}">×1,4 y ×1,8.</p></div></li>
+                <li><div><h3 th:text="#{acerca2.m2_t}">Fusión del vidrio flotado</h3><p th:text="#{acerca2.m2_d}">1,03 kg de CO₂e por kg.</p></div></li>
+                <li><div><h3 th:text="#{acerca2.m3_t}">Calcín</h3><p th:text="#{acerca2.m3_d}">−5 % por cada 10 puntos.</p></div></li>
+                <li><div><h3 th:text="#{acerca2.m4_t}">Templado y laminado</h3><p th:text="#{acerca2.m4_d}">0,8 kWh por m² y mm; PVB 3,6 kg/m².</p></div></li>
+                <li><div><h3 th:text="#{acerca2.m6_t}">Capa activa y transporte</h3><p th:text="#{acerca2.m6_d}">+80 % y 300 km.</p></div></li>
                 <li><div><h3 th:text="#{acerca2.m5_t}">Nivel del proceso</h3><p th:text="#{acerca2.m5_d}">12 y 20 kg/m².</p>
                     <div class="semaforo" aria-hidden="true"><i></i><i></i><i></i></div>
                     <div class="semaforo-escala" aria-hidden="true"><span style="left:40%">12</span><span style="left:66.67%">20</span></div></div></li>
             </ol>
             <p class="metodo-nota"><i class="ph ph-info" aria-hidden="true"></i> <span th:text="#{acerca2.m_nota}">Las cifras del configurador y de la ficha ambiental salen de estas mismas reglas.</span></p>
+            <!-- U4: fuente de cada factor (AnalisisService y glass-preview.js usan estos mismos valores) -->
+            <details class="metodo-fuentes">
+                <summary th:text="#{acerca2.fuentes_t}">Fuentes de los factores</summary>
+                <ul>
+                    <li><a href="https://www.agc-glass.eu/en/news/press-release/new-environmental-product-declarations-epd-agc-standard-and-low-carbon-float" target="_blank" rel="noopener noreferrer" th:text="#{acerca2.f1}">AGC · EPD Planibel (9,8 kg CO₂e/m² a 4 mm, 5 % bajo la media europea)</a></li>
+                    <li><a href="https://www.glassonline.com/guardian-glass-new-epds-for-glass-products-manufactured-in-europe/" target="_blank" rel="noopener noreferrer" th:text="#{acerca2.f2}">Guardian Glass · EPD ExtraClear (9,64 kg CO₂e/m² a 4 mm)</a></li>
+                    <li><a href="https://glassforeurope.com/wp-content/uploads/2024/02/GfE-Recycling-of-end-of-life-building-glass_2024_Final-version.pdf" target="_blank" rel="noopener noreferrer" th:text="#{acerca2.f3}">Glass for Europe · calcín medio del vidrio plano (26 %)</a></li>
+                    <li><a href="https://www.haveyougotthebottle.org.uk/wp-content/uploads/2016/04/FEVE-brochure-Recycling-Why-glass-always-has-a-happy-CO2-ending-.pdf" target="_blank" rel="noopener noreferrer" th:text="#{acerca2.f4}">FEVE · +10 % de calcín, −5 % de CO₂ en el horno</a></li>
+                    <li><a href="https://www.fortemp.com/news/what-do-power-consumption-installed-power-and-installed-capacity-of-a-glass-tempering-furnace-mean" target="_blank" rel="noopener noreferrer" th:text="#{acerca2.f5}">Fortemp · consumo del horno de templado (4 kWh/m² a 5 mm)</a></li>
+                    <li><a href="https://docs.upme.gov.co/Normatividad/085_2026.pdf" target="_blank" rel="noopener noreferrer" th:text="#{acerca2.f6}">UPME · Resolución 000085 de 2026: red del SIN 2024, 0,220 t CO₂e/MWh</a></li>
+                    <li><a href="https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf" target="_blank" rel="noopener noreferrer" th:text="#{acerca2.f7}">IPCC AR5 · Anexo III: ciclo de vida de la energía solar (48 g/kWh) y eólica (11 g/kWh)</a></li>
+                    <li><a href="https://saflex-vanceva.eastman.com/content/dam/saflex/pdf-documents/arch/saflex/brochures/lca_carbon_footprint_summary_report_for_eastman_saflex_clear_pvb_interlayer.pdf" target="_blank" rel="noopener noreferrer" th:text="#{acerca2.f8}">Eastman · LCA de la lámina Saflex R (3,6 kg CO₂e/m²)</a></li>
+                    <li><a href="https://www.climatiq.io/data/emission-factor/d0d3c1e1-eb76-4a43-a4e3-16ebfabf9dc7" target="_blank" rel="noopener noreferrer" th:text="#{acerca2.f9}">GLEC (vía Climatiq) · transporte por carretera, 0,097 kg CO₂e por t·km</a></li>
+                </ul>
+            </details>
         </div>
     </section>
 

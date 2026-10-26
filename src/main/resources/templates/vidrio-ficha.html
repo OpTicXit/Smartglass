@@ -27,6 +27,8 @@
         .ficha-tabla { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         .ficha-tabla th, .ficha-tabla td { padding: 8px 0; border-bottom: 1px solid var(--border-color); text-align: left; vertical-align: top; }
         .ficha-tabla th { color: var(--text-muted); font-weight: 600; }
+        .ficha-tabla .ficha-etapa th, .ficha-tabla .ficha-etapa td { padding: 4px 0 4px 12px; font-size: 0.84rem; }   /* U4: etapas */
+        .ficha-tabla .ficha-nota { color: var(--text-muted); font-size: 0.8rem; }
         .ficha-tabla td { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
         .ficha-tabla tr.total th, .ficha-tabla tr.total td { color: var(--text-main); border-top: 2px solid var(--border-color); }
         .ficha-vista { grid-column: 1 / -1; }
@@ -122,6 +124,11 @@
                 <h2 th:text="#{ficha.huella}">Huella de carbono</h2>
                 <table class="ficha-tabla">
                     <tr><th th:text="#{ficha.co2_total}">CO₂e de la pieza</th><td th:text="${#numbers.formatDecimal(vidrio.huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">0 kg</td></tr>
+                    <!-- U4: desglose por etapas guardado con la obra -->
+                    <tr th:each="e : ${vidrio.huellaEtapas}" th:if="${vidrio.huellaEtapas != null}" class="ficha-etapa">
+                        <th th:text="'· ' + ${#messages.msg('huella.etapa.' + e.key)}">· Fusión</th>
+                        <td th:text="${#numbers.formatDecimal(e.value, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">0 kg</td></tr>
+                    <tr th:if="${vidrio.huellaEtapas == null}"><td colspan="2" class="ficha-nota" th:text="#{huella.metodo_anterior}">Método anterior</td></tr>
                     <tr><th th:text="#{ficha.intensidad}">Intensidad del proceso</th><td th:text="${#numbers.formatDecimal(vidrio.intensidadCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e/m²'">0</td></tr>
                     <tr><th th:text="#{ficha.nivel}">Nivel del proceso</th><td th:text="${#messages.msgOrNull('cotizacion.nivel.' + vidrio.nivelImpacto)} ?: ${vidrio.nivelImpacto}">Favorable</td></tr>
                     <tr th:if="${vidrio.resistenciaEstimada != null}"><th th:text="#{obra.indice_de_resistencia}">Índice de resistencia</th><td th:text="${#numbers.formatDecimal(vidrio.resistenciaEstimada, 1, 'POINT', 1, 'COMMA')} + ' MPa'">0 MPa</td></tr>

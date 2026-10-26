@@ -361,6 +361,13 @@
                 <div class="medida"><span th:text="#{cotizar.co2e_de_la_pieza}">CO₂e de la pieza</span><strong id="co2Text" class="co2 co2-value" th:text="#{cotizar.9_8_kg}">9.8 kg</strong></div>
             </div>
 
+            <!-- U4: de donde sale el CO2 (mismas etapas que AnalisisService; lo llena actualizar()) -->
+            <details class="etapas-co2" id="co2Etapas">
+                <summary th:text="#{huella.etapas_t}">De dónde sale el CO₂</summary>
+                <ul id="co2EtapasLista"></ul>
+                <a th:href="@{/acerca#como-calculamos}" th:text="#{huella.ver_metodologia}">Cómo lo calculamos</a>
+            </details>
+
             <div class="termometro nivel-favorable" id="termometro">
                 <div class="termo-cab">
                     <span th:text="#{cotizar.proceso_intensidad_ambiental}">Proceso · intensidad ambiental</span>
@@ -600,12 +607,12 @@
 
                 <label class="eco-opcion">
                     <input type="checkbox" name="usarVidrioReciclado" id="opcionEco" checked>
-                    <span><span th:text="#{cotizar.integrar}">Integrar</span> <strong th:text="#{cotizar.material_reciclado}">material reciclado</strong><small th:text="#{cotizar.reduce_un_15_la_huella}">Reduce un 15 % la huella de carbono.</small></span>
+                    <span><span th:text="#{cotizar.integrar}">Integrar</span> <strong th:text="#{cotizar.material_reciclado}">material reciclado</strong><small th:text="#{cotizar.reduce_un_15_la_huella}">Un 15 % más de calcín: la fusión emite un 7,5 % menos.</small></span>
                 </label>
 
                 <label class="eco-opcion">
                     <input type="checkbox" name="energiaRenovable" id="energiaRenovable" checked>
-                    <span><span th:text="#{cotizar.procesar_con}">Procesar con</span> <strong th:text="#{cotizar.energia_solar_y_eolica}">energía solar y eólica</strong><small th:text="#{cotizar.casi_reduce_a_la_mitad}">Casi reduce a la mitad las emisiones del proceso.</small></span>
+                    <span><span th:text="#{cotizar.procesar_con}">Procesar con</span> <strong th:text="#{cotizar.energia_solar_y_eolica}">energía solar y eólica</strong><small th:text="#{cotizar.casi_reduce_a_la_mitad}">Cubre la electricidad del templado.</small></span>
                 </label>
 
                 <label class="eco-opcion">
@@ -832,7 +839,7 @@
         var b = document.createElement('b');
         b.textContent = G.fmtNum(reco.despues, 1) + ' kg CO₂e/m² · ' + n.etiqueta;
         el.append(conNegrita(sgT('cot_resultado', 'Resultado: {0} (−{1} %)', '{0}', pct), b.textContent));
-        if (!reco.logra) el.append(' ' + sgT('cot_sigue_alto', '· sigue siendo alto: la tecnología de este vidrio concentra su huella.'));
+        if (!reco.logra) el.append(' ' + sgT('cot_sigue_alto', '· sigue siendo alto: con este tipo de vidrio y el espesor que pide el uso, la huella no baja más.'));
     }
     function gestionarAviso(imp, reco) {
         var panel = $('alertaImpacto'), ver = $('termoVer');
@@ -873,6 +880,7 @@
         contar($('areaText'), r.area, function (v) { return G.fmtNum(v, 2) + ' m\u00b2'; });
         contar($('pesoText'), r.peso, function (v) { return G.fmtNum(v, 1) + ' kg'; });
         contar($('co2Text'), r.co2, function (v) { return G.fmtNum(v, 1) + ' kg'; });
+        pintarEtapas(r);
         contar($('priceText'), precio, function (v) { return '$' + G.fmtNum(Math.round(v), 0); }, 600);
 
         var ah = $('ahorroText');
@@ -891,6 +899,21 @@
         var objetivo = imp.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable;
         gestionarAviso(imp, G.recomendar(cc, objetivo));
         actualizarFades();
+    }
+    /* ---------- U4: desglose por etapas (barra proporcional a lo que aporta cada una) ---------- */
+    function pintarEtapas(r) {
+        var ul = $('co2EtapasLista');
+        if (!ul || !r.etapas) return;
+        ul.textContent = '';
+        ['fusion', 'templado', 'laminado', 'capaActiva', 'transporte'].forEach(function (k) {
+            var v = r.etapas[k];
+            if (!(v > 0)) return;
+            var li = document.createElement('li'), a = document.createElement('span'), b = document.createElement('strong');
+            li.style.setProperty('--p', (r.co2 > 0 ? v * 100 / r.co2 : 0) + '%');
+            a.textContent = sgT('huella_' + k, k);
+            b.textContent = G.fmtNum(v, 1) + ' kg';
+            li.appendChild(a); li.appendChild(b); ul.appendChild(li);
+        });
     }
     /* ---------- T3: compromisos sin costo y sello Compromiso verde (no tocan CO2 ni precio) ---------- */
     var CV = window.SG_COMPROMISO;

@@ -16,14 +16,16 @@ import java.util.List;
  *   area m2   = (ancho_cm * alto_cm) / 10000
  *   peso kg   = area_m2 * espesor_mm * densidad(tipo)
  *               densidad: 2.5 base | 2.0 Insulado | 2.6 Laminado o Templado+Laminado
- *   co2 kg    = peso * factorCO2
- *   factorCO2 = (0.6 con energia renovable | 1.1 sin ella)
- *               * 1.4 si el tipo es Templado+Laminado
- *               * 1.8 si el tipo es Inteligente o Fotovoltaico
- *               * 0.85 si usa vidrio reciclado
- * Cualquier cambio en estas constantes debe reflejarse tambien en el
- * configurador del formulario (y viceversa) para que configurador,
- * detalle y factura muestren siempre el mismo numero.
+ *   co2 kg    = suma de etapas (U4, contrato aprobado por el equipo; ver huellaPorEtapas):
+ *     fusion      = peso * 1.03 * (1 - 0.5 * 0.15 si usa calcin)        vidrio flotado, media europea
+ *     templado    = area * espesor * 0.8 kWh * (0.220 red SIN | 0.03 renovable)   Templado, Templado+Laminado
+ *     laminado    = area * 3.6                                           PVB 0,76 mm: Laminado, Templado+Laminado
+ *     capa activa = fusion * 0.8                                         Inteligente, Fotovoltaico (estimacion)
+ *     transporte  = peso / 1000 * 300 km * 0.097                         camion, de la planta a la obra
+ * Cualquier cambio en estas constantes debe reflejarse tambien en
+ * glass-preview.js (calcular) para que configurador, detalle y factura
+ * muestren siempre el mismo numero. Las obras guardadas antes de U4
+ * conservan su huella (metodoHuella == null).
  *
  * NOTA HISTORICA: las formulas de composicion, energia y precio son
  * una base razonable basada en vidrio flotado soda-lime; ajusta los
@@ -47,14 +49,31 @@ public class AnalisisService {
     private static final double DENSIDAD_VIDRIO = 2.5; // kg / (m2 * mm)  (densidad base)
     private static final double CONVERSION_M2 = 10000.0; // cm2 -> m2
 
-    // --- Factores de emision de CO2 por proceso (kg CO2 / kg vidrio) ---
-    // Usados SOLO por calcularHuellaCarbonoItem (productos de catalogo
-    // en carrito/checkout). Las cotizaciones a medida usan el factorCO2
-    // del contrato de formulas de la cabecera.
-    private static final double FACTOR_TEMPLADO = 0.85;
-    private static final double FACTOR_LAMINADO = 1.2;
-    private static final double FACTOR_INSULADO = 1.5;
-    private static final double FACTOR_DEFAULT = 1.0;
+    // --- U4 · Huella por etapas (kg CO2e). Fuentes en acerca (metodologia) y FLUJO-DE-TRABAJO.md ---
+    /** Version del metodo que se guarda con cada obra nueva (las anteriores quedan con null). */
+    public static final String METODO_HUELLA = "etapas-2026-10";
+    /** Vidrio flotado, de la cuna a la puerta (A1-A3): media europea ~10,3 kg CO2e/m2 a 4 mm
+     *  (AGC Planibel 9,8 = 5 % bajo la media; Guardian ExtraClear 9,64) / 10 kg/m2. Incluye el ~26 % de
+     *  calcin medio del sector (Glass for Europe 2024). */
+    static final double FACTOR_FLOTADO = 1.03;
+    /** Calcin externo que suma la opcion "reciclado" (la misma fraccion de la composicion). */
+    static final double FRACCION_CALCIN_EXTRA = 0.15;
+    /** Cada 10 puntos de calcin bajan un 5 % las emisiones del horno (FEVE): 0,5 por unidad. */
+    static final double REDUCCION_POR_CALCIN = 0.5;
+    /** Templado: 4 kWh/m2 para 5 mm (Fortemp) = 0,8 kWh por m2 y mm, electrico. */
+    static final double KWH_TEMPLADO_M2_MM = 0.8;
+    /** Red del SIN 2024 para inventarios: 0,220 t CO2e/MWh (Resolucion UPME 000085 de 2026). */
+    static final double FACTOR_RED_COLOMBIA = 0.220;
+    /** Electricidad renovable (solar y eolica, ciclo de vida; IPCC AR5 Anexo III: 48 y 11 g/kWh). */
+    static final double FACTOR_RENOVABLE = 0.03;
+    /** Lamina de PVB 0,76 mm: 4,5 kg CO2e/kg = 3,6 kg CO2e/m2 (Eastman Saflex R, LCA revisada por Quantis). */
+    static final double CO2_PVB_M2 = 3.6;
+    /** Capa activa (inteligente / fotovoltaico): +80 % sobre la fusion, el factor del modelo anterior.
+     *  Sin EPD publica por m2 comparable: queda declarado como estimacion. */
+    static final double CAPA_ACTIVA_SOBRE_FUSION = 0.8;
+    /** Transporte por carretera: 0,097 kg CO2e por t-km (GLEC, del pozo a la rueda) y 300 km supuestos. */
+    static final double CO2_TKM = 0.097;
+    static final double KM_TRANSPORTE = 300.0;
 
     // --- Composicion tipica de vidrio soda-lime (referencia industria) ---
     private static final double PORC_SILICE = 0.72;
@@ -62,7 +81,7 @@ public class AnalisisService {
     private static final double PORC_CALIZA = 0.09;
     private static final double PORC_ALUMINA = 0.04;
     private static final double PORC_OTROS = 0.02; // MgO, K2O, etc. (completa el 100% de la materia virgen)
-    private static final double FRACCION_RECICLADO = 0.15; // "Reduce 15% huella" prometido por la UI
+    private static final double FRACCION_RECICLADO = 0.15; // calcin de la opcion "reciclado" (U4: tambien entra en la fusion)
 
     // --- Energia y costo base ---
     private static final double ENERGIA_POR_KG_KWH = 2.5; // kWh por kg de vidrio fundido
@@ -88,20 +107,42 @@ public class AnalisisService {
         double altoVal = (alto != null) ? alto : 0;
         double espesorVal = (espesor != null) ? espesor : 0;
         double area = (anchoVal * altoVal) / CONVERSION_M2;
-        double peso = area * espesorVal * factorDensidad(normalizarTipo(tipo));
-        double co2 = peso * obtenerFactorEmision(tipo) * cantidad;
+        String t = normalizarTipo(tipo);
+        double peso = area * espesorVal * factorDensidad(t);
+        // U4: mismas etapas que las obras a medida; el catalogo no declara calcin extra ni energia renovable
+        double co2 = huellaPorEtapas(t, area, espesorVal, peso, false, false).total() * cantidad;
         return Math.round(co2 * 100.0) / 100.0;
     }
 
-    private double obtenerFactorEmision(String tipo) {
-        if (tipo == null) return FACTOR_DEFAULT;
-        return switch (normalizarTipo(tipo)) {
-            case "templado" -> FACTOR_TEMPLADO;
-            case "laminado" -> FACTOR_LAMINADO;
-            case "insulado" -> FACTOR_INSULADO;
-            default -> FACTOR_DEFAULT;
-        };
+    /** U4 · Huella de una pieza por etapas (kg CO2e). Mismo calculo que calcular() en glass-preview.js. */
+    public record Etapas(double fusion, double templado, double laminado, double capaActiva, double transporte) {
+        public double total() { return fusion + templado + laminado + capaActiva + transporte; }
+
+        /** Para guardar con la obra, en orden fijo; las claves son las de huella.etapa.* en messages. */
+        public java.util.Map<String, Double> comoMapa() {
+            java.util.Map<String, Double> m = new java.util.LinkedHashMap<>();
+            m.put("fusion", redondear2(fusion));
+            if (templado > 0) m.put("templado", redondear2(templado));
+            if (laminado > 0) m.put("laminado", redondear2(laminado));
+            if (capaActiva > 0) m.put("capaActiva", redondear2(capaActiva));
+            m.put("transporte", redondear2(transporte));
+            return m;
+        }
     }
+
+    static Etapas huellaPorEtapas(String tipoNormalizado, double area, double espesor, double peso, boolean calcin, boolean renovable) {
+        double fusion = peso * FACTOR_FLOTADO * (calcin ? 1 - REDUCCION_POR_CALCIN * FRACCION_CALCIN_EXTRA : 1);
+        boolean templa = "templado".equals(tipoNormalizado) || "templadolaminado".equals(tipoNormalizado);
+        double templado = templa ? area * espesor * KWH_TEMPLADO_M2_MM * (renovable ? FACTOR_RENOVABLE : FACTOR_RED_COLOMBIA) : 0;
+        boolean lamina = "laminado".equals(tipoNormalizado) || "templadolaminado".equals(tipoNormalizado);
+        double laminado = lamina ? area * CO2_PVB_M2 : 0;
+        boolean activa = "inteligente".equals(tipoNormalizado) || "fotovoltaico".equals(tipoNormalizado);
+        double capaActiva = activa ? fusion * CAPA_ACTIVA_SOBRE_FUSION : 0;
+        double transporte = peso / 1000.0 * KM_TRANSPORTE * CO2_TKM;
+        return new Etapas(fusion, templado, laminado, capaActiva, transporte);
+    }
+
+    private static double redondear2(double v) { return Math.round(v * 100.0) / 100.0; }
 
     // --- Precio base por m2 segun tipo de vidrio (portado 1:1 del JS de vidrio-personalizado-form.html) ---
     private static final double PRECIO_M2_DEFAULT = 80000;    // Crudo / no reconocido
@@ -178,7 +219,7 @@ public class AnalisisService {
         // --- Composicion de materiales (F25: la suma visible debe igualar el peso) ---
         // El formulario real solo tiene el checkbox "usar reciclado", sin
         // porcentaje: se aplica el mismo 15% que la propia UI promete
-        // ("Reduce 15% huella"). peso = reciclado + virgen; la materia virgen
+        // (U4: tambien baja la fusion, ver huellaPorEtapas). peso = reciclado + virgen; la materia virgen
         // se reparte en silice/sosa/caliza/alumina (96%) + otros oxidos (2%
         // de la tabla soda-lime base, que suma 0,98 sin ellos).
         double recicladoKg = isEco ? redondear(peso * FRACCION_RECICLADO) : 0.0;
@@ -190,13 +231,10 @@ public class AnalisisService {
         resultado.setCantidadOtros(redondear(virgen * PORC_OTROS));
         resultado.setEnergiaRequerida(redondear(peso * ENERGIA_POR_KG_KWH * (isRenovable ? 0.5 : 1.0)));
 
-        // --- Huella de CO2 (formula del JS / contrato) ---
-        double factorCO2 = isRenovable ? 0.6 : 1.1;
-        if ("templadolaminado".equals(tipoVidrio)) factorCO2 *= 1.4;
-        if ("inteligente".equals(tipoVidrio) || "fotovoltaico".equals(tipoVidrio)) factorCO2 *= 1.8;
-        if (isEco) factorCO2 *= 0.85;
-        double co2 = peso * factorCO2;
-        resultado.setHuellaCarbono(redondear(co2));
+        // --- Huella de CO2 por etapas (U4; mismo calculo que glass-preview.js) ---
+        Etapas etapas = huellaPorEtapas(tipoVidrio, area, espesor, peso, isEco, isRenovable);
+        resultado.setHuellaCarbono(redondear(etapas.total()));
+        resultado.setHuellaEtapas(etapas.comoMapa());
 
         // --- Precio (formula del JS) ---
         double precioBaseM2 = precioBasePorM2(tipoVidrio);
