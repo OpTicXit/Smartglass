@@ -59,12 +59,52 @@
     resaltado = el || null;
     if (resaltado) resaltado.classList.add('sg-tour-objetivo');
   }
+  /** Panel con desplazamiento propio que contiene el elemento (en escritorio el configurador tiene dos). */
+  function panelDe(el) {
+    for (var p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+      if (/(auto|scroll)/.test(getComputedStyle(p).overflowY) && p.scrollHeight > p.clientHeight + 1) return p;
+    }
+    return null;
+  }
+  /** Franja de la pantalla que se ve: bajo la barra fija y, si la tapa, sobre la caja del recorrido. */
+  function zonaLibre(el) {
+    var nav = $('.navbar'), arriba = 0, abajo = window.innerHeight;
+    if (nav && /fixed|sticky/.test(getComputedStyle(nav).position)) arriba = Math.max(0, nav.getBoundingClientRect().bottom);
+    if (caja && !caja.hidden) {
+      var c = caja.getBoundingClientRect(), r = el.getBoundingClientRect();
+      if (c.left < r.right && c.right > r.left) abajo = Math.min(abajo, c.top - 12);
+    }
+    return { arriba: arriba + 12, abajo: Math.max(arriba + 120, abajo) };
+  }
+  /** Desplazamiento que deja el rectangulo centrado en la franja (o su borde de arriba al inicio si no cabe). */
+  function centrar(top, alto, z) {
+    return alto > z.abajo - z.arriba ? top - z.arriba : top + alto / 2 - (z.arriba + z.abajo) / 2;
+  }
   function irA(el) {
     if (!el) return Promise.resolve();
-    // El elemento queda en el tercio superior: la caja del recorrido ocupa la parte de abajo
     var comportamiento = quieto() || saltando ? 'auto' : 'smooth';
-    if (el.closest('.sgc-modal')) el.scrollIntoView({ block: 'nearest', behavior: comportamiento });
-    else window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.22), behavior: comportamiento });
+    if (el.closest('.sgc-modal')) {
+      el.scrollIntoView({ block: 'nearest', behavior: comportamiento });
+    } else {
+      // Se centra en lo que queda libre entre la barra y la caja del recorrido. Dentro de un panel con
+      // desplazamiento propio se mueve el panel y la ventana solo lo justo para verlo entero: asi no se
+      // baja hasta el pie de pagina buscando algo que esta dentro del panel.
+      var z = zonaLibre(el), r = el.getBoundingClientRect(), panel = panelDe(el), dy;
+      if (panel) {
+        // si cabe, el panel termina donde termina la pantalla (como lo pinta el configurador); si no, empieza bajo la barra
+        var pr = panel.getBoundingClientRect(), cabe = pr.height <= window.innerHeight - 12 - z.arriba;
+        dy = cabe ? pr.bottom - (window.innerHeight - 12) : pr.top - z.arriba;
+        var arriba = Math.max(z.arriba, pr.top - dy), abajo = Math.min(z.abajo, pr.bottom - dy);
+        var dentro = centrar(r.top - dy, r.height, { arriba: arriba, abajo: Math.max(arriba + 80, abajo) });
+        panel.scrollTo({ top: Math.max(0, panel.scrollTop + dentro), behavior: comportamiento });
+      } else {
+        dy = centrar(r.top, r.height, z);
+        // el pie de pagina no entra en la franja libre si el elemento cabe un poco mas abajo
+        var pie = $('footer');
+        if (pie) dy = Math.min(dy, Math.max(pie.getBoundingClientRect().top - z.abajo, r.bottom - z.abajo + 12));
+      }
+      if (Math.abs(dy) > 2) window.scrollTo({ top: Math.max(0, window.scrollY + dy), behavior: comportamiento });
+    }
     marcar(el);
     return esperar(520).then(function () {
       if (quieto() || !cursor) return;
