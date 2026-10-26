@@ -1,6 +1,6 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-25 con U6 · guía automatizada escrita; las seis tandas de optimización tienen commit local). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-25 con las pruebas antes del push y la revisión de H01; las seis tandas de optimización tienen commit e integradas en `main`). Sustituye a cualquier versión anterior de este documento.
 
 Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento en `a2ddb2e`; U3 SaaS visible en `823801f`; U4 CO₂ por etapas en `a995e04`; U5 inmersión en `a0bc5fc`; U6 guía automatizada en el commit «U6 guia automatizada»). No se ha subido nada (`push`).
 
@@ -176,7 +176,8 @@ Seis tandas con gate: T1 responsive → T2 plano y cotizaciones → T3 sostenibi
 | `Dockerfile` en dos etapas (Temurin 26), usuario sin privilegios con `setpriv`, volumen `/data`; `.dockerignore`; `railway.json` y `render.yaml`; chequeo `/salud` | 🧪 ESCRITO (sin Docker en la máquina: la primera compilación en la plataforma valida la imagen) | `Dockerfile`, `railway.json`, `render.yaml`, `SaludController` |
 | Fotos subidas en carpeta configurable (`UPLOADS_DIR`) para montar un volumen persistente | 🧪 ESCRITO (foto servida desde la carpeta del perfil prod) | `UploadsWebConfig`, `AdminController` |
 | Guía `DESPLIEGUE.md`: plataforma recomendada (Railway), variables, pasos, migración de datos (`mongodump --db test` → Atlas), Google Cloud y comprobaciones | 🧪 ESCRITO | `DESPLIEGUE.md`; enlace en `README.md` |
-| Pendiente del equipo: rotar los secretos del historial (H01) antes de subir el repositorio, push y crear los servicios en la plataforma | POR HACER | — |
+| Secretos del historial (H01) revisados: en GitHub solo están la clave del MySQL local y un `JWT_SECRET` antiguo; el equipo decidió no reescribir el historial y usar valores nuevos en producción | 🧪 ESCRITO | `DESPLIEGUE.md` paso 1 |
+| Pendiente del equipo: push y crear los servicios en la plataforma | POR HACER | — |
 
 ## Optimización antes del despliegue (rama `optimizacion-pre-despliegue`)
 
@@ -288,6 +289,16 @@ Decisión del equipo: simular sin guardar. Sustituye al recorrido estático de T
 | Primera visita: invitación «¿Te mostramos SmartGlass?» en vez de abrir el recorrido solo; se inicia también desde /guia o con `?tour=1` | 🧪 ESCRITO (aparece una vez; «Ahora no» la recuerda) | `guia.js` |
 | Textos en es-CO y en (la búsqueda de ejemplo usa la palabra del idioma activo) | 🧪 ESCRITO | `messages*.properties` (`guia2.*`) |
 
+### Pruebas antes del push (25/10/2026, con la sesión del admin)
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Cotización nueva con el método `etapas-2026-10` (Templado 105 × 105 cm, 7 mm, calcín y energía renovable): el detalle y la ficha muestran fusión 18,4 · templado 0,2 · transporte 0,6 kg (total 19,1 kg); la vista de impresión oculta menú, botones y guía y conserva las etapas | 🧪 ESCRITO (navegador) | Obra `…e07267` (referencia E07267) |
+| Obra antigua sin etapas: el detalle y la ficha muestran «Huella calculada con el método anterior…» y ninguna etapa inventada | 🧪 ESCRITO (navegador) | Obra `…ea5bd10` |
+| Pedido de prueba desde el carrito (obra 04BCC7 y Espejo Solar Reflectivo) con compensación y los tres compromisos: recargo de $ 5.000, total $ 670.709, factura SG-2026-000014 con huella y compromisos | 🧪 ESCRITO (navegador) | Pedido 14 |
+| **Arreglo:** el subtotal de cada línea del carrito salía «$180,709» (dependía del idioma del sistema); ahora «$180.709» siempre (D2) | 🧪 ESCRITO | `ItemCarrito.getSubtotalFormateado` |
+| **Arreglo:** la confirmación y la factura mostraban el código `TARJETA_CREDITO`; ahora el nombre traducido («Tarjeta de crédito o débito», «PSE o transferencia») | 🧪 ESCRITO (navegador: pedido 14) | `Pedido.getMetodoPagoClave`, `pedido-confirmacion.html`, `factura.html` |
+
 ### Decisiones D1–D4
 
 | Decisión | Estado |
@@ -347,7 +358,7 @@ Decisión del equipo: simular sin guardar. Sustituye al recorrido estático de T
 
 | Ítem | Estado | Evidencia |
 |---|---|---|
-| H01 · Secretos fuera del repositorio | 🧪 ESCRITO | Variables sin valor por defecto en `application.properties:8,17,44-45`; contraseña del admin inicial desde `ADMIN_PASSWORD` (`DataInitializer.java:26,47`); plantilla `.env.example`; `.env` en `.gitignore`. **Pendiente del equipo:** rotar JWT, MySQL, Google y la contraseña del admin, y decidir si se reescribe el historial |
+| H01 · Secretos fuera del repositorio | 🧪 ESCRITO | Variables sin valor por defecto en `application.properties:8,17,44-45`; contraseña del admin inicial desde `ADMIN_PASSWORD` (`DataInitializer.java:26,47`); plantilla `.env.example`; `.env` en `.gitignore`. **Revisado el 25/10/2026:** en el historial publicado solo están la clave del MySQL local y un JWT antiguo (Google, admin y Atlas nunca se publicaron). Decisión del equipo: no reescribir el historial; producción usa un JWT generado por Render y la clave propia del MySQL gestionado |
 | H02 · Modelo sin `masa_kg` | 🧪 ESCRITO | `analisis.ipynb` celda 5; notebook re-ejecutado: MAE 23,25 · R² 0,9433 · CV 0,9271 ± 0,0115 (`metricas_modelo.csv`). **Pendiente:** los PDF de `documentos/` siguen citando 0,9461 / 20,69 |
 | H03 · El README no promete integración del `.pkl` | 🧪 ESCRITO | README, secciones "Funcionalidades", "Flujo general" e "Integración del modelo predictivo" |
 | H04 · Caja de las plantillas | 🧪 ESCRITO | `comparar.html`, `admin/resenas.html`; `/comparar` probado con `java -jar` (200) |

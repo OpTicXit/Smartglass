@@ -15,7 +15,7 @@ En los dos casos MongoDB va en **MongoDB Atlas** (el plan M0 gratuito alcanza pa
 
 ## Antes de desplegar
 
-1. **Secretos del historial (H01).** Si el repositorio va a GitHub, primero hay que rotar las credenciales que estuvieron en commits antiguos: la clave de MySQL, el `JWT_SECRET` y el secreto de Google.
+1. **Secretos del historial (H01, revisado el 25/10/2026).** En los commits antiguos de `application.properties` que ya están en GitHub quedaron dos valores: la clave del MySQL local y un `JWT_SECRET` antiguo. El secreto de Google, la clave del admin y la URI de Atlas nunca se publicaron. El historial no se reescribe; en su lugar, producción usa valores nuevos: Render genera su propio `JWT_SECRET`, el MySQL gestionado tiene su propia clave y ninguno de los dos valores viejos se reutiliza en ningún sitio.
 2. **MongoDB Atlas.** Crea un clúster, un usuario de base de datos y permite el acceso de red de la plataforma (o `0.0.0.0/0` mientras pruebas). Copia la cadena `mongodb+srv://…` y **añádele el nombre de la base**, por ejemplo `/smartglass`.
 3. **Google Cloud (login con Google).** En la credencial OAuth, añade:
    - URI de redirección autorizada: `https://<tu-dominio>/login/oauth2/code/google`

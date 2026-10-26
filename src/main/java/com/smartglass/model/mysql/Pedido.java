@@ -128,6 +128,13 @@ public class Pedido {
     public String getMetodoPago() { return metodoPago; }
     public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
 
+    /** Clave de messages para mostrar el metodo de pago (null si no es uno conocido: se muestra tal cual). */
+    public String getMetodoPagoClave() {
+        if ("TARJETA_CREDITO".equals(metodoPago)) return "checkout.tarjeta_de_credito_o_debito";
+        if ("PSE".equals(metodoPago)) return "checkout.pse_o_transferencia";
+        return null;
+    }
+
     public String getNumeroFactura() { return numeroFactura; }
     public void setNumeroFactura(String numeroFactura) { this.numeroFactura = numeroFactura; }
 

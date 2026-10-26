@@ -44,7 +44,8 @@ public class ItemCarrito implements Serializable {
 
     // --- Formato para Thymeleaf ---
 
+    /** Separador de miles es-CO fijo (D2); antes dependia del idioma del sistema y salia "180,709". */
     public String getSubtotalFormateado() {
-        return String.format("%,.0f", getSubtotal());
+        return String.format(java.util.Locale.forLanguageTag("es-CO"), "%,.0f", getSubtotal());
     }
 }

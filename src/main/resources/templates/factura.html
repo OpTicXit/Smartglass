@@ -122,7 +122,7 @@
             <p>
                 <span th:text="${usuario.email}">correo@ejemplo.com</span><br>
                 <span th:text="${pedido.direccionEnvio}">Dirección</span><br>
-                <span th:text="#{factura.pago(${pedido.metodoPago})}">Pago</span>
+                <span th:text="#{factura.pago(${pedido.metodoPagoClave != null ? #messages.msg(pedido.metodoPagoClave) : pedido.metodoPago})}">Pago</span>
             </p>
         </div>
     </section>
