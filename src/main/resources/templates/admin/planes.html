@@ -2,27 +2,26 @@
 <html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{superadmin.titulo_pagina}">SmartGlass - Consola SaaS</title>
+    <title th:text="#{planes.admin_titulo_pagina}">SmartGlass - Planes (Admin)</title>
     <meta name="robots" content="noindex, nofollow">
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
     <!--
-        T5 · Consola SaaS del dueno de la plataforma. Aparte del panel /admin: sin su navegacion,
-        sin enlaces desde la tienda y solo para SUPERADMIN_USUARIOS (SuperadminController).
-        Cambiar el plan no borra datos: solo muestra u oculta funciones (las obras ya guardadas
-        conservan sus datos y el servidor ignora lo que el plan no incluye en las nuevas).
+        U3 · Planes SaaS en el panel del admin (AdminPlanesController; antes T5 /superadmin aparte).
+        Cualquier admin cambia el plan. Cambiarlo no borra datos: solo muestra u oculta funciones
+        (las obras ya guardadas conservan sus datos y el servidor ignora lo que el plan no incluye
+        en las nuevas). La comparacion publica, sin precios, es /planes.
     -->
     <style>
-        .consola { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 32px) 56px; }
-        .consola-barra { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border-color); background: color-mix(in srgb, var(--bg-primary) 88%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        .consola-barra .consola { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
-        .consola-marca { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; }
-        .consola-marca img { width: 30px; height: 30px; }
-        .consola-marca span { padding: 3px 10px; border-radius: 999px; background: var(--color-accent-dim); color: var(--color-accent-text); font-family: var(--font-primary); font-size: max(12px, 0.75rem); font-weight: 700; }
-        .consola-sesion { display: flex; align-items: center; gap: 12px; color: var(--text-muted); font-size: 0.86rem; }
-
-        .consola-intro { padding: clamp(28px, 5vw, 48px) 0 20px; }
-        .consola-intro h1 { margin: 0 0 8px; font-size: var(--fs-3xl); }
-        .consola-intro p { margin: 0; color: var(--text-muted); }
+        .container { max-width: 1160px; }
+        .planes-intro { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; margin-bottom: 6px; }
+        .planes-intro .admin-title { margin-bottom: 6px; }
+        .planes-intro p { margin: 0; color: var(--text-muted); max-width: 62ch; }
+        .mercado-det > summary { cursor: pointer; list-style: none; }
+        .mercado-det > summary::-webkit-details-marker { display: none; }
+        .mercado-det > summary h2 { display: inline; }
+        .mercado-det > summary::after { content: " +"; color: var(--color-accent-text); font-weight: 700; }
+        .mercado-det[open] > summary::after { content: " −"; }
 
         .panel { margin-top: 22px; padding: clamp(18px, 3vw, 28px); border: 1px solid var(--border-color); border-radius: var(--r-xl); background: var(--card-bg); box-shadow: var(--shadow-main); }
         .panel > h2 { margin: 0 0 4px; font-size: 1.2rem; }
@@ -83,31 +82,30 @@
             .funciones tr { padding: 12px 0; border-bottom: 1px solid var(--border-color); }
             .funciones td { padding: 6px 0; border: 0; }
             .funciones td[data-label]::before { content: attr(data-label) ": "; color: var(--text-muted); font-size: max(12px, 0.78rem); font-weight: 700; }
-            .consola-sesion span { display: none; }
         }
         @media (pointer: coarse) { .ajuste select, .ajuste .btn { min-height: 44px; } }
     </style>
 </head>
 <body>
 
-<header class="consola-barra">
-    <div class="consola">
-        <div class="consola-marca"><img th:src="@{/img/logo-icono-sm.png}" alt="" aria-hidden="true"> SmartGlass <span th:text="#{superadmin.titulo}">Consola SaaS</span></div>
-        <div class="consola-sesion">
-            <span th:text="#{superadmin.sesion(${superadmin})}">Superadmin: admin</span>
-            <a class="btn btn-secondary btn-sm" th:href="@{/home}"><i class="ph ph-storefront" aria-hidden="true"></i> <span th:text="#{superadmin.volver}">Ir a la tienda</span></a>
-        </div>
-    </div>
-</header>
+<div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
-<main class="consola" id="contenido">
-    <div class="consola-intro">
-        <h1 th:text="#{superadmin.titulo}">Consola SaaS</h1>
-        <p th:text="#{superadmin.sub}">Decide qué incluye esta instalación.</p>
+<main class="container" id="contenido">
+    <div class="planes-intro">
+        <div>
+            <h1 class="admin-title" th:text="#{planes.admin_h1}">Planes y funciones</h1>
+            <p th:text="#{planes.admin_sub}">Elige qué incluye esta instalación.</p>
+        </div>
+        <a class="btn btn-secondary btn-sm" th:href="@{/planes}"><i class="ph ph-storefront" aria-hidden="true"></i> <span th:text="#{planes.ver_publica}">Ver la página pública</span></a>
     </div>
 
     <div th:if="${mensaje}" class="alert alert--success" role="status">
         <i class="ph ph-check-circle" aria-hidden="true"></i><span th:text="${mensaje}">Guardado</span>
+    </div>
+
+    <!-- ===== U3: vista previa animada (empieza en el plan actual) ===== -->
+    <div class="panel">
+        <div th:replace="~{fragments/plan-preview :: vista(${planActual})}"></div>
     </div>
 
     <!-- ===== Plan ===== -->
@@ -129,7 +127,7 @@
                         <span class="visually-hidden" th:text="${dentro} ? #{superadmin.incluida} : #{superadmin.no_incluida}"></span>
                     </li>
                 </ul>
-                <form th:unless="${p == planActual}" th:action="@{/superadmin/plan}" method="post">
+                <form th:unless="${p == planActual}" th:action="@{/admin/planes/plan}" method="post">
                     <input type="hidden" name="plan" th:value="${p}">
                     <button type="submit" class="btn btn-primary" th:text="#{superadmin.aplicar}">Aplicar este plan</button>
                 </form>
@@ -168,7 +166,7 @@
                     <td th:attr="data-label=#{superadmin.plan.AVANZADO}"><span th:class="${f.enAvanzado} ? 'incl si' : 'incl no'" th:text="${f.enAvanzado} ? #{superadmin.incluida} : #{superadmin.no_incluida}">Incluida</span></td>
                     <td th:attr="data-label=#{superadmin.col_estado}"><span th:class="${f.activa} ? 'estado on' : 'estado off'"><i th:class="${f.activa} ? 'ph-fill ph-check-circle' : 'ph ph-minus-circle'" aria-hidden="true"></i> <span th:text="${f.activa} ? #{superadmin.activa} : #{superadmin.inactiva}">Activa</span></span></td>
                     <td th:attr="data-label=#{superadmin.col_ajuste}">
-                        <form class="ajuste" th:action="@{/superadmin/funcion/{c}(c=${f.clave})}" method="post">
+                        <form class="ajuste" th:action="@{/admin/planes/funcion/{c}(c=${f.clave})}" method="post">
                             <label class="visually-hidden" th:for="'m-' + ${f.clave}" th:text="#{superadmin.col_ajuste} + ': ' + ${#messages.msg('funcion.' + f.clave + '.titulo')}">Ajuste</label>
                             <select name="modo" th:id="'m-' + ${f.clave}" th:classappend="${f.modo != 'PLAN'} ? 'marcado'">
                                 <option value="PLAN" th:selected="${f.modo == 'PLAN'}" th:text="#{superadmin.modo.PLAN}">Según el plan</option>
@@ -198,8 +196,8 @@
     </section>
 
     <!-- ===== Estudio de mercado ===== -->
-    <section class="panel" aria-labelledby="tMercado">
-        <h2 id="tMercado" th:text="#{superadmin.mercado_t}">Estudio de mercado</h2>
+    <details class="panel mercado-det">
+        <summary><h2 id="tMercado" th:text="#{superadmin.mercado_t}">Estudio de mercado</h2></summary>
         <p class="sub" th:text="#{superadmin.mercado_sub}">Cómo empaquetan sus funciones otros sistemas.</p>
         <ul class="mercado">
             <li th:text="#{superadmin.m1}">Smart Glazier…</li>
@@ -224,9 +222,12 @@
             <li><a href="https://www.asuntoslegales.com.co/analisis/daniel-s-acevedo-sanchez-4020155/el-salto-digital-de-la-mipyme-colombiana-4348410" target="_blank" rel="noopener noreferrer">Asuntos Legales · El salto digital de la mipyme colombiana</a></li>
         </ul>
         <p class="nota" th:text="#{superadmin.nota_precios}">Precios en dólares de las páginas públicas.</p>
-    </section>
+    </details>
 </main>
 
+<th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
+<script th:src="@{/js/glass-preview.js}"></script>
+<script th:src="@{/js/planes-preview.js}"></script>
 <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

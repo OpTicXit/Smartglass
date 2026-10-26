@@ -34,7 +34,6 @@ En los dos casos MongoDB va en **MongoDB Atlas** (el plan M0 gratuito alcanza pa
 | `JWT_SECRET` | Sí | 32 caracteres o más, fijo (si cambia, las sesiones JWT emitidas dejan de valer) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Sí | Credencial OAuth de Google |
 | `ADMIN_PASSWORD` | Solo la primera vez | Crea el usuario `admin` si la base está vacía |
-| `SUPERADMIN_USUARIOS` | Recomendada | Usuarios con acceso a `/superadmin`, separados por comas |
 | `UPLOADS_DIR` | Sí | `/data/uploads` (el `Dockerfile` ya la pone; el volumen se monta en `/data`) |
 | `PORT` | No | Lo asigna la plataforma |
 | `DB_POOL` | No | Conexiones a MySQL (por defecto 5) |
@@ -55,7 +54,7 @@ En los dos casos MongoDB va en **MongoDB Atlas** (el plan M0 gratuito alcanza pa
 ## Render, paso a paso
 
 1. **New → Blueprint** y elige el repositorio: Render lee `render.yaml`.
-2. Escribe en el panel los valores marcados `sync: false` (MySQL externo, Atlas, Google, `ADMIN_PASSWORD`, `SUPERADMIN_USUARIOS`). `JWT_SECRET` lo genera Render.
+2. Escribe en el panel los valores marcados `sync: false` (MySQL externo, Atlas, Google, `ADMIN_PASSWORD`). `JWT_SECRET` lo genera Render.
 3. El disco `fotos` se monta en `/data` y requiere un plan de pago. Sin disco, las fotos subidas se pierden en cada despliegue.
 4. Registra el dominio `https://<servicio>.onrender.com` en Google Cloud.
 
@@ -79,7 +78,7 @@ Si arrancas con bases vacías, la app crea las tablas, los índices, el catálog
 3. Login con usuario y contraseña, y login con Google (vuelve a `https://<dominio>/…`).
 4. Cotizar una obra, aprobarla desde el admin, añadirla al carrito y pagar.
 5. Subir una foto de producto, volver a desplegar y comprobar que sigue ahí (volumen).
-6. `/superadmin` con un usuario de `SUPERADMIN_USUARIOS`; cualquier otro ve 404.
+6. Con el admin, `/admin/planes` (los planes SaaS; cualquier admin los edita) y, sin sesión, la página pública `/planes`.
 
 ## Qué cambia el perfil `prod`
 

@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-25 con U2 · rendimiento escrito). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-25 con U3 · SaaS visible escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento **sin commitear**). No se ha subido nada (`push`).
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento en `a2ddb2e`; U3 SaaS visible **sin commitear**). No se ha subido nada (`push`).
 
 ## Leyenda
 
@@ -213,6 +213,20 @@ Medido en local (servidor con curl; navegador con la Performance API). El servid
 | Aparición de tarjetas al desplazar se sentía lenta | 0,7 s + 280 ms de escalonado → 0,45 s + 160 ms | 🧪 ESCRITO | `theme.css` `.sg-reveal`, `main.js` |
 | Desarrollo: SQL y trazas DEBUG de seguridad en cada petición (también por cada CSS e imagen) | Apagados por defecto; `SHOW_SQL=true` y `LOG_SEGURIDAD=DEBUG` los vuelven a encender | 🧪 ESCRITO | `application.properties` |
 | Configurador: redibujo por cambio de campo | 0,16 ms por `render` (ya iba bien; sin cambios) | — | Performance API |
+
+### U3 · SaaS visible
+
+Decisión del equipo: cualquier admin edita el plan (sin lista de superadmins); la página pública no lleva precios.
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Planes dentro del panel: pestaña «Planes» en la barra del admin, `/admin/planes` con plan, funciones, historial y estudio de mercado (plegable). `/superadmin` redirige ahí | 🧪 ESCRITO (con sesión de admin: aplicar Básico → «0 de 7», la tienda queda con 4 formas y sin sello, idioma ni cifras, y la página pública marca Básico; ajuste «Activar siempre» del corte → «1 de 7» y aparece «Personalizada»; vuelto a «Según el plan» y Avanzado, historial con los 4 cambios. Sin sesión: `/admin/planes` → login; `/superadmin` → 302) | `AdminPlanesController`, `admin/planes.html`, `admin/fragments/nav.html` |
+| `SUPERADMIN_USUARIOS` retirada del código, `application.properties`, `.env.example`, `render.yaml` y `DESPLIEGUE.md` | 🧪 ESCRITO | `SecurityConfig` (ya no hay regla para `/superadmin`) |
+| Página pública «Para empresas» (`/planes`): los dos planes, «Precio por definir», qué incluye cada uno, cómo elegir y la nota de fase piloto; marca el plan que usa esta demo. Enlace en la barra pública y en el pie | 🧪 ESCRITO (es-CO y en revisadas; en inglés sin restos en español) | `planes.html`, `HomeController.planes` |
+| Vista previa animada: una vidriería de ejemplo cuyas piezas se apagan con Básico (idioma, ofertas, cifras, 9 formas, corte libre, sello y ficha quedan como huecos punteados con candado); la escena recorre las formas del plan; lista en texto al lado y resumen con `aria-live` cuando lo cambia la persona | 🧪 ESCRITO (escritorio, 375 px sin desborde, tema claro y oscuro) | `fragments/plan-preview.html`, `js/planes-preview.js`, `theme.css` «U3 · Vista previa de planes» |
+| Movimiento de la vista previa: alterna sola cada 5,5 s con botón de pausa (WCAG 2.2.2); elegir un plan la detiene; fuera de pantalla o pestaña oculta no corre; con fotosensible o movimiento reducido ni alterna ni anima | 🧪 ESCRITO (probado: alterna sin modo; quieta y sin botón con fotosensible) | `planes-preview.js` |
+| Barra pública: con «Para empresas» no cabía en una línea; menú hamburguesa hasta 1180 px (antes 950) y franja compacta 1181–1360 px | 🧪 ESCRITO (68 px de alto a 1181, 1200 y 1370 px) | `theme.css` |
+| Barra del admin (7 pestañas, ya se partía entre 951 y ~1220 px antes de U3): hasta 1440 px la cuenta muestra solo el avatar (el nombre queda para lectores de pantalla) y hasta 1360 px enlaces y márgenes más juntos | 🧪 ESCRITO (una línea a 1181, 1361, 1441 y 1600 px; hamburguesa a 1100 px) | `theme.css` (`.navbar--admin`) |
 
 ### Decisiones D1–D4
 

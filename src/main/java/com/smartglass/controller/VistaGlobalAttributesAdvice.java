@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
     UsuarioDashboardController.class,
     VidrioPersonalizadoWebController.class,
     AdminController.class,
+    AdminPlanesController.class,
     AdminCotizacionesController.class
 })
 public class VistaGlobalAttributesAdvice {

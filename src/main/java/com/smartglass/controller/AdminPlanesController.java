@@ -2,7 +2,6 @@ package com.smartglass.controller;
 
 import com.smartglass.service.Funcion;
 import com.smartglass.service.PlanService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
@@ -15,41 +14,26 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * T5 · Consola SaaS del dueno de la plataforma (aparte del panel /admin de la vidrieria).
- *   GET  /superadmin                 plan actual, funciones, historial y estudio de mercado
- *   POST /superadmin/plan            plan=BASICO|AVANZADO
- *   POST /superadmin/funcion/{clave} modo=PLAN|ON|OFF
+ * U3 · Planes SaaS dentro del panel de administracion (antes T5: consola /superadmin aparte).
+ *   GET  /admin/planes                 plan actual, vista previa, funciones, historial y estudio de mercado
+ *   POST /admin/planes/plan            plan=BASICO|AVANZADO
+ *   POST /admin/planes/funcion/{clave} modo=PLAN|ON|OFF
  *
- * Quien es superadmin NO se guarda en la base: lo define la variable SUPERADMIN_USUARIOS
- * (nombres de usuario separados por comas). Asi el admin de la vidrieria, que puede cambiar
- * roles desde /admin/usuarios, no puede darse este acceso. Sin la variable, nadie entra.
- * Para cualquier otro usuario la consola responde 404 (no se anuncia que existe).
+ * Decision del equipo (U3): cualquier admin edita el plan; ya no hay lista SUPERADMIN_USUARIOS.
+ * SecurityConfig protege /admin/** con ROLE_ADMIN. /superadmin queda como redireccion.
+ * La comparacion publica (sin precios) es /planes (HomeController).
  */
 @Controller
-@RequestMapping("/superadmin")
-public class SuperadminController {
+public class AdminPlanesController {
 
     private final PlanService plan;
     private final MessageSource messageSource;
-    private final Set<String> superadmins;
 
-    public SuperadminController(PlanService plan, MessageSource messageSource,
-                                @Value("${smartglass.superadmin.usuarios:}") String usuarios) {
+    public AdminPlanesController(PlanService plan, MessageSource messageSource) {
         this.plan = plan;
         this.messageSource = messageSource;
-        this.superadmins = Arrays.stream(usuarios.split(","))
-                .map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toUnmodifiableSet());
-    }
-
-    private String exigirSuperadmin(Authentication auth) {
-        if (auth == null || !auth.isAuthenticated() || !superadmins.contains(auth.getName())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        return auth.getName();
     }
 
     private String texto(String clave, Object... args) {
@@ -74,44 +58,51 @@ public class SuperadminController {
         public boolean isActiva() { return activa; }
         public boolean isEnBasico() { return enBasico; }
         public boolean isEnAvanzado() { return enAvanzado; }
-        /** PLAN (sigue al plan), ON u OFF (ajuste del superadmin). */
+        /** PLAN (sigue al plan), ON u OFF (ajuste manual del admin). */
         public String getModo() { return modo; }
     }
 
-    @GetMapping
-    public String consola(Authentication auth, Model model) {
-        model.addAttribute("superadmin", exigirSuperadmin(auth));
-        List<FilaFuncion> filas = Arrays.stream(Funcion.values())
+    /** Filas de la tabla (tambien las usa la pagina publica para la lista por plan). */
+    static List<FilaFuncion> filas(PlanService plan) {
+        return Arrays.stream(Funcion.values())
                 .map(f -> new FilaFuncion(f, plan.activa(f), plan.ajuste(f)))
                 .toList();
+    }
+
+    @GetMapping({"/superadmin", "/superadmin/**"})
+    public String consolaAntigua() {
+        return "redirect:/admin/planes";
+    }
+
+    @GetMapping("/admin/planes")
+    public String planes(Model model) {
+        List<FilaFuncion> filas = filas(plan);
         model.addAttribute("planActual", plan.planActual());
         model.addAttribute("funciones", filas);
         model.addAttribute("historial", plan.historial());
         model.addAttribute("activas", filas.stream().filter(FilaFuncion::isActiva).count());
-        return "superadmin";
+        return "admin/planes";
     }
 
-    @PostMapping("/plan")
+    @PostMapping("/admin/planes/plan")
     public String cambiarPlan(@RequestParam String plan, Authentication auth, RedirectAttributes ra) {
-        String usuario = exigirSuperadmin(auth);
-        this.plan.cambiarPlan(plan, usuario);
+        this.plan.cambiarPlan(plan, auth.getName());
         ra.addFlashAttribute("mensaje", texto("superadmin.plan_guardado",
                 texto("superadmin.plan." + this.plan.planActual())));
-        return "redirect:/superadmin";
+        return "redirect:/admin/planes";
     }
 
-    @PostMapping("/funcion/{clave}")
+    @PostMapping("/admin/planes/funcion/{clave}")
     public String ajustarFuncion(@PathVariable String clave, @RequestParam String modo,
                                  Authentication auth, RedirectAttributes ra) {
-        String usuario = exigirSuperadmin(auth);
         Funcion f;
         try {
             f = Funcion.valueOf(clave);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        plan.ajustarFuncion(f, modo, usuario);
+        plan.ajustarFuncion(f, modo, auth.getName());
         ra.addFlashAttribute("mensaje", texto("superadmin.funcion_guardada", texto("funcion." + f.name() + ".titulo")));
-        return "redirect:/superadmin#funciones";
+        return "redirect:/admin/planes#funciones";
     }
 }

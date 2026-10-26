@@ -300,7 +300,7 @@ html { scrollbar-color: var(--bg-tertiary) var(--bg-primary); }
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--color-accent-solid); color: var(--on-accent-solid);
   padding: 9px 20px; border-radius: var(--r-pill); text-decoration: none;
-  font-weight: 600; font-size: 0.9rem;
+  font-weight: 600; font-size: 0.9rem; white-space: nowrap;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--on-accent-solid) 8%, transparent) inset, 0 6px 18px -6px color-mix(in srgb, var(--color-accent-solid) 70%, transparent);
   transition: background-color var(--dur) ease, transform var(--dur) var(--ease-out), box-shadow var(--dur) ease;
 }
@@ -418,7 +418,25 @@ html { scrollbar-color: var(--bg-tertiary) var(--bg-primary); }
 .subnav .subnav-spacer { margin-left: auto; }
 .subnav a.is-action { border: 1px solid var(--border-color); color: var(--color-accent-text); }
 
-@media (max-width: 950px) {
+/* U3: entre 1181 y 1360 px la barra va compacta (menos relleno por enlace) para caber en una linea */
+@media (min-width: 1181px) and (max-width: 1360px) {
+  .navbar[data-nav] .nav-links { margin-left: 6px; }
+  .navbar[data-nav] .nav-links .nav-link { padding-inline: 10px; }
+}
+/* U3: la barra del admin (7 pestanas) necesita ~1314 px completa. Hasta 1440 px la cuenta muestra
+   solo el avatar (el nombre sigue para lectores de pantalla) y hasta 1360 px todo va mas junto. */
+@media (min-width: 1181px) and (max-width: 1440px) {
+  .navbar--admin .nav-account .nav-trigger > span:not(.nav-avatar) {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  }
+}
+@media (min-width: 1181px) and (max-width: 1360px) {
+  .navbar--admin[data-nav] { padding-left: 20px; padding-right: 20px; }
+  .navbar--admin[data-nav] .nav-panel { gap: 12px; }
+  .navbar--admin[data-nav] .nav-links .nav-link { padding-inline: 8px; }
+}
+/* U3: 950 -> 1180 px; con "Para empresas" la barra completa necesita ~1195 px */
+@media (max-width: 1180px) {
   .nav-toggle { display: inline-grid; }
   .nav-panel { display: none; order: 2; flex: 1 0 100%; flex-direction: column; align-items: stretch; gap: 14px; padding: 6px 0 16px; }
   .navbar.mobile-open .nav-panel { display: flex; animation: sgFadeDown 0.25s var(--ease-out) both; }
@@ -1379,7 +1397,8 @@ body.sg-sin-scroll { overflow: hidden; }
 }
 .a11y-flotante > .nav-link .nav-a11y-texto, .a11y-flotante > .nav-link .nav-chevron { display: none; }
 .a11y-flotante .nav-dropdown { top: auto; bottom: calc(100% + 10px); left: auto; right: 0; transform-origin: bottom right; }
-@media (max-width: 950px) {
+/* U3: 950 -> 1180 px; con "Para empresas" la barra completa necesita ~1195 px */
+@media (max-width: 1180px) {
   .a11y-panel { min-width: 0; }
   .a11y-flotante .nav-dropdown { position: absolute; display: block; width: min(320px, calc(100vw - 32px)); padding: 6px; border: 1px solid var(--border-color); background: var(--card-solid); box-shadow: var(--shadow-main); opacity: 0; visibility: hidden; }
   .a11y-flotante.open .nav-dropdown { opacity: 1; visibility: visible; }
@@ -1559,3 +1578,140 @@ body::before {
 
 /* Cifras que cuentan al entrar en pantalla (main.js: contarAlEntrar). Sin JS se ve el valor final. */
 [data-contar] { font-variant-numeric: tabular-nums; }
+
+/* =========================================================
+   U3 · Vista previa de planes (fragments/plan-preview.html, js/planes-preview.js)
+   Una ventana de ejemplo cuyas piezas [data-f] se apagan con el plan Basico (.is-off).
+   Solo opacity/transform en las transiciones (componedor); el modo fotosensible y
+   prefers-reduced-motion las dejan en 0 con las reglas globales.
+========================================================= */
+.pv { --pv-vidrio-a: color-mix(in srgb, var(--color-cyan) 70%, #fff); --pv-vidrio-b: color-mix(in srgb, var(--color-accent) 75%, var(--color-indigo));
+  display: grid; gap: 20px; }
+.pv-cab { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 14px 24px; }
+.pv-ejemplo { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 6px; color: var(--color-accent-text); font-size: max(12px, 0.78rem); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.pv-titulo { margin: 0; font-size: clamp(1.25rem, 1rem + 1vw, 1.7rem); letter-spacing: -0.02em; }
+.pv-ctl { display: flex; align-items: center; gap: 10px; }
+.pv-seg { position: relative; display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 4px; border: 1px solid var(--border-color); border-radius: var(--r-pill); background: var(--card-bg-soft); }
+.pv-seg::before { content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: var(--r-pill);
+  background: var(--color-accent); box-shadow: var(--shadow-glow); transition: transform 0.45s var(--ease-out); }
+.pv[data-plan="AVANZADO"] .pv-seg::before { transform: translateX(100%); }
+.pv-seg button { position: relative; z-index: 1; min-height: 40px; padding: 0 20px; border: 0; border-radius: var(--r-pill); background: none;
+  color: var(--text-muted); font: inherit; font-size: 0.92rem; font-weight: 700; cursor: pointer; transition: color var(--dur) ease; }
+.pv-seg button[aria-checked="true"] { color: var(--on-accent-solid); }
+.pv-seg button:focus-visible { outline: 2px solid var(--color-accent-text); outline-offset: 3px; }
+.pv-pausa { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--border-color); border-radius: 50%;
+  background: var(--card-bg-soft); color: var(--text-main); font-size: 1rem; cursor: pointer; }
+.pv-pausa:hover { border-color: var(--border-hover); }
+.pv-pausa:focus-visible { outline: 2px solid var(--color-accent-text); outline-offset: 3px; }
+@media (pointer: coarse) { .pv-seg button { min-height: 44px; } .pv-pausa { width: 44px; height: 44px; } }
+
+.pv-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 300px); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .pv-cuerpo { grid-template-columns: 1fr; } }
+
+/* ---- Ventana ---- */
+.pv-ventana { container-type: inline-size; overflow: hidden; border: 1px solid var(--border-strong); border-radius: var(--r-lg);
+  background: var(--card-solid); box-shadow: var(--shadow-hover), var(--glass-edge); }
+.pv-barra { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--border-color); background: var(--bg-tertiary); }
+.pv-punto { width: 9px; height: 9px; border-radius: 50%; background: var(--border-strong); }
+.pv-url { display: inline-flex; align-items: center; gap: 5px; min-width: 0; margin: 0 auto 0 10px; padding: 3px 12px; border-radius: var(--r-pill);
+  background: var(--card-bg-soft); color: var(--text-muted); font-size: max(11px, 0.72rem); white-space: nowrap; }
+.pv-etiqueta { padding: 2px 10px; border-radius: var(--r-pill); background: var(--color-accent-dim); color: var(--color-accent-text); font-size: max(11px, 0.72rem); font-weight: 700; }
+
+.pv-sitio { display: grid; gap: 1.4em; padding: 1.6em; font-size: clamp(9px, 2.1cqi, 13px); }
+.pv-nav { display: flex; align-items: center; gap: 1.2em; }
+.pv-logo { display: inline-flex; align-items: center; gap: 0.5em; font-family: var(--font-display); font-weight: 800; font-size: 1.15em; white-space: nowrap; }
+.pv-logo-marca { width: 1.4em; height: 1.4em; border-radius: 0.4em; background: linear-gradient(135deg, var(--pv-vidrio-a), var(--pv-vidrio-b)); }
+.pv-nav-links { display: flex; gap: 1.1em; margin-left: auto; color: var(--text-muted); }
+.pv-idioma { display: inline-flex; gap: 0.2em; padding: 0.2em; border: 1px solid var(--border-color); border-radius: var(--r-pill); font-size: 0.85em; }
+.pv-idioma > * { padding: 0.15em 0.55em; border-radius: var(--r-pill); }
+.pv-idioma b { background: var(--color-accent-dim); color: var(--color-accent-text); }
+
+.pv-hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1.4em; align-items: center; }
+.pv-hero-txt { display: grid; gap: 0.6em; }
+.pv-hero-txt strong { font-family: var(--font-display); font-size: 1.75em; line-height: 1.1; letter-spacing: -0.02em; }
+.pv-linea { display: block; height: 0.55em; border-radius: var(--r-pill); background: var(--border-strong); }
+.pv-corta { width: 62%; }
+.pv-cifras { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6em; border-radius: 0.9em; --d: 40ms; }
+.pv-cifras > span { display: grid; gap: 0.15em; padding: 0.8em; border: 1px solid var(--border-color); border-radius: 0.9em; background: var(--card-bg-soft); color: var(--text-muted); font-size: 0.85em; }
+.pv-cifras b { color: var(--text-main); font-family: var(--font-display); font-size: 1.5em; font-variant-numeric: tabular-nums; }
+
+.pv-zona { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; }
+.pv-tienda { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7em; align-content: start; }
+.pv-prod { position: relative; display: grid; gap: 0.5em; padding: 0.55em; border: 1px solid var(--border-color); border-radius: 0.9em; background: var(--card-bg-soft); }
+.pv-foto { aspect-ratio: 1; border-radius: 0.6em; }
+.pv-foto1 { background: linear-gradient(150deg, color-mix(in srgb, var(--color-cyan) 55%, transparent), color-mix(in srgb, var(--color-accent) 25%, transparent)); }
+.pv-foto2 { background: linear-gradient(200deg, color-mix(in srgb, var(--color-violet) 45%, transparent), color-mix(in srgb, var(--color-cyan) 20%, transparent)); }
+.pv-foto3 { background: linear-gradient(120deg, color-mix(in srgb, var(--color-success) 35%, transparent), color-mix(in srgb, var(--color-accent) 30%, transparent)); }
+.pv-precio { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.4em; font-size: 0.9em; }
+.pv-precio b { font-variant-numeric: tabular-nums; }
+.pv-tachado { color: var(--text-muted); font-size: 0.85em; text-decoration: line-through; }
+.pv-oferta { position: absolute; top: 0.9em; left: 0.9em; padding: 0.15em 0.55em; border-radius: var(--r-pill); background: var(--color-warning); color: var(--on-warning); font-size: 0.8em; font-weight: 800; }
+
+.pv-config { display: grid; gap: 0.8em; align-content: start; padding: 0.9em; border: 1px solid var(--border-color); border-radius: 1em; background: var(--card-bg-soft); }
+.pv-escena { position: relative; display: grid; place-items: center; aspect-ratio: 120 / 70; border-radius: 0.7em;
+  background: radial-gradient(120% 90% at 50% 0%, var(--stage-spot), transparent 62%), linear-gradient(180deg, var(--stage-top), var(--stage-bottom)); }
+.pv-escena svg { width: 100%; height: 100%; }
+.pv-pieza { fill: url(#pvVidrio); fill-opacity: 0.85; stroke: color-mix(in srgb, var(--pv-vidrio-a) 80%, #fff); stroke-width: 0.8; stroke-linejoin: round; }
+.pv-forma-nombre { position: absolute; right: 0.6em; bottom: 0.5em; color: var(--text-muted); font-size: 0.8em; }
+.pv-formas { display: flex; flex-wrap: wrap; gap: 0.35em; }
+.pv-formas-mas { display: contents; }
+.pv-chip { display: grid; place-items: center; width: 2.2em; height: 1.8em; border: 1px solid var(--border-color); border-radius: 0.5em; background: var(--card-bg);
+  transition: opacity 0.35s ease, transform 0.45s var(--ease-out), border-color 0.3s ease, background 0.3s ease; }
+.pv-chip svg { width: 1.3em; height: 1em; transition: opacity 0.3s ease; }
+.pv-chip polygon { fill: none; stroke: var(--text-muted); stroke-width: 1.2; stroke-linejoin: round; }
+.pv-chip.is-actual { border-color: var(--color-accent); background: var(--color-accent-dim); }
+.pv-chip.is-actual polygon { stroke: var(--color-accent-text); }
+.pv-herr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.45em; }
+.pv-tile { display: grid; justify-items: center; align-content: center; gap: 0.35em; min-height: 5.6em; padding: 0.6em 0.3em; border: 1px solid var(--border-color); border-radius: 0.7em;
+  background: var(--card-bg); text-align: center; font-size: 0.82em; line-height: 1.2; }
+.pv-tile > i { font-size: 1.7em; }
+.pv-sello { color: var(--color-success); }
+.pv-ficha { color: var(--color-cyan); }
+.pv-editor { width: 2.6em; height: 1.8em; overflow: visible; }
+.pv-editor polygon { fill: var(--color-accent-dim); stroke: var(--color-accent-text); stroke-width: 1; stroke-dasharray: 90; animation: pvTrazo 3.2s var(--ease-out) infinite; }
+.pv-editor circle { fill: var(--card-solid); stroke: var(--color-accent-text); stroke-width: 0.8; }
+@keyframes pvTrazo { 0% { stroke-dashoffset: 90; } 55%, 100% { stroke-dashoffset: 0; } }
+
+/* ---- Encendido / apagado ----
+   Las piezas pequenas (idioma, oferta, precio tachado) se desvanecen. Las grandes (.pv-fantasma)
+   dejan un hueco punteado con candado y el plan que las trae: se ve que existen. */
+.pv-f { transition: opacity 0.45s ease var(--d, 0s), transform 0.55s var(--ease-out) var(--d, 0s); }
+.pv-f.is-off { opacity: 0; transform: scale(0.92); }
+.pv-formas-mas.is-off { opacity: 1; transform: none; }
+.pv-formas-mas.is-off > .pv-chip { opacity: 0.7; transform: scale(0.86); border-style: dashed; border-color: var(--border-strong); background: transparent; }
+.pv-formas-mas.is-off > .pv-chip svg { opacity: 0; }
+
+.pv-fantasma:not(.pv-formas-mas) { position: relative; }
+.pv-fantasma:not(.pv-formas-mas).is-off { opacity: 1; transform: none; }
+.pv-fantasma:not(.pv-formas-mas) > * { transition: opacity 0.4s ease var(--d, 0s), transform 0.5s var(--ease-out) var(--d, 0s); }
+.pv-fantasma:not(.pv-formas-mas).is-off > * { opacity: 0; transform: translateY(4px); }
+.pv-fantasma:not(.pv-formas-mas)::after { content: "\e308  " attr(data-bloqueo); position: absolute; inset: 0; display: grid; place-items: center;
+  padding: 0 0.4em; border: 1.5px dashed var(--border-strong); border-radius: inherit;
+  background: repeating-linear-gradient(135deg, transparent 0 6px, var(--surface-hover) 6px 12px);
+  color: var(--text-muted); font-family: "Phosphor", var(--font-primary); font-size: 0.78em; font-weight: 600; text-align: center; line-height: 1.2;
+  opacity: 0; pointer-events: none; transition: opacity 0.4s ease var(--d, 0s); }
+.pv-fantasma:not(.pv-formas-mas).is-off::after { opacity: 1; }
+.pv-tile::after { border-radius: 0.7em; }
+.pv-herr .pv-tile:nth-child(2) { --d: 70ms; }
+.pv-herr .pv-tile:nth-child(3) { --d: 140ms; }
+
+/* ---- Lo mismo, en texto ---- */
+.pv-lado { display: grid; gap: 12px; }
+.pv-resumen { margin: 0; color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; }
+.pv-lista { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.pv-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--r-md); background: var(--card-bg-soft);
+  transition: opacity 0.35s ease calc(var(--i, 0) * 40ms); }
+.pv-item > i { display: grid; place-items: center; flex: none; width: 34px; height: 34px; border-radius: 10px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 1.1rem;
+  transition: background 0.35s ease calc(var(--i, 0) * 40ms), color 0.35s ease calc(var(--i, 0) * 40ms); }
+.pv-item-txt { display: grid; gap: 1px; min-width: 0; }
+.pv-item-txt strong { font-size: 0.9rem; }
+.pv-item-estado { color: var(--color-success); font-size: max(12px, 0.78rem); font-weight: 600; }
+.pv-item.is-off { opacity: 0.66; border-style: dashed; }
+.pv-item.is-off > i { background: var(--bg-tertiary); color: var(--text-muted); }
+.pv-item.is-off .pv-item-estado { color: var(--text-muted); }
+@media (max-width: 900px) { .pv-lista { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
+@container (max-width: 460px) {
+  .pv-nav-links { display: none; }
+  .pv-hero, .pv-zona { grid-template-columns: 1fr; }
+}
+@media print { .pv-ventana, .pv-ctl { display: none; } }

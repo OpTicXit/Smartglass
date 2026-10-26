@@ -45,6 +45,14 @@ public class HomeController {
         return "acerca";
     }
 
+    /** U3: planes para empresas (sin precios: la plataforma aun no opera con vidrierias reales). */
+    @GetMapping("/planes")
+    public String planes(Model model) {
+        model.addAttribute("planActual", plan.planActual());
+        model.addAttribute("funciones", AdminPlanesController.filas(plan));
+        return "planes";
+    }
+
     /** T4: guia de compra (version estatica del recorrido guiado; funciona sin JS). */
     @GetMapping("/guia")
     public String guia() {

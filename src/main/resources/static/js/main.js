@@ -420,7 +420,7 @@
      fotograma aunque estuvieran fuera de pantalla. theme.css: .sg-fuera --- */
   function pausarAnimacionesFuera() {
     if (!('IntersectionObserver' in window)) return;
-    var piezas = document.querySelectorAll('.sg-rainbow, .hero-visual, .sg-stage, .evolucion, .auth-visual');
+    var piezas = document.querySelectorAll('.sg-rainbow, .hero-visual, .sg-stage, .evolucion, .auth-visual, .pv-ventana');
     if (!piezas.length) return;
     var obs = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) { en.target.classList.toggle('sg-fuera', !en.isIntersecting); });

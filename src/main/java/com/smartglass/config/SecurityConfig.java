@@ -125,9 +125,7 @@ public class SecurityConfig {
                 ).permitAll()
                 // Admin
                 .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
-                // T5: la consola SaaS la protege SuperadminController (lista SUPERADMIN_USUARIOS);
-                // a cualquier otro, con o sin sesion, le responde 404 para no anunciar que existe
-                .requestMatchers("/superadmin", "/superadmin/**").permitAll()
+                // U3: los planes SaaS viven en /admin/planes (regla de arriba); /superadmin solo redirige
                 // T6: chequeo de salud de la plataforma de despliegue
                 .requestMatchers(HttpMethod.GET, "/salud").permitAll()
                 // Acciones autenticadas

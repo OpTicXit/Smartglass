@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es" th:lang="${#locale.toLanguageTag()}">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="#{planes.titulo_pagina}">SmartGlass - Planes para empresas</title>
+    <meta name="description" content="Planes de SmartGlass para vidrierías." th:content="#{planes.meta}">
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+
+    <!--
+        U3 · Planes para empresas (HomeController /planes). Sin precios: SmartGlass todavia no opera
+        con ninguna vidrieria real; se dice tal cual. La vista previa es la misma del panel
+        (fragments/plan-preview) y empieza en Avanzado para mostrar todo. La lista de funciones sale
+        del enum Funcion y de messages (funcion.*), la misma fuente que usa el admin.
+    -->
+    <style>
+        .planes-hero { display: grid; gap: 18px; justify-items: start; padding: clamp(40px, 7vw, 88px) 0 clamp(28px, 4vw, 44px); }
+        .planes-hero h1 { max-width: 16ch; margin: 0; font-size: var(--fs-4xl); line-height: 0.98; letter-spacing: -0.045em; }
+        .planes-hero p { max-width: 58ch; margin: 0; color: var(--text-muted); font-size: 1.1rem; line-height: 1.65; }
+        .planes-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+        .piloto-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border: 1px solid color-mix(in srgb, var(--color-warning) 40%, var(--border-color));
+            border-radius: var(--r-pill); background: var(--color-warning-dim); color: var(--text-main); font-size: max(12px, 0.82rem); font-weight: 600; }
+        .piloto-chip i { color: var(--color-warning); }
+
+        .planes-vista { padding: clamp(20px, 3vw, 32px); border: 1px solid var(--border-color); border-radius: var(--r-xl); background: var(--card-bg-soft); box-shadow: var(--glass-edge); }
+
+        .planes-sec { padding: clamp(48px, 7vw, 88px) 0 0; }
+        .planes-sec > header { max-width: 60ch; margin-bottom: 24px; }
+        .planes-sec > header h2 { margin: 0 0 8px; font-size: var(--fs-2xl); letter-spacing: -0.02em; }
+        .planes-sec > header p { margin: 0; color: var(--text-muted); line-height: 1.6; }
+
+        .comparativa { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+        .plan { position: relative; display: flex; flex-direction: column; gap: 16px; padding: clamp(22px, 3vw, 32px); border: 1px solid var(--border-color); border-radius: var(--r-xl); background: var(--card-bg); box-shadow: var(--shadow-main), var(--glass-edge); }
+        .plan.avanzado { border-color: color-mix(in srgb, var(--color-accent) 45%, var(--border-color)); background: linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 8%, var(--card-bg)), var(--card-bg) 55%); }
+        .plan-cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+        .plan-cab h3 { margin: 0; font-size: var(--fs-2xl); letter-spacing: -0.02em; }
+        .plan-demo { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: var(--r-pill); background: var(--color-accent-dim); color: var(--color-accent-text); font-size: max(12px, 0.75rem); font-weight: 700; }
+        .plan-para { margin: 0; color: var(--text-muted); line-height: 1.55; }
+        .plan-precio { display: grid; gap: 2px; padding: 14px 0; border-block: 1px solid var(--border-color); }
+        .plan-precio strong { font-family: var(--font-display); font-size: 1.35rem; letter-spacing: -0.01em; }
+        .plan-precio span { color: var(--text-muted); font-size: max(12px, 0.82rem); }
+        .plan h4 { margin: 0; color: var(--text-muted); font-size: max(12px, 0.78rem); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+        .plan-lista { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+        .plan-lista li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; }
+        .plan-lista li > i { margin-top: 2px; color: var(--color-success); font-size: 1.15rem; }
+        .plan-lista strong { display: block; font-size: 0.95rem; }
+        .plan-lista small { display: block; margin-top: 2px; color: var(--text-muted); font-size: 0.86rem; line-height: 1.5; }
+        .plan-lista.compacta { gap: 8px; }
+        .plan-lista.compacta li { font-size: 0.92rem; }
+
+        .elegir { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .elegir article { padding: 22px 24px; border-left: 3px solid var(--border-strong); border-radius: 0 var(--r-lg) var(--r-lg) 0; background: var(--card-bg-soft); }
+        .elegir article.avanzado { border-left-color: var(--color-accent); }
+        .elegir h3 { margin: 0 0 8px; font-size: 1.1rem; }
+        .elegir p { margin: 0; color: var(--text-muted); line-height: 1.65; }
+
+        .piloto { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px 32px; align-items: center; margin: clamp(48px, 7vw, 88px) 0 clamp(48px, 6vw, 72px);
+            padding: clamp(22px, 3vw, 32px); border: 1px solid var(--border-color); border-radius: var(--r-xl); background: var(--card-bg-soft); }
+        .piloto h2 { margin: 0 0 8px; font-size: var(--fs-xl); }
+        .piloto p { margin: 0; max-width: 64ch; color: var(--text-muted); line-height: 1.65; }
+
+        @media (max-width: 820px) {
+            .comparativa, .elegir, .piloto { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
+
+<main class="container" id="contenido">
+
+    <header class="planes-hero">
+        <span class="eyebrow" th:text="#{planes.eyebrow}">Para vidrierías</span>
+        <h1 th:text="#{planes.h1}">Tu vidriería en línea, del mostrador a la obra</h1>
+        <p th:text="#{planes.sub}">Dos planes según cómo trabaja tu negocio.</p>
+        <span class="piloto-chip"><i class="ph-fill ph-info" aria-hidden="true"></i> <span th:text="#{planes.piloto_chip}">Fase piloto · precios por definir</span></span>
+        <div class="planes-cta">
+            <a href="#comparar" class="btn btn-primary btn-lg"><i class="ph ph-columns" aria-hidden="true"></i> <span th:text="#{planes.cta_comparar}">Comparar los planes</span></a>
+            <a th:href="@{/catalogo}" class="btn btn-secondary btn-lg"><i class="ph ph-storefront" aria-hidden="true"></i> <span th:text="#{planes.cta_demo}">Recorrer la tienda de ejemplo</span></a>
+        </div>
+    </header>
+
+    <div class="planes-vista">
+        <div th:replace="~{fragments/plan-preview :: vista('AVANZADO')}"></div>
+    </div>
+
+    <!-- ===== Comparacion ===== -->
+    <section class="planes-sec" id="comparar" aria-labelledby="tComparar">
+        <header>
+            <h2 id="tComparar" th:text="#{planes.comparar_t}">Los dos planes</h2>
+            <p th:text="#{planes.comparar_sub}">Lo esencial para vender y cotizar viene en ambos.</p>
+        </header>
+        <div class="comparativa">
+            <article class="plan" th:each="p : ${ {'BASICO', 'AVANZADO'} }" th:classappend="${p == 'AVANZADO'} ? 'avanzado'"
+                     th:attr="aria-labelledby='plan-' + ${p}">
+                <div class="plan-cab">
+                    <h3 th:id="'plan-' + ${p}" th:text="${#messages.msg('superadmin.plan.' + p)}">Básico</h3>
+                    <span class="plan-demo" th:if="${p == planActual}"><i class="ph ph-eye" aria-hidden="true"></i> <span th:text="#{planes.esta_demo}">Esta demo usa este plan</span></span>
+                </div>
+                <p class="plan-para" th:text="${#messages.msg('superadmin.plan.' + p + '_d')}">Para quién</p>
+                <div class="plan-precio">
+                    <strong th:text="#{planes.precio}">Precio por definir</strong>
+                    <span th:text="#{planes.precio_nota}">Se definirá con las primeras vidrierías del piloto.</span>
+                </div>
+
+                <th:block th:if="${p == 'BASICO'}">
+                    <h4 th:text="#{planes.nucleo_t}">Incluye</h4>
+                    <ul class="plan-lista compacta">
+                        <li th:each="n : ${ {1, 2, 3, 4, 5, 6, 7, 8} }"><i class="ph ph-check" aria-hidden="true"></i><span th:text="${#messages.msg('planes.n' + n)}">Tienda y catálogo</span></li>
+                    </ul>
+                </th:block>
+                <th:block th:if="${p == 'AVANZADO'}">
+                    <h4 th:text="#{planes.todo_basico}">Todo lo del Básico, más</h4>
+                    <ul class="plan-lista">
+                        <li th:each="f : ${funciones}" th:if="${f.enAvanzado}">
+                            <i th:class="'ph ' + ${f.icono}" aria-hidden="true"></i>
+                            <span>
+                                <strong th:text="${#messages.msg('funcion.' + f.clave + '.titulo')}">Función</strong>
+                                <small th:text="${#messages.msg('funcion.' + f.clave + '.desc')}">Descripción</small>
+                            </span>
+                        </li>
+                    </ul>
+                </th:block>
+            </article>
+        </div>
+    </section>
+
+    <!-- ===== Como elegir ===== -->
+    <section class="planes-sec" aria-labelledby="tElegir">
+        <header>
+            <h2 id="tElegir" th:text="#{planes.elegir_t}">¿Cuál te conviene?</h2>
+        </header>
+        <div class="elegir">
+            <article>
+                <h3 th:text="#{superadmin.plan.BASICO}">Básico</h3>
+                <p th:text="#{planes.elegir_basico}">Elige Básico si…</p>
+            </article>
+            <article class="avanzado">
+                <h3 th:text="#{superadmin.plan.AVANZADO}">Avanzado</h3>
+                <p th:text="#{planes.elegir_avanzado}">Elige Avanzado si…</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="piloto" aria-labelledby="tPiloto">
+        <div>
+            <h2 id="tPiloto" th:text="#{planes.piloto_t}">Sin precios por ahora</h2>
+            <p th:text="#{planes.piloto}">SmartGlass está en fase piloto.</p>
+        </div>
+        <a th:href="@{/acerca}" class="btn btn-secondary"><i class="ph ph-info" aria-hidden="true"></i> <span th:text="#{planes.piloto_cta}">Conoce el proyecto</span></a>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
+<script th:src="@{/js/glass-preview.js}"></script>
+<script th:src="@{/js/planes-preview.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

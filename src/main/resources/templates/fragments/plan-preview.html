@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    U3 · Vista previa animada de una vidrieria con cada plan (admin/planes y /planes).
+    - Necesita ${funciones} (AdminPlanesController.filas) en el modelo; inicial = 'BASICO' | 'AVANZADO'.
+    - La ventana es decorativa (aria-hidden): la lista de al lado dice lo mismo en texto, y el
+      resumen se anuncia con aria-live al cambiar de plan.
+    - Cada pieza [data-f] pertenece a una Funcion; con el plan Basico se apaga (.is-off). Las
+      grandes (.pv-fantasma) dejan un hueco punteado con candado: se ve que existe, no que falta.
+    - Movimiento (js/planes-preview.js): alterna los planes solo, con boton de pausa (WCAG 2.2.2);
+      sin alternar ni animar con movimiento reducido o el modo fotosensible.
+    Estilos: theme.css, seccion "U3 · Vista previa de planes".
+-->
+<section th:fragment="vista(inicial)" class="pv" data-plan-preview th:attr="data-plan=${inicial}" aria-labelledby="pvTitulo"
+         th:with="basico=${inicial == 'BASICO'}">
+    <div class="pv-cab">
+        <div>
+            <p class="pv-ejemplo"><i class="ph ph-eye" aria-hidden="true"></i> <span th:text="#{pv.ejemplo}">Vista de ejemplo</span></p>
+            <h2 id="pvTitulo" class="pv-titulo" th:text="#{pv.titulo}">Así se ve una vidriería con cada plan</h2>
+        </div>
+        <div class="pv-ctl">
+            <div class="pv-seg" role="radiogroup" th:attr="aria-label=#{pv.aria_plan}" aria-label="Plan de la vista previa">
+                <button type="button" role="radio" data-pv-plan="BASICO" th:attr="aria-checked=${basico}, tabindex=${basico ? 0 : -1}" th:text="#{superadmin.plan.BASICO}">Básico</button>
+                <button type="button" role="radio" data-pv-plan="AVANZADO" th:attr="aria-checked=${!basico}, tabindex=${basico ? -1 : 0}" th:text="#{superadmin.plan.AVANZADO}">Avanzado</button>
+            </div>
+            <button type="button" class="pv-pausa" data-pv-pausa aria-pressed="false" hidden
+                    th:attr="data-pausar=#{pv.pausar}, data-reanudar=#{pv.reanudar}">
+                <i class="ph ph-pause" aria-hidden="true"></i><span class="visually-hidden" th:text="#{pv.pausar}">Pausar la vista previa</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="pv-cuerpo">
+        <!-- ===== Ventana de ejemplo (decorativa) ===== -->
+        <div class="pv-ventana" aria-hidden="true">
+            <div class="pv-barra">
+                <span class="pv-punto"></span><span class="pv-punto"></span><span class="pv-punto"></span>
+                <span class="pv-url"><i class="ph ph-lock-simple"></i> <span th:text="#{pv.url}">tu-vidrieria.co</span></span>
+                <span class="pv-etiqueta" data-pv-etiqueta th:text="${basico} ? #{superadmin.plan.BASICO} : #{superadmin.plan.AVANZADO}">Avanzado</span>
+            </div>
+            <div class="pv-sitio">
+                <div class="pv-nav">
+                    <span class="pv-logo"><span class="pv-logo-marca"></span> <span th:text="#{pv.marca}">Tu vidriería</span></span>
+                    <span class="pv-nav-links">
+                        <span th:text="#{pv.nav_tienda}">Tienda</span>
+                        <span th:text="#{pv.nav_disenar}">Diseñar</span>
+                        <span th:text="#{pv.nav_nosotros}">Nosotros</span>
+                    </span>
+                    <span class="pv-f pv-idioma" data-f="MULTI_IDIOMA" th:classappend="${basico} ? 'is-off'"><b>ES</b><span>EN</span></span>
+                </div>
+
+                <div class="pv-hero">
+                    <div class="pv-hero-txt">
+                        <strong th:text="#{pv.hero}">Vidrio a la medida de tu obra</strong>
+                        <span class="pv-linea"></span><span class="pv-linea pv-corta"></span>
+                    </div>
+                    <div th:attr="data-bloqueo=#{pv.bloqueado}" class="pv-f pv-fantasma pv-cifras" data-f="CIFRAS_PUBLICAS" th:classappend="${basico} ? 'is-off'">
+                        <span><b data-pv-n="1284">1.284</b> <span th:text="#{pv.cifra1}">piezas</span></span>
+                        <span><b data-pv-n="3420">3.420</b> <span th:text="#{pv.cifra2}">kg CO₂ evitados</span></span>
+                        <span><b data-pv-n="312">312</b> <span th:text="#{pv.cifra3}">clientes</span></span>
+                    </div>
+                </div>
+
+                <div class="pv-zona">
+                    <div class="pv-tienda">
+                        <div class="pv-prod" th:each="n : ${ {1, 2, 3} }">
+                            <span th:class="'pv-foto pv-foto' + ${n}"></span>
+                            <span class="pv-linea"></span>
+                            <span class="pv-precio">
+                                <span class="pv-f pv-tachado" data-f="OFERTAS_PROGRAMADAS" th:if="${n != 2}" th:classappend="${basico} ? 'is-off'"
+                                      th:text="${n == 1} ? '$120.000' : '$86.000'">$120.000</span>
+                                <b th:text="${n == 1} ? '$102.000' : (${n == 2} ? '$64.500' : '$73.100')">$102.000</b>
+                            </span>
+                            <span class="pv-f pv-oferta" data-f="OFERTAS_PROGRAMADAS" th:if="${n != 2}" th:classappend="${basico} ? 'is-off'">−15 %</span>
+                        </div>
+                    </div>
+
+                    <div class="pv-config">
+                        <div class="pv-escena">
+                            <svg viewBox="0 0 120 84" preserveAspectRatio="xMidYMid meet">
+                                <defs>
+                                    <linearGradient id="pvVidrio" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0" stop-color="var(--pv-vidrio-a)"/>
+                                        <stop offset="1" stop-color="var(--pv-vidrio-b)"/>
+                                    </linearGradient>
+                                </defs>
+                                <polygon class="pv-pieza" data-pv-forma points="14,10 106,10 106,74 14,74"/>
+                            </svg>
+                            <span class="pv-forma-nombre" data-pv-forma-nombre></span>
+                        </div>
+                        <div class="pv-formas">
+                            <span class="pv-chip" data-pv-chip="Rectangular"></span>
+                            <span class="pv-chip" data-pv-chip="Circular"></span>
+                            <span class="pv-chip" data-pv-chip="Triangular"></span>
+                            <span class="pv-chip" data-pv-chip="Irregular"></span>
+                            <span th:attr="data-bloqueo=#{pv.bloqueado}" class="pv-f pv-fantasma pv-formas-mas" data-f="FORMAS_AVANZADAS" th:classappend="${basico} ? 'is-off'">
+                                <span class="pv-chip" data-pv-chip="EsquinasRedondeadas"></span>
+                                <span class="pv-chip" data-pv-chip="Capsula"></span>
+                                <span class="pv-chip" data-pv-chip="Arco"></span>
+                                <span class="pv-chip" data-pv-chip="TrianguloRectangulo"></span>
+                                <span class="pv-chip" data-pv-chip="TrapecioRectangulo"></span>
+                                <span class="pv-chip" data-pv-chip="Fronton"></span>
+                                <span class="pv-chip" data-pv-chip="Rombo"></span>
+                                <span class="pv-chip" data-pv-chip="Hexagonal"></span>
+                                <span class="pv-chip" data-pv-chip="Octogonal"></span>
+                            </span>
+                        </div>
+                        <div class="pv-herr">
+                            <span th:attr="data-bloqueo=#{pv.bloqueado}" class="pv-f pv-fantasma pv-tile" data-f="CORTE_PERSONALIZADO" th:classappend="${basico} ? 'is-off'">
+                                <svg class="pv-editor" viewBox="0 0 40 28"><polygon points="5,22 9,5 24,3 35,11 31,24 15,25"/><circle cx="5" cy="22" r="1.6"/><circle cx="9" cy="5" r="1.6"/><circle cx="24" cy="3" r="1.6"/><circle cx="35" cy="11" r="1.6"/><circle cx="31" cy="24" r="1.6"/><circle cx="15" cy="25" r="1.6"/></svg>
+                                <span th:text="#{pv.editor}">Corte libre</span>
+                            </span>
+                            <span th:attr="data-bloqueo=#{pv.bloqueado}" class="pv-f pv-fantasma pv-tile" data-f="COMPROMISOS_VERDES" th:classappend="${basico} ? 'is-off'">
+                                <i class="ph-fill ph-seal-check pv-sello"></i>
+                                <span th:text="#{pv.sello}">Compromiso verde</span>
+                            </span>
+                            <span th:attr="data-bloqueo=#{pv.bloqueado}" class="pv-f pv-fantasma pv-tile" data-f="FICHA_AMBIENTAL" th:classappend="${basico} ? 'is-off'">
+                                <i class="ph ph-file-text pv-ficha"></i>
+                                <span th:text="#{pv.ficha}">Ficha ambiental</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Lo mismo, en texto ===== -->
+        <div class="pv-lado">
+            <p class="pv-resumen" data-pv-resumen aria-live="polite"
+               th:attr="data-basico=#{pv.resumen.BASICO(${#lists.size(funciones)})}, data-avanzado=#{pv.resumen.AVANZADO(${#lists.size(funciones)})}"
+               th:text="${basico} ? #{pv.resumen.BASICO(${#lists.size(funciones)})} : #{pv.resumen.AVANZADO(${#lists.size(funciones)})}">Plan Avanzado: las 7 funciones extra a la vista.</p>
+            <ul class="pv-lista">
+                <li th:each="f, it : ${funciones}" class="pv-item" th:attr="data-pv-f=${f.clave}, data-en-basico=${f.enBasico}, style='--i:' + ${it.index}"
+                    th:classappend="${basico and !f.enBasico} ? 'is-off'">
+                    <i th:class="'ph ' + ${f.icono}" aria-hidden="true"></i>
+                    <span class="pv-item-txt">
+                        <strong th:text="${#messages.msg('funcion.' + f.clave + '.titulo')}">Función</strong>
+                        <small class="pv-item-estado" th:attr="data-si=#{superadmin.incluida}, data-no=#{pv.solo_avanzado}"
+                               th:text="${basico and !f.enBasico} ? #{pv.solo_avanzado} : #{superadmin.incluida}">Incluida</small>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>
