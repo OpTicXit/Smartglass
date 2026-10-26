@@ -33,6 +33,11 @@
                 <i class="ph ph-clock-countdown" aria-hidden="true"></i>
                 <span th:text="#{login.demasiados_intentos_seguidos_espera_un}">Demasiados intentos seguidos. Espera un minuto y vuelve a intentarlo.</span>
             </div>
+            <!-- U6: aqui termina la guia automatizada (js/guia.js) -->
+            <div th:if="${param.guia}" class="alert alert--info" role="status" data-persistente>
+                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                <span th:text="#{guia2.en_login}">Terminaste el recorrido. Inicia sesión o crea tu cuenta para pagar; tu carrito se conserva.</span>
+            </div>
             <div th:if="${param.logout}" class="alert alert--info" role="status">
                 <i class="ph ph-sign-out" aria-hidden="true"></i>
                 <span th:text="#{login.cerraste_sesion_correctamente}">Cerraste sesión correctamente.</span>

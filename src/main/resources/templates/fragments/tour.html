@@ -3,38 +3,33 @@
 <body>
 
 <!--
-    T4 · recorrido guiado. main.js (inicializarTour) lo muestra la primera vez
-    (localStorage "sg-tour-visto") o con ?tour=1 / [data-tour-iniciar] (pagina /guia).
-    Cada paso resalta el elemento de la barra con data-tour="<objetivo>"; si no se ve
-    (menu movil cerrado) el paso se muestra sin resaltar.
-    Textos en el idioma activo (T0). Accesibilidad: ver la seccion "Recorrido (T4)" de theme.css.
+    U6 · Guia automatizada (antes T4: recorrido estatico por la barra). js/guia.js la ejecuta:
+    pasa por las paginas, prueba opciones y disena una pieza en el configurador y en el editor de
+    corte SIN guardar ni enviar nada, y termina en el inicio de sesion (/login?guia=fin).
+    - Cada <section data-id> es un paso; el orden, la pagina y la accion de cada id viven en guia.js.
+    - Se ofrece una vez en la primera visita (localStorage "sg-tour-visto"); se inicia con
+      [data-tour-iniciar] (pagina /guia) o con ?tour=1.
+    - Accesible: pausa, siguiente y salir siempre visibles; Esc sale. Con movimiento reducido o el
+      modo fotosensible no avanza sola ni mueve el cursor (cada paso espera a "Siguiente").
+    Textos en el idioma activo. Estilos: theme.css, "U6 · Guia automatizada".
 -->
 <template th:fragment="tour" id="sg-tour-datos"
-          th:attr="data-paso=#{tour.paso},data-anterior=#{tour.anterior},data-siguiente=#{tour.siguiente},data-terminar=#{tour.terminar},data-saltar=#{tour.saltar}">
-    <section data-objetivo="">
-        <h2 th:text="#{tour.p1_titulo}">Te damos la bienvenida a SmartGlass</h2>
-        <p th:text="#{tour.p1_texto}">En un minuto te mostramos cómo comprar vidrio de catálogo o diseñar una pieza a medida. Puedes saltar el recorrido cuando quieras.</p>
-    </section>
-    <section data-objetivo="tienda">
-        <h2 th:text="#{tour.p2_titulo}">1 · Explora la tienda</h2>
-        <p th:text="#{tour.p2_texto}">En Tienda están el catálogo de vidrio plano y las esculturas. Cada ficha muestra su huella de carbono, el stock y las ofertas.</p>
-    </section>
-    <section data-objetivo="disenar">
-        <h2 th:text="#{tour.p3_titulo}">2 · Diseña una pieza a medida</h2>
-        <p th:text="#{tour.p3_texto}">En Vidrio personalizado eliges medidas y opciones y ves al instante el precio y el CO₂ de tu obra.</p>
-    </section>
-    <section data-objetivo="carrito">
-        <h2 th:text="#{tour.p4_titulo}">3 · Llena tu carrito</h2>
-        <p th:text="#{tour.p4_texto}">Añade productos sin necesidad de cuenta. Tu carrito se guarda mientras navegas.</p>
-    </section>
-    <section data-objetivo="cuenta">
-        <h2 th:text="#{tour.p5_titulo}">4 · Paga con tu cuenta</h2>
-        <p th:text="#{tour.p5_texto}">Solo al pagar te pedimos iniciar sesión o crear tu cuenta, y tu carrito pasa con todo lo que tenía.</p>
-    </section>
-    <section data-objetivo="ajustes">
-        <h2 th:text="#{tour.p6_titulo}">Idioma y accesibilidad</h2>
-        <p th:text="#{tour.p6_texto}">Cambia el idioma aquí. En el botón de accesibilidad puedes activar colores para daltonismo o quitar las animaciones. La guía siempre está en el pie de página.</p>
-    </section>
+          th:attr="data-paso=#{tour.paso},data-siguiente=#{tour.siguiente},data-terminar=#{tour.terminar},data-salir=#{guia2.salir},data-pausar=#{guia2.pausar},data-reanudar=#{guia2.reanudar},data-continuar=#{guia2.continuar},data-pausada=#{guia2.pausada},data-no_envia=#{guia2.no_envia},data-invita_t=#{guia2.invita_t},data-invita=#{guia2.invita},data-ver=#{guia2.ver},data-ahora_no=#{guia2.ahora_no},data-region=#{guia2.region},data-busqueda=#{guia2.busqueda}">
+    <section data-id="bienvenida"><h2 th:text="#{guia2.bienvenida_t}">Te mostramos SmartGlass</h2><p th:text="#{guia2.bienvenida}">En unos dos minutos recorremos la tienda y diseñamos una pieza juntos. No se guarda ni se envía nada.</p></section>
+    <section data-id="inicio"><h2 th:text="#{guia2.inicio_t}">Dos caminos</h2><p th:text="#{guia2.inicio}">Compra vidrio de catálogo o diseña una pieza a medida. Empecemos por la tienda.</p></section>
+    <section data-id="buscar"><h2 th:text="#{guia2.buscar_t}">Busca lo que necesitas</h2><p th:text="#{guia2.buscar}">Escribe un nombre y filtra por vidrio plano o esculturas.</p></section>
+    <section data-id="comparar"><h2 th:text="#{guia2.comparar_t}">Compara antes de decidir</h2><p th:text="#{guia2.comparar}">Marca hasta tres productos y compáralos lado a lado: precio, espesor y huella.</p></section>
+    <section data-id="ficha"><h2 th:text="#{guia2.ficha_t}">Cada pieza con su ficha</h2><p th:text="#{guia2.ficha}">Fotos, stock real, ofertas y reseñas. Abramos una.</p></section>
+    <section data-id="detalle"><h2 th:text="#{guia2.detalle_t}">Todo antes de comprar</h2><p th:text="#{guia2.detalle}">Aquí ves el precio, lo que queda en stock y la cantidad. El carrito no pide cuenta.</p></section>
+    <section data-id="medidas"><h2 th:text="#{guia2.medidas_t}">Ahora, a medida</h2><p th:text="#{guia2.medidas}">Movemos las medidas: la pieza, el peso, el precio y el CO₂ cambian al instante.</p></section>
+    <section data-id="tipo"><h2 th:text="#{guia2.tipo_t}">Elige el vidrio</h2><p th:text="#{guia2.tipo}">Probamos un laminado de 8 mm, el de seguridad para mobiliario y barandas.</p></section>
+    <section data-id="forma"><h2 th:text="#{guia2.forma_t}">Y su forma</h2><p th:text="#{guia2.forma}">Cambiamos la forma de la pieza; el área real entra en el precio.</p></section>
+    <section data-id="huella"><h2 th:text="#{guia2.huella_t}">De dónde sale el CO₂</h2><p th:text="#{guia2.huella}">Con calcín la fusión emite menos. El halo y el termómetro te dicen si el perfil es favorable, moderado o alto.</p></section>
+    <section data-id="editor"><h2 th:text="#{guia2.editor_t}">Dibuja tu propio corte</h2><p th:text="#{guia2.editor}">En el editor partes de una forma, la giras o la reflejas y mueves cada vértice. Lo cerramos sin aplicar.</p></section>
+    <section data-id="enviar"><h2 th:text="#{guia2.enviar_t}">Cuando te guste, la cotizas</h2><p th:text="#{guia2.enviar}">Este botón envía la cotización al taller. En el recorrido no lo pulsamos.</p></section>
+    <section data-id="planes"><h2 th:text="#{guia2.planes_t}">Para empresas</h2><p th:text="#{guia2.planes}">Si tienes una vidriería, aquí ves qué incluye cada plan.</p></section>
+    <section data-id="ajustes"><h2 th:text="#{guia2.ajustes_t}">Idioma y accesibilidad</h2><p th:text="#{guia2.ajustes}">Cambia el idioma, el tema o activa colores para daltonismo y quita las animaciones cuando quieras.</p></section>
+    <section data-id="final"><h2 th:text="#{guia2.final_t}">Listo para empezar</h2><p th:text="#{guia2.final}">Solo te pedimos cuenta al pagar. Te dejamos en el inicio de sesión.</p></section>
 </template>
 
 </body>

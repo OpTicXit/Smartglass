@@ -179,6 +179,8 @@
 
     <!-- T4: textos del recorrido guiado (main.js: inicializarTour). <template> es inerte: no se lee ni se pinta -->
     <template th:replace="~{fragments/tour :: tour}"></template>
+    <!-- U6: guia automatizada (lee el template de arriba) -->
+    <script th:src="@{/js/guia.js}" defer></script>
 </nav>
 
 </body>

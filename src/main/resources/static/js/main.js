@@ -54,7 +54,6 @@
       inicializarAccesibilidad,
       inicializarIdioma,
       inicializarNotificaciones,
-      inicializarTour,
       inicializarEvolucionVidrio,
       inicializarAlertas,
       inicializarToastsDeclarativos,
@@ -914,108 +913,8 @@
     document.addEventListener('visibilitychange', function () { if (!document.hidden) cargar(false); });
   }
 
-  /* ==========================================================
-     RECORRIDO GUIADO (T4) · textos en fragments/tour.html (idioma activo)
-     Aparece una sola vez (localStorage "sg-tour-visto") en las paginas publicas;
-     se relanza con ?tour=1 o con [data-tour-iniciar] (/guia).
-     Accesible: Esc o "Saltar" lo cierran; NO es modal ni atrapa el foco (Tab
-     sale con normalidad); al cerrar el foco vuelve a donde estaba; el resaltado
-     es estatico (sin animacion: fotosensible y movimiento reducido).
-  ========================================================== */
-  function inicializarTour() {
-    var datos = document.getElementById('sg-tour-datos');
-    if (!datos || !datos.content) return;
-    var VISTO = 'sg-tour-visto';
-    var pasos = Array.prototype.slice.call(datos.content.querySelectorAll('section')).map(function (s) {
-      return { objetivo: s.getAttribute('data-objetivo'), titulo: s.querySelector('h2').textContent, texto: s.querySelector('p').textContent };
-    });
-    if (!pasos.length) return;
-    function d(k, r) { return datos.getAttribute('data-' + k) || r; }
-    var caja = null, i = 0, resaltado = null, focoPrevio = null;
-
-    function visible(el) {
-      var r = el.getBoundingClientRect();
-      return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
-    }
-    /* El elemento de la barra para el paso; null si no se ve (menu movil cerrado) */
-    function objetivo(nombre) {
-      if (!nombre) return null;
-      var c = document.querySelectorAll('.navbar [data-tour="' + nombre + '"]');
-      for (var k = 0; k < c.length; k++) if (visible(c[k])) return c[k];
-      return null;
-    }
-    function quitarResalte() {
-      if (resaltado) resaltado.classList.remove('sg-tour-objetivo');
-      resaltado = null;
-    }
-    function marcarVisto() { try { localStorage.setItem(VISTO, '1'); } catch (e) { /* almacenamiento bloqueado */ } }
-    function boton(texto, clase, fn) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = clase;
-      b.textContent = texto;
-      b.addEventListener('click', fn);
-      return b;
-    }
-
-    function pintar() {
-      var p = pasos[i];
-      quitarResalte();
-      var t = objetivo(p.objetivo);
-      if (t) { t.classList.add('sg-tour-objetivo'); resaltado = t; }
-      caja.querySelector('.sg-tour-n').textContent = d('paso', 'Paso {0} de {1}').replace('{0}', i + 1).replace('{1}', pasos.length);
-      var h = caja.querySelector('.sg-tour-titulo');
-      h.textContent = p.titulo;
-      caja.querySelector('.sg-tour-texto').textContent = p.texto;
-      caja.querySelector('.sg-tour-ant').hidden = i === 0;
-      caja.querySelector('.sg-tour-sig').textContent = i === pasos.length - 1 ? d('terminar', 'Terminar') : d('siguiente', 'Siguiente');
-      h.focus();
-    }
-    function teclas(e) { if (e.key === 'Escape') { e.preventDefault(); cerrar(); } }
-    function cerrar() {
-      if (!caja) return;
-      quitarResalte();
-      caja.remove();
-      caja = null;
-      document.removeEventListener('keydown', teclas);
-      marcarVisto();
-      if (focoPrevio && focoPrevio.focus && document.contains(focoPrevio)) focoPrevio.focus();
-    }
-    function abrir() {
-      if (caja) return;
-      focoPrevio = document.activeElement;
-      i = 0;
-      caja = document.createElement('div');
-      caja.className = 'sg-tour';
-      caja.setAttribute('role', 'dialog');
-      caja.setAttribute('aria-modal', 'false');
-      caja.setAttribute('aria-labelledby', 'sg-tour-titulo');
-      caja.setAttribute('aria-describedby', 'sg-tour-texto');
-
-      var n = document.createElement('p'); n.className = 'sg-tour-n';
-      var h = document.createElement('h2'); h.className = 'sg-tour-titulo'; h.id = 'sg-tour-titulo'; h.tabIndex = -1;
-      var tx = document.createElement('p'); tx.className = 'sg-tour-texto'; tx.id = 'sg-tour-texto';
-      var acc = document.createElement('div'); acc.className = 'sg-tour-acciones';
-      acc.appendChild(boton(d('saltar', 'Saltar'), 'sg-tour-saltar', cerrar));
-      acc.appendChild(boton(d('anterior', 'Anterior'), 'btn btn-secondary btn-sm sg-tour-ant', function () { i--; pintar(); }));
-      acc.appendChild(boton(d('siguiente', 'Siguiente'), 'btn btn-primary btn-sm sg-tour-sig', function () {
-        if (i === pasos.length - 1) cerrar(); else { i++; pintar(); }
-      }));
-      caja.appendChild(n); caja.appendChild(h); caja.appendChild(tx); caja.appendChild(acc);
-      document.body.appendChild(caja);
-      document.addEventListener('keydown', teclas);
-      marcarVisto();                     // aparece una sola vez aunque se abandone a medias
-      pintar();
-    }
-
-    document.querySelectorAll('[data-tour-iniciar]').forEach(function (b) { b.addEventListener('click', abrir); });
-    var pedido = /[?&]tour=1(&|$)/.test(location.search);
-    var visto;
-    try { visto = localStorage.getItem(VISTO); } catch (e) { visto = '1'; }   // sin almacenamiento: no insistir
-    var publica = document.querySelector('.navbar[data-nav="public"]');
-    var excluida = document.querySelector('.auth') || /^\/(checkout|login|registro)/.test(location.pathname);
-    if (pedido || (!visto && publica && !excluida)) abrir();
-  }
+  /* U6: el recorrido guiado vive en js/guia.js (guia automatizada por paginas; textos en
+     fragments/tour.html). Aqui ya no hay recorrido estatico. */
 
   /* ==========================================================
      EVOLUCION DEL VIDRIO (panel de login y registro)
