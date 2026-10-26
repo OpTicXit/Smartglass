@@ -7,7 +7,7 @@
      del comparador (sessionStorage sg-comparar) tal como estaban al empezar.
    Estado entre paginas en sessionStorage "sg-guia" ({ i, pausado, detalle, guardado }).
    Accesible: region con aria-live, pausa (WCAG 2.2.2), siguiente y salir; Esc sale. Con movimiento
-   reducido o fotosensible no avanza sola, no mueve el cursor y cada accion es inmediata. */
+   reducido o fotosensible sigue avanzando sola, pero sin cursor animado ni desplazamientos suaves. */
 (function () {
   'use strict';
 
@@ -27,7 +27,8 @@
   function leer() { try { return JSON.parse(sessionStorage.getItem(CLAVE) || 'null'); } catch (e) { return null; } }
   function guardar(e) { try { sessionStorage.setItem(CLAVE, JSON.stringify(e)); } catch (x) { /* sin almacenamiento */ } }
   function $(s) { return document.querySelector(s); }
-  function esperar(ms) { return new Promise(function (r) { setTimeout(r, quieto() || saltando ? 0 : ms); }); }
+  // Las pausas no son movimiento: tambien con movimiento reducido se deja ver cada cambio antes del siguiente
+  function esperar(ms) { return new Promise(function (r) { setTimeout(r, saltando ? 0 : ms); }); }
 
   /* ---------- Lo que se restaura al terminar ---------- */
   function fotografia() {
@@ -266,7 +267,6 @@
   function teclas(e) { if (e.key === 'Escape' && caja) { e.preventDefault(); salir(); } }
   function pintarControles() {
     var p = caja.querySelector('[data-g="pausa"]');
-    p.hidden = quieto();
     p.textContent = estado.pausado ? d('reanudar', 'Reanudar') : d('pausar', 'Pausar');
     p.setAttribute('aria-pressed', String(!!estado.pausado));
     caja.querySelector('[data-g="sig"]').textContent = PASOS[estado.i] && PASOS[estado.i].fin ? d('terminar', 'Terminar') : d('siguiente', 'Siguiente');
@@ -285,7 +285,9 @@
 
   function programar() {
     clearTimeout(temporizador);
-    if (!caja || corriendo || estado.pausado || quieto()) return;
+    // Avanza solo tambien con movimiento reducido (Android lo activa con "Quitar animaciones" y, en algunos
+    // telefonos, con el ahorro de bateria): lo que se quita es el movimiento, no la automatizacion. Pausar siempre esta.
+    if (!caja || corriendo || estado.pausado) return;
     var tx = TXT[(PASOS[estado.i] || {}).id] || { p: '' };
     temporizador = setTimeout(function () { siguiente(false); }, Math.min(9000, 2600 + tx.p.length * 30));
   }
