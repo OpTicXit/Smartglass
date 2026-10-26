@@ -890,6 +890,7 @@
         } else ah.hidden = true;
 
         $('termometro').className = 'termometro nivel-' + imp.nivel;
+        document.body.setAttribute('data-nivel-co2', imp.nivel);   // U5: halo del escenario (theme.css)
         $('termoChip').textContent = imp.etiqueta;
         contar($('termoValor'), imp.valor, function (v) { return G.fmtNum(v, 1); });
         $('termoFrase').textContent = imp.frase;

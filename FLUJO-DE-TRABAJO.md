@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-25 con U4 · CO₂ por etapas escrito). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-25 con U5 · inmersión escrito). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento en `a2ddb2e`; U3 SaaS visible en `823801f`; U4 CO₂ por etapas **sin commitear**). No se ha subido nada (`push`).
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento en `a2ddb2e`; U3 SaaS visible en `823801f`; U4 CO₂ por etapas en `a995e04`; U5 inmersión **sin commitear**). No se ha subido nada (`push`).
 
 ## Leyenda
 
@@ -261,6 +261,18 @@ Umbrales de intensidad sin cambios (12 y 20 kg/m²). Precios, composición y ene
 | Intensidad de la obra guardada con el área exacta (antes con el área redondeada a 2 decimales: 62,3 frente a 62,2) | 🧪 ESCRITO | `VidrioSostenible.getIntensidadCarbono` |
 | «De dónde sale el CO₂»: desglose con barras en el configurador, el detalle de la obra y la ficha ambiental | 🧪 ESCRITO (configurador visto) | `vidrio-personalizado-form.html`, `vidrio-personalizado-detalle.html`, `vidrio-ficha.html` |
 | Metodología en Acerca: 6 pasos y 9 fuentes enlazadas; textos de las opciones de calcín y renovable con su efecto real; inicio sin el «−45 %» | 🧪 ESCRITO (es-CO y en revisados, sin restos en español) | `acerca.html`, `index.html`, `messages*.properties` |
+
+### U5 · Inmersión
+
+Todo con `transform`/`opacity` o propiedades registradas; el modo fotosensible y `prefers-reduced-motion` lo apagan.
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Transición entre páginas: la que se va se desvanece (0,16 s) y la nueva entra con un leve ascenso (0,34 s); la barra superior tiene su propia capa y no parpadea. Chrome/Edge 126+ y Safari 18.2+; en Firefox la navegación sigue normal | 🧪 ESCRITO (`pageswap` con `viewTransition` al ir de inicio a catálogo) | `theme.css` `@view-transition`, `view-transition-name: barra` |
+| El cambio de tema conserva su revelado circular (sus reglas quedan solo para `html.sg-vt`) | 🧪 ESCRITO (oscuro → claro → oscuro sin errores) | `theme.css` |
+| La luz ambiental acompaña el desplazamiento (sube y se abre al bajar), sin JS | 🧪 ESCRITO (catálogo: p95 7,1 ms y peor fotograma 7,2 ms con la capa promovida; igual que sin efecto) | `theme.css` `animation-timeline: scroll(root)` |
+| El escenario del configurador muestra un halo verde, ámbar o rojo según el nivel de CO₂ (decorativo: el termómetro ya lo dice con texto e icono) | 🧪 ESCRITO (4 mm favorable, 7 moderado, 20 alto) | `theme.css` `--stage-halo`, `vidrio-personalizado-form.html` |
+| Fotosensible: sin luz que se mueve, sin transición entre páginas ni del halo | 🧪 ESCRITO (luz ambiental `none`, halo 0 s) | `theme.css` |
 
 ### Decisiones D1–D4
 

@@ -1107,9 +1107,9 @@ body { padding-bottom: 64px; }
 :root[data-theme="light"] .sg-theme-thumb .sg-ico-moon { opacity: 0; transform: rotate(90deg) scale(0.6); }
 
 /* Cambio de tema: revelado circular desde el interruptor (View Transitions API) */
-::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-::view-transition-old(root) { z-index: 1; }
-::view-transition-new(root) { z-index: 2; }
+html.sg-vt::view-transition-old(root), html.sg-vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; }   /* U5: solo el cambio de tema */
+html.sg-vt::view-transition-old(root) { z-index: 1; }
+html.sg-vt::view-transition-new(root) { z-index: 2; }
 html.sg-vt *:not(.sg-theme-switch):not(.sg-theme-switch *), html.sg-vt *::before, html.sg-vt *::after { transition: none !important; }
 /* Respaldo (sin View Transitions): fundido de colores */
 html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-transition *::after {
@@ -1734,3 +1734,47 @@ body::before {
 .metodo-fuentes ul { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 6px; }
 .metodo-fuentes a { color: var(--text-main); text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 3px; word-break: break-word; }
 @media print { .etapas-co2 { break-inside: avoid; } .etapas-co2:not([open]) > ul { display: grid; } }
+
+/* =========================================================
+   U5 · Inmersion (todo con transform/opacity o custom properties registradas;
+   el modo fotosensible, prefers-reduced-motion y la impresion lo apagan)
+========================================================= */
+
+/* 1) Transicion entre paginas (View Transitions entre documentos del mismo origen).
+   La pagina que se va se desvanece rapido y la nueva entra con un leve ascenso; la barra
+   superior tiene su propia capa y no parpadea. El cambio de tema (html.sg-vt) usa sus reglas. */
+@view-transition { navigation: auto; }
+@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
+.navbar[data-nav] { view-transition-name: barra; }
+html.sg-vt .navbar[data-nav] { view-transition-name: none; }
+::view-transition-old(root) { animation: sgVtSalir 0.16s cubic-bezier(0.4, 0, 1, 1) both; }
+::view-transition-new(root) { animation: sgVtEntrar 0.34s var(--ease-out) both; }
+::view-transition-group(barra) { animation-duration: 0.25s; }
+@keyframes sgVtSalir { to { opacity: 0; } }
+@keyframes sgVtEntrar { from { opacity: 0; transform: translateY(10px); } }
+html[data-a11y~="fotosensible"]::view-transition-group(*),
+html[data-a11y~="fotosensible"]::view-transition-old(*),
+html[data-a11y~="fotosensible"]::view-transition-new(*) { animation: none !important; }
+
+/* 2) La luz ambiental acompana el desplazamiento: sube y se abre un poco a medida que bajas
+   (scroll-driven animation, sin JS). Donde no hay soporte queda fija como antes. */
+@supports (animation-timeline: scroll()) {
+  body::before { inset: -14vh 0; will-change: transform; animation: sgAmbiente linear both; animation-timeline: scroll(root); }   /* capa propia: 7 ms estables */
+  @keyframes sgAmbiente {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(0, -12vh, 0) scale(1.14); }
+  }
+}
+@media (prefers-reduced-motion: reduce) { body::before { animation: none; transform: none; } }
+html[data-a11y~="fotosensible"] body::before { animation: none !important; transform: none !important; }
+
+/* 3) El escenario del configurador refleja el nivel de CO2 con un halo suave
+   (main del configurador pone data-nivel-co2 en <body>). Decorativo: el termometro ya lo dice
+   con texto, icono y patron, asi que no depende del color. */
+@property --stage-halo { syntax: "<color>"; inherits: false; initial-value: transparent; }
+.stage-wrap { --stage-halo: transparent; transition: --stage-halo 0.9s var(--ease-out);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--stage-halo) 55%, transparent), 0 34px 90px -34px var(--stage-halo); }
+body[data-nivel-co2="favorable"] .stage-wrap { --stage-halo: color-mix(in srgb, var(--color-success) 55%, transparent); }
+body[data-nivel-co2="moderado"] .stage-wrap { --stage-halo: color-mix(in srgb, var(--color-warning) 55%, transparent); }
+body[data-nivel-co2="alto"] .stage-wrap { --stage-halo: color-mix(in srgb, var(--color-error) 60%, transparent); }
+@media print { .stage-wrap { box-shadow: none; } }
