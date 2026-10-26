@@ -5,6 +5,7 @@ services:
   - type: web
     name: smartglass
     runtime: docker
+    region: virginia         # junto a Atlas (AWS us-east-1); sin esto Render usa oregon y no se puede cambiar despues
     dockerfilePath: ./Dockerfile
     plan: starter            # el disco persistente para las fotos requiere un plan de pago
     healthCheckPath: /salud
