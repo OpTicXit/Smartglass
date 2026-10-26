@@ -53,10 +53,33 @@ En los dos casos MongoDB va en **MongoDB Atlas** (el plan M0 gratuito alcanza pa
 
 ## Render, paso a paso
 
-1. **New → Blueprint** y elige el repositorio: Render lee `render.yaml`.
+1. **New → Blueprint** y elige el repositorio: Render lee `render.yaml` (servicio en la región `virginia`, junto a Atlas en AWS us-east-1; la región no se puede cambiar después).
 2. Escribe en el panel los valores marcados `sync: false` (MySQL externo, Atlas, Google, `ADMIN_PASSWORD`). `JWT_SECRET` lo genera Render.
 3. El disco `fotos` se monta en `/data` y requiere un plan de pago. Sin disco, las fotos subidas se pierden en cada despliegue.
-4. Registra el dominio `https://<servicio>.onrender.com` en Google Cloud.
+4. Registra el dominio `https://<servicio>.onrender.com` en Google Cloud. Si el nombre ya estaba ocupado, Render le añade un sufijo (el piloto quedó en `https://smartglass-g075.onrender.com`).
+
+### Despliegue del piloto (25/10/2026)
+
+- **MySQL en Aiven** (plan gratuito, MySQL 8.4): `MYSQL_URL=jdbc:mysql://<host>.aivencloud.com:<puerto>/defaultdb?sslMode=REQUIRED&serverTimezone=UTC`, usuario `avnadmin`. Aiven exige clave primaria en todas las tablas; las de SmartGlass la tienen.
+- **MongoDB Atlas M0** en AWS us-east-1, con acceso de red `0.0.0.0/0` (la protección es la contraseña del usuario de la base).
+- **Google OAuth**: credencial nueva en un proyecto propio («SmartGlass»), con `http://localhost:50500` y el dominio de Render como orígenes y sus `/login/oauth2/code/google` como URI de redirección; app publicada (solo pide `profile` y `email`, no necesita verificación).
+- **Errores que salieron y su causa** (todos en las variables, no en el código):
+
+  | Mensaje en el log | Causa | Arreglo |
+  |---|---|---|
+  | `'url' must start with "jdbc"` | `MYSQL_URL` pegada sin el prefijo (`mysql://…`) | Empezar por `jdbc:mysql://` |
+  | `Database name must not be empty` | `MONGODB_URI` sin el nombre de la base (`….mongodb.net/?…`) | Añadir `/smartglass` antes del `?` |
+  | `redirect_uri_mismatch` (Google) | Dominio sin registrar en la credencial | Origen y URI de redirección del dominio de Render |
+
+### Datos de demostración
+
+Con `DEMO_DATOS=true` la app carga, una sola vez y después de los seeders del catálogo, un conjunto coherente para enseñar el piloto (`DemoDatosSeeder`): 11 clientes de varias ciudades de Colombia (uno en inglés y dos con accesibilidad), 28 cotizaciones repartidas en diez semanas (17 aprobadas, 4 rechazadas, 7 pendientes, con su CO₂ por etapas), 20 pedidos con sus facturas y estados (entregados, enviados, en proceso, pendientes y uno cancelado), stock descontado, 9 opiniones de compradores reales, 3 carritos abiertos y las notificaciones que habría generado cada paso.
+
+1. En Render, **Environment → Add** `DEMO_DATOS` = `true` → **Save and deploy**.
+2. El log muestra `Datos de demostracion cargados: 11 clientes, 28 cotizaciones, 20 pedidos…`.
+3. Quita la variable (o ponla en `false`). Aunque se quede, un segundo arranque no duplica nada: si el primer cliente ya existe, no hace nada.
+
+Los clientes usan correos `@example.com` (dominio reservado) y no tienen contraseña conocida. Si quieres entrar con uno para la demostración, define también `DEMO_PASSWORD` antes de la carga.
 
 ## Llevar los datos de local a producción
 

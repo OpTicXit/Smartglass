@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-25 con las pruebas antes del push y la revisión de H01; las seis tandas de optimización tienen commit e integradas en `main`). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-26 con el despliegue del piloto en Render y los datos de demostración; las seis tandas de optimización están integradas en `main` y subidas a GitHub). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento en `a2ddb2e`; U3 SaaS visible en `823801f`; U4 CO₂ por etapas en `a995e04`; U5 inmersión en `a0bc5fc`; U6 guía automatizada en el commit «U6 guia automatizada»). No se ha subido nada (`push`).
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento en `a2ddb2e`; U3 SaaS visible en `823801f`; U4 CO₂ por etapas en `a995e04`; U5 inmersión en `a0bc5fc`; U6 guía automatizada en el commit «U6 guia automatizada»). Todo está en `main` y subido a GitHub; el piloto corre en Render (`https://smartglass-g075.onrender.com`).
 
 ## Leyenda
 
@@ -177,7 +177,9 @@ Seis tandas con gate: T1 responsive → T2 plano y cotizaciones → T3 sostenibi
 | Fotos subidas en carpeta configurable (`UPLOADS_DIR`) para montar un volumen persistente | 🧪 ESCRITO (foto servida desde la carpeta del perfil prod) | `UploadsWebConfig`, `AdminController` |
 | Guía `DESPLIEGUE.md`: plataforma recomendada (Railway), variables, pasos, migración de datos (`mongodump --db test` → Atlas), Google Cloud y comprobaciones | 🧪 ESCRITO | `DESPLIEGUE.md`; enlace en `README.md` |
 | Secretos del historial (H01) revisados: en GitHub solo están la clave del MySQL local y un `JWT_SECRET` antiguo; el equipo decidió no reescribir el historial y usar valores nuevos en producción | 🧪 ESCRITO | `DESPLIEGUE.md` paso 1 |
-| Pendiente del equipo: push y crear los servicios en la plataforma | POR HACER | — |
+| Push (`e504811..e8b3d1b`) y servicio en Render (Blueprint, región Virginia) con MySQL en Aiven y MongoDB Atlas M0; credencial nueva de Google en un proyecto propio | 🧪 ESCRITO (`/salud` = ok; inicio, catálogo con 27 productos, planes, acerca, login y configurador en 200; HSTS, `nosniff`, `X-Frame-Options: DENY`; CSS/JS con hash y caché de 7 días; Google acepta la URI de vuelta) | `https://smartglass-g075.onrender.com`; `DESPLIEGUE.md` «Despliegue del piloto» |
+| Datos de demostración coherentes para producción (`DEMO_DATOS=true`, una sola vez): 11 clientes, 28 cotizaciones, 20 pedidos (31 líneas), 9 opiniones de compradores, 3 carritos y 147 notificaciones con fechas de las últimas diez semanas | 🧪 ESCRITO (probado contra bases locales aparte `smartglass_demo`: totales = productos + envío + compensación en los 20 pedidos, stock sin negativos, ninguna fecha futura, CO₂ por etapas en las 28 cotizaciones; segundo arranque sin duplicar; bases de prueba borradas) | `DemoDatosSeeder`; `application.properties` (`smartglass.demo.*`) |
+| Pendiente del equipo: probar en producción el login con Google y el del admin, y cargar los datos de demostración en Render | POR HACER | — |
 
 ## Optimización antes del despliegue (rama `optimizacion-pre-despliegue`)
 
