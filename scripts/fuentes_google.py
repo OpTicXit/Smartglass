@@ -1,4 +1,5 @@
-"""U2 · Fuentes (Bricolage Grotesque y Geist, licencia OFL) alojadas en el proyecto.
+"""U2 · Fuentes alojadas en el proyecto (licencia OFL). Manual de marca: Poppins (titulares y logotipo,
+pesos 500 a 800) e Inter (texto e interfaz, variable 400 a 700).
 
 Antes la hoja de Google Fonts bloqueaba el pintado y abria dos conexiones a terceros en cada
 visita. Este script baja los subconjuntos latin y latin-ext (espanol e ingles) y escribe:
@@ -12,8 +13,8 @@ import pathlib
 import re
 import urllib.request
 
-URL = ('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800'
-       '&family=Geist:wght@400..700&display=swap')
+URL = ('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800'
+       '&family=Inter:wght@400..700&display=swap')
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36'
 SUBCONJUNTOS = ('latin', 'latin-ext')
 DESTINO = pathlib.Path(__file__).resolve().parent.parent / 'src' / 'main' / 'resources' / 'static' / 'vendor' / 'fuentes'
@@ -27,12 +28,16 @@ def bajar(url):
 
 def main():
     DESTINO.mkdir(parents=True, exist_ok=True)
-    salida = ['/* Bricolage Grotesque y Geist (SIL OFL 1.1) · generado por scripts/fuentes_google.py: no editar a mano */']
+    for viejo in DESTINO.glob('*.woff2'):
+        viejo.unlink()   # quita las fuentes que ya no se usan
+    salida = ['/* Poppins e Inter (SIL OFL 1.1) · generado por scripts/fuentes_google.py: no editar a mano */']
     for sub, cara in BLOQUE.findall(bajar(URL).decode('utf-8')):
         if sub not in SUBCONJUNTOS:
             continue
         familia = re.search(r"font-family: '([^']+)'", cara).group(1)
-        archivo = familia.lower().replace(' ', '-') + '-' + sub + '.woff2'
+        peso = re.search(r'font-weight: ([0-9 ]+);', cara).group(1)
+        # Poppins llega en un archivo por peso; una fuente variable ("400 700") va en uno solo
+        archivo = familia.lower().replace(' ', '-') + ('' if ' ' in peso else '-' + peso) + '-' + sub + '.woff2'
         url = re.search(r'url\((https://[^)]+)\)', cara).group(1)
         (DESTINO / archivo).write_bytes(bajar(url))
         salida.append('/* ' + sub + ' */\n' + cara.replace(url, './' + archivo))

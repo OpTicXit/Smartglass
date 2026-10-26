@@ -18,34 +18,36 @@
    1. TOKENS
 ========================================================= */
 :root {
-  /* Paleta base - fondo azul noche profundo */
-  --bg-primary: #070B19;
-  --bg-secondary: #0D142A;
-  --bg-tertiary: #111A36;
+  /* Manual de marca (oct. 2026), tema oscuro "Deep Dark Tech": fondos Grafito Tech #0E1420,
+     textos Hielo #EAF6FF, acento Cian Vidrio #00C2FF, secundario Azul Electrico #0072FF y
+     Verde ODS #00E5A0 para lo sostenible. Regla 60-30-10: fondos, marca, acentos. */
+  --bg-primary: #0E1420;
+  --bg-secondary: #131B2B;
+  --bg-tertiary: #1A2438;
 
-  /* Textos */
-  --text-main: #F4F7FD;
-  --text-muted: #B0BDD1;
-  --text-subtle: #8796B3;
-  --text-on-accent: #FFFFFF;
+  /* Textos (Hielo y sus grises azulados; todos >= 4,5:1 sobre Grafito) */
+  --text-main: #EAF6FF;
+  --text-muted: #AFC2D6;
+  --text-subtle: #8197B2;
+  --text-on-accent: #0E1420;
 
-  /* Acento - azul electrico */
-  --color-accent: #3B82F6;
-  --color-accent-hover: #60A5FA;
-  --color-accent-dim: rgba(59, 130, 246, 0.15);
-  /* Texto claro sobre fondo oscuro; relleno mas profundo para que el blanco tenga contraste */
-  --color-accent-text: #6FA8FF;
-  --color-accent-solid: #2563EB;
-  --color-accent-solid-hover: #1D4ED8;
+  /* Acento - Cian Vidrio (el bisel de la G). En oscuro el boton es cian con texto Grafito (9:1);
+     el blanco sobre cian no llega al contraste minimo */
+  --color-accent: #00C2FF;
+  --color-accent-hover: #5AD8FF;
+  --color-accent-dim: rgba(0, 194, 255, 0.14);
+  --color-accent-text: #00C2FF;
+  --color-accent-solid: #00C2FF;
+  --color-accent-solid-hover: #5AD8FF;
   --color-star: #FBBF24;
 
-  /* Estados */
-  --color-success: #34D399;
-  --color-success-dim: rgba(52, 211, 153, 0.14);
+  /* Estados (exito = Verde ODS; informacion = Azul Electrico aclarado para leerse sobre Grafito) */
+  --color-success: #00E5A0;
+  --color-success-dim: rgba(0, 229, 160, 0.14);
   --color-warning: #FBBF24;
   --color-warning-dim: rgba(251, 191, 36, 0.14);
-  --color-info: #60A5FA;
-  --color-info-dim: rgba(96, 165, 250, 0.14);
+  --color-info: #4D9CFF;
+  --color-info-dim: rgba(0, 114, 255, 0.18);
   --color-error: #F87171;
   --color-error-dim: rgba(248, 113, 113, 0.14);
   --color-violet: #A78BFA;
@@ -54,19 +56,19 @@
   /* Bordes y sombras */
   --border-color: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.14);
-  --border-hover: rgba(59, 130, 246, 0.4);
+  --border-hover: rgba(0, 194, 255, 0.4);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-main: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
   --shadow-hover: 0 12px 30px -6px rgba(0, 0, 0, 0.8);
-  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.25);
+  --shadow-glow: 0 0 20px rgba(0, 194, 255, 0.22);
   --shadow-card: var(--shadow-main);
   /* Canto de vidrio: brillo de 1px en el borde superior de las superficies */
   --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
-  /* Tipografia */
-  --font-display: 'Bricolage Grotesque', 'Geist', system-ui, sans-serif;
-  --font-primary: 'Geist', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, 'Cascadia Code', monospace;
+  /* Tipografia del manual de marca: Poppins en titulares, Inter en texto e interfaz */
+  --font-display: 'Poppins', 'Inter', system-ui, sans-serif;
+  --font-primary: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
   --base-font-size: 16px;
   --fs-xs: 0.75rem;
   --fs-sm: 0.875rem;
@@ -96,33 +98,33 @@
   color-scheme: dark;
 
   /* Superficies que cambian entre modo oscuro y claro */
-  --nav-bg: rgba(7, 11, 25, 0.72);
-  --card-bg: rgba(13, 20, 42, 0.6);
-  --card-bg-soft: rgba(13, 20, 42, 0.4);
-  --card-solid: #0D142A;
-  --input-bg: rgba(13, 20, 42, 0.7);
-  --placeholder: #8B9AB5;
+  --nav-bg: rgba(14, 20, 32, 0.74);
+  --card-bg: rgba(19, 27, 43, 0.6);
+  --card-bg-soft: rgba(19, 27, 43, 0.4);
+  --card-solid: #131B2B;
+  --input-bg: rgba(19, 27, 43, 0.7);
+  --placeholder: #8197B2;
   --grid-line: rgba(255, 255, 255, 0.015);
-  --bg-ambient: radial-gradient(900px 500px at 85% -5%, rgba(59, 130, 246, 0.10), transparent 60%);
+  --bg-ambient: radial-gradient(900px 500px at 85% -5%, rgba(0, 114, 255, 0.12), transparent 60%);
   --surface-hover: rgba(255, 255, 255, 0.035);
-  --scroll-hover: #1E293B;
-  --overlay: rgba(3, 6, 15, 0.66);
+  --scroll-hover: #1E2A3F;
+  --overlay: rgba(6, 10, 18, 0.66);
 
   --color-background: var(--bg-primary);
-  --co2-glow-normal: 0 0 28px rgba(52, 211, 153, 0.25);
+  --co2-glow-normal: 0 0 28px rgba(0, 229, 160, 0.25);
 
-  /* T3: acentos secundarios de la identidad (cian del canto del vidrio, indigo del horno) */
-  --color-cyan: #3FB6C9;
-  --color-cyan-dim: rgba(63, 182, 201, 0.14);
-  --color-indigo: #4F46E5;
-  --color-indigo-glow: rgba(79, 70, 229, 0.45);
+  /* T3: acentos secundarios de la identidad: Cian Vidrio y Azul Electrico (gradientes) */
+  --color-cyan: #00C2FF;
+  --color-cyan-dim: rgba(0, 194, 255, 0.14);
+  --color-indigo: #0072FF;
+  --color-indigo-glow: rgba(0, 114, 255, 0.45);
 
   /* T3: texto legible SOBRE cada color de estado (en oscuro los estados son
      claros: texto oscuro; en claro son oscuros: texto blanco). Contraste >= 4,5. */
   --on-success: #04140D;
   --on-warning: #1A1200;
   --on-error: #1A0505;
-  --on-accent-solid: #FFFFFF;
+  --on-accent-solid: #0E1420;
 
   /* T3: elementos sobre fotos u overlays oscuros (iguales en ambos temas,
      porque la foto no cambia con el tema) */
@@ -130,19 +132,20 @@
   --on-media-muted: rgba(255, 255, 255, 0.84);
   --on-media-subtle: rgba(255, 255, 255, 0.68);
   --on-media-line: rgba(255, 255, 255, 0.3);
-  --media-scrim: rgba(7, 11, 25, 0.92);
-  --media-scrim-soft: rgba(7, 11, 25, 0.4);
-  --media-chip: rgba(7, 11, 25, 0.72);
-  --backdrop: rgba(3, 6, 16, 0.65);
+  --media-scrim: rgba(14, 20, 32, 0.92);
+  --media-scrim-soft: rgba(14, 20, 32, 0.4);
+  --media-chip: rgba(14, 20, 32, 0.72);
+  --backdrop: rgba(6, 10, 18, 0.65);
   --shadow-control: 0 2px 8px rgba(0, 0, 0, 0.35);
 
-  /* T3: hoja de documento (factura): siempre clara, en ambos temas y al imprimir */
+  /* T3: hoja de documento (factura): siempre clara, en ambos temas y al imprimir (papeleria
+     del manual: Azul Profundo sobre Hielo) */
   --paper: #FFFFFF;
-  --paper-soft: #F4F7FD;
-  --paper-ink: #0B1530;
-  --paper-ink-muted: #4A5A7C;
-  --paper-line: #E3E9F5;
-  --paper-accent: #1D4ED8;
+  --paper-soft: #EAF6FF;
+  --paper-ink: #0B2447;
+  --paper-ink-muted: #3A5274;
+  --paper-line: #D6E6F5;
+  --paper-accent: #005BD1;
   --paper-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.6);
 }
 
@@ -154,40 +157,45 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --bg-primary: #F4F7FD;
+  /* Manual de marca, tema claro: fondos Hielo #EAF6FF, textos y botones Azul Profundo #0B2447,
+     acento Azul Electrico #0072FF (como texto, una version mas profunda: #005BD1, 5,6:1 sobre Hielo) */
+  --bg-primary: #EAF6FF;
   --bg-secondary: #FFFFFF;
-  --bg-tertiary: #E8EEFA;
+  --bg-tertiary: #D9ECFB;
 
-  --text-main: #0B1530;
-  --text-muted: #44537A;
-  --text-subtle: #5E6C88;
+  --text-main: #0B2447;
+  --text-muted: #3A5274;
+  --text-subtle: #556B8A;
   --text-on-accent: #FFFFFF;
 
-  --color-accent: #2563EB;
-  --color-accent-hover: #1D4ED8;
-  --color-accent-dim: rgba(37, 99, 235, 0.10);
-  --color-accent-text: #1D4ED8;
+  --color-accent: #0072FF;
+  --color-accent-hover: #005BD1;
+  --color-accent-dim: rgba(0, 114, 255, 0.10);
+  --color-accent-text: #005BD1;
+  --color-accent-solid: #0B2447;
+  --color-accent-solid-hover: #16396A;
+  --on-accent-solid: #FFFFFF;
   --color-star: #C2610A;
 
-  --color-success: #05694B;
-  --color-success-dim: rgba(5, 105, 75, 0.10);
+  --color-success: #007A55;
+  --color-success-dim: rgba(0, 122, 85, 0.10);
   --color-warning: #9A4A06;
   --color-warning-dim: rgba(154, 74, 6, 0.10);
-  --color-info: #0369A1;
-  --color-info-dim: rgba(3, 105, 161, 0.10);
+  --color-info: #005BD1;
+  --color-info-dim: rgba(0, 91, 209, 0.10);
   --color-error: #B91C1C;
   --color-error-dim: rgba(185, 28, 28, 0.10);
   --color-violet: #6D28D9;
   --color-violet-dim: rgba(109, 40, 217, 0.10);
-  --co2-glow-normal: 0 0 28px rgba(5, 105, 75, 0.22);
+  --co2-glow-normal: 0 0 28px rgba(0, 122, 85, 0.22);
 
-  --border-color: rgba(15, 23, 42, 0.10);
-  --border-strong: rgba(15, 23, 42, 0.18);
-  --border-hover: rgba(37, 99, 235, 0.45);
-  --shadow-sm: 0 1px 2px rgba(30, 58, 138, 0.10);
-  --shadow-main: 0 10px 30px -12px rgba(30, 58, 138, 0.18), 0 4px 12px -6px rgba(30, 58, 138, 0.10);
-  --shadow-hover: 0 18px 40px -14px rgba(30, 58, 138, 0.30);
-  --shadow-glow: 0 0 22px rgba(37, 99, 235, 0.18);
+  --border-color: rgba(11, 36, 71, 0.10);
+  --border-strong: rgba(11, 36, 71, 0.18);
+  --border-hover: rgba(0, 114, 255, 0.45);
+  --shadow-sm: 0 1px 2px rgba(11, 36, 71, 0.10);
+  --shadow-main: 0 10px 30px -12px rgba(11, 36, 71, 0.18), 0 4px 12px -6px rgba(11, 36, 71, 0.10);
+  --shadow-hover: 0 18px 40px -14px rgba(11, 36, 71, 0.30);
+  --shadow-glow: 0 0 22px rgba(0, 114, 255, 0.18);
   --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 
   --nav-bg: rgba(255, 255, 255, 0.8);
@@ -196,21 +204,21 @@
   --card-solid: #FFFFFF;
   --input-bg: #FFFFFF;
   --placeholder: #5E6C88;
-  --grid-line: rgba(30, 58, 138, 0.032);
+  --grid-line: rgba(11, 36, 71, 0.032);
   --bg-ambient:
-    radial-gradient(900px 520px at 88% -8%, rgba(37, 99, 235, 0.13), transparent 62%),
-    radial-gradient(700px 420px at 4% 6%, rgba(14, 165, 233, 0.09), transparent 60%);
-  --surface-hover: rgba(15, 23, 42, 0.04);
-  --scroll-hover: #C7D2EA;
-  --overlay: rgba(11, 21, 48, 0.4);
+    radial-gradient(900px 520px at 88% -8%, rgba(0, 114, 255, 0.12), transparent 62%),
+    radial-gradient(700px 420px at 4% 6%, rgba(0, 194, 255, 0.10), transparent 60%);
+  --surface-hover: rgba(11, 36, 71, 0.04);
+  --scroll-hover: #C3DAF0;
+  --overlay: rgba(11, 36, 71, 0.4);
 
-  --color-cyan: #0E7490;
-  --color-cyan-dim: rgba(14, 116, 144, 0.10);
+  --color-cyan: #00749A;
+  --color-cyan-dim: rgba(0, 194, 255, 0.14);
   --on-success: #FFFFFF;
   --on-warning: #FFFFFF;
   --on-error: #FFFFFF;
-  --backdrop: rgba(11, 21, 48, 0.45);
-  --shadow-control: 0 2px 6px rgba(30, 58, 138, 0.25);
+  --backdrop: rgba(11, 36, 71, 0.45);
+  --shadow-control: 0 2px 6px rgba(11, 36, 71, 0.25);
 }
 
 /* =========================================================
