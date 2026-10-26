@@ -40,16 +40,19 @@ En los dos casos MongoDB va en **MongoDB Atlas** (el plan M0 gratuito alcanza pa
 
 ## Railway, paso a paso
 
-1. **New Project → Deploy from GitHub repo** y elige el repositorio. Railway detecta `railway.json` y construye con el `Dockerfile`.
-2. **+ New → Database → MySQL** en el mismo proyecto.
-3. En el servicio de la app, **Variables**, usa referencias a la base:
+1. **New Project → Deploy from GitHub repo** y elige el repositorio. Railway detecta `railway.json` y construye con el `Dockerfile` (el primer intento falla hasta poner las variables).
+2. MySQL: o **+ New → Database → MySQL** en el mismo proyecto, o uno externo (el piloto usa Aiven, ver más abajo). Con el MySQL de Railway, en **Variables** del servicio usa referencias:
    - `MYSQL_URL` = `jdbc:mysql://${{MySQL.MYSQLHOST}}:${{MySQL.MYSQLPORT}}/${{MySQL.MYSQLDATABASE}}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC`
    - `MYSQL_USER` = `${{MySQL.MYSQLUSER}}`
    - `MYSQL_PASSWORD` = `${{MySQL.MYSQLPASSWORD}}`
-   - Las demás de la tabla anterior.
+   - Las demás de la tabla anterior. `JWT_SECRET` no lo genera Railway: créalo con
+     `$b = New-Object byte[] 48; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); [Convert]::ToBase64String($b)` (PowerShell).
+3. **Settings → Region:** US East (Virginia), junto a Atlas.
 4. **Volume:** añade un volumen al servicio de la app con punto de montaje `/data`. Ahí quedan las fotos que sube el admin.
-5. **Settings → Networking → Generate Domain** y registra ese dominio en Google Cloud (ver arriba).
+5. **Settings → Networking → Generate Domain** (puerto 8080) y registra ese dominio en Google Cloud (ver arriba).
 6. Despliega. El chequeo `/salud` debe responder `ok`.
+
+Piloto (26/10/2026): `https://smartglass-production.up.railway.app`, con MySQL en Aiven, Atlas M0 y los datos de demostración cargados en el primer arranque (`DEMO_DATOS=true`, que luego se quita).
 
 ## Render, paso a paso
 
@@ -58,7 +61,9 @@ En los dos casos MongoDB va en **MongoDB Atlas** (el plan M0 gratuito alcanza pa
 3. El disco `fotos` se monta en `/data` y requiere un plan de pago. Sin disco, las fotos subidas se pierden en cada despliegue.
 4. Registra el dominio `https://<servicio>.onrender.com` en Google Cloud. Si el nombre ya estaba ocupado, Render le añade un sufijo (el piloto quedó en `https://smartglass-g075.onrender.com`).
 
-### Despliegue del piloto (25/10/2026)
+> **26/10/2026:** Render suspendió la cuenta («suspicious activity») minutos después del primer despliegue; el servicio quedó en `503 suspend-by-user`. Se pidió revisión a soporte y el piloto pasó a **Railway** (`https://smartglass-production.up.railway.app`) con las mismas bases (Aiven y Atlas, con contraseñas nuevas), la misma credencial de Google y la misma imagen. Ver «Railway, paso a paso».
+
+### Despliegue del piloto en Render (25/10/2026)
 
 - **MySQL en Aiven** (plan gratuito, MySQL 8.4): `MYSQL_URL=jdbc:mysql://<host>.aivencloud.com:<puerto>/defaultdb?sslMode=REQUIRED&serverTimezone=UTC`, usuario `avnadmin`. Aiven exige clave primaria en todas las tablas; las de SmartGlass la tienen.
 - **MongoDB Atlas M0** en AWS us-east-1, con acceso de red `0.0.0.0/0` (la protección es la contraseña del usuario de la base).
