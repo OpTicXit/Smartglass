@@ -1101,14 +1101,20 @@ body { padding-bottom: 64px; }
 }
 .sg-theme-switch:hover { transform: translateY(-2px); box-shadow: var(--shadow-main), var(--shadow-glow); }
 .sg-theme-switch:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
-.sg-theme-track { position: relative; width: 58px; height: 30px; border-radius: var(--r-pill); background: linear-gradient(135deg, #0F1B3D, #1E3A8A); transition: background 0.4s ease; }
-:root[data-theme="light"] .sg-theme-track { background: linear-gradient(135deg, #7DD3FC, #BFDBFE); }
+/* Colores del manual de marca: riel Azul Profundo a Grafito (oscuro) o Hielo (claro); el boton
+   redondo lleva el mismo par que los botones del tema (cian con Grafito, Azul Profundo con Hielo) */
+.sg-theme-track {
+  position: relative; width: 58px; height: 30px; border-radius: var(--r-pill);
+  background: linear-gradient(135deg, #0B2447, #0E1420); box-shadow: inset 0 0 0 1px rgba(0, 194, 255, 0.35);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+:root[data-theme="light"] .sg-theme-track { background: linear-gradient(135deg, #D9ECFB, #EAF6FF); box-shadow: inset 0 0 0 1px rgba(11, 36, 71, 0.22); }
 .sg-theme-thumb {
   position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; display: grid; place-items: center;
-  border-radius: 50%; background: #E2E8F0; color: #1E3A8A; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  transition: transform 0.4s var(--ease-spring), background 0.3s ease, color 0.3s ease;
+  border-radius: 50%; background: var(--color-accent-solid); color: var(--on-accent-solid); box-shadow: 0 0 12px rgba(0, 194, 255, 0.45);
+  transition: transform 0.4s var(--ease-spring), background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
-:root[data-theme="light"] .sg-theme-thumb { transform: translateX(28px); background: #FFFFFF; color: #F59E0B; }
+:root[data-theme="light"] .sg-theme-thumb { transform: translateX(28px); box-shadow: 0 2px 6px rgba(11, 36, 71, 0.3); }
 .sg-theme-thumb svg { position: absolute; transition: opacity 0.25s ease, transform 0.4s ease; }
 .sg-theme-thumb .sg-ico-sun { opacity: 0; transform: rotate(-90deg) scale(0.6); }
 :root[data-theme="light"] .sg-theme-thumb .sg-ico-sun { opacity: 1; transform: none; }
@@ -1490,7 +1496,7 @@ button[disabled] { cursor: not-allowed; }
 .nav-notif-trigger svg { width: 20px; height: 20px; }
 .notif-count {
   position: absolute; top: 2px; right: 0; min-width: 18px; height: 18px; padding: 0 5px;
-  border-radius: 999px; background: var(--color-indigo); color: #fff;   /* blanco sobre indigo: 6,3:1 */
+  border-radius: 999px; background: var(--color-accent-solid); color: var(--on-accent-solid);   /* mismo par que los botones: >= 8,9:1 en ambos temas */
   font-size: max(12px, 0.68rem); font-weight: 700; line-height: 18px; text-align: center;
   box-shadow: 0 0 0 2px var(--bg-primary);
 }

@@ -294,6 +294,15 @@ Decisión del equipo: simular sin guardar. Sustituye al recorrido estático de T
 | Primera visita: invitación «¿Te mostramos SmartGlass?» en vez de abrir el recorrido solo; se inicia también desde /guia o con `?tour=1` | 🧪 ESCRITO (aparece una vez; «Ahora no» la recuerda) | `guia.js` |
 | Textos en es-CO y en (la búsqueda de ejemplo usa la palabra del idioma activo) | 🧪 ESCRITO | `messages*.properties` (`guia2.*`) |
 
+### Paleta y tipografía del manual de marca (26/10/2026)
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| Tema oscuro «Deep Dark Tech» (Grafito, textos Hielo, Cian Vidrio, Verde ODS) y tema claro (Hielo, Azul Profundo); Poppins en titulares e Inter en texto, alojadas en el proyecto | 🧪 ESCRITO (visto en navegador por el equipo antes del commit) | `d774b3d`, `df36b22`; `theme.css`, `admin.css`, `vendor/fuentes/` |
+| **Arreglo de la revisión:** en oscuro los botones del admin («Crear», «Guardar», cambiar estado) y su contador llevaban texto blanco sobre cian (2,07:1); el contador de notificaciones y el botón principal del editor de corte, blanco sobre `#0072FF` (4,33:1). Ahora usan `--color-accent-solid` con `--on-accent-solid` | 🧪 ESCRITO (colores calculados en navegador: 8,92:1 en oscuro y 15,47:1 en claro; el panel del admin no se abrió con sesión) | `admin.css`, `theme.css` (`.notif-count`), `corte-editor.js` |
+| Barra del navegador en el móvil (`theme-color`) con los fondos nuevos: `#0E1420` en oscuro y `#EAF6FF` en claro | 🧪 ESCRITO | `fragments/recursos.html`, `main.js` |
+| Interruptor oscuro/claro con la marca (aún usaba el azul marino y el amarillo anteriores): riel Azul Profundo a Grafito o Hielo, y el botón redondo con el par de los botones del tema (cian con luna Grafito; Azul Profundo con sol Hielo). El revelado circular y su respeto a fotosensible y movimiento reducido no cambian | 🧪 ESCRITO (visto en navegador en los dos temas, cambiando con el propio interruptor) | `theme.css` «6. SWITCH DE TEMA» |
+
 ### Pruebas antes del push (25/10/2026, con la sesión del admin)
 
 | Ítem | Estado | Evidencia |

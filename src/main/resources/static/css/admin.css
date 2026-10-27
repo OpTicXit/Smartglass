@@ -174,7 +174,7 @@ table.table-admin { width: 100%; border-collapse: collapse; font-size: 0.92rem; 
     padding: 8px 16px;
     border-radius: 8px;
     background: var(--color-accent-solid);
-    color: #fff;
+    color: var(--on-accent-solid);
     font-weight: 600;
     font-size: 0.8rem;
     border: none;
@@ -236,7 +236,7 @@ a.ver:hover { border-color: var(--border-hover); color: var(--color-accent-text)
 .btn-crear {
     padding: 12px 28px;
     background: var(--color-accent-solid);
-    color: #fff;
+    color: var(--on-accent-solid);
     border: none;
     border-radius: 10px;
     font-weight: 700;
@@ -251,7 +251,7 @@ a.ver:hover { border-color: var(--border-hover); color: var(--color-accent-text)
     margin-top: 16px;
     padding: 12px;
     background: var(--color-accent-solid);
-    color: #fff;
+    color: var(--on-accent-solid);
     border: none;
     border-radius: 10px;
     font-weight: 700;
@@ -387,7 +387,7 @@ resaltado del item activo.
     margin-left: .4em;
     border-radius: 999px;
     background: var(--color-accent-solid);
-    color: #fff;
+    color: var(--on-accent-solid);
     font-size: .72em;
     font-weight: 700;
     text-align: center;
