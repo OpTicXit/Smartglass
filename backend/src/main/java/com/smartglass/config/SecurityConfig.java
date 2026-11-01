@@ -176,8 +176,14 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/vidrios/**").authenticated()
                 .requestMatchers(HttpMethod.PATCH, "/api/vidrios/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/vidrios/**").hasRole("ADMIN")
-                // El resto publico para no romper storefront
-                .anyRequest().permitAll()
+                // Tienda publica (lista explicita: antes cualquier ruta nueva quedaba abierta por defecto)
+                .requestMatchers(HttpMethod.GET, "/", "/home", "/acerca", "/planes", "/guia",
+                        "/catalogo", "/destacados", "/detalle/*", "/comparar",
+                        "/superadmin", "/superadmin/**").permitAll()
+                // Idioma y accesibilidad: tambien los visitantes (cookie o localStorage)
+                .requestMatchers("/perfil/idioma", "/perfil/accesibilidad").permitAll()
+                // Todo lo demas exige sesion: una ruta nueva no queda publica por olvido
+                .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")

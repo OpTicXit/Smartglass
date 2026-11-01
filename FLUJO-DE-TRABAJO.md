@@ -326,10 +326,10 @@ Tres auditorías de solo lectura (seguridad del código, coherencia del backend 
 | Coherencia: borradas 17 claves de texto sin uso que afirmaban «ISO 14001», «carbono cero 2026», «hasta 40 % reciclado» y «huella real», 5 entradas de es_ES idénticas a la base, y código muerto (consultas sin uso, `getTamanoEtiqueta`, efecto magnético) | 🧪 ESCRITO (recorrido de las 14 páginas públicas en es y en: todas 200 y sin claves faltantes) | — |
 | Accesibilidad: filtros del catálogo vuelven a anunciarse como enlaces; las 7 páginas de admin tienen `<main>`; el desplazamiento del configurador respeta el movimiento reducido; los sellos oro, plata y bronce usan el selector de tema oscuro correcto | 🧪 ESCRITO (el admin no se abrió con sesión) | plantillas |
 | Rendimiento: la imagen de portada y login en WebP (104 KB frente a 224 KB), con el JPG como respaldo | 🧪 ESCRITO (navegador: se descarga solo el WebP) | `theme.css`, `index.html`, `img/hero-mountains.webp` |
+| **Denegar por defecto:** antes `.anyRequest().permitAll()` dejaba pública cualquier ruta nueva. Ahora las páginas de la tienda están en una lista explícita y el resto exige sesión (una ruta desconocida lleva al login) | 🧪 ESCRITO (recorrido de las 32 rutas como visitante: tienda, carrito, cotizador, idioma, Google y logout siguen abiertos; admin, checkout y cuenta piden sesión) | `SecurityConfig` |
 | Revisado y correcto: sin IDOR (pedidos, facturas, cotizaciones, carrito y notificaciones filtran por dueño), JWT falsificado o `alg: none` da 401, sin XSS (`th:utext` no se usa), sin inyección en Mongo (búsqueda con `Pattern.quote`), sin redirección abierta, sin recorrido de rutas, subidas con UUID y lista blanca, sin `actuator` expuesto | Revisado | auditoría + `seguridad.py` en vivo |
 
 **Pendiente o a decidir:**
-- `.anyRequest().permitAll()` hace que cualquier endpoint nuevo sea público por defecto. Conviene cambiarlo a `authenticated()` y listar las páginas públicas, con una prueba de todas las rutas.
 - En la feria, todo el Wi-Fi comparte una IP: el límite de 10 logins por minuto por IP puede quedarse corto.
 - Comprobar en Railway que `request.getRemoteAddr()` da la IP real del cliente (proxy).
 - El JWT dura 24 horas y el logout no lo revoca.
