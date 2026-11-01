@@ -1,7 +1,7 @@
 # =========================================================
 # T6 · Imagen de SmartGlass para Render o Railway.
 # Dos etapas: compila el JAR con el wrapper de Maven y lo ejecuta en un JRE limpio.
-# Java 26 = <java.version> del pom.xml. Ningun secreto se copia a la imagen.
+# Java 26 = <java.version> de backend/pom.xml; las vistas y estaticos salen de frontend/. Ningun secreto se copia a la imagen.
 # =========================================================
 
 # ---------- 1) Compilacion ----------
@@ -9,11 +9,13 @@ FROM eclipse-temurin:26-jdk-noble AS build
 WORKDIR /app
 
 # Primero solo lo que define dependencias: si el codigo cambia, esta capa se reutiliza
-COPY mvnw pom.xml ./
-COPY .mvn .mvn
+WORKDIR /app/backend
+COPY backend/mvnw backend/pom.xml ./
+COPY backend/.mvn .mvn
 RUN sed -i 's/\r$//' mvnw && chmod +x mvnw && ./mvnw -B -q dependency:go-offline
 
-COPY src src
+COPY backend/src src
+COPY frontend /app/frontend
 RUN ./mvnw -B -q -DskipTests package && cp target/*.jar /app/smartglass.jar
 
 # ---------- 2) Ejecucion ----------

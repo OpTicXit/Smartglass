@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{admin.cotizaciones.smartglass_cotizaciones_admin}">SmartGlass - Cotizaciones (Admin)</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        /* =========================================================
+           PANEL DE APROBACION DE COTIZACIONES (solo ROLE_ADMIN)
+           Todas las cotizaciones de todos los clientes. Sin edicion,
+           sin carrito, sin pagos: solo aprobar o rechazar.
+           ========================================================= */
+        .container { max-width: 1240px; }
+        .cot-sub { margin: -14px 0 24px; color: var(--text-muted); font-size: 0.92rem; }
+        .admin-title .badge { margin-left: 10px; vertical-align: middle; }
+
+        .flash-error { border-color: color-mix(in srgb, var(--color-error) 35%, transparent); background: var(--color-error-dim); color: var(--color-error); }
+
+        /* ---------- Filtros por estado ---------- */
+        .filtros { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; }
+        .filtros a {
+            display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px;
+            border: 1px solid var(--border-color); border-radius: 999px; background: var(--bg-secondary);
+            color: var(--text-muted); font-size: 0.88rem; font-weight: 700; text-decoration: none;
+            transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+        }
+        .filtros a:hover { border-color: var(--border-hover); color: var(--text-main); }
+        .filtros a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        .filtros a.activo { border-color: var(--color-accent); background: var(--color-accent-dim); color: var(--color-accent-text); }
+        .filtros .n {
+            min-width: 22px; padding: 1px 7px; border-radius: 999px; background: var(--bg-tertiary);
+            color: var(--text-main); font-size: max(12px, 0.74rem); text-align: center; font-variant-numeric: tabular-nums;
+        }
+        .filtros a.activo .n { background: var(--color-accent-solid); color: var(--on-accent-solid); }
+
+        /* ---------- Tabla ---------- */
+        .cot-tabla td { vertical-align: middle; }
+        /* columnas mas compactas para que la tabla entre completa en 1440 px sin scroll interno */
+        .cot-tabla th, .cot-tabla td { padding-left: 12px; padding-right: 12px; }
+        .cot-tabla th:first-child, .cot-tabla td:first-child { padding-left: 18px; }
+        .cot-tabla th:last-child, .cot-tabla td:last-child { padding-right: 18px; }
+        .cot-obra { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .cot-mini { flex: none; width: 76px; border-radius: 12px; }
+        .cot-obra-txt { display: grid; gap: 2px; min-width: 0; }
+        .cot-obra-txt strong { color: var(--text-main); font-size: 0.95rem; }
+        .cot-medidas { color: var(--text-muted); font-size: 0.82rem; line-height: 1.35; }
+        .cot-ref { color: var(--text-label); font-size: max(12px, 0.7rem); font-weight: 700; letter-spacing: 0; }
+        .cot-ref b { font-weight: 700; }
+
+        /* F24: PROCESO (.metrica-proceso, con color) y PIEZA (.metrica-pieza, neutro): estilos en admin.css */
+        .cot-co2 { display: grid; gap: 6px; justify-items: start; white-space: nowrap; }
+        .cot-tabla td.precio { color: var(--text-main); font-weight: 700; white-space: nowrap; }
+        .cot-tabla td.fecha { white-space: nowrap; }
+
+        .acciones { white-space: nowrap; }
+        .acciones-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+        .acciones-fila form { margin: 0; }
+        .btn-aprobar-admin {
+            padding: 7px 16px; border: 0; border-radius: 8px; background: var(--color-success);
+            color: var(--bg-primary); font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+            transition: filter 0.2s ease;
+        }
+        .btn-aprobar-admin:hover { filter: brightness(1.1); }
+        .btn-aprobar-admin:focus-visible, .btn-eliminar:focus-visible, a.ver:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+        .vacio { padding: 44px 20px; text-align: center; color: var(--text-muted); }
+        /* T3: sello Compromiso verde (separado del semaforo de impacto, F24) */
+        .sello-mini { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border: 1px solid var(--border-color); border-radius: 999px; font-size: max(12px, 0.76rem); font-weight: 700; white-space: nowrap; }
+        .sello-mini.ORO { border-color: #C9A227; background: color-mix(in srgb, #F5D76E 30%, var(--bg-secondary)); color: #8A6D0B; }
+        .sello-mini.PLATA { border-color: #8E9AAF; background: color-mix(in srgb, #C9D1DE 40%, var(--bg-secondary)); color: #4B5568; }
+        .sello-mini.BRONCE { border-color: #B87333; background: color-mix(in srgb, #E3B48A 35%, var(--bg-secondary)); color: #7A4A1E; }
+        :root:not([data-theme="light"]) .sello-mini.ORO { color: #F5D76E; }
+        :root:not([data-theme="light"]) .sello-mini.PLATA { color: #D5DCE8; }
+        :root:not([data-theme="light"]) .sello-mini.BRONCE { color: #E8B98C; }
+        /* T3: resumen de compromisos de los clientes */
+        .cot-compromisos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 10px; margin: 0 0 18px; padding: 16px; border: 1px solid var(--admin-card-border, var(--border-color)); border-radius: 16px; background: var(--bg-secondary); }
+        .cot-compromisos h2 { grid-column: 1 / -1; margin: 0; font-size: 0.95rem; }
+        .cot-compromisos p { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--text-muted); font-size: 0.86rem; }
+        .cot-compromisos p i { color: var(--color-success); font-size: 1.15rem; }
+        .cot-compromisos p b { color: var(--text-main); }
+        /* T2: busqueda en la tabla (cliente, referencia, tipo o forma) */
+        .cot-buscar { position: relative; max-width: 420px; margin: 0 0 16px; }
+        .cot-buscar i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+        .cot-buscar input { width: 100%; min-height: 44px; padding: 10px 14px 10px 40px; border: 1px solid var(--admin-card-border, var(--border-color)); border-radius: 12px; background: var(--bg-secondary); color: var(--text-main); font: inherit; }
+        .cot-buscar input:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        .cot-tabla tr[hidden] { display: none; }
+        .vacio[hidden] { display: none; }
+        .vacio a { color: var(--color-accent-text); font-weight: 700; }
+
+        /* ---------- Movil: la tabla pasa a tarjetas ---------- */
+        @media (max-width: 820px) {
+            .cot-tabla, .cot-tabla tbody, .cot-tabla tr, .cot-tabla td { display: block; }
+            .cot-tabla thead { display: none; }
+            .table-wrap { border: 0; background: transparent; overflow: visible; }
+            .cot-tabla tr {
+                margin-bottom: 14px; padding: 16px; border: 1px solid var(--admin-card-border);
+                border-radius: 16px; background: var(--bg-secondary); box-shadow: var(--admin-shadow-card);
+            }
+            .cot-tabla td { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 0; border: 0; }
+            .cot-tabla td::before {
+                content: attr(data-label); flex: none; color: var(--text-label); font-size: max(12px, 0.7rem);
+                font-weight: 700; letter-spacing: 0;
+            }
+            .cot-tabla td.obra-celda { display: block; padding-top: 0; }
+            .cot-tabla td.obra-celda::before { display: none; }
+            .cot-tabla td.acciones { display: block; padding-bottom: 0; }
+            .cot-tabla td.acciones::before { display: block; margin-bottom: 8px; }
+            .cot-co2 { justify-items: end; min-width: 0; text-align: right; }
+            /* T2: con etiquetas traducidas mas largas, el contenido se ajusta en vez de desbordar */
+            .cot-tabla td::before { max-width: 45%; }
+            .cot-tabla td > * { min-width: 0; }
+            .cot-co2 .chip-nivel, .cot-co2 .metrica-pieza { white-space: normal; overflow-wrap: anywhere; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar del Admin -->
+<div th:replace="~{admin/fragments/nav :: navbar}"></div>
+
+<main class="container" id="contenido">
+
+    <h1 class="admin-title">
+        <span th:text="#{admin.cotizaciones.cotizaciones}">Cotizaciones</span>
+        <span class="badge badge-neutral" th:text="${conteos['TODAS']}">0</span>
+    </h1>
+    <p class="cot-sub" th:text="#{admin.cotizaciones.revisa_las_obras_de_todos}">Revisa las obras de todos los clientes y apruébalas o recházalas.</p>
+
+    <!-- Mensaje flash -->
+    <div th:if="${mensaje}" th:class="'flash ' + (${tipoMensaje == 'error'} ? 'flash-error' : '')" role="status" th:text="${mensaje}">Mensaje</div>
+
+    <!-- Filtros por estado -->
+    <nav class="filtros" aria-label="Filtrar por estado" th:aria-label="#{admin.cotizaciones.filtrar_por_estado}">
+        <a th:href="@{/admin/cotizaciones}" th:classappend="${filtro == 'TODAS'} ? 'activo'"><span th:text="#{admin.cotizaciones.todas}">Todas</span> <span class="n" th:text="${conteos['TODAS']}">0</span></a>
+        <a th:href="@{/admin/cotizaciones(estado='COTIZACION')}" th:classappend="${filtro == 'COTIZACION'} ? 'activo'"><span th:text="#{admin.cotizaciones.pendientes}">Pendientes</span> <span class="n" th:text="${conteos['COTIZACION']}">0</span></a>
+        <a th:href="@{/admin/cotizaciones(estado='APROBADO')}" th:classappend="${filtro == 'APROBADO'} ? 'activo'"><span th:text="#{admin.cotizaciones.aprobadas}">Aprobadas</span> <span class="n" th:text="${conteos['APROBADO']}">0</span></a>
+        <a th:href="@{/admin/cotizaciones(estado='RECHAZADA')}" th:classappend="${filtro == 'RECHAZADA'} ? 'activo'"><span th:text="#{admin.cotizaciones.rechazadas}">Rechazadas</span> <span class="n" th:text="${conteos['RECHAZADA']}">0</span></a>
+    </nav>
+
+    <section class="cot-compromisos" th:if="${@plan.activa('COMPROMISOS_VERDES') and compromisos != null and conteos['TODAS'] > 0}" aria-labelledby="tituloCompromisos">
+        <h2 id="tituloCompromisos" th:text="#{admin.cotizaciones.compromisos_t}">Compromisos de tus clientes</h2>
+        <p><i class="ph ph-recycle" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.retoma_n(${#strings.toString(compromisos['retoma'])}, ${compromisos['kgRetoma']})}">0 con retoma</span></p>
+        <p><i class="ph ph-package" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.empaque_n(${#strings.toString(compromisos['empaque'])})}">0 con empaque</span></p>
+        <p><i class="ph ph-truck" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.consolidada_n(${#strings.toString(compromisos['consolidada'])})}">0 consolidadas</span></p>
+        <p><i class="ph ph-scissors" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.retazos_n(${#strings.toString(compromisos['retazos'])})}">0 retazos</span></p>
+        <p><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{admin.cotizaciones.sellos_n(${#strings.toString(compromisos['oro'])}, ${#strings.toString(compromisos['plata'])}, ${#strings.toString(compromisos['bronce'])})}">Sellos</span></p>
+    </section>
+
+    <label class="cot-buscar" th:unless="${#lists.isEmpty(filas)}">
+        <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+        <span class="visually-hidden" th:text="#{admin.cotizaciones.buscar}">Buscar</span>
+        <input type="search" id="buscarCot" autocomplete="off" placeholder="Buscar por cliente, referencia, tipo o forma" th:placeholder="#{admin.cotizaciones.buscar}">
+    </label>
+
+    <div class="table-wrap">
+        <table class="table-admin cot-tabla">
+            <thead>
+                <tr>
+                    <th th:text="#{admin.cotizaciones.obra}">Obra</th>
+                    <th th:text="#{admin.cotizaciones.cliente}">Cliente</th>
+                    <th th:text="#{admin.cotizaciones.fecha}">Fecha</th>
+                    <th th:text="#{admin.cotizaciones.impacto_ambiental}">Impacto ambiental</th>
+                    <th th:text="#{admin.cotizaciones.precio}">Precio</th>
+                    <th th:text="#{admin.cotizaciones.estado}">Estado</th>
+                    <th th:text="#{admin.cotizaciones.acciones}">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="f : ${filas}"
+                    th:attr="data-id=${f.id},data-tipo=${f.tipo},data-ancho=${f.ancho},data-alto=${f.alto},data-espesor=${f.espesor},data-forma=${f.forma},data-reciclado=${f.reciclado},data-puntos=${f.puntos},data-cliente=${f.cliente}">
+
+                    <td class="obra-celda" data-label="Obra" th:attr="data-label=#{admin.cotizaciones.obra}">
+                        <div class="cot-obra">
+                            <div class="cot-mini sg-stage" aria-hidden="true"></div>
+                            <div class="cot-obra-txt">
+                                <strong data-tipo-txt th:text="${f.tipo}">Templado</strong>
+                                <span class="cot-medidas" data-medidas th:text="${f.ancho} + ' × ' + ${f.alto} + ' cm · ' + ${f.espesor} + ' mm'">105 × 105 cm · 7 mm</span>
+                                <span class="cot-ref"><span th:text="#{admin.cotizaciones.obra_no}">Obra Nº</span> <b data-ref th:text="${f.id}">000000</b></span>
+                                <span class="sello-mini" th:if="${@plan.activa('COMPROMISOS_VERDES') and !#strings.isEmpty(f.sello)}" th:classappend="${f.sello}"><i class="ph-fill ph-seal-check" aria-hidden="true"></i> <span th:text="#{sello.chip(${#messages.msg('sello.' + f.sello)})}">Sello</span></span>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="td-strong" data-label="Cliente" th:attr="data-label=#{admin.cotizaciones.cliente}" th:text="${f.cliente}">Cliente</td>
+                    <td class="fecha" data-label="Fecha" th:attr="data-label=#{admin.cotizaciones.fecha}" th:text="${f.fecha}">01/01/2026 00:00</td>
+
+                    <td data-label="Impacto" th:attr="data-label=#{admin.cotizaciones.impacto_ambiental}">
+                        <div class="cot-co2">
+                            <!-- PROCESO: nivel e intensidad vienen de la entidad (fila.nivel / fila.intensidad); no se recalculan aqui. Unico dato con color de juicio. -->
+                            <span class="metrica-proceso chip-nivel" th:if="${f.intensidad > 0}"
+                                  th:classappend="'nivel-' + ${#strings.toLowerCase(f.nivel)}"
+                                  th:text="#{admin.cotizaciones.proceso_chip(${#messages.msgOrNull('cotizacion.nivel.' + f.nivel) ?: f.nivel}, ${#numbers.formatDecimal(f.intensidad, 1, 'POINT', 1, 'COMMA')})}">Proceso</span>
+                            <!-- PIEZA: absoluto, neutro, sin juicio -->
+                            <span class="metrica-pieza"
+                                  th:text="#{admin.cotizaciones.esta_pieza(${#numbers.formatDecimal(f.co2, 1, 'POINT', 1, 'COMMA')})}">—</span>
+                        </div>
+                    </td>
+
+                    <td class="precio" data-label="Precio" th:attr="data-label=#{admin.cotizaciones.precio}" th:text="${f.precio}">$0</td>
+
+                    <td data-label="Estado" th:attr="data-label=#{admin.cotizaciones.estado}">
+                        <span class="badge"
+                              th:classappend="${f.estado == 'COTIZACION'} ? 'badge-warning' : (${f.estado == 'APROBADO'} ? 'badge-success' : 'badge-error')"
+                              th:text="${#messages.msgOrNull('cotizacion.estado.' + f.estado)} ?: ${f.estado}">Pendiente</span>
+                    </td>
+
+                    <td class="acciones" data-label="Acciones" th:attr="data-label=#{admin.cotizaciones.acciones}">
+                        <div class="acciones-fila">
+                            <a class="ver" th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${f.id})}" th:text="#{admin.cotizaciones.ver}">Ver</a>
+
+                            <!-- Aprobar: desde Pendiente o para re-aprobar una Rechazada -->
+                            <form th:if="${f.estado != 'APROBADO'}" th:action="@{/admin/cotizaciones/{id}/aprobar(id=${f.id})}" method="post">
+                                <input type="hidden" name="estado" th:value="${filtro}">
+                                <button type="submit" class="btn-aprobar-admin" th:text="#{admin.cotizaciones.aprobar}">Aprobar</button>
+                            </form>
+
+                            <!-- Rechazar: solo desde Pendiente -->
+                            <form th:if="${f.estado == 'COTIZACION'}" th:action="@{/admin/cotizaciones/{id}/rechazar(id=${f.id})}" method="post"
+                                  data-confirm-title="¿Rechazar esta cotización?" th:data-confirm-title="#{admin.cotizaciones.rechazar_esta_cotizacion}" data-confirm="El cliente verá que no fue aprobada." th:data-confirm="#{admin.cotizaciones.el_cliente_vera_que_no}" data-confirm-ok="Rechazar" th:data-confirm-ok="#{admin.cotizaciones.rechazar}">
+                                <input type="hidden" name="estado" th:value="${filtro}">
+                                <button type="submit" class="btn-eliminar" th:text="#{admin.cotizaciones.rechazar}">Rechazar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="vacio" id="sinResultados" hidden th:text="#{admin.cotizaciones.sin_resultados}">Ninguna cotización coincide con la búsqueda.</div>
+
+        <!-- Estado vacio (con o sin filtro) -->
+        <div class="vacio" th:if="${#lists.isEmpty(filas)}">
+            <span th:if="${filtro == 'TODAS'}" th:text="#{admin.cotizaciones.todavia_no_hay_cotizaciones_en}">Todavía no hay cotizaciones en el sistema.</span>
+            <span th:unless="${filtro == 'TODAS'}">
+                <span th:text="#{admin.cotizaciones.no_hay_cotizaciones_con_este}">No hay cotizaciones con este estado.</span>
+                <a th:href="@{/admin/cotizaciones}" th:text="#{admin.cotizaciones.ver_todas}">Ver todas</a>
+            </span>
+        </div>
+    </div>
+</main>
+
+<th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
+<script th:src="@{/js/glass-preview.js}"></script>
+<script>
+(function () {
+    /* Filtro activo: se anuncia a lectores de pantalla */
+    /* F45: vertices del corte personalizado ("x,y;x,y;..."); sin ellos se dibuja la forma fija */
+    function puntosDe(d) {
+        if (d.forma !== 'Personalizada' || !d.puntos) return undefined;
+        var pts = d.puntos.split(';').map(function (par) { var xy = par.split(','); return { x: parseFloat(xy[0]), y: parseFloat(xy[1]) }; })
+            .filter(function (p) { return isFinite(p.x) && isFinite(p.y); });
+        return pts.length >= 3 ? pts : undefined;
+    }
+    
+    var activo = document.querySelector('.filtros a.activo');
+    if (activo) activo.setAttribute('aria-current', 'page');
+
+    Array.prototype.forEach.call(document.querySelectorAll('.cot-tabla tbody tr[data-id]'), function (fila) {
+        var d = fila.dataset;
+
+        /* Miniatura de la obra */
+        SGGlass.render(fila.querySelector('.cot-mini'), {
+            tipo: d.tipo, ancho: d.ancho, alto: d.alto, espesor: d.espesor, forma: d.forma,
+            reciclado: d.reciclado === 'true', mini: true, puntos: puntosDe(d)
+        });
+
+        /* Textos con el mismo formato (es-CO) que el configurador, el detalle y la galeria */
+        fila.querySelector('[data-tipo-txt]').textContent = SGGlass.nombreTipo(d.tipo);
+        fila.querySelector('[data-medidas]').textContent =
+            SGGlass.fmtAuto(d.ancho) + ' × ' + SGGlass.fmtAuto(d.alto) + ' cm · ' + SGGlass.fmtAuto(d.espesor) + ' mm · ' + SGGlass.nombreForma(d.forma);
+        fila.querySelector('[data-ref]').textContent = String(d.id || '').slice(-6).toUpperCase();
+        /* texto que recorre la busqueda */
+        fila.dataset.buscar = [d.cliente, String(d.id || '').slice(-6), SGGlass.nombreTipo(d.tipo), SGGlass.nombreForma(d.forma)].join(' ').toLowerCase();
+
+    });
+
+    /* T2: busqueda en la tabla (sin recargar; combina con el filtro por estado) */
+    var buscar = document.getElementById('buscarCot');
+    if (buscar) buscar.addEventListener('input', function () {
+        var q = buscar.value.trim().toLowerCase(), visibles = 0;
+        Array.prototype.forEach.call(document.querySelectorAll('.cot-tabla tbody tr[data-id]'), function (fila) {
+            var ok = !q || (fila.dataset.buscar || '').indexOf(q) !== -1;
+            fila.hidden = !ok; if (ok) visibles++;
+        });
+        document.getElementById('sinResultados').hidden = visibles > 0;
+    });
+})();
+</script>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

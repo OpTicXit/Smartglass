@@ -1,6 +1,6 @@
 # Fotos pendientes del catálogo (T2)
 
-El código ya espera estos archivos en `src/main/resources/static/img/`. Mientras no existan, cada producto muestra el isotipo (`logo-icono.png`, respaldo F18) con la etiqueta «Foto en preparación»; nunca aparece una imagen rota.
+El código ya espera estos archivos en `frontend/static/img/`. Mientras no existan, cada producto muestra el isotipo (`logo-icono.png`, respaldo F18) con la etiqueta «Foto en preparación»; nunca aparece una imagen rota.
 
 **Cómo activarlas:** copia el archivo con el nombre exacto y reinicia la app. `CatalogoEsculturasSeeder` comprueba qué archivos existen y solo entonces llena `imagenPrincipal` y `galeria` del producto. No hay que tocar código ni base de datos, y no cambia ninguna clave (código, tipo ni los `value` del configurador, F40).
 

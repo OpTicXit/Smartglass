@@ -4,8 +4,8 @@ pesos 500 a 800) e Inter (texto e interfaz, variable 400 a 700).
 Antes la hoja de Google Fonts bloqueaba el pintado y abria dos conexiones a terceros en cada
 visita. Este script baja los subconjuntos latin y latin-ext (espanol e ingles) y escribe:
 
-    src/main/resources/static/vendor/fuentes/fuentes.css
-    src/main/resources/static/vendor/fuentes/*.woff2
+    frontend/static/vendor/fuentes/fuentes.css
+    frontend/static/vendor/fuentes/*.woff2
 
 Uso: python scripts/fuentes_google.py   (solo biblioteca estandar)
 """
@@ -17,7 +17,7 @@ URL = ('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800'
        '&family=Inter:wght@400..700&display=swap')
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36'
 SUBCONJUNTOS = ('latin', 'latin-ext')
-DESTINO = pathlib.Path(__file__).resolve().parent.parent / 'src' / 'main' / 'resources' / 'static' / 'vendor' / 'fuentes'
+DESTINO = pathlib.Path(__file__).resolve().parent.parent / 'frontend' / 'static' / 'vendor' / 'fuentes'
 BLOQUE = re.compile(r'/\* ([a-z-]+) \*/\s*(@font-face \{.*?\})', re.S)
 
 

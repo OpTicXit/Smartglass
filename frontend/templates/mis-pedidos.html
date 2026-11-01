@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{mis-pedidos.smartglass_mis_pedidos}">SmartGlass - Mis pedidos</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+
+    <style>
+        /* ---------- Resumen ---------- */
+        .estadisticas-pedidos { display: grid; grid-template-columns: minmax(200px, 1fr) 2fr; gap: 14px; margin-bottom: 28px; }
+        .stat-pedido { display: flex; align-items: flex-start; gap: 16px; padding: 20px 22px; }
+        .stat-pedido > * { position: relative; z-index: 2; }
+        .stat-icon { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 12px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 1.35rem; }
+        /* F24: kg compensados = absoluto, sin color de semaforo */
+        .stat-pedido strong { display: block; font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+        .stat-pedido strong small { font-family: var(--font-primary); font-size: 0.9rem; font-weight: 600; letter-spacing: 0; color: var(--text-muted); }
+        .stat-pedido > div > span, .sostenible-sub { color: var(--text-muted); font-size: 0.88rem; }
+        .sostenible-sub b { color: var(--text-main); }
+        .como-compensar { margin-top: 8px; font-size: 0.86rem; }
+        .como-compensar summary { color: var(--color-accent-text); font-weight: 600; cursor: pointer; }
+        .como-compensar p { max-width: 60ch; margin: 8px 0 0; color: var(--text-muted); }
+
+        /* ---------- Lista ---------- */
+        .pedidos-lista { display: grid; gap: 16px; }
+        .pedido-card { padding: 0; border-radius: var(--r-lg); }
+        .pedido-card > * { position: relative; z-index: 2; }
+        .pedido-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--border-color); }
+        .pedido-header h2 { margin: 0; font-size: 1.1rem; }
+        .pedido-date { color: var(--text-muted); font-size: 0.85rem; }
+
+        .pedido-productos { margin: 0; padding: 8px 22px; list-style: none; }
+        .producto-item { display: grid; grid-template-columns: 52px 1fr auto; gap: 14px; align-items: center; padding: 10px 0; }
+        .producto-item + .producto-item { border-top: 1px dashed var(--border-color); }
+        .producto-item img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--r-sm); background: var(--bg-tertiary); }
+        .producto-info strong { display: block; font-size: 0.95rem; font-weight: 600; }
+        .producto-info span { color: var(--text-muted); font-size: 0.84rem; }
+        .producto-subtotal { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+        .pedido-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 22px; border-top: 1px solid var(--border-color); background: var(--surface-hover); }
+        .total-label { display: block; color: var(--text-muted); font-size: 0.82rem; }
+        .total-badge { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+        @media (max-width: 720px) { .estadisticas-pedidos { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<nav th:replace="~{fragments/navbar-publico :: navbar-publico}"></nav>
+
+<main class="container">
+    <!-- Aviso de la accion anterior (flash "mensaje"): antes esta vista lo recibia pero no lo mostraba -->
+    <div th:if="${mensaje}" class="alert" th:classappend="${tipoMensaje == 'success'} ? 'alert--success' : 'alert--error'" role="status">
+        <i th:class="${tipoMensaje == 'success' ? 'ph ph-check-circle' : 'ph ph-warning-circle'}" aria-hidden="true"></i>
+        <span th:text="${mensaje}">Mensaje de notificación</span>
+    </div>
+
+    <header class="page-intro">
+        <div>
+            <h1 th:text="#{mis-pedidos.mis_pedidos}">Mis pedidos</h1>
+            <p class="lead" th:text="#{mis-pedidos.el_historial_de_tus_compras}">El historial de tus compras, con el estado de cada pedido y su factura.</p>
+        </div>
+    </header>
+
+    <!-- Estadisticas -->
+    <div class="estadisticas-pedidos" th:if="${not #lists.isEmpty(pedidos)}">
+
+        <div class="stat-pedido card-panel">
+            <span class="stat-icon"><i class="ph ph-receipt" aria-hidden="true"></i></span>
+            <div>
+                <strong th:text="${#lists.size(pedidos)}">0</strong>
+                <span th:text="#{mis-pedidos.pedidos_realizados}">Pedidos realizados</span>
+            </div>
+        </div>
+
+        <!-- Huella compensada: usa kgTotales / kgCompensados / pedidosCompensados / pctCompensado que
+             arma CheckoutController.misPedidos y, si no vienen en el modelo, los calcula aqui con los
+             nombres reales de Pedido (huellaCarbono, compensacionCarbono). -->
+        <div class="stat-pedido card-panel stat-sostenible"
+             th:with="kgT=${kgTotales != null ? kgTotales : (#aggregates.sum(pedidos.![huellaCarbono]) ?: 0)},
+                      kgC=${kgCompensados != null ? kgCompensados : (#aggregates.sum(pedidos.?[compensacionCarbono].![huellaCarbono]) ?: 0)},
+                      nC=${pedidosCompensados != null ? pedidosCompensados : #lists.size(pedidos.?[compensacionCarbono])},
+                      pct=${pctCompensado != null ? pctCompensado : (kgT > 0 ? kgC * 100.0 / kgT : 0)}">
+            <span class="stat-icon"><i class="ph ph-leaf" aria-hidden="true"></i></span>
+
+            <div class="sostenible-info">
+                <!-- Con huella compensada -->
+                <th:block th:if="${nC > 0}">
+                    <strong class="kpi-valor">
+                        <span class="kpi-num" th:text="${#numbers.formatDecimal(kgC, 1, 'POINT', 1, 'COMMA')}">0,0</span>
+                        <small class="kpi-unidad" th:text="#{mis-pedidos.kg_co2_compensados}">kg CO₂ compensados</small>
+                    </strong>
+                    <span class="sostenible-sub">
+                        <span th:text="#{mis-pedidos.en}">en</span> <b th:text="${nC}">0</b> <b th:text="${nC == 1} ? #{mispedidos.pedido_uno} : #{mispedidos.pedido_varios}">pedidos</b><span th:if="${kgT > 0}"><span th:text="#{mis-pedidos.el}">, el</span> <b th:text="${#numbers.formatDecimal(pct, 1, 'POINT', 0, 'COMMA')} + ' %'">0 %</b> <span th:text="#{mis-pedidos.de_tu_huella_total}">de tu huella total</span></span>
+                    </span>
+                </th:block>
+
+                <!-- Estado cero explicito -->
+                <th:block th:unless="${nC > 0}">
+                    <strong>0 <small th:text="#{mis-pedidos.kg_co2_compensados}">kg CO₂ compensados</small></strong>
+                    <span class="sostenible-sub" th:text="#{mis-pedidos.todavia_no_compensas_la_huella}">Todavía no compensas la huella de tus pedidos.</span>
+                    <details class="como-compensar">
+                        <summary th:text="#{mis-pedidos.como_compensarla}">¿Cómo compensarla?</summary>
+                        <p th:text="#{mis-pedidos.al_finalizar_una_compra_en}">
+                            Al finalizar una compra, en el paso 3 del checkout marca
+                            «Deseo compensar mi huella» (+$5.000) y SmartGlass compensa las emisiones de tu pedido.
+                        </p>
+                    </details>
+                </th:block>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Sin pedidos -->
+    <div th:if="${#lists.isEmpty(pedidos)}" class="empty">
+        <div class="empty-icon"><i class="ph ph-package" aria-hidden="true"></i></div>
+        <h2 th:text="#{mis-pedidos.aun_no_tienes_pedidos}">Aún no tienes pedidos</h2>
+        <p th:text="#{mis-pedidos.cuando_compres_en_smartglass_aqui}">Cuando compres en SmartGlass, aquí verás el estado de cada pedido y podrás descargar su factura.</p>
+        <a th:href="@{/catalogo}" class="btn btn-primary" th:text="#{mis-pedidos.explorar_el_catalogo}">Explorar el catálogo</a>
+    </div>
+
+    <!-- Lista de pedidos -->
+    <div th:unless="${#lists.isEmpty(pedidos)}" class="pedidos-lista">
+
+        <article class="pedido-card card-panel" th:each="pedido : ${pedidos}">
+
+            <header class="pedido-header">
+                <div>
+                    <h2><span th:text="#{mis-pedidos.pedido}">Pedido #</span><span th:text="${pedido.id}">0</span></h2>
+                    <time class="pedido-date" th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</time>
+                </div>
+                <span th:class="'tag estado-' + ${#strings.toLowerCase(pedido.estado)}" class="tag" th:text="${#messages.msgOrNull('admin.pedidos.' + #strings.toLowerCase(pedido.estado)) ?: pedido.estado}">ESTADO</span>
+            </header>
+
+            <ul class="pedido-productos" aria-label="Productos del pedido" th:aria-label="#{mis-pedidos.productos_del_pedido}">
+                <li class="producto-item" th:each="detalle : ${pedido.detalles}">
+                    <img th:src="${detalle.imagenProducto != null} ? @{/img/{img}(img=${detalle.imagenProducto})} : @{/img/logo-icono-sm.png}"
+                         alt="" loading="lazy">
+                    <div class="producto-info">
+                        <strong th:text="${@contenido.nombrePedido(detalle)}">Producto</strong>
+                        <span th:text="${detalle.cantidad == 1} ? #{mispedidos.unidad_uno(${#strings.toString(detalle.cantidad)})} : #{mispedidos.unidad_varias(${#strings.toString(detalle.cantidad)})}">1 unidad</span>
+                    </div>
+                    <div class="producto-subtotal" th:text="${detalle.subtotalFormateado}">$0</div>
+                </li>
+            </ul>
+
+            <footer class="pedido-footer">
+                <div>
+                    <span class="total-label" th:text="#{mis-pedidos.total_del_pedido}">Total del pedido</span>
+                    <span class="total-badge" th:text="${pedido.totalFormateado}">$0</span>
+                </div>
+                <a th:href="@{/checkout/pedido/{id}(id=${pedido.id})}" class="btn btn-secondary">
+                    <i class="ph ph-file-text" aria-hidden="true"></i> <span th:text="#{mis-pedidos.ver_factura}">Ver factura</span>
+                </a>
+            </footer>
+        </article>
+
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

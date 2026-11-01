@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!-- Pagina de Tomcat para errores que no llegan a Spring (URL mal formada: 400; envio demasiado grande: 413).
+     Estatica y sin idioma: Tomcat la sirve tal cual. La pagina normal es templates/error.html. -->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>No pudimos completar la solicitud - SmartGlass</title>
+<style>
+  :root { --fondo: #0E1420; --texto: #EAF6FF; --suave: #9FB4D4; --acento: #00C2FF; --sobre: #0E1420; }
+  @media (prefers-color-scheme: light) { :root { --fondo: #EAF6FF; --texto: #0B2447; --suave: #3A5274; --acento: #0072FF; --sobre: #FFFFFF; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--fondo); color: var(--texto);
+         font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; text-align: center; }
+  main { max-width: 520px; }
+  .marca { font-weight: 700; letter-spacing: -0.02em; color: var(--acento); margin: 0 0 32px; }
+  h1 { font-size: clamp(1.5rem, 5vw, 2rem); margin: 0 0 12px; }
+  p { color: var(--suave); line-height: 1.6; margin: 0 0 8px; }
+  a { display: inline-block; margin-top: 24px; padding: 12px 22px; border-radius: 10px; background: var(--acento); color: var(--sobre);
+      font-weight: 600; text-decoration: none; }
+  a:focus-visible { outline: 2px solid var(--texto); outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main>
+  <p class="marca">SmartGlass</p>
+  <h1>No pudimos completar la solicitud</h1>
+  <p>La dirección está mal escrita o el envío es demasiado grande (cada foto admite hasta 5 MB). Revísalo e inténtalo de nuevo.</p>
+  <p lang="en">The address is malformed or the upload is too large (up to 5 MB per photo). Check it and try again.</p>
+  <a href="/home">Ir al inicio · Home</a>
+</main>
+</body>
+</html>

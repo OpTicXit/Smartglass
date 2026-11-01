@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{admin.pedidos.smartglass_pedidos_admin}">SmartGlass - Pedidos (Admin)</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+
+    <style>
+        .hint-guardado { margin: -8px 0 18px; color: var(--text-muted); font-size: 0.88rem; }
+
+        /* Cambios pendientes: la fila se resalta hasta que se guarda */
+        .table-admin tbody tr.is-pendiente td { background-color: var(--color-warning-dim); }
+        .table-admin tbody tr.is-pendiente td:first-child { box-shadow: inset 3px 0 0 var(--color-warning); }
+
+        .estado-form select { transition: border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.2s ease; }
+        .estado-form.is-dirty select { border-color: var(--color-warning); }
+        .estado-msg {
+            min-width: 84px; font-size: 0.78rem; font-weight: 600; white-space: nowrap;
+            color: var(--color-warning);
+        }
+
+        /* Guardar sin cambios pendientes / mientras se envia */
+        .estado-form button:disabled { opacity: 0.45; cursor: not-allowed; }
+        .estado-form button:disabled:hover { background: var(--color-accent); }
+
+        .sg-toast {
+            position: fixed; left: 24px; bottom: 24px; z-index: 3000;
+            max-width: min(420px, calc(100vw - 48px));
+            padding: 12px 18px; border-radius: 10px;
+            font-size: 0.9rem; font-weight: 500;
+            background: var(--bg-secondary); color: var(--text-main);
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-main);
+            opacity: 0; transform: translateY(12px); pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .sg-toast.show { opacity: 1; transform: none; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar del Admin -->
+<nav th:replace="~{admin/fragments/nav :: navbar}"></nav>
+
+<main class="container" id="contenido">
+    
+    <h1 class="admin-title" th:text="#{admin.pedidos.pedidos}">Pedidos</h1>
+
+    <!-- Alerta flash (cuando se cambia el estado de uno o varios pedidos) -->
+    <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
+
+    <p class="hint-guardado"><span th:text="#{admin.pedidos.cambia_el_estado_de_uno}">Cambia el estado de uno o varios pedidos y pulsa</span> <strong th:text="#{admin.pedidos.guardar}">Guardar</strong> <span th:text="#{admin.pedidos.en_cualquiera_se_guardan_todos}">en cualquiera: se guardan todos los cambios a la vez.</span></p>
+
+    <!-- Un solo formulario para toda la tabla: cualquier boton Guardar envia todos los cambios -->
+    <form id="form-estados" th:action="@{/admin/pedidos/estados}" method="post">
+        <div class="table-wrap">
+            <table class="table-admin">
+                <thead>
+                    <tr>
+                        <th th:text="#{admin.pedidos.factura}">Factura</th>
+                        <th th:text="#{admin.pedidos.cliente}">Cliente</th>
+                        <th th:text="#{admin.pedidos.fecha}">Fecha</th>
+                        <th th:text="#{admin.pedidos.estado}">Estado</th>
+                        <th th:text="#{admin.pedidos.total}">Total</th>
+                        <th th:text="#{admin.pedidos.cambiar_estado}">Cambiar estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pedido : ${pedidos}">
+                        <td class="td-strong"><span th:text="${pedido.numeroFactura}"></span>
+                            <!-- T3: compromisos logisticos que planta y despacho deben atender -->
+                            <span class="compromisos-ped" th:if="${pedido.conCompromisos}" th:attr="aria-label=#{admin.pedidos.compromisos}">
+                                <i class="ph ph-package" th:if="${pedido.empaqueReutilizable}" th:title="#{eco.empaque_t}" aria-hidden="true"></i>
+                                <i class="ph ph-truck" th:if="${pedido.entregaConsolidada}" th:title="#{eco.consolidada_t}" aria-hidden="true"></i>
+                                <i class="ph ph-recycle" th:if="${pedido.retomaVidrio}" th:title="#{eco.retoma_t}" aria-hidden="true"></i>
+                                <span class="visually-hidden"><th:block th:if="${pedido.empaqueReutilizable}" th:text="#{eco.empaque_t}">Empaque</th:block><th:block th:if="${pedido.empaqueReutilizable and (pedido.entregaConsolidada or pedido.retomaVidrio)}">, </th:block><th:block th:if="${pedido.entregaConsolidada}" th:text="#{eco.consolidada_t}">Consolidada</th:block><th:block th:if="${pedido.entregaConsolidada and pedido.retomaVidrio}">, </th:block><th:block th:if="${pedido.retomaVidrio}" th:text="#{eco.retoma_t}">Retoma</th:block></span>
+                            </span></td>
+                        <td th:text="${pedido.usuario != null ? pedido.usuario.nombre : '—'}"></td>
+                        <td th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy')}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${pedido.estado == 'PENDIENTE'} ? 'badge-warning' : 
+                                                  (${pedido.estado == 'PROCESANDO'} ? 'badge-info' : 
+                                                  (${pedido.estado == 'ENVIADO'} ? 'badge-violet' : 
+                                                  (${pedido.estado == 'ENTREGADO'} ? 'badge-success' : 'badge-error')))"
+                                  th:text="${#messages.msgOrNull('admin.pedidos.' + #strings.toLowerCase(pedido.estado)) ?: pedido.estado}"></span>
+                        </td>
+                        <td th:text="${pedido.totalFormateado}"></td>
+                        <td>
+                            <div class="estado-form">
+                                <select th:name="'estado_' + ${pedido.id}" aria-label="Cambiar estado del pedido" th:aria-label="#{admin.pedidos.cambiar_estado_del_pedido}"
+                                        th:attr="data-previo=${pedido.estado}">
+                                    <option value="PENDIENTE" th:selected="${pedido.estado == 'PENDIENTE'}" th:text="#{admin.pedidos.pendiente}">Pendiente</option>
+                                    <option value="PROCESANDO" th:selected="${pedido.estado == 'PROCESANDO'}" th:text="#{admin.pedidos.procesando}">Procesando</option>
+                                    <option value="ENVIADO" th:selected="${pedido.estado == 'ENVIADO'}" th:text="#{admin.pedidos.enviado}">Enviado</option>
+                                    <option value="ENTREGADO" th:selected="${pedido.estado == 'ENTREGADO'}" th:text="#{admin.pedidos.entregado}">Entregado</option>
+                                    <option value="CANCELADO" th:selected="${pedido.estado == 'CANCELADO'}" th:text="#{admin.pedidos.cancelado}">Cancelado</option>
+                                </select>
+                                <button type="submit" th:text="#{admin.pedidos.guardar}">Guardar</button>
+                                <span class="estado-msg" role="status" aria-live="polite"></span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(pedidos)}">
+                        <td colspan="6" class="td-vacio" th:text="#{admin.pedidos.no_hay_pedidos_registrados}">
+                            No hay pedidos registrados.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</main>
+
+<div class="sg-toast" id="sg-toast" role="status" aria-live="polite"></div>
+
+<script th:src="@{/js/main.js}"></script>
+<script>
+/* Guardado en lote: elegir un estado solo lo marca como pendiente;
+   al pulsar Guardar en cualquier fila viajan TODOS los pendientes en un solo envio. */
+(function () {
+    var form = document.getElementById('form-estados');
+    var celdas = Array.prototype.slice.call(document.querySelectorAll('.estado-form'));
+    var toast = document.getElementById('sg-toast');
+    var toastTimer = null;
+    var enviando = false;
+    if (!form || !celdas.length) return;
+
+    function selectDe(celda) { return celda.querySelector('select'); }
+    function hayCambio(celda) {
+        var s = selectDe(celda);
+        return s.value !== s.getAttribute('data-previo');
+    }
+    function pendientes() { return celdas.filter(hayCambio); }
+
+    function avisar(texto) {
+        toast.textContent = texto;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2800);
+    }
+
+    function refrescar() {
+        var n = pendientes().length;
+        celdas.forEach(function (celda) {
+            var cambio = hayCambio(celda);
+            celda.closest('tr').classList.toggle('is-pendiente', cambio);
+            celda.classList.toggle('is-dirty', cambio);
+            celda.querySelector('.estado-msg').textContent = cambio ? 'Sin guardar' : '';
+            var btn = celda.querySelector('button');
+            btn.disabled = enviando || n === 0;
+            btn.textContent = n > 1 ? sgT('adm_guardar_n', 'Guardar ({0})', n) : sgT('adm_guardar', 'Guardar');
+        });
+    }
+
+    celdas.forEach(function (celda) {
+        selectDe(celda).addEventListener('change', refrescar);
+    });
+
+    form.addEventListener('submit', function (event) {
+        if (!pendientes().length) {
+            event.preventDefault();
+            avisar(sgT('adm_sin_cambios', 'No hay cambios por guardar.'));
+            return;
+        }
+        enviando = true;
+        // Solo viajan los pedidos que cambiaron (un select deshabilitado no se envia)
+        celdas.forEach(function (celda) {
+            if (!hayCambio(celda)) selectDe(celda).disabled = true;
+            var btn = celda.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = sgT('adm_guardando', 'Guardando…');
+        });
+    });
+
+    // Si el usuario vuelve con "Atras", se deja la pagina lista otra vez
+    window.addEventListener('pageshow', function () {
+        enviando = false;
+        celdas.forEach(function (celda) { selectDe(celda).disabled = false; });
+        refrescar();
+    });
+
+    // Aviso si se intenta salir de la pagina con cambios sin guardar
+    window.addEventListener('beforeunload', function (event) {
+        if (!enviando && pendientes().length) {
+            event.preventDefault();
+            event.returnValue = '';
+        }
+    });
+
+    refrescar();
+})();
+</script>
+</body>
+</html>
