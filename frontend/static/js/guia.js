@@ -12,7 +12,8 @@
   'use strict';
 
   var datos = document.getElementById('sg-tour-datos');
-  if (!datos || !datos.content) return;
+  // En una pagina de error (templates/error.html) la invitacion taparia los botones para salir de ella
+  if (!datos || !datos.content || document.querySelector('.pagina-error')) return;
   var CLAVE = 'sg-guia', VISTO = 'sg-tour-visto';
   var TXT = {};
   Array.prototype.forEach.call(datos.content.querySelectorAll('section[data-id]'), function (s) {

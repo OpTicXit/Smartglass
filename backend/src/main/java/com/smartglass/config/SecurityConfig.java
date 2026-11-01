@@ -25,6 +25,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -99,7 +100,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector rutas) throws Exception {
         // F41: NO es un bean (Spring Boot lo registraria tambien como filtro de servlet, antes de autenticar)
         RateLimitFilter rateLimitFilter = new RateLimitFilter(
                 rlAnonimo, rlUsuario, rlAdmin, rlSensible, rlConfiarForwardedFor);
@@ -182,6 +183,9 @@ public class SecurityConfig {
                         "/superadmin", "/superadmin/**").permitAll()
                 // Idioma y accesibilidad: tambien los visitantes (cookie o localStorage)
                 .requestMatchers("/perfil/idioma", "/perfil/accesibilidad").permitAll()
+                // Una direccion que ningun controlador atiende pasa para que el visitante vea la pagina 404
+                // (sin esto iba al login). Solo las que no existen: cualquier ruta real sigue la regla de abajo.
+                .requestMatchers(req -> sinControlador(rutas, req)).permitAll()
                 // Todo lo demas exige sesion: una ruta nueva no queda publica por olvido
                 .anyRequest().authenticated()
             )
@@ -230,6 +234,16 @@ public class SecurityConfig {
             // F41: despues de la autenticacion (JWT/sesion) para distinguir usuario, admin y anonimo
             .addFilterAfter(rateLimitFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    /** true si ningun HandlerMapping (controladores, estaticos) atiende la peticion; ante cualquier duda, false. */
+    @SuppressWarnings("removal")
+    private static boolean sinControlador(HandlerMappingIntrospector rutas, jakarta.servlet.http.HttpServletRequest req) {
+        try {
+            return rutas.getMatchableHandlerMapping(req) == null;
+        } catch (Exception e) {
+            return false; // metodo no admitido u otro fallo: se trata como ruta existente (pide sesion)
+        }
     }
 
     /** CORS para React (http://localhost:5173 por defecto). */
