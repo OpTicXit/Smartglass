@@ -88,6 +88,8 @@ public class CheckoutController {
         if (usuario == null) return "redirect:/login";
         try {
             String direccionCompleta = direccionEnvio + ", " + ciudad;
+            // La columna es VARCHAR(255): mas largo fallaba en MySQL y el aviso mostraba el SQL
+            if (direccionCompleta.length() > 255) throw new IllegalStateException("La dirección es demasiado larga");
             // T3: una obra urgente no puede esperar a una ruta consolidada
             boolean hayUrgente = obrasDelCarrito().stream().anyMatch(VidrioSostenible::isUrgente);
             boolean compromisos = plan.activa(Funcion.COMPROMISOS_VERDES);   // T5: plan Avanzado
@@ -96,7 +98,10 @@ public class CheckoutController {
             session.setAttribute("ultimoPedidoId", pedido.getId());
             return "redirect:/checkout/confirmacion/" + pedido.getId();
         } catch (Exception e) {
-            ra.addFlashAttribute("mensaje", textos.t("flash.pedido_error", textos.traducir(e.getMessage())));
+            // Solo los errores de negocio (stock, carrito, direccion) muestran su texto; el resto, generico
+            boolean negocio = e instanceof IllegalStateException || e instanceof IllegalArgumentException;
+            if (!negocio) org.slf4j.LoggerFactory.getLogger(CheckoutController.class).error("Error al crear el pedido", e);
+            ra.addFlashAttribute("mensaje", textos.t("flash.pedido_error", negocio ? textos.traducir(e.getMessage()) : "-"));
             ra.addFlashAttribute("tipoMensaje", "error");
             return "redirect:/checkout";
         }

@@ -21,7 +21,10 @@ public class Textos {
             "El username o el email ya estan en uso.", "auth.usuario_o_email_en_uso",
             "Telefono invalido. Ej.: +57 300 123 4567", "valid.telefono",
             "Carrito vacío", "checkout.carrito_vacio",
-            "La calificación debe estar entre 1 y 5.", "resena.calificacion_rango");
+            "La calificación debe estar entre 1 y 5.", "resena.calificacion_rango",
+            "Carrito con cantidades o precios no validos", "checkout.carrito_invalido",
+            "La dirección es demasiado larga", "checkout.direccion_larga",
+            "El comentario supera los 1000 caracteres.", "resena.comentario_largo");
 
     private final MessageSource mensajes;
 

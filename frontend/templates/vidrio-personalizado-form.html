@@ -156,9 +156,9 @@
         .sello[data-nivel="ORO"] .sello-insignia { border-color: #C9A227; color: #8A6D0B; background: color-mix(in srgb, #F5D76E 30%, var(--bg-secondary)); }
         .sello[data-nivel="PLATA"] .sello-insignia { border-color: #8E9AAF; color: #4B5568; background: color-mix(in srgb, #C9D1DE 40%, var(--bg-secondary)); }
         .sello[data-nivel="BRONCE"] .sello-insignia { border-color: #B87333; color: #7A4A1E; background: color-mix(in srgb, #E3B48A 35%, var(--bg-secondary)); }
-        [data-theme="dark"] .sello[data-nivel="ORO"] .sello-insignia { color: #F5D76E; }
-        [data-theme="dark"] .sello[data-nivel="PLATA"] .sello-insignia { color: #D5DCE8; }
-        [data-theme="dark"] .sello[data-nivel="BRONCE"] .sello-insignia { color: #E8B98C; }
+        :root:not([data-theme="light"]) .sello[data-nivel="ORO"] .sello-insignia { color: #F5D76E; }
+        :root:not([data-theme="light"]) .sello[data-nivel="PLATA"] .sello-insignia { color: #D5DCE8; }
+        :root:not([data-theme="light"]) .sello[data-nivel="BRONCE"] .sello-insignia { color: #E8B98C; }
         .sello-barra { position: relative; height: 8px; margin: 12px 0 8px; border-radius: 99px; background: var(--bg-tertiary); overflow: hidden; }
         .sello-barra i { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--color-success), var(--color-cyan, var(--color-accent))); transition: width 0.35s ease; }
         .sello p { margin: 0; color: var(--text-muted); font-size: 0.85rem; line-height: 1.45; }
@@ -861,7 +861,7 @@
         $('alertaAplicar').hidden = !hay;
 
         /* La alerta vive arriba de la columna derecha: al aparecer se lleva esa columna al inicio (solo ella) */
-        if (cambioNivel && imp.nivel === 'alto' && form.scrollTop > 40) form.scrollTo({ top: 0, behavior: 'smooth' });
+        if (cambioNivel && imp.nivel === 'alto' && form.scrollTop > 40) form.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     }
 
     /* ---------- Actualizacion en vivo ---------- */
@@ -944,7 +944,7 @@
 
     $('termoVer').addEventListener('click', function () {
         manual = true; descartada = false; actualizar(true);
-        form.scrollTo({ top: 0, behavior: 'smooth' });
+        form.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     });
     $('alertaAplicar').addEventListener('click', function () {
         var imp = G.impacto(G.calcular(paraCalculo(leer())).intensidad);

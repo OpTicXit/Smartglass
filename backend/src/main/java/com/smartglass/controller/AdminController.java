@@ -100,6 +100,7 @@ public class AdminController {
 
     @PostMapping("/usuarios/{id}/rol")
     public String cambiarRol(@PathVariable Long id, @RequestParam String tipoUsuario, RedirectAttributes ra) {
+        if (!Set.of("ROLE_USER", "ROLE_ADMIN").contains(tipoUsuario)) return "redirect:/admin/usuarios/" + id;
         usuarioRepository.findById(id).ifPresent(usuario -> {
             usuario.setTipoUsuario(tipoUsuario);
             usuarioRepository.save(usuario);
@@ -118,6 +119,7 @@ public class AdminController {
 
     @PostMapping("/pedidos/{id}/estado")
     public String cambiarEstadoPedido(@PathVariable Long id, @RequestParam String estado, RedirectAttributes ra) {
+        if (!ESTADOS_PEDIDO.contains(estado)) return "redirect:/admin/pedidos";
         pedidoService.actualizarEstado(id, estado);
         ra.addFlashAttribute("mensaje", textos.t("flash.pedido_estado"));
         return "redirect:/admin/pedidos";
@@ -146,9 +148,9 @@ public class AdminController {
 
         int actualizados = pedidoService.actualizarEstados(cambios);
         ra.addFlashAttribute("mensaje",
-                actualizados == 0 ? "No había cambios que guardar."
-                : actualizados == 1 ? "Estado del pedido actualizado."
-                : actualizados + " pedidos actualizados.");
+                actualizados == 0 ? textos.t("flash.pedidos_sin_cambios")
+                : actualizados == 1 ? textos.t("flash.pedido_estado")
+                : textos.t("flash.pedidos_actualizados", String.valueOf(actualizados)));
         return "redirect:/admin/pedidos";
     }
 
@@ -176,6 +178,7 @@ public class AdminController {
     public String crearProducto(@ModelAttribute CatalogoProducto producto,
                                 @RequestParam(value = "foto", required = false) MultipartFile foto,
                                 RedirectAttributes ra) {
+        producto.setId(null); // crear nunca sobrescribe un producto existente aunque el formulario mande id
         try {
             if (foto != null && !foto.isEmpty()) {
                 producto.setImagen(guardarFoto(foto));

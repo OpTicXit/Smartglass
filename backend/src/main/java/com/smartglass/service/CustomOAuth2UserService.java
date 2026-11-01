@@ -96,6 +96,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             usuario.setProviderId(sub);
             usuario = usuarioRepository.save(usuario);
 
+        } else if (usuario.getProviderId() == null && usuario.getTipoUsuario() != null
+                && usuario.getTipoUsuario().toUpperCase().contains("ADMIN")) {
+            // Una cuenta de administrador nunca se vincula a Google por coincidir el correo:
+            // quien controle ese buzon se volveria admin y dejaria fuera al dueno.
+            throw rechazo("admin_sin_google", "La cuenta de administrador entra solo con usuario y contraseña.");
+
         } else if (usuario.getProviderId() == null) {
             // F44: primera vinculacion de una cuenta local (correo no verificado en el
             // registro). Google si verifica el correo, asi que el dueno real del correo

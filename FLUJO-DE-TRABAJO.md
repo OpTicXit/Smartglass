@@ -303,6 +303,38 @@ Decisión del equipo: simular sin guardar. Sustituye al recorrido estático de T
 | Barra del navegador en el móvil (`theme-color`) con los fondos nuevos: `#0E1420` en oscuro y `#EAF6FF` en claro | 🧪 ESCRITO | `fragments/recursos.html`, `main.js` |
 | Interruptor oscuro/claro con la marca (aún usaba el azul marino y el amarillo anteriores): riel Azul Profundo a Grafito o Hielo, y el botón redondo con el par de los botones del tema (cian con luna Grafito; Azul Profundo con sol Hielo). El revelado circular y su respeto a fotosensible y movimiento reducido no cambian | 🧪 ESCRITO (visto en navegador en los dos temas, cambiando con el propio interruptor) | `theme.css` «6. SWITCH DE TEMA» |
 
+### Pruebas de rendimiento y seguridad, y revisión de coherencia (31/10/2026, 22:01–23:00)
+
+Tres auditorías de solo lectura (seguridad del código, coherencia del backend y del frontend) más pruebas en vivo contra la app local y contra el JAR de producción.
+
+**Rendimiento** (JAR sin DevTools, 20 conexiones concurrentes, una sola máquina): `/home` 807 req/s (p50 18 ms), `/catalogo` 678–800 req/s ya caliente, `/detalle` 476 req/s, `/salud` 2.000+ req/s. En desarrollo las plantillas no se cachean y todo va 3 a 10 veces más lento: no sirve para medir. Las pruebas con `urllib` de Python marcaban 40 req/s, pero el límite era del cliente, no del servidor.
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| **Arranque local (otra causa):** si VS Code se abría unas veces como administrador y otras no, Spring abortaba con `Existing directory ... is not owned by` (carpeta temporal de sesiones de DevTools). Ahora las sesiones de desarrollo usan su propia carpeta | 🧪 ESCRITO (arrancó con la carpeta conflictiva aún presente) | `application.properties` (`server.servlet.session.store-dir`) |
+| **ALTA · Carrito:** sumar cantidades hasta `Integer.MAX_VALUE` desbordaba a negativo y permitía pedidos con total negativo. Tope de 999 por línea en el modelo y el servicio, y el pedido rechaza cantidades o subtotales no válidos | 🧪 ESCRITO (prueba `LimitesEntradaTest`; en navegador, 2147483647 quedó en el stock disponible) | `ItemCarrito`, `CarritoService`, `PedidoService` |
+| **MEDIA · CSRF activado** (estaba desactivado con login por sesión): token en cookie `XSRF-TOKEN`; los formularios `th:action` lo llevan solos y `js/csrf.js` lo pone en los `fetch` del mismo origen. La API con `Authorization: Bearer` queda fuera | 🧪 ESCRITO (navegador: carrito, idioma y login funcionan; un POST/PATCH sin token da 403) | `SecurityConfig`, `js/csrf.js`, `fragments/recursos.html`, `admin/productos.html` |
+| **MEDIA · Cotizaciones sin validar:** medidas negativas, NaN o Infinity daban precios y huellas negativos, y los textos no tenían tope. Límites en el servicio (ancho y alto 1–1000 cm, espesor 2–50 mm, perforaciones 0–100, capas 1–10, textos ≤ 120 y notas ≤ 2000); la API responde 400 y el formulario vuelve a empezar | 🧪 ESCRITO (prueba unitaria; en navegador, una cotización con ancho -300 no se guardó) | `VidrioSostenibleService.validar`, los dos controladores de vidrio |
+| **MEDIA · Google y la cuenta admin:** una cuenta de Google con el mismo correo que el admin se vinculaba y la convertía en admin. Ahora el admin entra solo con usuario y contraseña | 🧪 ESCRITO (sin probar con Google real) | `CustomOAuth2UserService` |
+| MEDIA · Cotizaciones de usuarios con cuenta sin límite de volumen: ahora todas entran en el límite «sensible» (10/min) | 🧪 ESCRITO | `RateLimitFilter` |
+| BAJA · Login: además del límite por IP, uno por cuenta (5 veces más holgado) contra la fuerza bruta repartida entre muchas IP | 🧪 ESCRITO (prueba `LoginRateLimitFilterTest`) | `LoginRateLimitFilter` |
+| BAJA · El aviso del checkout mostraba el texto interno de MySQL (por ejemplo, con una dirección de más de 255 caracteres): ahora solo se muestran los errores de negocio | 🧪 ESCRITO | `CheckoutController` |
+| BAJA · Cabeceras: `Content-Security-Policy` prudente (sin plugins, sin `<base>` ajeno, sin marcos, formularios solo al propio sitio) y `Referrer-Policy` | 🧪 ESCRITO (vistas en la respuesta) | `SecurityConfig` |
+| BAJA · El acceso denegado reenviaba a `/error/403`, que no existía (daba 404 o 405). Ahora responde un 403 real con la página propia | 🧪 ESCRITO (navegador) | `SecurityConfig` |
+| BAJA · Cambiar rol y estado de pedido aceptaban cualquier texto; crear producto podía sobrescribir otro mandando `id`; reseñas sin tope de largo; JWT con `getBytes()` sin charset; el logout borraba una cookie que no existe | 🧪 ESCRITO | `AdminController`, `ResenaService`, `JwtProvider`, `SecurityConfig` |
+| Coherencia: el checkout pedía el teléfono y lo descartaba (quitado); estados de pedido sin traducir; avisos del admin y textos de JS fijos en español; placeholder sin traducir; modo daltónico mal escrito en la demo; energía «renovable a la mitad» que contradecía el método por etapas; comentario con la fórmula vieja de CO₂; coma decimal en inglés | 🧪 ESCRITO | plantillas, `messages*.properties`, `AnalisisService`, `glass-preview.js` |
+| Coherencia: borradas 17 claves de texto sin uso que afirmaban «ISO 14001», «carbono cero 2026», «hasta 40 % reciclado» y «huella real», 5 entradas de es_ES idénticas a la base, y código muerto (consultas sin uso, `getTamanoEtiqueta`, efecto magnético) | 🧪 ESCRITO (recorrido de las 14 páginas públicas en es y en: todas 200 y sin claves faltantes) | — |
+| Accesibilidad: filtros del catálogo vuelven a anunciarse como enlaces; las 7 páginas de admin tienen `<main>`; el desplazamiento del configurador respeta el movimiento reducido; los sellos oro, plata y bronce usan el selector de tema oscuro correcto | 🧪 ESCRITO (el admin no se abrió con sesión) | plantillas |
+| Rendimiento: la imagen de portada y login en WebP (104 KB frente a 224 KB), con el JPG como respaldo | 🧪 ESCRITO (navegador: se descarga solo el WebP) | `theme.css`, `index.html`, `img/hero-mountains.webp` |
+| Revisado y correcto: sin IDOR (pedidos, facturas, cotizaciones, carrito y notificaciones filtran por dueño), JWT falsificado o `alg: none` da 401, sin XSS (`th:utext` no se usa), sin inyección en Mongo (búsqueda con `Pattern.quote`), sin redirección abierta, sin recorrido de rutas, subidas con UUID y lista blanca, sin `actuator` expuesto | Revisado | auditoría + `seguridad.py` en vivo |
+
+**Pendiente o a decidir:**
+- `.anyRequest().permitAll()` hace que cualquier endpoint nuevo sea público por defecto. Conviene cambiarlo a `authenticated()` y listar las páginas públicas, con una prueba de todas las rutas.
+- En la feria, todo el Wi-Fi comparte una IP: el límite de 10 logins por minuto por IP puede quedarse corto.
+- Comprobar en Railway que `request.getRemoteAddr()` da la IP real del cliente (proxy).
+- El JWT dura 24 horas y el logout no lo revoca.
+- `ADMIN_PASSWORD` no exige fuerza mínima.
+
 ### Arranque local, carpetas frontend/backend, fondo y paleta (31/10/2026)
 
 | Ítem | Estado | Evidencia |

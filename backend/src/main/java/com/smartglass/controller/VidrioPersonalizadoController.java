@@ -50,7 +50,12 @@ public class VidrioPersonalizadoController {
     public ResponseEntity<?> cotizar(@RequestBody CotizacionVidrioRequest request, Authentication auth) {
         return usuarioActual(auth).<ResponseEntity<?>>map(u -> {
             request.setUsuarioId(u.getId()); // el dueno lo define la sesion, no el body
-            VidrioSostenible vidrio = vidrioSostenibleService.generarCotizacion(request);
+            VidrioSostenible vidrio;
+            try {
+                vidrio = vidrioSostenibleService.generarCotizacion(request);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+            }
             return ResponseEntity.status(HttpStatus.CREATED).body(CotizacionVidrioResponse.from(vidrio));
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse("Debes iniciar sesion para crear una cotizacion.")));

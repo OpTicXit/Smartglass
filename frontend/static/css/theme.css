@@ -716,6 +716,9 @@ body:has(> .auth) { padding-bottom: 0; }
   position: sticky; top: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; gap: 20px;
   padding: clamp(28px, 4vw, 48px); overflow: hidden; color: var(--on-media);
   background: linear-gradient(180deg, var(--media-scrim-soft), var(--media-scrim)), url('/img/hero-mountains.jpg') center / cover no-repeat;
+  /* WebP: la mitad de peso; el JPG de arriba queda para navegadores sin image-set */
+  background-image: linear-gradient(180deg, var(--media-scrim-soft), var(--media-scrim)),
+    image-set(url('/img/hero-mountains.webp') type('image/webp'), url('/img/hero-mountains.jpg') type('image/jpeg'));
   border-right: 1px solid var(--border-color);
 }
 .auth-visual > * { position: relative; }
@@ -1048,7 +1051,6 @@ body:has(> .auth) { padding-bottom: 0; }
 .sg-reveal-visible { opacity: 1; transform: none; }
 
 /* Efecto magnetico (main.js mueve el elemento; la transicion la da esta regla) */
-.sg-magnetico { transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; }
 
 /* Rebote del carrito cuando se agrego algo */
 .sg-cart-bounce-premium { animation: carritoElastic 0.8s var(--ease-spring) forwards; }
@@ -1329,7 +1331,6 @@ body.sg-sin-scroll { overflow: hidden; }
 }
 [data-a11y~="fotosensible"] .sg-reveal { opacity: 1; transform: none; }
 [data-a11y~="fotosensible"] .sg-tilt,
-[data-a11y~="fotosensible"] .sg-magnetico { transform: none !important; }
 /* Hovers que desplazan o escalan: quedan quietos (el cambio de borde/fondo se mantiene como respuesta) */
 [data-a11y~="fotosensible"] :is(.btn, .btn-nav-cta, .producto-card, .info-box, .card-panel-hoverable, .acceso,
   .obra-card, .pick, .sg-theme-switch, .badge-flotante, .rating label, .categoria-overlay i, .galeria-ver,

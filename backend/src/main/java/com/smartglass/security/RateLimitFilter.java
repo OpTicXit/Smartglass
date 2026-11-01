@@ -66,10 +66,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
         boolean registroApi = "POST".equals(req.getMethod()) && ruta.equals("/auth/registro");
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean anonimo = auth == null || auth instanceof AnonymousAuthenticationToken || !auth.isAuthenticated();
-        // T1 (D4): el configurador HTML guarda obras sin cuenta; un visitante entra en el bucket sensible
-        boolean cotizacionAnonima = anonimo && "POST".equals(req.getMethod())
-                && ruta.equals("/vidrio-personalizado/cotizar");
-        boolean sensible = disponibilidad || registroApi || cotizacionAnonima
+        // T1 (D4): el configurador HTML guarda obras, con o sin cuenta: cada obra es un documento en Mongo,
+        // asi que todos entran en el bucket sensible (antes solo los visitantes)
+        boolean cotizacionWeb = "POST".equals(req.getMethod()) && ruta.equals("/vidrio-personalizado/cotizar");
+        boolean sensible = disponibilidad || registroApi || cotizacionWeb
                 || ("POST".equals(req.getMethod()) && (ruta.equals("/api/vidrios/cotizar") || ruta.equals("/registro")));
 
         if (!api && !sensible) {
@@ -104,7 +104,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             String msg = "Demasiadas solicitudes. Intenta de nuevo en un minuto.";
             res.getOutputStream().write(
                     ("{\"error\":\"" + msg + "\",\"mensaje\":\"" + msg + "\"}").getBytes(StandardCharsets.UTF_8));
-        } else if (cotizacionAnonima) {
+        } else if (cotizacionWeb) {
             res.sendRedirect(req.getContextPath() + "/vidrio-personalizado/cotizar?limite");
         } else {
             // POST /registro desde el formulario HTML: volver al formulario con aviso (no Whitelabel)

@@ -11,6 +11,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ItemCarrito implements Serializable {
 
+    /** Tope por linea: sin el, sumar a Integer.MAX_VALUE desbordaba a negativo (pedido con total negativo). */
+    public static final int MAX_CANTIDAD = 999;
+
     private static final long serialVersionUID = 1L;
 
     private CatalogoProducto producto;
@@ -20,13 +23,13 @@ public class ItemCarrito implements Serializable {
 
     public ItemCarrito(CatalogoProducto producto, int cantidad) {
         this.producto = producto;
-        this.cantidad = cantidad;
+        this.cantidad = Math.min(cantidad, MAX_CANTIDAD);
     }
 
     // --- Metodos de logica ---
 
     public void incrementarCantidad(int cantidad) {
-        this.cantidad += cantidad;
+        this.cantidad = (int) Math.min(MAX_CANTIDAD, (long) this.cantidad + cantidad);
     }
 
     public double getSubtotal() {

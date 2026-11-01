@@ -159,17 +159,6 @@ public class CatalogoProducto implements Serializable {
         return CATEGORIA_ESCULTURA.equals(getCategoriaEfectiva());
     }
 
-    /** Nombre legible del tamano ("pequena" -> "Pequeña"); null si no tiene. */
-    public String getTamanoEtiqueta() {
-        if (tamano == null) return null;
-        return switch (tamano) {
-            case "grande" -> "Grande";
-            case "mediana" -> "Mediana";
-            case "pequena" -> "Pequeña";
-            default -> tamano;
-        };
-    }
-
     /**
      * Ruta de la imagen a mostrar: la foto realista si ya existe, si no la
      * imagen de siempre y, si no hay ninguna, el isotipo (F18).

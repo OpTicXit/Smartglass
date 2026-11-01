@@ -153,7 +153,12 @@ public class VidrioPersonalizadoWebController {
         if (usuario == null && !esVisitante(model)) return "redirect:/login";
         // el dueno lo define la sesion, no el formulario: anonimo -> null (T1)
         request.setUsuarioId(usuario != null ? usuario.getId() : null);
-        VidrioSostenible creado = vidrioSostenibleService.generarCotizacion(request);
+        VidrioSostenible creado;
+        try {
+            creado = vidrioSostenibleService.generarCotizacion(request);
+        } catch (IllegalArgumentException e) {
+            return "redirect:/vidrio-personalizado/cotizar"; // solo llega aqui una peticion manipulada
+        }
         if (usuario == null) SesionAnonima.registrarCotizacion(sesion, creado.getId());
         return "redirect:/vidrio-personalizado/cotizacion/" + creado.getId();
     }

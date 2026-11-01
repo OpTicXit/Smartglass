@@ -38,7 +38,7 @@ public class JwtProvider {
             @Value("${smartglass.jwt.secret}") String secret,
             @Value("${smartglass.jwt.expiration-ms:86400000}") long expirationMs
     ) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
     }
 

@@ -112,7 +112,7 @@ public class DemoDatosSeeder {
             new Cliente("santiago.vargas", "Santiago Vargas", "Avenida Circunvalar # 12-08, Pereira", null, null),
             new Cliente("emily.carter", "Emily Carter", "Calle del Arsenal # 10-43, Cartagena", "en", null),
             new Cliente("julian.moreno", "Julián Moreno", "Carrera 23 # 64-15, Manizales", null, null),
-            new Cliente("paula.restrepo", "Paula Restrepo", "Transversal 39 # 72-30, Medellín", null, "daltonico"),
+            new Cliente("paula.restrepo", "Paula Restrepo", "Transversal 39 # 72-30, Medellín", null, "daltotonico"),
             new Cliente("vidrios.andinos", "Vidrios Andinos S.A.S.", "Calle 13 # 68D-40, Bogotá", null, null),
             new Cliente("sofia.lara", "Sofía Lara · Arquitecta", "Carrera 7 # 71-21, Bogotá", null, null));
 

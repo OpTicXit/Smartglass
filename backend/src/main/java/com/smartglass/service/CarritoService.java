@@ -147,7 +147,7 @@ public class CarritoService {
             HttpSession sesion = sesionActual(true);
             if (sesion == null) return;
             Map<String, Integer> carrito = carritoAnonimo(sesion, true);
-            carrito.merge(producto.getId(), cantidad, Integer::sum);
+            carrito.merge(producto.getId(), cantidad, (a, b) -> (int) Math.min(ItemCarrito.MAX_CANTIDAD, (long) a + b));
             guardarAnonimo(sesion, carrito);
             return;
         }
@@ -186,11 +186,12 @@ public class CarritoService {
                 .orElse(Collections.emptyList());
     }
 
-    public void actualizarCantidad(String productoId, int cantidad) {
-        if (cantidad <= 0) {
+    public void actualizarCantidad(String productoId, int pedida) {
+        if (pedida <= 0) {
             eliminarProducto(productoId);
             return;
         }
+        int cantidad = Math.min(pedida, ItemCarrito.MAX_CANTIDAD);
         if (esAnonimo()) {
             HttpSession sesion = sesionActual(false);
             Map<String, Integer> carrito = carritoAnonimo(sesion, false);

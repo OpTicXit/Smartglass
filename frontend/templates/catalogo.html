@@ -143,26 +143,26 @@
     <nav class="filtros" aria-label="Filtrar catálogo" th:aria-label="#{catalogo.filtrar_catalogo}"
          th:with="nEsc=${conteoCategorias != null and conteoCategorias['escultura'] != null ? conteoCategorias['escultura'] : 0},
                   nPlano=${conteoCategorias != null and conteoCategorias['vidrio-plano'] != null ? conteoCategorias['vidrio-plano'] : 0}">
-        <div class="filtro-grupo" role="list">
-            <a role="listitem" class="filtro" th:href="@{/catalogo(q=${query})}"
+        <div class="filtro-grupo" role="group">
+            <a class="filtro" th:href="@{/catalogo(q=${query})}"
                th:attr="aria-current=${#strings.isEmpty(categoria) ? 'page' : null}"><span th:text="#{catalogo.todo}">Todo</span>
                <span class="n" th:text="${nEsc + nPlano}">0</span></a>
-            <a role="listitem" class="filtro" th:href="@{/catalogo(q=${query},categoria='vidrio-plano')}"
+            <a class="filtro" th:href="@{/catalogo(q=${query},categoria='vidrio-plano')}"
                th:attr="aria-current=${categoria == 'vidrio-plano' ? 'page' : null}"><i class="ph ph-square-split-vertical" aria-hidden="true"></i> <span th:text="#{catalogo.vidrio_plano}">Vidrio plano</span>
                <span class="n" th:text="${nPlano}">0</span></a>
-            <a role="listitem" class="filtro" th:href="@{/catalogo(q=${query},categoria='escultura')}"
+            <a class="filtro" th:href="@{/catalogo(q=${query},categoria='escultura')}"
                th:attr="aria-current=${categoria == 'escultura' ? 'page' : null}"><i class="ph ph-sketch-logo" aria-hidden="true"></i> <span th:text="#{catalogo.esculturas}">Esculturas</span>
                <span class="n" th:text="${nEsc}">0</span></a>
         </div>
-        <div class="filtro-grupo filtro-tamano" role="list" th:if="${categoria == 'escultura'}" aria-label="Tamaño" th:aria-label="#{catalogo.tamano}">
+        <div class="filtro-grupo filtro-tamano" role="group" th:if="${categoria == 'escultura'}" aria-label="Tamaño" th:aria-label="#{catalogo.tamano}">
             <span class="filtro-titulo" aria-hidden="true" th:text="#{catalogo.tamano}">Tamaño</span>
-            <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura')}"
+            <a class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura')}"
                th:attr="aria-current=${#strings.isEmpty(tamano) ? 'page' : null}" th:text="#{catalogo.todos}">Todos</a>
-            <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='grande')}"
+            <a class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='grande')}"
                th:attr="aria-current=${tamano == 'grande' ? 'page' : null}" th:text="#{catalogo.grande}">Grande</a>
-            <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='mediana')}"
+            <a class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='mediana')}"
                th:attr="aria-current=${tamano == 'mediana' ? 'page' : null}" th:text="#{catalogo.mediana}">Mediana</a>
-            <a role="listitem" class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='pequena')}"
+            <a class="filtro filtro-sm" th:href="@{/catalogo(q=${query},categoria='escultura',tamano='pequena')}"
                th:attr="aria-current=${tamano == 'pequena' ? 'page' : null}" th:text="#{catalogo.pequena}">Pequeña</a>
         </div>
     </nav>

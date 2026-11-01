@@ -70,6 +70,7 @@ public class VidrioSostenibleService {
     }
 
     public VidrioSostenible generarCotizacion(CotizacionVidrioRequest request) {
+        validar(request);
         VidrioSostenible vidrio = new VidrioSostenible();
         vidrio.setUsuarioId(request.getUsuarioId());
         vidrio.setTipoVidrio(request.getTipoVidrio());
@@ -133,10 +134,6 @@ public class VidrioSostenibleService {
         return vidrioSostenibleRepository.findByUsuarioIdOrderByFechaCreacionDesc(usuarioId);
     }
 
-    public List<VidrioSostenible> obtenerPorEstado(String estado) {
-        return vidrioSostenibleRepository.findByEstado(estado);
-    }
-
     public long contarPorEstado(String estado) {
         return vidrioSostenibleRepository.countByEstado(estado);
     }
@@ -198,4 +195,26 @@ public class VidrioSostenibleService {
         }
         return reclamadas;
     }
+
+    /**
+     * Limites de una cotizacion (cm, mm, %). El formulario ya los pide; esto frena peticiones manipuladas:
+     * medidas negativas, NaN o Infinity daban precios y huellas negativos, y los textos no tenian tope.
+     */
+    static void validar(CotizacionVidrioRequest r) {
+        boolean textosLargos = java.util.stream.Stream.of(r.getTipoVidrio(), r.getForma(), r.getTratamiento(),
+                r.getColor(), r.getUsoPrincipal(), r.getAcabadoBordes()).anyMatch(t -> largo(t) > 120);
+        if (!enRango(r.getAncho(), 1, 1000) || !enRango(r.getAlto(), 1, 1000) || !enRango(r.getEspesor(), 2, 50)
+                || r.getPerforaciones() < 0 || r.getPerforaciones() > 100
+                || r.getCantidadCapas() < 1 || r.getCantidadCapas() > 10
+                || r.getPorcentajeReciclado() < 0 || r.getPorcentajeReciclado() > 100
+                || largo(r.getNotasAdicionales()) > 2000 || textosLargos
+                || (r.getPuntosPersonalizados() != null && r.getPuntosPersonalizados().size() > 200)) {
+            throw new IllegalArgumentException("Cotizacion fuera de los limites permitidos");
+        }
+    }
+
+    /** NaN no cumple ninguna comparacion, asi que tambien queda fuera. */
+    private static boolean enRango(double v, double min, double max) { return v >= min && v <= max; }
+
+    private static int largo(String s) { return s == null ? 0 : s.length(); }
 }

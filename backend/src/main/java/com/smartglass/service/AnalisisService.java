@@ -229,7 +229,8 @@ public class AnalisisService {
         resultado.setCantidadCaliza(redondear(virgen * PORC_CALIZA));
         resultado.setCantidadAlumina(redondear(virgen * PORC_ALUMINA));
         resultado.setCantidadOtros(redondear(virgen * PORC_OTROS));
-        resultado.setEnergiaRequerida(redondear(peso * ENERGIA_POR_KG_KWH * (isRenovable ? 0.5 : 1.0)));
+        // La fuente renovable no gasta menos energia, solo emite menos (lo recoge el factor del templado en las etapas)
+        resultado.setEnergiaRequerida(redondear(peso * ENERGIA_POR_KG_KWH));
 
         // --- Huella de CO2 por etapas (U4; mismo calculo que glass-preview.js) ---
         Etapas etapas = huellaPorEtapas(tipoVidrio, area, espesor, peso, isEco, isRenovable);

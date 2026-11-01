@@ -94,6 +94,9 @@ public class PedidoService {
                                           boolean empaqueReutilizable, boolean entregaConsolidada, boolean retomaVidrio) {
         List<ItemCarrito> items = carritoService.getItems();
         if (items.isEmpty()) throw new IllegalStateException("Carrito vacío");
+        // Red de seguridad: una cantidad o un precio corruptos nunca deben dar un pedido negativo
+        if (items.stream().anyMatch(i -> i.getCantidad() <= 0 || !(i.getSubtotal() >= 0)))
+            throw new IllegalStateException("Carrito con cantidades o precios no validos");
 
         double subtotal = items.stream().mapToDouble(ItemCarrito::getSubtotal).sum();
 

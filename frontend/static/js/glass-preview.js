@@ -458,7 +458,8 @@
 
   /* Contrato de formulas (no tocar constantes):
      area = ancho*alto/10000 ; peso = area*espesor*densidad (2.5 | 2.0 Insulado | 2.6 Laminado y Templado+Laminado)
-     CO2 = peso * (0.6 renovable | 1.1) * (1.4 Templado+Laminado) * (1.8 Inteligente|Fotovoltaico) * (0.85 reciclado)
+     CO2 = suma de etapas (metodo etapas-2026-10, mismas constantes que AnalisisService.huellaPorEtapas):
+           fusion + templado + laminado (PVB) + capa activa + transporte
      intensidad = CO2 / area. El "baseline" es la misma pieza sin energia renovable ni reciclado. */
   function calcular(c) {
     var ancho = parseFloat(c.ancho) || 0, alto = parseFloat(c.alto) || 0, esp = parseFloat(c.espesor) || 0;

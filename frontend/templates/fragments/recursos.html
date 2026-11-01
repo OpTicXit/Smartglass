@@ -16,6 +16,7 @@
     <meta name="color-scheme" content="dark light">
     <meta name="theme-color" content="#0E1420">
     <script th:src="@{/js/theme-init.js}"></script>
+    <script th:src="@{/js/csrf.js}"></script>
     <script th:src="@{/js/a11y-init.js}"></script>
     <!-- T0 i18n: idioma activo y textos de main.js (mismos messages*.properties que las vistas).
          Los {0} se rellenan en JS. Regla D2: aqui no hay numeros del contrato. -->
@@ -95,7 +96,10 @@
         adm_guardar: /*[[#{js.adm_guardar}]]*/ 'Guardar',
         adm_guardar_n: /*[[#{js.adm_guardar_n}]]*/ 'Guardar ({0})',
         adm_sin_cambios: /*[[#{js.adm_sin_cambios}]]*/ 'No hay cambios por guardar.',
-        adm_agregar_catalogo: /*[[#{js.adm_agregar_catalogo}]]*/ 'Agregar al catálogo'
+        adm_agregar_catalogo: /*[[#{js.adm_agregar_catalogo}]]*/ 'Agregar al catálogo',
+        adm_guardando: /*[[#{js.adm_guardando}]]*/ 'Guardando…',
+        adm_foto_no_imagen: /*[[#{js.adm_foto_no_imagen}]]*/ 'El archivo debe ser una imagen (PNG, JPG, WEBP o GIF).',
+        adm_foto_pesada: /*[[#{js.adm_foto_pesada}]]*/ 'La imagen pesa {0} y el máximo es 5 MB.'
     };
     /* sgT('clave', 'respaldo', arg0...): para los scripts de cada pagina (corren antes que main.js) */
     window.sgT = function (k, r) {

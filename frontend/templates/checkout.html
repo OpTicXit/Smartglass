@@ -156,17 +156,13 @@
                 <div class="form-group">
                     <label for="direccionEnvio" th:text="#{checkout.direccion_completa}">Dirección completa</label>
                     <textarea id="direccionEnvio" name="direccionEnvio" rows="2" required autocomplete="street-address"
-                              placeholder="Calle 123 #45-67, apartamento, barrio"></textarea>
+                              placeholder="Calle 123 #45-67, apartamento, barrio" th:placeholder="#{checkout.direccion_placeholder}"></textarea>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="ciudad" th:text="#{checkout.ciudad}">Ciudad</label>
                         <input type="text" id="ciudad" name="ciudad" required autocomplete="address-level2">
-                    </div>
-                    <div class="form-group">
-                        <label for="telefono" th:text="#{checkout.telefono_de_contacto}">Teléfono de contacto</label>
-                        <input type="tel" id="telefono" name="telefono" required autocomplete="tel" inputmode="tel">
                     </div>
                 </div>
             </section>

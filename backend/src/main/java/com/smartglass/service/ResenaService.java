@@ -25,6 +25,10 @@ public class ResenaService {
         if (calificacion < 1 || calificacion > 5) {
             throw new IllegalArgumentException("La calificación debe estar entre 1 y 5.");
         }
+        // El maxlength del formulario no protege el servidor
+        if (comentario != null && comentario.length() > 1000) {
+            throw new IllegalArgumentException("El comentario supera los 1000 caracteres.");
+        }
 
         Resena resena = resenaRepository.findByProductoIdAndUsuarioId(productoId, usuarioId)
                 .orElseGet(() -> new Resena(productoId, usuarioId, nombreUsuario, calificacion, comentario));

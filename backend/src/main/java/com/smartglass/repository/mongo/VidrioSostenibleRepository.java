@@ -11,8 +11,6 @@ public interface VidrioSostenibleRepository extends MongoRepository<VidrioSosten
 
     List<VidrioSostenible> findByUsuarioIdOrderByFechaCreacionDesc(Long usuarioId);
 
-    List<VidrioSostenible> findByEstado(String estado);
-
     /** Conteo en Mongo sin cargar documentos (badge de pendientes del panel admin). */
     long countByEstado(String estado);
 }

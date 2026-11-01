@@ -54,11 +54,18 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
         long ahora = System.currentTimeMillis();
         purgarSiToca(ahora);
 
-        TokenBucket cubeta = cubeta(ipDe(req), ahora);
-        if (cubeta.tryConsume(ahora)) {
+        TokenBucket cubeta = cubeta("login|" + ipDe(req), intentosPorMinuto, ahora);
+        // Tambien por cuenta (formulario): frena la fuerza bruta repartida entre muchas IP contra un mismo
+        // usuario. Cinco veces mas holgada que la de IP para que nadie bloquee a proposito una cuenta ajena.
+        String usuario = req.getServletPath().equals("/login") ? req.getParameter("username") : null;
+        TokenBucket porCuenta = usuario == null || usuario.isBlank() ? null
+                : cubeta("cuenta|" + usuario.trim().toLowerCase(java.util.Locale.ROOT), intentosPorMinuto * 5, ahora);
+        boolean ipOk = cubeta.tryConsume(ahora);
+        if (ipOk && (porCuenta == null || porCuenta.tryConsume(ahora))) {
             chain.doFilter(req, res);
             return;
         }
+        if (ipOk) cubeta = porCuenta;
 
         res.setHeader("Retry-After", String.valueOf(Math.max(1L, cubeta.segundosParaReintentar(ahora))));
         if (req.getServletPath().equals("/auth/login")) {
@@ -73,17 +80,16 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
         }
     }
 
-    private TokenBucket cubeta(String ip, long ahora) {
-        String clave = "login|" + ip;
+    private TokenBucket cubeta(String clave, int capacidad, long ahora) {
         TokenBucket existente = cubetas.get(clave);
         if (existente != null) return existente;
         if (cubetas.size() >= MAX_CUBETAS) {
             purgar(ahora);
             if (cubetas.size() >= MAX_CUBETAS) {
-                clave = "login|desbordamiento"; // tope alcanzado: las IP nuevas comparten una cubeta
+                clave = clave.substring(0, clave.indexOf('|') + 1) + "desbordamiento"; // tope: las nuevas comparten
             }
         }
-        return cubetas.computeIfAbsent(clave, k -> new TokenBucket(intentosPorMinuto, VENTANA_MS, ahora));
+        return cubetas.computeIfAbsent(clave, k -> new TokenBucket(capacidad, VENTANA_MS, ahora));
     }
 
     private void purgarSiToca(long ahora) {

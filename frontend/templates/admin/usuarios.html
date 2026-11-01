@@ -53,7 +53,7 @@
 <!-- Navbar del Admin -->
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
-<div class="container">
+<main class="container" id="contenido">
 
     <div class="page-head">
         <div>
@@ -118,7 +118,7 @@
         <strong th:text="#{admin.usuarios.no_hay_usuarios_registrados}">No hay usuarios registrados</strong>
         <span th:text="#{admin.usuarios.cuando_alguien_cree_una_cuenta}">Cuando alguien cree una cuenta aparecerá aquí.</span>
     </div>
-</div>
+</main>
 
 <script th:src="@{/js/main.js}"></script>
 <script>

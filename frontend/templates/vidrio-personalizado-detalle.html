@@ -82,9 +82,9 @@
         .chip-sello.ORO { border-color: #C9A227; background: color-mix(in srgb, #F5D76E 30%, var(--bg-secondary)); color: #8A6D0B; }
         .chip-sello.PLATA { border-color: #8E9AAF; background: color-mix(in srgb, #C9D1DE 40%, var(--bg-secondary)); color: #4B5568; }
         .chip-sello.BRONCE { border-color: #B87333; background: color-mix(in srgb, #E3B48A 35%, var(--bg-secondary)); color: #7A4A1E; }
-        [data-theme="dark"] .chip-sello.ORO { color: #F5D76E; }
-        [data-theme="dark"] .chip-sello.PLATA { color: #D5DCE8; }
-        [data-theme="dark"] .chip-sello.BRONCE { color: #E8B98C; }
+        :root:not([data-theme="light"]) .chip-sello.ORO { color: #F5D76E; }
+        :root:not([data-theme="light"]) .chip-sello.PLATA { color: #D5DCE8; }
+        :root:not([data-theme="light"]) .chip-sello.BRONCE { color: #E8B98C; }
         .compromisos { margin-top: 22px; padding: 26px; }
         .compromisos-cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
         .compromisos-cab .tarjeta-titulo { margin: 0; }

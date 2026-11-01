@@ -70,9 +70,9 @@
         .sello-mini.ORO { border-color: #C9A227; background: color-mix(in srgb, #F5D76E 30%, var(--bg-secondary)); color: #8A6D0B; }
         .sello-mini.PLATA { border-color: #8E9AAF; background: color-mix(in srgb, #C9D1DE 40%, var(--bg-secondary)); color: #4B5568; }
         .sello-mini.BRONCE { border-color: #B87333; background: color-mix(in srgb, #E3B48A 35%, var(--bg-secondary)); color: #7A4A1E; }
-        [data-theme="dark"] .sello-mini.ORO { color: #F5D76E; }
-        [data-theme="dark"] .sello-mini.PLATA { color: #D5DCE8; }
-        [data-theme="dark"] .sello-mini.BRONCE { color: #E8B98C; }
+        :root:not([data-theme="light"]) .sello-mini.ORO { color: #F5D76E; }
+        :root:not([data-theme="light"]) .sello-mini.PLATA { color: #D5DCE8; }
+        :root:not([data-theme="light"]) .sello-mini.BRONCE { color: #E8B98C; }
         /* T3: resumen de compromisos de los clientes */
         .cot-compromisos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 10px; margin: 0 0 18px; padding: 16px; border: 1px solid var(--admin-card-border, var(--border-color)); border-radius: 16px; background: var(--bg-secondary); }
         .cot-compromisos h2 { grid-column: 1 / -1; margin: 0; font-size: 0.95rem; }
@@ -119,7 +119,7 @@
 <!-- Navbar del Admin -->
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
-<div class="container">
+<main class="container" id="contenido">
 
     <h1 class="admin-title">
         <span th:text="#{admin.cotizaciones.cotizaciones}">Cotizaciones</span>
@@ -238,7 +238,7 @@
             </span>
         </div>
     </div>
-</div>
+</main>
 
 <th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>

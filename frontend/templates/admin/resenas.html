@@ -197,7 +197,7 @@
 <!-- Navbar del Admin -->
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
-<div class="container">
+<main class="container" id="contenido">
 
     <h1 class="admin-title" th:text="#{admin.resenas.resenas_de_productos}">Reseñas de productos</h1>
     <p class="rv-sub" th:text="#{admin.resenas.explora_las_opiniones_agrupadas_por}">Explora las opiniones agrupadas por producto y modera las que sea necesario.</p>
@@ -221,7 +221,7 @@
 
     <div id="rv-app"></div>
     <noscript><p class="rv-empty" th:text="#{admin.resenas.activa_javascript_para_ver_las}">Activa JavaScript para ver las reseñas.</p></noscript>
-</div>
+</main>
 
 <script th:inline="javascript">
 /* U1: textos del panel de resenas en el idioma activo (los {0} se rellenan en RV()) */

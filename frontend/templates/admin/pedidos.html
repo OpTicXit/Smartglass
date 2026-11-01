@@ -42,7 +42,7 @@
 <!-- Navbar del Admin -->
 <nav th:replace="~{admin/fragments/nav :: navbar}"></nav>
 
-<div class="container">
+<main class="container" id="contenido">
     
     <h1 class="admin-title" th:text="#{admin.pedidos.pedidos}">Pedidos</h1>
 
@@ -83,7 +83,7 @@
                                                   (${pedido.estado == 'PROCESANDO'} ? 'badge-info' : 
                                                   (${pedido.estado == 'ENVIADO'} ? 'badge-violet' : 
                                                   (${pedido.estado == 'ENTREGADO'} ? 'badge-success' : 'badge-error')))"
-                                  th:text="${pedido.estado}"></span>
+                                  th:text="${#messages.msgOrNull('admin.pedidos.' + #strings.toLowerCase(pedido.estado)) ?: pedido.estado}"></span>
                         </td>
                         <td th:text="${pedido.totalFormateado}"></td>
                         <td>
@@ -110,7 +110,7 @@
             </table>
         </div>
     </form>
-</div>
+</main>
 
 <div class="sg-toast" id="sg-toast" role="status" aria-live="polite"></div>
 
@@ -169,7 +169,7 @@
             if (!hayCambio(celda)) selectDe(celda).disabled = true;
             var btn = celda.querySelector('button');
             btn.disabled = true;
-            btn.textContent = 'Guardando…';
+            btn.textContent = sgT('adm_guardando', 'Guardando…');
         });
     });
 

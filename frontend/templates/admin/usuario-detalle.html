@@ -11,7 +11,7 @@
 <!-- Navbar del Admin -->
 <div th:replace="~{admin/fragments/nav :: navbar}"></div>
 
-<div class="container container-sm">
+<main class="container container-sm" id="contenido">
     
 <!-- Alerta flash (cuando se cambia el rol) -->
     <div class="flash mt-3" th:if="${mensaje}" th:text="${mensaje}"></div>
@@ -54,7 +54,7 @@
             <button type="submit" class="btn-guardar" th:text="#{admin.usuario-detalle.guardar_rol}">Guardar rol</button>
         </form>
     </div>
-</div>
+</main>
 
 <script th:src="@{/js/main.js}"></script>
 </body>

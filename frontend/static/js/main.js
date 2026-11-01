@@ -68,7 +68,6 @@
       scrollSuaveEnAnclas,
       inicializarComparador,
       inicializarLuzDeCursorEnCards,
-      inicializarEfectoMagnetico,
       pausarAnimacionesFuera
     ].forEach(function (fn) {
       try { fn(); } catch (e) { if (window.console) console.error('[SmartGlass] ' + fn.name, e); }
@@ -459,7 +458,7 @@
 
   /* --- Rebote del icono del carrito cuando hubo un "agregado" exitoso --- */
   function rebotarCarritoSiHuboExito() {
-    var exito = document.querySelector('.alert--success, .alert-banner.alert-success, .flash-success, [data-carrito-actualizado]');
+    var exito = document.querySelector('.alert--success');
     if (!exito || menosMovimiento()) return;
     var carrito = document.querySelector('.nav-cart');
     if (!carrito) return;
@@ -586,21 +585,6 @@
         pendiente.card.style.setProperty('--mouse-y', (pendiente.y - rect.top) + 'px');
       });
     }, { passive: true });
-  }
-
-  /* --- Efecto magnetico: .sg-magnetico "sigue" ligeramente al cursor --- */
-  function inicializarEfectoMagnetico() {
-    if (!puntero || menosMovimiento()) return;
-    var INTENSIDAD = 0.2;
-    document.querySelectorAll('.sg-magnetico').forEach(function (el) {
-      el.addEventListener('pointermove', function (event) {
-        var rect = el.getBoundingClientRect();
-        var x = (event.clientX - rect.left - rect.width / 2) * INTENSIDAD;
-        var y = (event.clientY - rect.top - rect.height / 2) * INTENSIDAD;
-        el.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
-      });
-      el.addEventListener('pointerleave', function () { el.style.transform = ''; });
-    });
   }
 
   /* ==========================================================

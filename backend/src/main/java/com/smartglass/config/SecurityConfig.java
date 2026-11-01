@@ -20,6 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -103,7 +106,27 @@ public class SecurityConfig {
         // H05: tampoco es un bean; frena la fuerza bruta antes de consultar usuario y BCrypt
         LoginRateLimitFilter loginRateLimitFilter = new LoginRateLimitFilter(rlLogin, rlConfiarForwardedFor);
         http
-            .csrf(csrf -> csrf.disable())
+            // CSRF activo: Thymeleaf mete el token en los formularios con th:action y js/csrf.js lo pone en los
+            // fetch que cambian datos (cabecera X-XSRF-TOKEN desde la cookie). Token cargado en cada peticion
+            // (atributo null) para que la cookie exista tambien en paginas sin formulario.
+            .csrf(csrf -> {
+                CsrfTokenRequestAttributeHandler handler = new CsrfTokenRequestAttributeHandler();
+                handler.setCsrfRequestAttributeName(null);
+                csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    .csrfTokenRequestHandler(handler)
+                    // API con JWT en la cabecera: sin cookie de sesion, no es atacable por CSRF
+                    .ignoringRequestMatchers("/auth/**", "/api/auth/**")
+                    .ignoringRequestMatchers(req -> {
+                        String a = req.getHeader("Authorization");
+                        return a != null && a.startsWith("Bearer ");
+                    });
+            })
+            // CSP prudente: no limita scripts ni estilos (hay inline e imagenes externas), si plugins, <base> y marcos
+            .headers(headers -> headers
+                .contentSecurityPolicy(csp -> csp.policyDirectives(
+                    "object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"))
+                .referrerPolicy(ref -> ref.policy(ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+            )
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 // Auth API publica
@@ -180,11 +203,12 @@ public class SecurityConfig {
                 )
                 .logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
+                .deleteCookies("SMARTGLASS_SESSION")
                 .permitAll()
             )
             .exceptionHandling(exception -> exception
-                .accessDeniedPage("/error/403")
+                // 403 real (tambien en POST, p. ej. sin token CSRF): BasicErrorController pinta templates/error/403.html
+                .accessDeniedHandler((req, res, e) -> res.sendError(HttpStatus.FORBIDDEN.value()))
                 // API REST sin sesion -> 401 (no redirect al login HTML)
                 .defaultAuthenticationEntryPointFor(
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),

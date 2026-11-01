@@ -124,7 +124,7 @@
                     <h2><span th:text="#{mis-pedidos.pedido}">Pedido #</span><span th:text="${pedido.id}">0</span></h2>
                     <time class="pedido-date" th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</time>
                 </div>
-                <span th:class="'tag estado-' + ${#strings.toLowerCase(pedido.estado)}" class="tag" th:text="${pedido.estado}">ESTADO</span>
+                <span th:class="'tag estado-' + ${#strings.toLowerCase(pedido.estado)}" class="tag" th:text="${#messages.msgOrNull('admin.pedidos.' + #strings.toLowerCase(pedido.estado)) ?: pedido.estado}">ESTADO</span>
             </header>
 
             <ul class="pedido-productos" aria-label="Productos del pedido" th:aria-label="#{mis-pedidos.productos_del_pedido}">
