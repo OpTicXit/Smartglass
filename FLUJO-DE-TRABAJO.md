@@ -338,6 +338,7 @@ Tres auditorías de solo lectura (seguridad del código, coherencia del backend 
 | Revisado y correcto: sin IDOR (pedidos, facturas, cotizaciones, carrito y notificaciones filtran por dueño), JWT falsificado o `alg: none` da 401, sin XSS (`th:utext` no se usa), sin inyección en Mongo (búsqueda con `Pattern.quote`), sin redirección abierta, sin recorrido de rutas, subidas con UUID y lista blanca, sin `actuator` expuesto | Revisado | auditoría + `seguridad.py` en vivo |
 
 **Pendiente o a decidir:**
+- **Railway sin servicio (01/11/2026):** tras fusionar el PR #1 en `main` (`b026d16`), `smartglass-production.up.railway.app` responde «Application not found» (`x-railway-fallback: true`) en todas las rutas, incluida `/salud`. Railway no encuentra ningún servicio para ese dominio: servicio pausado, crédito agotado o dominio cambiado; un build fallido dejaría la versión anterior. Revisar el panel con la sesión del equipo y, cuando vuelva, ejecutar `scratchpad/verificar_prod.py` (cabeceras, CSRF, páginas de error y la cookie `Secure`, que confirma que Tomcat ve la IP real detrás del proxy).
 - En la feria, todo el Wi-Fi comparte una IP: el límite de 10 logins por minuto por IP puede quedarse corto.
 - Comprobar en Railway que `request.getRemoteAddr()` da la IP real del cliente (proxy).
 - `ADMIN_PASSWORD` no exige fuerza mínima: al crear el admin solo avisa en el log si tiene menos de 12 caracteres (bloquear dejaría sin admin un despliegue nuevo).
