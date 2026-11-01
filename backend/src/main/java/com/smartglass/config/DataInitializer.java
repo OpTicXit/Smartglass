@@ -37,6 +37,10 @@ public class DataInitializer implements CommandLineRunner {
         if (admin.isEmpty() && (passwordAdmin == null || passwordAdmin.isBlank())) {
             System.out.println("⚠ No se creó el administrador inicial: define la variable de entorno ADMIN_PASSWORD.");
         } else if (admin.isEmpty()) {
+            // Solo aviso: bloquear dejaria sin admin un despliegue nuevo con una clave corta ya configurada
+            if (passwordAdmin.length() < 12) {
+                System.out.println("⚠ ADMIN_PASSWORD tiene menos de 12 caracteres: cámbiala por una más larga.");
+            }
             Usuario nuevoAdmin = new Usuario();
             nuevoAdmin.setNombre("Administrador del Sistema");
             nuevoAdmin.setEmail("admin@smartglass.com");

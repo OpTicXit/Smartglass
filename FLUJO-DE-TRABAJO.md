@@ -328,13 +328,13 @@ Tres auditorías de solo lectura (seguridad del código, coherencia del backend 
 | Accesibilidad: filtros del catálogo vuelven a anunciarse como enlaces; las 7 páginas de admin tienen `<main>`; el desplazamiento del configurador respeta el movimiento reducido; los sellos oro, plata y bronce usan el selector de tema oscuro correcto | 🧪 ESCRITO (el admin no se abrió con sesión) | plantillas |
 | Rendimiento: la imagen de portada y login en WebP (104 KB frente a 224 KB), con el JPG como respaldo | 🧪 ESCRITO (navegador: se descarga solo el WebP) | `theme.css`, `index.html`, `img/hero-mountains.webp` |
 | **Denegar por defecto:** antes `.anyRequest().permitAll()` dejaba pública cualquier ruta nueva. Ahora las páginas de la tienda están en una lista explícita y el resto exige sesión (una ruta desconocida lleva al login) | 🧪 ESCRITO (recorrido de las 32 rutas como visitante: tienda, carrito, cotizador, idioma, Google y logout siguen abiertos; admin, checkout y cuenta piden sesión) | `SecurityConfig` |
+| BAJA · El JWT de la API dura 1 hora (antes 24) porque el logout no lo revoca; la web no lo usa (va por sesión). Perfil `prod` verificado con el JAR: estáticos con huella y caché de 7 días, CSP, y 403 y 401 sin traza interna | 🧪 ESCRITO | `application.properties`, `DataInitializer` |
 | Revisado y correcto: sin IDOR (pedidos, facturas, cotizaciones, carrito y notificaciones filtran por dueño), JWT falsificado o `alg: none` da 401, sin XSS (`th:utext` no se usa), sin inyección en Mongo (búsqueda con `Pattern.quote`), sin redirección abierta, sin recorrido de rutas, subidas con UUID y lista blanca, sin `actuator` expuesto | Revisado | auditoría + `seguridad.py` en vivo |
 
 **Pendiente o a decidir:**
 - En la feria, todo el Wi-Fi comparte una IP: el límite de 10 logins por minuto por IP puede quedarse corto.
 - Comprobar en Railway que `request.getRemoteAddr()` da la IP real del cliente (proxy).
-- El JWT dura 24 horas y el logout no lo revoca.
-- `ADMIN_PASSWORD` no exige fuerza mínima.
+- `ADMIN_PASSWORD` no exige fuerza mínima: al crear el admin solo avisa en el log si tiene menos de 12 caracteres (bloquear dejaría sin admin un despliegue nuevo).
 
 ### Arranque local, carpetas frontend/backend, fondo y paleta (31/10/2026)
 
