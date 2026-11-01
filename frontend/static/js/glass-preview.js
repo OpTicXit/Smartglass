@@ -333,8 +333,8 @@
     if (o.reciclado) {
       var ins = INSIGNIA[forma], bx = ins ? x + w * ins[0] : x + w - 2, by = ins ? y + h * ins[1] : y + 2;
       s += '<g transform="translate(' + f(bx) + ' ' + f(by) + ')">' +
-        '<circle r="' + (mini ? 8 : 12) + '" fill="rgba(52,211,153,0.2)" stroke="#34D399" stroke-width="1.4"/>' +
-        '<path d="M-4.5 3.2C-4.5-3.6 1.4-6 5-5.2C5.2 0.8 1.4 5-4.5 3.2Z M-4.5 3.2L2.6-2.6" fill="none" stroke="#34D399" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" transform="scale(' + (mini ? 0.7 : 1) + ')"/></g>';
+        '<circle r="' + (mini ? 8 : 12) + '" fill="rgba(0,229,160,0.2)" stroke="#00E5A0" stroke-width="1.4"/>' +
+        '<path d="M-4.5 3.2C-4.5-3.6 1.4-6 5-5.2C5.2 0.8 1.4 5-4.5 3.2Z M-4.5 3.2L2.6-2.6" fill="none" stroke="#00E5A0" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" transform="scale(' + (mini ? 0.7 : 1) + ')"/></g>';
     }
     s += '</g>'; // sg-float
 
@@ -354,7 +354,7 @@
 
     /* Degradado iridiscente (control solar) se define aparte para no ensuciar el flujo */
     if (trat.irid) {
-      s = s.replace('</defs>', '<linearGradient id="' + id + 'i" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5EEAD4" stop-opacity="0.32"/><stop offset="1" stop-color="#818CF8" stop-opacity="0.28"/></linearGradient></defs>');
+      s = s.replace('</defs>', '<linearGradient id="' + id + 'i" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00C2FF" stop-opacity="0.32"/><stop offset="1" stop-color="#0072FF" stop-opacity="0.28"/></linearGradient></defs>');
     }
 
     target.innerHTML = s;

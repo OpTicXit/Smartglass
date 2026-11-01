@@ -134,6 +134,35 @@
 	</dependencies>
 
 	<build>
+		<!-- Las vistas y los estaticos viven en ../frontend; el JAR los sigue sirviendo desde el classpath.
+		     Definir <resources> reemplaza los del padre, por eso se repiten sus dos entradas. -->
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/application*.yml</include>
+					<include>**/application*.yaml</include>
+					<include>**/application*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<excludes>
+					<exclude>**/application*.yml</exclude>
+					<exclude>**/application*.yaml</exclude>
+					<exclude>**/application*.properties</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>${basedir}/../frontend/templates</directory>
+				<targetPath>templates</targetPath>
+			</resource>
+			<resource>
+				<directory>${basedir}/../frontend/static</directory>
+				<targetPath>static</targetPath>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

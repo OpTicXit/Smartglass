@@ -1,10 +1,11 @@
-# T6: el contexto de la imagen solo necesita mvnw, .mvn, pom.xml y src
+# T6: el contexto de la imagen solo necesita backend/ (mvnw, .mvn, pom.xml, src) y frontend/
 .git
 .gitignore
 .vscode
 .idea
 .claude
 target
+**/target
 uploads
 data
 documentos

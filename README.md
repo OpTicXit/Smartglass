@@ -143,7 +143,7 @@ Se utiliza mediante **Spring Data MongoDB** para almacenar documentos flexibles,
 | Entorno de análisis | Google Colab y Jupyter Notebook |
 | Control de versiones | Git y GitHub |
 
-**Compatibilidad de Java:** el proyecto usa Spring Boot 4.1.1 y compila para Java 26 (`java.version` en `pom.xml`); se necesita un JDK 26 o posterior.
+**Compatibilidad de Java:** el proyecto usa Spring Boot 4.1.1 y compila para Java 26 (`java.version` en `backend/pom.xml`); se necesita un JDK 26 o posterior.
 
 ---
 
@@ -157,7 +157,8 @@ SmartGlass/
 ├── .env.example                    # Plantilla de variables de entorno (sin secretos)
 ├── .gitignore
 │
-├── src/
+├── backend/                        # API y lógica (Spring Boot): mvnw, pom.xml, src/
+│  └── src/
 │   ├── main/
 │   │   ├── java/com/smartglass/
 │   │   │   ├── config/             # Spring Security, seeders, recursos subidos
@@ -170,12 +171,13 @@ SmartGlass/
 │   │   │   ├── validation/         # Validadores del registro
 │   │   │   └── SmartglassApplication.java
 │   │   │
-│   │   └── resources/
-│   │       ├── templates/          # Vistas Thymeleaf
-│   │       ├── static/             # CSS, JavaScript e imágenes
-│   │       └── application.properties
+│   │   └── resources/          # application*.properties y textos i18n (messages*)
 │   │
 │   └── test/                       # Prueba de carga del contexto (contextLoads)
+│
+├── frontend/                       # Interfaz: el pom.xml la empaqueta en el mismo JAR
+│   ├── templates/                  # Vistas Thymeleaf
+│   └── static/                     # CSS, JavaScript, fuentes e imágenes
 │
 ├── data/
 │   ├── generacion_dataset.py       # Generador reproducible
@@ -238,7 +240,7 @@ Si el proyecto utiliza autenticación con Google OAuth2, registra las credencial
 
 De igual manera, configura las claves utilizadas para firmar o validar los JWT mediante un mecanismo seguro.
 
-`application.properties` no contiene secretos: los lee de estas variables de entorno. La plantilla [`.env.example`](.env.example) las lista con valores de ejemplo no secretos. Spring Boot **no** lee ese archivo por sí solo: hay que definir las variables en el entorno (abajo).
+`application.properties` no contiene secretos: los lee de estas variables de entorno. La plantilla [`.env.example`](.env.example) las lista con valores de ejemplo no secretos. **Forma recomendada en local:** cópiala a `.env` en la raíz del repositorio y rellena los valores; Spring Boot la lee al arrancar (desde VS Code o desde `backend/` con `mvnw`). `.env` está en `.gitignore` y `.dockerignore`. También puedes definir las variables en el entorno (abajo); las del entorno ganan sobre `.env`.
 
 | Variable | Obligatoria | Uso |
 |---|---|---|
@@ -264,6 +266,7 @@ $env:MYSQL_PASSWORD = '<tu contraseña de MySQL>'
 $env:GOOGLE_CLIENT_ID = '<id de cliente de Google>'
 $env:GOOGLE_CLIENT_SECRET = '<secreto de cliente de Google>'
 # $env:ADMIN_PASSWORD = '<contraseña>'   # solo si el admin aún no existe en MySQL
+cd backend
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -305,17 +308,19 @@ Después de activar el entorno, instala las dependencias de nuevo si es necesari
 
 ### 1. Iniciar el backend
 
-Desde la raíz del proyecto, ejecuta el Maven Wrapper.
+Desde la carpeta `backend/`, ejecuta el Maven Wrapper (los secretos salen de `.env` en la raíz).
 
 **Windows PowerShell:**
 
 ```powershell
+cd backend
 .\mvnw.cmd spring-boot:run
 ```
 
 **Linux o macOS:**
 
 ```bash
+cd backend
 ./mvnw spring-boot:run
 ```
 

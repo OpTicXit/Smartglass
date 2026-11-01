@@ -26,9 +26,9 @@ class IconosPhosphorTest {
 
     @Test
     void todosLosIconosUsadosEstanEnElSubconjunto() throws IOException {
-        String css = Files.readString(Path.of("src/main/resources/static/vendor/phosphor/phosphor.css"));
+        String css = Files.readString(Path.of("../frontend/static/vendor/phosphor/phosphor.css"));
         Set<String> faltan = new TreeSet<>();
-        try (Stream<Path> archivos = Files.walk(Path.of("src/main"))) {
+        try (Stream<Path> archivos = Stream.concat(Files.walk(Path.of("src/main")), Files.walk(Path.of("../frontend")))) {
             for (Path p : (Iterable<Path>) archivos.filter(Files::isRegularFile)::iterator) {
                 String nombre = p.toString();
                 if (nombre.contains("vendor") || !(nombre.endsWith(".html") || nombre.endsWith(".js")

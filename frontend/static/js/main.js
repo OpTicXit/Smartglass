@@ -359,10 +359,10 @@
   var RESPALDO =
     'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">' +
-      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16224a"/><stop offset="1" stop-color="#0b1330"/></linearGradient>' +
-      '<linearGradient id="v" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bfe3ff" stop-opacity=".35"/><stop offset="1" stop-color="#60a5fa" stop-opacity=".08"/></linearGradient></defs>' +
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0B2447"/><stop offset="1" stop-color="#0E1420"/></linearGradient>' +
+      '<linearGradient id="v" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EAF6FF" stop-opacity=".35"/><stop offset="1" stop-color="#0072FF" stop-opacity=".08"/></linearGradient></defs>' +
       '<rect width="400" height="300" fill="url(#g)"/>' +
-      '<rect x="140" y="70" width="120" height="160" rx="4" fill="url(#v)" stroke="#cdecff" stroke-opacity=".55"/>' +
+      '<rect x="140" y="70" width="120" height="160" rx="4" fill="url(#v)" stroke="#00C2FF" stroke-opacity=".55"/>' +
       '<path d="M150 210 L250 90" stroke="#fff" stroke-opacity=".25" stroke-width="10"/></svg>');
 
   function inicializarImagenesDeRespaldo() {

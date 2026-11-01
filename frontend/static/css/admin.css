@@ -15,18 +15,18 @@ tarjetas KPI, tablas, badges, botones de fila, etc.)
 :root {
     /* Colores de estado -- no existen en theme.css porque la tienda
        publica no maneja pedidos/roles. PENDIENTE=warning,
-       PROCESANDO=info, ENVIADO=violet, ENTREGADO=success,
+       PROCESANDO=info, ENVIADO=violet (Cian Vidrio: la paleta oficial no tiene morado), ENTREGADO=success,
        CANCELADO=error; el mismo set sirve para el rol de usuario. */
-    --color-success: #34D399;
-    --color-success-dim: rgba(52, 211, 153, 0.14);
+    --color-success: #00E5A0;
+    --color-success-dim: rgba(0, 229, 160, 0.14);
     --color-warning: #FBBF24;
     --color-warning-dim: rgba(251, 191, 36, 0.14);
     --color-error: #F87171;
     --color-error-dim: rgba(248, 113, 113, 0.14);
     --color-info: #4D9CFF;
     --color-info-dim: rgba(0, 114, 255, 0.14);
-    --color-violet: #A78BFA;
-    --color-violet-dim: rgba(167, 139, 250, 0.14);
+    --color-violet: #00C2FF;
+    --color-violet-dim: rgba(0, 194, 255, 0.14);
     --color-neutral: #94A3B8;
     --color-neutral-dim: rgba(148, 163, 184, 0.12);
     /* Slate para headers de tabla y etiquetas secundarias -- mas
@@ -40,8 +40,8 @@ tarjetas KPI, tablas, badges, botones de fila, etc.)
 
 /* Modo claro del panel (ver data-theme en theme.css) */
 :root[data-theme="light"] {
-    --color-violet: #6D28D9;
-    --color-violet-dim: rgba(109, 40, 217, 0.10);
+    --color-violet: #00749A;
+    --color-violet-dim: rgba(0, 116, 154, 0.10);
     --color-neutral: #64748B;
     --color-neutral-dim: rgba(100, 116, 139, 0.12);
     --text-label: #4A5A7C;
@@ -413,7 +413,7 @@ badge-success, Rechazada y ALTO = badge-error.
     padding: 7px 16px;
     border-radius: 8px;
     background: transparent;
-    border: 1px solid rgba(52, 211, 153, 0.3);
+    border: 1px solid rgba(0, 229, 160, 0.3);
     color: var(--color-success);
     font-size: 0.8rem;
     font-weight: 600;

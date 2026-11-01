@@ -303,6 +303,16 @@ Decisión del equipo: simular sin guardar. Sustituye al recorrido estático de T
 | Barra del navegador en el móvil (`theme-color`) con los fondos nuevos: `#0E1420` en oscuro y `#EAF6FF` en claro | 🧪 ESCRITO | `fragments/recursos.html`, `main.js` |
 | Interruptor oscuro/claro con la marca (aún usaba el azul marino y el amarillo anteriores): riel Azul Profundo a Grafito o Hielo, y el botón redondo con el par de los botones del tema (cian con luna Grafito; Azul Profundo con sol Hielo). El revelado circular y su respeto a fotosensible y movimiento reducido no cambian | 🧪 ESCRITO (visto en navegador en los dos temas, cambiando con el propio interruptor) | `theme.css` «6. SWITCH DE TEMA» |
 
+### Arranque local, carpetas frontend/backend, fondo y paleta (31/10/2026)
+
+| Ítem | Estado | Evidencia |
+|---|---|---|
+| **Arreglo del arranque local:** fuera de VS Code (terminal, `mvnw`, otro IDE) la app no recibía las variables de `launch.json` y MySQL rechazaba la conexión (`Access denied for user 'root'`), así que no arrancaba. Ahora Spring lee un `.env` opcional en la raíz (`spring.config.import`); en Railway no existe y mandan las variables de entorno | 🧪 ESCRITO (arrancó con `mvnw spring-boot:run` desde `backend/` sin variables; `mvnw test`: 8 de 8 en verde, incluido `contextLoads`) | `application.properties`, `.env.example`, README «Configurar las variables de entorno» |
+| Repositorio separado en `backend/` (Spring Boot: `pom.xml`, `mvnw`, `src/`) y `frontend/` (`templates/`, `static/`). El `pom.xml` empaqueta `../frontend` en el mismo JAR, así que las rutas web no cambian | 🧪 ESCRITO (JAR armado en una copia limpia con las mismas copias del Dockerfile: 39 plantillas y 48 estáticos; Docker no está instalado aquí, la imagen real se verá en el próximo despliegue) | `backend/pom.xml` `<resources>`, `Dockerfile`, `.dockerignore`, `.gitattributes`, scripts, `IconosPhosphorTest` |
+| Fondo global sin cuadrícula: liso Grafito Tech (oscuro) o Hielo (claro) con dos luces de marca arriba (Azul Eléctrico y Cian Vidrio) | 🧪 ESCRITO (visto en navegador en los dos temas) | `theme.css` («BASE» y `--bg-ambient`) |
+| Solo paleta oficial: éxito del admin y sello de CO₂ del configurador en Verde ODS (antes `#34D399`); estado «enviado» y rol admin en Cian Vidrio (antes morado); borde premium en degradado Azul Eléctrico → Cian Vidrio → Verde ODS (antes arcoíris); imagen de respaldo y ficha imprimible con colores de marca | 🧪 ESCRITO (borde visto en navegador; el panel del admin no se abrió con sesión) | `admin.css`, `theme.css`, `glass-preview.js`, `main.js`, `vidrio-ficha.html` |
+| Se mantienen a propósito fuera de la paleta: avisos y errores (ámbar y rojo, funcionales), la paleta Okabe-Ito del modo daltónico, el botón de Google, los metales de los marcos y la ilustración de fundido y arena | Decisión | — |
+
 ### Pruebas antes del push (25/10/2026, con la sesión del admin)
 
 | Ítem | Estado | Evidencia |

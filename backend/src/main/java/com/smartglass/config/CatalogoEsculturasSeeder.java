@@ -19,7 +19,7 @@ import java.util.Objects;
  * 1) Esculturas: inserta las que falten, buscando por codigo (idempotente; no
  *    duplica ni pisa las que el admin ya haya editado).
  * 2) Fotos: cada producto tiene un nombre de archivo ESPERADO en
- *    src/main/resources/static/img/. Solo se guarda en imagenPrincipal /
+ *    frontend/static/img/. Solo se guarda en imagenPrincipal /
  *    galeria si el archivo existe en el classpath; mientras no exista, la vista
  *    muestra el isotipo (F18) como "foto en preparacion". No se inventan URLs.
  *    Para activar una foto: copiar el archivo con ese nombre y reiniciar.

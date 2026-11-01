@@ -50,8 +50,8 @@
   --color-info-dim: rgba(0, 114, 255, 0.18);
   --color-error: #F87171;
   --color-error-dim: rgba(248, 113, 113, 0.14);
-  --color-violet: #A78BFA;
-  --color-violet-dim: rgba(167, 139, 250, 0.14);
+  --color-violet: #00C2FF;
+  --color-violet-dim: rgba(0, 194, 255, 0.14);
 
   /* Bordes y sombras */
   --border-color: rgba(255, 255, 255, 0.08);
@@ -104,8 +104,10 @@
   --card-solid: #131B2B;
   --input-bg: rgba(19, 27, 43, 0.7);
   --placeholder: #8197B2;
-  --grid-line: rgba(255, 255, 255, 0.015);
-  --bg-ambient: radial-gradient(900px 500px at 85% -5%, rgba(0, 114, 255, 0.12), transparent 60%);
+  /* Fondo liso Grafito Tech con dos luces de marca (Azul Electrico y Cian Vidrio), sin cuadricula */
+  --bg-ambient:
+    radial-gradient(900px 500px at 85% -5%, rgba(0, 114, 255, 0.14), transparent 60%),
+    radial-gradient(700px 420px at 4% 6%, rgba(0, 194, 255, 0.06), transparent 60%);
   --surface-hover: rgba(255, 255, 255, 0.035);
   --scroll-hover: #1E2A3F;
   --overlay: rgba(6, 10, 18, 0.66);
@@ -185,8 +187,8 @@
   --color-info-dim: rgba(0, 91, 209, 0.10);
   --color-error: #B91C1C;
   --color-error-dim: rgba(185, 28, 28, 0.10);
-  --color-violet: #6D28D9;
-  --color-violet-dim: rgba(109, 40, 217, 0.10);
+  --color-violet: #00749A;
+  --color-violet-dim: rgba(0, 116, 154, 0.10);
   --co2-glow-normal: 0 0 28px rgba(0, 122, 85, 0.22);
 
   --border-color: rgba(11, 36, 71, 0.10);
@@ -204,7 +206,6 @@
   --card-solid: #FFFFFF;
   --input-bg: #FFFFFF;
   --placeholder: #5E6C88;
-  --grid-line: rgba(11, 36, 71, 0.032);
   --bg-ambient:
     radial-gradient(900px 520px at 88% -8%, rgba(0, 114, 255, 0.12), transparent 62%),
     radial-gradient(700px 420px at 4% 6%, rgba(0, 194, 255, 0.10), transparent 60%);
@@ -238,12 +239,9 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  /* Cuadricula sutil en el fondo global */
-  background-image:
-    var(--bg-ambient),
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: auto, 40px 40px, 40px 40px;
+  /* Fondo liso con la luz de marca arriba (antes era una cuadricula de 40px) */
+  background-image: var(--bg-ambient);
+  background-repeat: no-repeat;
 }
 body { display: flex; flex-direction: column; }
 body > main { flex: 1 0 auto; }
@@ -1062,7 +1060,7 @@ body:has(> .auth) { padding-bottom: 0; }
   100% { transform: scale(1) rotate(0); }
 }
 
-/* PREMIUM / RAINBOW -- borde con degradado continuo + glow.
+/* PREMIUM / RAINBOW -- borde con degradado continuo + glow (Azul Electrico, Cian Vidrio y Verde ODS).
    Usa ::before (glow) y ::after (trazo): no combinar con
    .info-box/.card-panel/.producto-card, que ya usan ::before.
    --sg-rainbow-radius iguala el radio del elemento. */
@@ -1070,7 +1068,7 @@ body:has(> .auth) { padding-bottom: 0; }
 .sg-rainbow { position: relative; isolation: isolate; border-radius: var(--sg-rainbow-radius, 10px); }
 .sg-rainbow::before, .sg-rainbow::after {
   content: ""; position: absolute; border-radius: inherit;
-  background: conic-gradient(from var(--sg-angle), #FF5A5A, #FFB84D, #F5F25A, #4DF0A0, #4DCBFF, #8B6BFF, #FF5AD0, #FF5A5A);
+  background: conic-gradient(from var(--sg-angle), #0072FF, #00C2FF, #00E5A0, #00C2FF, #0072FF);
   animation: sg-rainbow-spin 4s linear infinite; pointer-events: none;
 }
 .sg-rainbow::after {

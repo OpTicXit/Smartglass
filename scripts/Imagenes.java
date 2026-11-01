@@ -20,7 +20,7 @@ import java.io.File;
  */
 public class Imagenes {
 
-    static final File IMG = new File("src/main/resources/static/img");
+    static final File IMG = new File("frontend/static/img");
     static final File ORIGINALES = new File("scripts/originales");
 
     public static void main(String[] args) throws Exception {

@@ -1,12 +1,12 @@
 """U2 · Iconos Phosphor alojados en el proyecto, solo con los que se usan.
 
 Antes se cargaban dos hojas de unpkg (164 KB de CSS que bloquean el pintado + 280 KB de fuentes)
-para unos 100 iconos. Este script busca las clases ph-* en src/main, recorta las dos fuentes
+para unos 100 iconos. Este script busca las clases ph-* en backend/src/main y frontend/, recorta las dos fuentes
 (regular y fill) a esos glifos y escribe:
 
-    src/main/resources/static/vendor/phosphor/phosphor.css
-    src/main/resources/static/vendor/phosphor/Phosphor.woff2
-    src/main/resources/static/vendor/phosphor/Phosphor-Fill.woff2
+    frontend/static/vendor/phosphor/phosphor.css
+    frontend/static/vendor/phosphor/Phosphor.woff2
+    frontend/static/vendor/phosphor/Phosphor-Fill.woff2
 
 Uso (requiere: pip install fonttools brotli):
     python scripts/iconos_phosphor.py
@@ -24,8 +24,8 @@ from fontTools.ttLib import TTFont
 VERSION = '2.1.1'
 BASE = 'https://unpkg.com/@phosphor-icons/web@' + VERSION + '/src/'
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
-FUENTES = RAIZ / 'src' / 'main'
-DESTINO = FUENTES / 'resources' / 'static' / 'vendor' / 'phosphor'
+FUENTES = (RAIZ / 'backend' / 'src' / 'main', RAIZ / 'frontend')
+DESTINO = RAIZ / 'frontend' / 'static' / 'vendor' / 'phosphor'
 TOKEN = re.compile(r'ph-[a-z0-9]+(?:-[a-z0-9]+)*')
 REGLA = re.compile(r'\.(ph|ph-fill)\.(ph-[a-z0-9-]+):before\s*\{\s*content:\s*"\\([0-9a-f]+)";', re.I)
 ESTILOS = [('ph', 'Phosphor', 'regular/style.css', 'regular/Phosphor.woff2', 'Phosphor.woff2'),
@@ -39,7 +39,7 @@ def bajar(ruta):
 
 def usados():
     nombres = set()
-    for p in FUENTES.rglob('*'):
+    for p in (p for raiz in FUENTES for p in raiz.rglob('*')):
         if p.suffix in ('.html', '.js', '.java', '.properties') and 'vendor' not in p.parts:
             nombres.update(TOKEN.findall(p.read_text(encoding='utf-8', errors='ignore')))
     nombres.discard('ph-fill')
