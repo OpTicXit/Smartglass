@@ -21,8 +21,8 @@ import java.util.Optional;
  * - Toda la API exige sesion: sin autenticacion -> 401.
  * - POST /cotizar: el usuarioId sale de la sesion, no del body (anti-spoofing).
  * - GET /{id} y GET /usuario/{usuarioId}: solo dueno o admin (anti-IDOR).
- * - PATCH /{id}/estado: transiciones via cambiarEstado; pasar a APROBADO o
- *   RECHAZADA exige ROLE_ADMIN (403); transicion ilegal -> 409.
+ * - PATCH /{id}/estado: solo ROLE_ADMIN (como SecurityConfig; 403 si no), transiciones via
+ *   cambiarEstado; transicion ilegal -> 409. No hay comprobacion de dueno: no abrirlo a usuarios.
  * - Rutas limpias (la copia anterior tenia espacios en @PatchMapping y un
  *   "& &" que no compilaba).
  */
@@ -104,9 +104,7 @@ public class VidrioPersonalizadoController {
                     .body(new ErrorResponse("Autenticacion requerida."));
         }
         String objetivo = estado == null ? "" : estado.toUpperCase();
-        boolean esTransicionDeGestion = VidrioSostenibleService.APROBADO.equals(objetivo)
-                || VidrioSostenibleService.RECHAZADA.equals(objetivo);
-        if (esTransicionDeGestion && !PermisosAdvice.esAdmin(auth)) {
+        if (!PermisosAdvice.esAdmin(auth)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new ErrorResponse("Solo un administrador puede gestionar el estado."));
         }
