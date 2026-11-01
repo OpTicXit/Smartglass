@@ -137,13 +137,31 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     private String ipDe(HttpServletRequest req) {
+        return claveDeIp(req, confiarEnForwardedFor);
+    }
+
+    /**
+     * IP del cliente para los limites (tambien la usa LoginRateLimitFilter). Las IPv6 se agrupan por /64:
+     * una sola red domestica tiene millones de direcciones y, sin agrupar, cada una tendria su propia cubeta.
+     */
+    static String claveDeIp(HttpServletRequest req, boolean confiarEnForwardedFor) {
+        String ip = req.getRemoteAddr();
         if (confiarEnForwardedFor) {
             String xf = req.getHeader("X-Forwarded-For");
             if (xf != null && !xf.isBlank()) {
                 String primera = xf.split(",")[0].trim();
-                if (!primera.isEmpty() && primera.length() <= 45) return primera;
+                if (!primera.isEmpty() && primera.length() <= 45) ip = primera;
             }
         }
-        return req.getRemoteAddr();
+        if (ip == null || ip.indexOf(':') < 0) return ip;
+        try {
+            byte[] b = java.net.InetAddress.getByName(ip).getAddress(); // literal IPv6: no consulta DNS
+            if (b.length != 16) return ip;
+            StringBuilder red = new StringBuilder();
+            for (int i = 0; i < 8; i += 2) red.append(String.format("%02x%02x:", b[i], b[i + 1]));
+            return red.append(":/64").toString();
+        } catch (java.net.UnknownHostException e) {
+            return ip;
+        }
     }
 }

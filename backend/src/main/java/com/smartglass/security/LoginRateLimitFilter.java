@@ -104,13 +104,6 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
     }
 
     private String ipDe(HttpServletRequest req) {
-        if (confiarEnForwardedFor) {
-            String xf = req.getHeader("X-Forwarded-For");
-            if (xf != null && !xf.isBlank()) {
-                String primera = xf.split(",")[0].trim();
-                if (!primera.isEmpty() && primera.length() <= 45) return primera;
-            }
-        }
-        return req.getRemoteAddr();
+        return RateLimitFilter.claveDeIp(req, confiarEnForwardedFor);
     }
 }
