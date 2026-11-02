@@ -1,9 +1,12 @@
-"""Genera el dataset SmartGlass CO2 (1000 registros) - Minería de Datos I.
-Dataset derivado de factores de emisión documentados:
+"""Genera el dataset SmartGlass CO2 (10000 registros) - Minería de Datos I.
+Dataset sintético derivado de factores de emisión documentados (revisados en noviembre de 2026):
 - Branca et al. (2020); MITECO (2013); Guardian Glass; Glass for Europe.
 - Densidad del vidrio: 2500 kg/m3 -> masa_kg = area_m2 * espesor_mm * 2.5
-- Factor red eléctrica Colombia: ~0.25 kg CO2/kWh
+- Factor red eléctrica Colombia: 0.220 kg CO2/kWh (UPME, factor para inventarios del SIN 2024).
 - El calcín reduce ~2.5% de energía por cada 10% y sustituye CO2 de materia prima.
+- Calcín medio del 25%: plantas europeas de Guardian, 22% en 2019 y 28% en 2023.
+- Con esto, un float de 4 mm queda en ~11.4 kg CO2/m2, dentro de lo publicado en EPD:
+  8.45 (Glas Trösch 2025), 9.64 (Guardian ExtraClear), 12.24 (modelo sector alemán).
 Los 20 tipos de vidrio y sus multiplicadores son propios de este dataset; no coinciden con
 los 7 tipos ni con los factores del cotizador web (AnalisisService).
 Reproducible
@@ -13,7 +16,8 @@ import numpy as np
 import pandas as pd
 
 rng = np.random.default_rng(42)
-n = 1000
+n = 10000
+FACTOR_RED = 0.220  # kg CO2/kWh, UPME (SIN 2024)
 
 # ===========================================================================
 # 20 TIPOS DE VIDRIO del catálogo SmartGlass con multiplicadores de CO2
@@ -82,11 +86,11 @@ espesor = rng.choice(
 
 # % de calcín en la mezcla
 # - tipo "reciclado" tiene alto calcín (50-80%)
-# - los demás tienen calcín bajo/medio (0-30%) como porcentaje de mezcla estándar
+# - los demás tienen calcín medio (10-40%, promedio 25%) como porcentaje de mezcla estándar
 tipo_arr = rng.choice(tipos_nombres, n, p=tipos_probs)
 calcin = np.array([
     int(rng.choice([50, 60, 70, 80])) if t == "reciclado"
-    else int(rng.choice([0, 0, 10, 10, 20, 30]))
+    else int(rng.choice([10, 20, 20, 30, 30, 40]))
     for t in tipo_arr
 ])
 
@@ -105,7 +109,7 @@ energia = np.array([base_energia[p] for p in proceso]) * (1 - 0.025 * calcin / 1
 
 # Emisiones por kg de vidrio
 emision_materia = 0.42 * (1 - calcin / 100)        # kg CO2/kg materia prima
-emision_energia = energia * 0.25                   # kg CO2/kg electricidad
+emision_energia = energia * FACTOR_RED             # kg CO2/kg electricidad
 
 # Aplicar multiplicador por tipo + ruido de proceso 3%
 mult_tipo = np.array([TIPOS_VIDRIO[t] for t in tipo_arr])
