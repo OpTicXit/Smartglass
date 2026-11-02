@@ -188,7 +188,8 @@ SmartGlass/
 │   ├── analisis.ipynb              # EDA, entrenamiento y evaluación
 │   ├── preparacion.py              # Preprocesamiento de datos
 │   ├── modelo_smartglass_co2.pkl   # Modelo entrenado (no integrado en la app)
-│   └── metricas_modelo.csv         # Resultados de evaluación
+│   ├── metricas_modelo.csv         # Resultados de evaluación
+│   └── exportar_informe.py         # JSON del informe técnico del panel admin
 │
 └── documentos/
     ├── propuesta_modelo.pdf        # Entregable 2
@@ -344,7 +345,7 @@ Desde la raíz del repositorio, ejecuta:
 python data/generacion_dataset.py
 ```
 
-El script está diseñado para generar un conjunto reproducible de 1.000 registros de piezas de vidrio, con una semilla aleatoria fija de `42`.
+El script está diseñado para generar un conjunto reproducible de 10.000 registros de piezas de vidrio, con una semilla aleatoria fija de `42`.
 
 El archivo de salida esperado es:
 
@@ -372,7 +373,7 @@ El proyecto aborda esta pregunta mediante un modelo de regresión que utiliza ca
 
 | Característica | Descripción |
 |---|---|
-| Registros | 1.000 piezas de vidrio |
+| Registros | 10.000 piezas de vidrio |
 | Columnas | 8: `tipo_vidrio`, `proceso`, `area_m2`, `espesor_mm`, `calcin_pct`, `masa_kg`, `energia_kwh_kg`, `co2_kg` |
 | Catálogo | 20 tipos de vidrio (propios del dataset; el cotizador web ofrece 7) |
 | Variable objetivo | `co2_kg` |
@@ -394,7 +395,7 @@ Entre los tipos de vidrio considerados se encuentran:
 
 El modelo usa **6 variables predictoras**: `tipo_vidrio` y `proceso` (categóricas, One-Hot) y `area_m2`, `espesor_mm`, `calcin_pct` y `energia_kwh_kg` (numéricas). **`masa_kg` se excluye**: el generador la calcula como `area_m2 × espesor_mm × 2,5`, la misma fórmula de la que sale `co2_kg`, así que incluirla filtraría la respuesta al modelo (*leakage*) e inflaría las métricas.
 
-El dataset modela sus propios factores de emisión (multiplicador por tipo, energía del proceso, factor de red de 0,25 kg CO₂/kWh, calcín de 0 a 80 %). **No** reproduce las fórmulas del cotizador web (`AnalisisService`), que usa 7 tipos y factores distintos. Por eso el modelo es un estudio independiente, no una validación del cotizador.
+El dataset modela sus propios factores de emisión (multiplicador por tipo, energía del proceso, factor de red de 0,220 kg CO₂/kWh de UPME para 2024, calcín de 10 a 80 % con media cercana al 25 %). **No** reproduce las fórmulas del cotizador web (`AnalisisService`), que usa 7 tipos y factores distintos. Por eso el modelo es un estudio independiente, no una validación del cotizador.
 
 ### Modelo predictivo
 
@@ -406,8 +407,8 @@ El algoritmo seleccionado es **Random Forest Regressor**, un método de aprendiz
 | Número de árboles | 200 |
 | Variables predictoras | 6 (sin `masa_kg`) |
 | Preprocesamiento categórico | One-Hot Encoding |
-| Datos de entrenamiento | 80 % (800 registros) |
-| Datos de prueba | 20 % (200 registros) |
+| Datos de entrenamiento | 80 % (8.000 registros) |
+| Datos de prueba | 20 % (2.000 registros) |
 | Partición | Aleatoria, semilla `42` (la misma de `preparacion.dividir`) |
 | Validación cruzada | 5 particiones (*5-fold*) |
 
@@ -417,10 +418,10 @@ Resultados del notebook re-ejecutado sin `masa_kg` (los mismos que guarda `metri
 
 | Métrica | Resultado | Interpretación |
 |---|---:|---|
-| MAE | 23,25 kg de CO₂ | Error absoluto medio en el conjunto de prueba. |
-| RMSE | 33,22 kg de CO₂ | Penaliza en mayor medida los errores grandes. |
-| R² (prueba) | 0,9433 | El modelo explica cerca del 94,3 % de la variabilidad en el conjunto de prueba. |
-| R² de validación cruzada | 0,9271 ± 0,0115 | Media y desviación en cinco particiones; es la cifra más representativa. |
+| MAE | 13,52 kg de CO₂ | Error absoluto medio en el conjunto de prueba. |
+| RMSE | 25,56 kg de CO₂ | Penaliza en mayor medida los errores grandes. |
+| R² (prueba) | 0,9613 | El modelo explica cerca del 96,1 % de la variabilidad en el conjunto de prueba. |
+| R² de validación cruzada | 0,9615 ± 0,0036 | Media y desviación en cinco particiones; es la cifra más representativa. |
 
 Una versión anterior reportaba MAE 20,69 y R² 0,9461. Esas cifras salían de un modelo que **incluía `masa_kg`** y por eso eran más altas; se descartaron por la filtración descrita arriba.
 
@@ -445,7 +446,7 @@ Una versión anterior reportaba MAE 20,69 y R² 0,9461. Esas cifras salían de u
 
 ### Estado actual
 
-**El modelo no está integrado en la aplicación.** `modelo_smartglass_co2.pkl` es un artefacto entrenado y evaluado aparte (MAE 23,25 kg · R² de validación cruzada 0,9271, sin filtración), versionado en el repositorio. Ningún componente Java lo carga ni lo consulta: las cifras de CO₂ que muestra la web salen de las fórmulas deterministas de `AnalisisService`. La presencia del archivo `.pkl` no implica integración.
+**El modelo no está integrado en la aplicación.** `modelo_smartglass_co2.pkl` es un artefacto entrenado y evaluado aparte (MAE 13,52 kg · R² de validación cruzada 0,9615, sin filtración), versionado en el repositorio. Ningún componente Java lo carga ni lo consulta (el informe técnico del panel admin solo muestra sus resultados, ya exportados): las cifras de CO₂ que muestra la web salen de las fórmulas deterministas de `AnalisisService`. La presencia del archivo `.pkl` no implica integración.
 
 Además, hoy no se podría conectar directamente: el modelo necesita `proceso`, `energia_kwh_kg` y `calcin_pct`, que el formulario de cotización no pide, y conoce 20 tipos de vidrio frente a los 7 del cotizador.
 

@@ -303,6 +303,21 @@ Decisión del equipo: simular sin guardar. Sustituye al recorrido estático de T
 | Barra del navegador en el móvil (`theme-color`) con los fondos nuevos: `#0E1420` en oscuro y `#EAF6FF` en claro | 🧪 ESCRITO | `fragments/recursos.html`, `main.js` |
 | Interruptor oscuro/claro con la marca (aún usaba el azul marino y el amarillo anteriores): riel Azul Profundo a Grafito o Hielo, y el botón redondo con el par de los botones del tema (cian con luna Grafito; Azul Profundo con sol Hielo). El revelado circular y su respeto a fotosensible y movimiento reducido no cambian | 🧪 ESCRITO (visto en navegador en los dos temas, cambiando con el propio interruptor) | `theme.css` «6. SWITCH DE TEMA» |
 
+### Informe técnico y dataset de 10.000 registros (02/11/2026)
+
+Opción del panel admin «Generar informe técnico completo»: abre `/admin/informe-tecnico`, con un globo 3D de emisiones y las gráficas del modelo.
+
+| Qué cambió | Estado | Dónde |
+|---|---|---|
+| Dataset de 1.000 a 10.000 registros sintéticos; factor de red 0,220 kg CO₂/kWh (UPME, SIN 2024); calcín medio del 25 %. Un float de 4 mm queda en 11,4 kg CO₂/m², dentro de las EPD publicadas (8,45–12,24) | 🧪 ESCRITO | `data/generacion_dataset.py` |
+| Modelo reentrenado: MAE 13,52 · RMSE 25,56 · R² 0,9613 · CV 0,9615 ± 0,0036. Guardado comprimido (31,6 MB): sin comprimir superaría el límite de GitHub | 🧪 ESCRITO | `analisis.ipynb`, `metricas_modelo.csv` |
+| Datos del informe en un JSON versionado, porque producción no tiene Python. **Hay que reexportarlo cada vez que se reentrene** | 🧪 ESCRITO | `mineria de datos/exportar_informe.py`, `resources/informe/informe-tecnico.json` |
+| Globo con Three.js: arrastrar, rueda, pellizco, botones y teclado; se encienden al azar los 30 países con más CO₂ y Colombia (Our World in Data, datos de 2024). Con fotosensible no gira ni destella | 🧪 ESCRITO (navegador: escritorio, móvil, tema claro, inglés y fotosensible) | `js/informe-globo.js` |
+| 8 gráficas en SVG con tema, idioma, detalle al pasar el puntero y vista en tabla | 🧪 ESCRITO | `js/informe-tecnico.js`, `css/informe-tecnico.css` |
+| Solo administradores: sin sesión, los datos responden 401 | 🧪 ESCRITO | `AdminInformeController` |
+| Informe metodológico y README con las cifras nuevas. **Pendiente:** el informe aún dice que CSRF está pendiente y cita 8 pruebas; las cifras del pitch deben cambiar a cerca del 96 % | 🧪 ESCRITO | `documentos/Informe_SmartGlass_Actualizado.docx`, `README.md` |
+| **Hallazgo sin corregir:** el login dice «Usuario o correo», pero con el correo falla; solo busca por usuario | Abierto | `UserDetailsServiceImpl` |
+
 ### Pruebas de rendimiento y seguridad, y revisión de coherencia (31/10/2026, 22:01–23:00)
 
 Tres auditorías de solo lectura (seguridad del código, coherencia del backend y del frontend) más pruebas en vivo contra la app local y contra el JAR de producción.
