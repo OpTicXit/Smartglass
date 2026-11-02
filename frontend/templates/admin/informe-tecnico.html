@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{admin.informe.titulo_pagina}">SmartGlass - Informe técnico</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" th:href="@{/css/informe-tecnico.css}">
+    <!-- Textos de informe-tecnico.js e informe-globo.js -->
+    <script th:inline="javascript">
+    Object.assign(window.SG_TXT, {
+        inf_pausar: /*[[#{admin.informe.pausar}]]*/ 'Pausar giro',
+        inf_reanudar: /*[[#{admin.informe.reanudar}]]*/ 'Reanudar giro',
+        inf_sin_3d: /*[[#{admin.informe.sin_3d}]]*/ 'Este navegador no pudo mostrar el globo en 3D. Los datos están en el gráfico de países.',
+        inf_globo_aria: /*[[#{admin.informe.globo_aria}]]*/ 'Globo terráqueo. Los países con más emisiones de CO₂ son: {0}.',
+        inf_mt: /*[[#{admin.informe.mt}]]*/ '{0} Mt de CO₂ · {1} % del mundo',
+        inf_error_datos: /*[[#{admin.informe.error_datos}]]*/ 'No se pudieron cargar los datos del informe. Recarga la página.',
+        inf_ver_tabla: /*[[#{admin.informe.ver_tabla}]]*/ 'Ver los datos en tabla',
+        inf_registros: /*[[#{admin.informe.registros}]]*/ 'Registros',
+        inf_kg: /*[[#{admin.informe.kg}]]*/ 'kg de CO₂',
+        inf_real: /*[[#{admin.informe.real}]]*/ 'Real',
+        inf_predicho: /*[[#{admin.informe.predicho}]]*/ 'Predicho',
+        inf_perfecta: /*[[#{admin.informe.perfecta}]]*/ 'Predicción perfecta',
+        inf_error: /*[[#{admin.informe.error}]]*/ 'Error de predicción (kg de CO₂)',
+        inf_frecuencia: /*[[#{admin.informe.frecuencia}]]*/ 'Piezas',
+        inf_importancia: /*[[#{admin.informe.importancia}]]*/ 'Importancia',
+        inf_variable: /*[[#{admin.informe.variable}]]*/ 'Variable',
+        inf_tipo: /*[[#{admin.informe.tipo}]]*/ 'Tipo de vidrio',
+        inf_pais: /*[[#{admin.informe.pais}]]*/ 'País',
+        inf_mt_corto: /*[[#{admin.informe.mt_corto}]]*/ 'Mt de CO₂',
+        inf_pct: /*[[#{admin.informe.pct}]]*/ '% del mundo',
+        inf_rango: /*[[#{admin.informe.rango}]]*/ 'Rango',
+        inf_correlacion: /*[[#{admin.informe.correlacion}]]*/ 'Correlación',
+        inf_muestra: /*[[#{admin.informe.piezas_prueba}]]*/ '{0} piezas de prueba',
+        inf_generado: /*[[#{admin.informe.generado}]]*/ 'Datos exportados el {0} · {1} registros sintéticos · {2} árboles',
+        'inf_v_area_m2': /*[[#{admin.informe.v.area_m2}]]*/ 'Área (m²)',
+        'inf_v_espesor_mm': /*[[#{admin.informe.v.espesor_mm}]]*/ 'Espesor (mm)',
+        'inf_v_calcin_pct': /*[[#{admin.informe.v.calcin_pct}]]*/ 'Calcín (%)',
+        'inf_v_masa_kg': /*[[#{admin.informe.v.masa_kg}]]*/ 'Masa (kg)',
+        'inf_v_energia_kwh_kg': /*[[#{admin.informe.v.energia_kwh_kg}]]*/ 'Energía (kWh/kg)',
+        'inf_v_co2_kg': /*[[#{admin.informe.v.co2_kg}]]*/ 'CO₂ (kg)',
+        'inf_v_tipo_vidrio': /*[[#{admin.informe.v.tipo_vidrio}]]*/ 'Tipo',
+        'inf_v_proceso': /*[[#{admin.informe.v.proceso}]]*/ 'Proceso',
+        'inf_v_recocido': /*[[#{admin.informe.v.recocido}]]*/ 'recocido',
+        'inf_v_especial': /*[[#{admin.informe.v.especial}]]*/ 'especial',
+        'inf_t_float': /*[[#{admin.informe.t.float}]]*/ 'Float',
+        'inf_t_crudo': /*[[#{admin.informe.t.crudo}]]*/ 'Crudo',
+        'inf_t_incoloro': /*[[#{admin.informe.t.incoloro}]]*/ 'Incoloro',
+        'inf_t_templado': /*[[#{admin.informe.t.templado}]]*/ 'Templado',
+        'inf_t_laminado': /*[[#{admin.informe.t.laminado}]]*/ 'Laminado',
+        'inf_t_blindado': /*[[#{admin.informe.t.blindado}]]*/ 'Blindado',
+        'inf_t_antivandálico': /*[[#{admin.informe.t.antivandalico}]]*/ 'Antivandálico',
+        'inf_t_bajo_emisivo': /*[[#{admin.informe.t.bajo_emisivo}]]*/ 'Bajo emisivo',
+        'inf_t_insulado': /*[[#{admin.informe.t.insulado}]]*/ 'Insulado',
+        'inf_t_termoreflector': /*[[#{admin.informe.t.termoreflector}]]*/ 'Termorreflector',
+        'inf_t_esmerilado': /*[[#{admin.informe.t.esmerilado}]]*/ 'Esmerilado',
+        'inf_t_tintado': /*[[#{admin.informe.t.tintado}]]*/ 'Tintado',
+        'inf_t_reflectivo': /*[[#{admin.informe.t.reflectivo}]]*/ 'Reflectivo',
+        'inf_t_texturizado': /*[[#{admin.informe.t.texturizado}]]*/ 'Texturizado',
+        'inf_t_antirreflejo': /*[[#{admin.informe.t.antirreflejo}]]*/ 'Antirreflejo',
+        'inf_t_acústico': /*[[#{admin.informe.t.acustico}]]*/ 'Acústico',
+        'inf_t_cortafuego': /*[[#{admin.informe.t.cortafuego}]]*/ 'Cortafuego',
+        'inf_t_fotovoltaico': /*[[#{admin.informe.t.fotovoltaico}]]*/ 'Fotovoltaico',
+        'inf_t_inteligente': /*[[#{admin.informe.t.inteligente}]]*/ 'Inteligente',
+        'inf_t_reciclado': /*[[#{admin.informe.t.reciclado}]]*/ 'Reciclado'
+    });
+    </script>
+</head>
+<body>
+
+<nav th:replace="~{admin/fragments/nav :: navbar}"></nav>
+
+<main id="contenido"
+      th:attr="data-datos=@{/admin/informe-tecnico/datos},data-three=@{/vendor/three/three.module.min.js},data-mapa=@{/vendor/mapas/countries-110m.json}"
+      data-datos="" data-three="" data-mapa="">
+
+    <section class="globo-escena" id="globo-escena" tabindex="0" aria-labelledby="informe-titulo">
+        <canvas id="globo-lienzo" role="img"></canvas>
+        <div id="globo-etiquetas" aria-hidden="true"></div>
+
+        <div class="globo-hud globo-hud--titulo">
+            <h1 id="informe-titulo" th:text="#{admin.informe.titulo}">Informe técnico completo</h1>
+            <p th:text="#{admin.informe.globo_subtitulo}">Emisiones de CO₂ por país. Arrastra para mover el globo.</p>
+        </div>
+        <div class="globo-hud globo-hud--zonas" aria-hidden="true">
+            <strong th:text="#{admin.informe.zonas_activas}">Zonas activas</strong>
+            <ol id="globo-zonas"></ol>
+        </div>
+
+        <div class="globo-controles" role="group" th:aria-label="#{admin.informe.controles}" aria-label="Controles del globo">
+            <div class="globo-cruz">
+                <button type="button" data-globo="arriba" th:aria-label="#{admin.informe.c_arriba}" aria-label="Mover hacia arriba"><i class="ph ph-caret-up" aria-hidden="true"></i></button>
+                <button type="button" data-globo="izquierda" th:aria-label="#{admin.informe.c_izquierda}" aria-label="Mover a la izquierda"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+                <button type="button" data-globo="centro" th:aria-label="#{admin.informe.c_centro}" aria-label="Volver a la vista inicial"><i class="ph ph-crosshair" aria-hidden="true"></i></button>
+                <button type="button" data-globo="derecha" th:aria-label="#{admin.informe.c_derecha}" aria-label="Mover a la derecha"><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                <button type="button" data-globo="abajo" th:aria-label="#{admin.informe.c_abajo}" aria-label="Mover hacia abajo"><i class="ph ph-caret-down" aria-hidden="true"></i></button>
+            </div>
+            <div class="globo-zoom">
+                <button type="button" data-globo="acercar" th:aria-label="#{admin.informe.c_acercar}" aria-label="Acercar"><i class="ph ph-plus" aria-hidden="true"></i></button>
+                <button type="button" data-globo="alejar" th:aria-label="#{admin.informe.c_alejar}" aria-label="Alejar"><i class="ph ph-minus" aria-hidden="true"></i></button>
+            </div>
+            <button type="button" class="globo-pausa" id="globo-pausa" th:text="#{admin.informe.pausar}">Pausar giro</button>
+        </div>
+
+        <p class="globo-aviso" id="globo-aviso" hidden></p>
+    </section>
+
+    <div class="container informe-cuerpo">
+        <p class="informe-nota">
+            <span th:text="#{admin.informe.fuente_paises}">Fuente: Our World in Data, con datos del Global Carbon Budget. Es el CO₂ fósil total de cada país, no las emisiones del vidrio ni de SmartGlass.</span>
+            <span id="informe-anio"></span>
+        </p>
+
+        <figure class="grafica" data-grafica="paises">
+            <figcaption th:text="#{admin.informe.g_paises}">Países con más emisiones de CO₂</figcaption>
+        </figure>
+
+        <h2 class="admin-subtitle informe-titulo2" id="modelo" th:text="#{admin.informe.modelo_titulo}">Modelo de predicción de CO₂</h2>
+        <p class="informe-intro" th:text="#{admin.informe.modelo_intro}">Random Forest entrenado con datos sintéticos, creados a partir de factores de emisión publicados. Estima el CO₂ de una pieza; no mide emisiones reales ni se usa todavía en el cotizador.</p>
+        <p class="informe-meta" id="informe-meta"></p>
+
+        <div class="informe-metricas" id="informe-metricas"></div>
+
+        <h3 class="informe-titulo3" th:text="#{admin.informe.comparacion}">Comparación con modelos de referencia</h3>
+        <div class="table-wrap informe-tabla">
+            <table class="table-admin">
+                <thead><tr>
+                    <th th:text="#{admin.informe.c_modelo}">Modelo</th>
+                    <th>MAE (kg)</th><th>RMSE (kg)</th><th>R²</th>
+                </tr></thead>
+                <tbody id="informe-referencia"
+                       th:attr="data-media=#{admin.informe.m_media},data-lineal=#{admin.informe.m_lineal}"
+                       data-media="" data-lineal=""></tbody>
+            </table>
+        </div>
+
+        <div class="informe-graficas">
+            <figure class="grafica" data-grafica="tipos"><figcaption th:text="#{admin.informe.g_tipos}">Distribución de tipos de vidrio</figcaption></figure>
+            <figure class="grafica" data-grafica="co2_tipo"><figcaption th:text="#{admin.informe.g_co2_tipo}">Huella promedio por tipo de vidrio</figcaption></figure>
+            <figure class="grafica" data-grafica="correlacion"><figcaption th:text="#{admin.informe.g_correlacion}">Correlación entre variables numéricas</figcaption></figure>
+            <figure class="grafica" data-grafica="real_pred"><figcaption th:text="#{admin.informe.g_real_pred}">Valores reales frente a predichos</figcaption></figure>
+            <figure class="grafica" data-grafica="errores"><figcaption th:text="#{admin.informe.g_errores}">Distribución de errores</figcaption></figure>
+            <figure class="grafica" data-grafica="importancia"><figcaption th:text="#{admin.informe.g_importancia}">Variables más importantes</figcaption></figure>
+            <figure class="grafica" data-grafica="real_pred_tipo"><figcaption th:text="#{admin.informe.g_real_pred_tipo}">CO₂ real y predicho por tipo de vidrio</figcaption></figure>
+        </div>
+    </div>
+    <div class="grafica-tip" id="grafica-tip" hidden></div>
+</main>
+
+<script th:src="@{/vendor/topojson/topojson-client.min.js}"></script>
+<script th:src="@{/js/informe-tecnico.js}" defer></script>
+<script type="module" th:src="@{/js/informe-globo.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

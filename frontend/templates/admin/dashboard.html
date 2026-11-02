@@ -47,6 +47,15 @@
         </div>
     </div>
 
+    <!-- Informe tecnico: globo de emisiones y graficas del modelo -->
+    <div class="informe-cta">
+        <div>
+            <h2 class="admin-subtitle" th:text="#{admin.informe.cta_titulo}">Informe técnico</h2>
+            <p th:text="#{admin.informe.cta_detalle}">Emisiones de CO₂ en el mundo y resultados del modelo de predicción.</p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/admin/informe-tecnico}" th:text="#{admin.informe.generar}">Generar informe técnico completo</a>
+    </div>
+
     <!-- 3. Tabla de Últimos Pedidos -->
     <h2 class="admin-subtitle" th:text="#{admin.dashboard.ultimos_pedidos}">Últimos pedidos</h2>
     <div class="table-wrap">

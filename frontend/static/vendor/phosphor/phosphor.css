@@ -11,6 +11,10 @@
 .ph.ph-arrows-out-line-vertical:before { content: "\e536"; }
 .ph.ph-bank:before { content: "\e0b4"; }
 .ph.ph-barcode:before { content: "\e0b8"; }
+.ph.ph-caret-down:before { content: "\e136"; }
+.ph.ph-caret-left:before { content: "\e138"; }
+.ph.ph-caret-right:before { content: "\e13a"; }
+.ph.ph-caret-up:before { content: "\e13c"; }
 .ph.ph-chart-line-up:before { content: "\e156"; }
 .ph.ph-chat-teardrop-dots:before { content: "\e176"; }
 .ph.ph-check:before { content: "\e182"; }
@@ -20,6 +24,7 @@
 .ph.ph-copy:before { content: "\e1ca"; }
 .ph.ph-corners-out:before { content: "\e1d0"; }
 .ph.ph-credit-card:before { content: "\e1d2"; }
+.ph.ph-crosshair:before { content: "\e1d6"; }
 .ph.ph-crosshair-simple:before { content: "\e1d8"; }
 .ph.ph-eye:before { content: "\e220"; }
 .ph.ph-eye-slash:before { content: "\e224"; }
@@ -96,6 +101,10 @@
 .ph-fill.ph-arrows-out-line-vertical:before { content: "\e536"; }
 .ph-fill.ph-bank:before { content: "\e0b4"; }
 .ph-fill.ph-barcode:before { content: "\e0b8"; }
+.ph-fill.ph-caret-down:before { content: "\e136"; }
+.ph-fill.ph-caret-left:before { content: "\e138"; }
+.ph-fill.ph-caret-right:before { content: "\e13a"; }
+.ph-fill.ph-caret-up:before { content: "\e13c"; }
 .ph-fill.ph-chart-line-up:before { content: "\e156"; }
 .ph-fill.ph-chat-teardrop-dots:before { content: "\e176"; }
 .ph-fill.ph-check:before { content: "\e182"; }
@@ -105,6 +114,7 @@
 .ph-fill.ph-copy:before { content: "\e1ca"; }
 .ph-fill.ph-corners-out:before { content: "\e1d0"; }
 .ph-fill.ph-credit-card:before { content: "\e1d2"; }
+.ph-fill.ph-crosshair:before { content: "\e1d6"; }
 .ph-fill.ph-crosshair-simple:before { content: "\e1d8"; }
 .ph-fill.ph-eye:before { content: "\e220"; }
 .ph-fill.ph-eye-slash:before { content: "\e224"; }
