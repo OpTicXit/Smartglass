@@ -9,20 +9,21 @@
     - Se ofrece una vez en la primera visita (localStorage "sg-tour-visto"); se inicia con
       [data-tour-iniciar] (pagina /guia) o con ?tour=1.
     - Accesible: pausa, siguiente y salir siempre visibles; Esc sale. Con movimiento reducido o el
-      modo fotosensible sigue avanzando sola, con cambios inmediatos en vez de fundidos.
+      modo fotosensible sigue avanzando sola, con cambios inmediatos en vez de animados.
     Textos en el idioma activo. Estilos: theme.css, "U6 · Guia automatizada".
 -->
 <template th:fragment="tour" id="sg-tour-datos"
           th:attr="data-paso=#{tour.paso},data-siguiente=#{tour.siguiente},data-terminar=#{tour.terminar},data-salir=#{guia2.salir},data-pausar=#{guia2.pausar},data-reanudar=#{guia2.reanudar},data-continuar=#{guia2.continuar},data-pausada=#{guia2.pausada},data-no_envia=#{guia2.no_envia},data-invita_t=#{guia2.invita_t},data-invita=#{guia2.invita},data-ver=#{guia2.ver},data-ahora_no=#{guia2.ahora_no},data-region=#{guia2.region},data-precio=#{guia2.precio},data-co2=#{guia2.co2}">
-    <section data-id="bienvenida"><h2 th:text="#{guia2.bienvenida_t}">SmartGlass en un minuto</h2><p th:text="#{guia2.bienvenida}">Compra vidrio o diseña una pieza a tu medida, y conoce su precio y su CO₂ antes de pedirla. En este recorrido no se guarda ni se envía nada.</p></section>
-    <section data-id="tienda"><h2 th:text="#{guia2.tienda_t}">Una tienda de vidrio</h2><p th:text="#{guia2.tienda}">Vidrio plano, esculturas y figuras decorativas. Filtra lo que buscas y compara hasta tres productos.</p></section>
-    <section data-id="ficha"><h2 th:text="#{guia2.ficha_t}">Todo antes de comprar</h2><p th:text="#{guia2.ficha}">Cada producto muestra su precio, lo que queda en stock, sus ofertas y sus reseñas.</p></section>
-    <section data-id="medidas"><h2 th:text="#{guia2.medidas_t}">Diseña a tu medida</h2><p th:text="#{guia2.medidas}">Cambia las medidas, el tipo de vidrio o la forma. El precio y el CO₂ estimado se calculan al instante.</p></section>
-    <section data-id="huella"><h2 th:text="#{guia2.huella_t}">Elige con el dato en la mano</h2><p th:text="#{guia2.huella}">El material reciclado baja el CO₂ estimado de tu pieza. Mira cómo cambia la cifra al quitarlo y ponerlo.</p></section>
-    <section data-id="editor"><h2 th:text="#{guia2.editor_t}">¿Una forma especial?</h2><p th:text="#{guia2.editor}">Dibuja el contorno, ponle color y mira tu pieza en 3D antes de pedirla.</p></section>
-    <section data-id="enviar"><h2 th:text="#{guia2.enviar_t}">La vidriería la revisa</h2><p th:text="#{guia2.enviar}">Envías la cotización, el taller la aprueba y solo entonces pagas. Aquí no la enviamos.</p></section>
-    <section data-id="ajustes"><h2 th:text="#{guia2.ajustes_t}">A tu manera</h2><p th:text="#{guia2.ajustes}">Cambia el idioma o el tema, activa colores para daltonismo o quita las animaciones cuando quieras.</p></section>
-    <section data-id="final"><h2 th:text="#{guia2.final_t}">Listo, ahora tú</h2><p th:text="#{guia2.final}">Entra a la tienda o diseña tu pieza. Solo te pedimos cuenta al pagar.</p></section>
+    <section data-id="bienvenida"><h2 th:text="#{guia2.bienvenida_t}">Te mostramos SmartGlass</h2><p th:text="#{guia2.bienvenida}">Compra vidrio o diseña una pieza a tu medida, y conoce su precio y su CO₂ antes de pedirla. Sigue el recuadro iluminado: te señala cada cosa.</p></section>
+    <section data-id="tienda"><h2 th:text="#{guia2.tienda_t}">Encuentra tu vidrio</h2><p th:text="#{guia2.tienda}">Filtra aquí entre vidrio plano, esculturas y figuras decorativas.</p></section>
+    <section data-id="comparar"><h2 th:text="#{guia2.comparar_t}">Compara antes de decidir</h2><p th:text="#{guia2.comparar}">Marca esta casilla en 2 o 3 productos para verlos lado a lado.</p></section>
+    <section data-id="ficha"><h2 th:text="#{guia2.ficha_t}">Todo antes de comprar</h2><p th:text="#{guia2.ficha}">Aquí ves las reseñas, el precio y cuántas unidades quedan.</p></section>
+    <section data-id="medidas"><h2 th:text="#{guia2.medidas_t}">Diseña a tu medida</h2><p th:text="#{guia2.medidas}">Cambiamos el ancho y el alto: la pieza se redibuja, y el precio y el CO₂ se calculan al instante.</p></section>
+    <section data-id="huella"><h2 th:text="#{guia2.huella_t}">Mira cómo baja el CO₂</h2><p th:text="#{guia2.huella}">Quitamos y ponemos el material reciclado para que veas cambiar la cifra.</p></section>
+    <section data-id="editor"><h2 th:text="#{guia2.editor_t}">¿Una forma especial?</h2><p th:text="#{guia2.editor}">Aquí dibujas el contorno, le pones color y ves tu pieza en 3D antes de pedirla.</p></section>
+    <section data-id="enviar"><h2 th:text="#{guia2.enviar_t}">Pide tu cotización</h2><p th:text="#{guia2.enviar}">Con este botón la envías. El taller la revisa y solo pagas cuando la aprueba. Ahora no la enviamos.</p></section>
+    <section data-id="ajustes"><h2 th:text="#{guia2.ajustes_t}">A tu manera</h2><p th:text="#{guia2.ajustes}">Aquí cambias el idioma, activas colores para daltonismo o quitas las animaciones.</p></section>
+    <section data-id="final"><h2 th:text="#{guia2.final_t}">Ahora te toca a ti</h2><p th:text="#{guia2.final}">Entra a la tienda o diseña tu pieza. Solo te pedimos cuenta al pagar.</p></section>
 </template>
 
 </body>

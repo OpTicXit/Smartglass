@@ -1809,24 +1809,45 @@ body[data-nivel-co2="alto"] .stage-wrap { --stage-halo: color-mix(in srgb, var(-
 .sg-guia-cifras[hidden] { display: none; }
 .sg-guia-cifras dt { color: var(--text-muted); font-size: max(12px, 0.76rem); }
 .sg-guia-cifras dd { margin: 2px 0 0; color: var(--text-main); font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-/* Marco del paso: aparece y se va con opacidad, nunca viaja por la pantalla */
+/* El recuadro atenua todo lo demas con su sombra y lo mueve guia.js, a la par del desplazamiento */
+:root { --sg-guia-velo: rgba(4, 10, 24, 0.55); }
 .sg-guia-foco {
-  position: fixed; z-index: 10000; pointer-events: none; opacity: 0;
-  border: 2px solid var(--color-cyan); border-radius: 12px; box-shadow: 0 0 0 6px var(--color-cyan-dim);
-  transition: opacity 0.25s ease;
+  position: fixed; z-index: 10000; pointer-events: none;
+  border: 2px solid var(--color-cyan); border-radius: 12px; box-shadow: 0 0 0 200vmax var(--sg-guia-velo);
 }
-.sg-guia-foco.is-visible { opacity: 1; }
-/* La caja queda quieta entre un paso y otro, tambien al cambiar de pagina */
-.sg-guia { view-transition-name: sg-guia; }
-/* Dentro de una pagina el cambio es un fundido puro, sin el leve ascenso de la transicion entre paginas */
+.sg-guia-foco.sin-objetivo { border-color: transparent; }
+/* Desde el primer cuadro de cada pagina, antes de que exista el recuadro (a11y-init.js pone la clase) */
+html.sg-guia-activa:not(.sg-guia-lista) body::after { content: ""; position: fixed; inset: 0; z-index: 10000; pointer-events: none; background: var(--sg-guia-velo); }
+/* Lo flotante no compite con el mensaje, y nada entra deslizandose mientras la guia habla */
+html.sg-guia-activa .sg-theme-switch, html.sg-guia-activa .a11y-flotante { display: none; }
+html.sg-guia-activa .sg-reveal { opacity: 1; transform: none; transition: none; }
+/* El precio fijo del configurador tapa la pieza en pantallas bajas; durante la guia sus cifras van en el mensaje */
+html.sg-guia-activa .precio-caja { position: static; }
+/* El mensaje: lo coloca guia.js junto a lo que explica y aparece cuando el recuadro ya llego */
+.sg-tour.sg-guia {
+  right: auto; bottom: auto; z-index: 10001; width: min(340px, calc(100vw - 20px));
+  border-left: 1px solid var(--color-cyan); border-color: var(--color-cyan); transition: opacity 0.18s ease;
+}
+.sg-guia.is-oculta { opacity: 0; }
+.sg-guia-flecha { position: absolute; width: 14px; height: 14px; background: var(--bg-primary); border: solid var(--color-cyan); border-width: 1px 0 0 1px; transform: rotate(45deg); }
+.sg-guia-flecha[hidden] { display: none; }
+.sg-guia[data-lado="abajo"] .sg-guia-flecha { top: -8px; }
+.sg-guia[data-lado="arriba"] .sg-guia-flecha { bottom: -8px; transform: rotate(225deg); }
+.sg-guia[data-lado="derecha"] .sg-guia-flecha { left: -8px; transform: rotate(-45deg); }
+.sg-guia[data-lado="izquierda"] .sg-guia-flecha { right: -8px; transform: rotate(135deg); }
+/* La invitacion de la primera visita va sola en el centro, sin tapar nada a medias */
+.sg-tour.sg-guia-invita {
+  left: 50%; top: 50%; right: auto; bottom: auto; width: min(380px, calc(100vw - 20px)); transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 200vmax var(--sg-guia-velo); animation: sgGuiaEntrar 0.4s ease 0.8s both;
+}
+/* Abrir o cerrar el editor se funde */
 html.sg-guia-vt::view-transition-old(root) { animation: sgVtSalir 0.3s ease both; }
 html.sg-guia-vt::view-transition-new(root) { animation: sgGuiaEntrar 0.3s ease both; }
 @keyframes sgGuiaEntrar { from { opacity: 0; } }
-.sg-guia-invita { animation: sgGuiaEntrar 0.4s ease 0.8s both; }
-[data-a11y~="fotosensible"] .sg-guia-foco, [data-a11y~="fotosensible"] .sg-guia-barra i { transition: none; }
+[data-a11y~="fotosensible"] .sg-guia, [data-a11y~="fotosensible"] .sg-guia-barra i { transition: none; }
 [data-a11y~="fotosensible"] .sg-guia-invita { animation: none; }
 @media (prefers-reduced-motion: reduce) {
-  .sg-guia-foco, .sg-guia-barra i { transition: none; }
+  .sg-guia, .sg-guia-barra i { transition: none; }
   .sg-guia-invita { animation: none; }
 }
 @media print { .sg-guia, .sg-guia-invita, .sg-guia-foco { display: none !important; } }

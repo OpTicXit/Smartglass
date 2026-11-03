@@ -25,6 +25,17 @@
   if (modos.length) raiz.setAttribute('data-a11y', modos.join(' '));
   else raiz.removeAttribute('data-a11y');
 
+  /* Guia automatizada en curso (js/guia.js): la pagina se atenua desde el primer cuadro para que no
+     destelle entre un paso y otro. Donde la guia no corre (panel de administracion, errores) se retira. */
+  try {
+    if (sessionStorage.getItem('sg-guia')) {
+      raiz.classList.add('sg-guia-activa');
+      document.addEventListener('DOMContentLoaded', function () {
+        if (!document.getElementById('sg-tour-datos') || document.querySelector('.pagina-error')) raiz.classList.remove('sg-guia-activa');
+      });
+    }
+  } catch (e) { /* almacenamiento bloqueado */ }
+
   /* Modo fotosensible: matchMedia('(prefers-reduced-motion: reduce)') responde
      true para TODOS los scripts (glass-preview.js, el configurador, main.js...)
      sin tocarlos. Se evalua en cada llamada, asi refleja el modo vigente; los
