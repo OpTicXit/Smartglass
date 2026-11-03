@@ -2,6 +2,7 @@ package com.smartglass.model.mysql;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
  * Entidad relacional de Usuario: credenciales (username/password),
@@ -58,6 +59,19 @@ public class Usuario implements Serializable {
     @Column(name = "preferencia_idioma", length = 8)
     private String preferenciaIdioma;
 
+    // Recuperacion de contrasena (RecuperacionService). Nullables, sin migracion: el codigo va cifrado con BCrypt.
+    @Column(name = "recuperacion_codigo", length = 60)
+    private String recuperacionCodigo;
+
+    @Column(name = "recuperacion_vence")
+    private Instant recuperacionVence;
+
+    @Column(name = "recuperacion_enviada")
+    private Instant recuperacionEnviada;
+
+    @Column(name = "recuperacion_intentos")
+    private Integer recuperacionIntentos;
+
     public Usuario() {
     }
 
@@ -105,4 +119,16 @@ public class Usuario implements Serializable {
 
     public String getPreferenciaIdioma() { return preferenciaIdioma; }
     public void setPreferenciaIdioma(String preferenciaIdioma) { this.preferenciaIdioma = preferenciaIdioma; }
+
+    public String getRecuperacionCodigo() { return recuperacionCodigo; }
+    public void setRecuperacionCodigo(String recuperacionCodigo) { this.recuperacionCodigo = recuperacionCodigo; }
+
+    public Instant getRecuperacionVence() { return recuperacionVence; }
+    public void setRecuperacionVence(Instant recuperacionVence) { this.recuperacionVence = recuperacionVence; }
+
+    public Instant getRecuperacionEnviada() { return recuperacionEnviada; }
+    public void setRecuperacionEnviada(Instant recuperacionEnviada) { this.recuperacionEnviada = recuperacionEnviada; }
+
+    public Integer getRecuperacionIntentos() { return recuperacionIntentos; }
+    public void setRecuperacionIntentos(Integer recuperacionIntentos) { this.recuperacionIntentos = recuperacionIntentos; }
 }

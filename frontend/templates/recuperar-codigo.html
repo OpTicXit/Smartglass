@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{recuperar.titulo_pagina}">SmartGlass - Recuperar contraseña</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+    <style>
+        .hint { min-height: 1.2em; margin-top: 5px; font-size: 0.8rem; line-height: 1.4; color: var(--text-muted); }
+        .hint:empty { min-height: 0; margin: 0; }
+        .hint.error { color: var(--color-error); }
+        .hint.ok { color: var(--color-success); }
+        .codigo-input { font-family: var(--font-mono); font-size: 1.4rem; letter-spacing: 0.35em; text-align: center; }
+        .pw-lista { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin: 10px 0 0; padding: 0; list-style: none; }
+        .pw-lista li { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.8rem; transition: color var(--dur) ease; }
+        .pw-lista li::before {
+            content: ""; flex: none; width: 14px; height: 14px; border-radius: 50%;
+            border: 1.5px solid var(--border-strong); transition: background-color var(--dur) ease, border-color var(--dur) ease;
+        }
+        .pw-lista li.cumple { color: var(--color-success); }
+        .pw-lista li.cumple::before {
+            border-color: var(--color-success); background: var(--color-success)
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23070B19' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E") center / 9px no-repeat;
+        }
+        .reenviar { display: inline; }
+        .reenviar button { padding: 0; border: 0; background: none; color: var(--color-accent-text); font: inherit; font-weight: 600; cursor: pointer; }
+        .reenviar button:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="auth">
+    <main class="auth-panel">
+        <div class="auth-fragmentos" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="auth-card">
+            <a th:href="@{/home}" class="auth-marca">
+                <img th:src="@{/img/logo-icono-sm.png}" alt="">
+                <span th:text="#{login.smartglass}">SmartGlass</span>
+            </a>
+
+            <h1 th:text="#{recuperar.revisa_correo}">Revisa tu correo</h1>
+            <p class="lead" th:text="#{recuperar.lead_codigo(${correo})}">Si ese correo tiene una cuenta, le enviamos un código. Vence en 15 minutos.</p>
+
+            <div th:if="${error}" class="alert alert--error" role="alert" data-persistente>
+                <i class="ph ph-warning-circle" aria-hidden="true"></i>
+                <span th:text="${error}">Error</span>
+            </div>
+            <div th:if="${mensaje}" class="alert alert--success" role="status">
+                <i class="ph ph-check-circle" aria-hidden="true"></i>
+                <span th:text="${mensaje}">Operación realizada</span>
+            </div>
+
+            <form class="auth-form" id="formCodigo" th:action="@{/recuperar/codigo}" method="POST">
+                <div class="form-group">
+                    <label for="codigo" th:text="#{recuperar.codigo}">Código de 6 dígitos</label>
+                    <input class="codigo-input" type="text" id="codigo" name="codigo" required inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" th:text="#{recuperar.nueva}">Contraseña nueva</label>
+                    <div class="input-password">
+                        <input type="password" id="password" name="password" autocomplete="new-password" minlength="8" maxlength="72" aria-describedby="pwLista" required>
+                    </div>
+                    <ul class="pw-lista" id="pwLista" aria-live="polite">
+                        <li data-regla="largo" th:text="#{registro.8_caracteres_o_mas}">8 caracteres o más</li>
+                        <li data-regla="mayus" th:text="#{registro.una_mayuscula}">Una mayúscula</li>
+                        <li data-regla="minus" th:text="#{registro.una_minuscula}">Una minúscula</li>
+                        <li data-regla="digito" th:text="#{registro.un_numero}">Un número</li>
+                        <li data-regla="espacios" th:text="#{registro.sin_espacios}">Sin espacios</li>
+                    </ul>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" th:text="#{registro.confirmar_contrasena}">Confirmar contraseña</label>
+                    <div class="input-password">
+                        <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" maxlength="72" required>
+                    </div>
+                    <div class="hint" id="confHint" aria-live="polite"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    <i class="ph ph-lock-key" aria-hidden="true"></i> <span th:text="#{recuperar.guardar}">Guardar contraseña</span>
+                </button>
+            </form>
+
+            <div class="auth-pie">
+                <span th:text="#{recuperar.no_llego}">¿No te llegó? Revisa el spam o</span>
+                <form class="reenviar" th:action="@{/recuperar/reenviar}" method="POST"><button type="submit" th:text="#{recuperar.reenviar}">pide otro código</button></form>
+            </div>
+            <p class="auth-pie mt-1"><a th:href="@{/recuperar}" class="text-muted"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="#{recuperar.otro_correo}">Volver</span></a></p>
+        </div>
+    </main>
+
+    <aside th:replace="~{fragments/auth-visual :: panel}"></aside>
+</div>
+
+<script>
+(function () {
+    var pass = document.getElementById('password'), conf = document.getElementById('confirmPassword'), hint = document.getElementById('confHint');
+    function checklist() {
+        var p = pass.value, r = {
+            largo: p.length >= 8,
+            mayus: /[A-ZÁÉÍÓÚÑÜ]/.test(p),
+            minus: /[a-záéíóúñü]/.test(p),
+            digito: /[0-9]/.test(p),
+            espacios: p.length > 0 && !/\s/.test(p)
+        };
+        document.querySelectorAll('#pwLista li').forEach(function (li) { li.classList.toggle('cumple', !!r[li.getAttribute('data-regla')]); });
+    }
+    function confirmacion() {
+        var igual = conf.value === pass.value;
+        hint.textContent = !conf.value ? '' : (igual ? sgT('reg_coinciden', 'Las contraseñas coinciden') : sgT('reg_no_coinciden', 'Las contraseñas no coinciden'));
+        hint.className = 'hint' + (!conf.value ? '' : (igual ? ' ok' : ' error'));
+    }
+    pass.addEventListener('input', function () { checklist(); confirmacion(); });
+    conf.addEventListener('input', confirmacion);
+})();
+</script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

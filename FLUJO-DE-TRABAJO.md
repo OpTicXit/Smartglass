@@ -303,6 +303,17 @@ Decisión del equipo: simular sin guardar. Sustituye al recorrido estático de T
 | Barra del navegador en el móvil (`theme-color`) con los fondos nuevos: `#0E1420` en oscuro y `#EAF6FF` en claro | 🧪 ESCRITO | `fragments/recursos.html`, `main.js` |
 | Interruptor oscuro/claro con la marca (aún usaba el azul marino y el amarillo anteriores): riel Azul Profundo a Grafito o Hielo, y el botón redondo con el par de los botones del tema (cian con luna Grafito; Azul Profundo con sol Hielo). El revelado circular y su respeto a fotosensible y movimiento reducido no cambian | 🧪 ESCRITO (visto en navegador en los dos temas, cambiando con el propio interruptor) | `theme.css` «6. SWITCH DE TEMA» |
 
+### Recuperar y cambiar la contraseña por correo (02/11/2026)
+
+Desde «¿Olvidaste tu contraseña?» en el login, o desde «Cambiar contraseña» en Mi cuenta, llega un código de 6 dígitos al correo. Sin `MAIL_USERNAME` y `MAIL_PASSWORD` en `.env` el login no muestra la opción.
+
+| Qué cambió | Estado | Dónde |
+|---|---|---|
+| Código cifrado, 15 minutos de vigencia, un correo cada 2 minutos y 5 intentos por hora por cuenta; 10 solicitudes por minuto por IP | 🧪 ESCRITO (8 pruebas; en navegador con un servidor SMTP local: código incorrecto, correcto y entrada con la clave nueva) | `RecuperacionService`, `RecuperacionController`, `RateLimitFilter` |
+| Cuentas de Google: reciben un aviso para entrar con Google, sin código | 🧪 ESCRITO (prueba unitaria) | `RecuperacionService` |
+| **Pendiente del equipo:** crear la cuenta de Gmail, su contraseña de aplicación y ponerlas en `.env`. El envío real por Gmail no está probado | Abierto | `.env` |
+| **Límites:** Railway bloquea SMTP en sus planes Free, Trial y Hobby. Cambiar la contraseña no cierra otras sesiones ni revoca JWT (duran 1 hora) | Abierto | `DESPLIEGUE.md`, `RecuperacionService` |
+
 ### Informe técnico y dataset de 10.000 registros (02/11/2026)
 
 Opción del panel admin «Generar informe técnico completo»: abre `/admin/informe-tecnico`, con un globo 3D de emisiones y las gráficas del modelo.

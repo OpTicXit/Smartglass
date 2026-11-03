@@ -138,6 +138,8 @@ public class SecurityConfig {
                     "/login/**",
                     "/registro",
                     "/registro/**",
+                    "/recuperar",
+                    "/recuperar/**",
                     "/oauth2/**",
                     "/error/**",
                     "/css/**",

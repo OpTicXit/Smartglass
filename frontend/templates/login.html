@@ -61,6 +61,7 @@
                     <div class="input-password">
                         <input type="password" id="password" name="password" required autocomplete="current-password">
                     </div>
+                    <p class="auth-olvido" th:if="${recuperacionActiva}"><a th:href="@{/recuperar}" th:text="#{recuperar.olvidaste}">¿Olvidaste tu contraseña?</a></p>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-lg btn-block">

@@ -57,6 +57,11 @@
         </div>
     </header>
 
+    <div th:if="${mensaje}" class="alert alert--success" role="status">
+        <i class="ph ph-check-circle" aria-hidden="true"></i>
+        <span th:text="${mensaje}">Operación realizada</span>
+    </div>
+
     <ul class="accesos">
         <li>
             <a th:href="@{/catalogo}" class="acceso">
@@ -87,6 +92,14 @@
             <a th:href="@{/vidrio-personalizado/mis-cotizaciones}" class="acceso">
                 <span class="acceso-icono"><i class="ph ph-pencil-ruler" aria-hidden="true"></i></span>
                 <div><strong th:text="#{usuario.mis_cotizaciones}">Mis cotizaciones</strong><span th:text="#{usuario.tus_piezas_a_medida}">Tus piezas a medida</span></div>
+                <i class="ph ph-arrow-right flecha" aria-hidden="true"></i>
+            </a>
+        </li>
+        <!-- Las cuentas de Google no tienen contrasena propia -->
+        <li th:if="${usuario != null and usuario.provider == null}">
+            <a th:href="@{/recuperar}" class="acceso">
+                <span class="acceso-icono"><i class="ph ph-lock-key" aria-hidden="true"></i></span>
+                <div><strong th:text="#{recuperar.cambiar_titulo}">Cambiar contraseña</strong><span th:text="#{recuperar.cambiar_detalle}">Con un código enviado a tu correo</span></div>
                 <i class="ph ph-arrow-right flecha" aria-hidden="true"></i>
             </a>
         </li>

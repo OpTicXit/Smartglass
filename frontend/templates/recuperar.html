@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{recuperar.titulo_pagina}">SmartGlass - Recuperar contraseña</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+</head>
+<body>
+
+<div class="auth">
+    <main class="auth-panel">
+        <div class="auth-fragmentos" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="auth-card">
+            <a th:href="@{/home}" class="auth-marca">
+                <img th:src="@{/img/logo-icono-sm.png}" alt="">
+                <span th:text="#{login.smartglass}">SmartGlass</span>
+            </a>
+
+            <h1 th:text="${correoCuenta != null} ? #{recuperar.cambiar_titulo} : #{recuperar.titulo}">Recupera tu contraseña</h1>
+
+            <div th:if="${error}" class="alert alert--error" role="alert" data-persistente>
+                <i class="ph ph-warning-circle" aria-hidden="true"></i>
+                <span th:text="${error}">Error</span>
+            </div>
+
+            <div th:if="${!activa}" class="alert alert--info" role="status" data-persistente>
+                <i class="ph ph-info" aria-hidden="true"></i>
+                <span th:text="#{recuperar.no_disponible}">Por ahora no podemos enviar correos. Inténtalo más tarde.</span>
+            </div>
+
+            <div th:if="${activa and cuentaGoogle}" class="alert alert--info" role="status" data-persistente>
+                <i class="ph ph-info" aria-hidden="true"></i>
+                <span th:text="#{recuperar.cuenta_google}">Tu cuenta entra con Google, así que no tiene contraseña propia.</span>
+            </div>
+
+            <form class="auth-form" th:if="${activa and !cuentaGoogle}" th:action="@{/recuperar}" method="POST">
+                <!-- Con sesion el servidor usa siempre el correo de la cuenta -->
+                <p class="lead" th:if="${correoCuenta != null}" th:text="#{recuperar.lead_cuenta(${correoCuenta})}">Te enviaremos un código a tu correo.</p>
+                <th:block th:if="${correoCuenta == null}">
+                    <p class="lead" th:text="#{recuperar.lead}">Escribe el correo de tu cuenta y te enviaremos un código.</p>
+                    <div class="form-group">
+                        <label for="email" th:text="#{recuperar.correo}">Correo</label>
+                        <input type="email" id="email" name="email" required maxlength="254" autocomplete="email" autocapitalize="none" spellcheck="false" autofocus>
+                    </div>
+                </th:block>
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    <i class="ph ph-paper-plane-tilt" aria-hidden="true"></i> <span th:text="#{recuperar.enviar}">Enviar código</span>
+                </button>
+            </form>
+
+            <p class="auth-pie mt-1">
+                <a th:href="${correoCuenta != null} ? @{/usuario} : @{/login}" class="text-muted"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="${correoCuenta != null} ? #{recuperar.volver_cuenta} : #{recuperar.volver_login}">Volver a iniciar sesión</span></a>
+            </p>
+        </div>
+    </main>
+
+    <aside th:replace="~{fragments/auth-visual :: panel}"></aside>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

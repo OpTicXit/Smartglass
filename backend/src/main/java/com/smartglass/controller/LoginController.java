@@ -1,5 +1,6 @@
 package com.smartglass.controller;
 
+import com.smartglass.service.RecuperacionService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -28,10 +29,16 @@ import java.net.URI;
 public class LoginController {
 
     private final RequestCache requestCache = new HttpSessionRequestCache();
+    private final RecuperacionService recuperacion;
+
+    public LoginController(RecuperacionService recuperacion) {
+        this.recuperacion = recuperacion;
+    }
 
     @GetMapping("/login")
     public String login(HttpServletRequest request, HttpServletResponse response, Model model) {
         model.addAttribute("paraPagar", vieneDelPago(requestCache.getRequest(request, response)));
+        model.addAttribute("recuperacionActiva", recuperacion.activa());
         return "login";
     }
 

@@ -18,8 +18,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * F41: limitador de solicitudes por actor (usuario autenticado o IP).
  *
  * - Se aplica a /api/** y a las rutas sensibles (POST /registro, POST /auth/registro,
- *   GET /registro/disponible, POST /api/vidrios/cotizar y, solo para visitantes sin cuenta (T1),
- *   POST /vidrio-personalizado/cotizar). Las paginas HTML y los estaticos (/css, /js, /img) NO
+ *   GET /registro/disponible, POST /api/vidrios/cotizar, POST /recuperar/** y, solo para visitantes
+ *   sin cuenta (T1), POST /vidrio-personalizado/cotizar). Las paginas HTML y los estaticos (/css, /js, /img) NO
  *   gastan fichas: una sola carga de pagina pide varios recursos y agotaria el limite.
  * - Limites por minuto: anonimo, usuario, admin y "sensible" (adicional, por actor).
  * - NO es un @Component a proposito: Spring Boot registraria el filtro dos veces (una como
@@ -69,7 +69,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
         // T1 (D4): el configurador HTML guarda obras, con o sin cuenta: cada obra es un documento en Mongo,
         // asi que todos entran en el bucket sensible (antes solo los visitantes)
         boolean cotizacionWeb = "POST".equals(req.getMethod()) && ruta.equals("/vidrio-personalizado/cotizar");
-        boolean sensible = disponibilidad || registroApi || cotizacionWeb
+        // Cada POST puede mandar un correo o probar un codigo
+        boolean recuperacion = "POST".equals(req.getMethod()) && (ruta.equals("/recuperar") || ruta.startsWith("/recuperar/"));
+        boolean sensible = disponibilidad || registroApi || cotizacionWeb || recuperacion
                 || ("POST".equals(req.getMethod()) && (ruta.equals("/api/vidrios/cotizar") || ruta.equals("/registro")));
 
         if (!api && !sensible) {
@@ -106,6 +108,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
                     ("{\"error\":\"" + msg + "\",\"mensaje\":\"" + msg + "\"}").getBytes(StandardCharsets.UTF_8));
         } else if (cotizacionWeb) {
             res.sendRedirect(req.getContextPath() + "/vidrio-personalizado/cotizar?limite");
+        } else if (recuperacion) {
+            res.sendRedirect(req.getContextPath() + "/recuperar?limite");
         } else {
             // POST /registro desde el formulario HTML: volver al formulario con aviso (no Whitelabel)
             res.sendRedirect(req.getContextPath() + "/registro?limite");
