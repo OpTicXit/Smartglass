@@ -125,10 +125,10 @@
         <span th:text="${mensaje}">Mensaje de notificación</span>
     </div>
 
-    <header class="page-intro" th:with="esEsc=${categoria == 'escultura'}">
+    <header class="page-intro" th:with="esEsc=${categoria == 'escultura'},esFig=${categoria == 'figura'}">
         <div>
-            <h1 th:text="${esEsc} ? #{catalogo.titulo_esculturas} : #{catalogo.titulo}">Explora vidrios y esculturas</h1>
-            <p class="lead" th:text="${esEsc} ? #{catalogo.lead_esculturas} : #{catalogo.lead}">
+            <h1 th:text="${esFig} ? #{catalogo.titulo_figuras} : (${esEsc} ? #{catalogo.titulo_esculturas} : #{catalogo.titulo})">Explora vidrios y esculturas</h1>
+            <p class="lead" th:text="${esFig} ? #{catalogo.lead_figuras} : (${esEsc} ? #{catalogo.lead_esculturas} : #{catalogo.lead})">
                 Vidrio plano para tus proyectos y esculturas de autor.
             </p>
 
@@ -147,17 +147,21 @@
     <!-- T2: filtros por categoria y, en esculturas, por tamano (enlaces GET: se pueden compartir) -->
     <nav class="filtros" aria-label="Filtrar catálogo" th:aria-label="#{catalogo.filtrar_catalogo}"
          th:with="nEsc=${conteoCategorias != null and conteoCategorias['escultura'] != null ? conteoCategorias['escultura'] : 0},
-                  nPlano=${conteoCategorias != null and conteoCategorias['vidrio-plano'] != null ? conteoCategorias['vidrio-plano'] : 0}">
+                  nPlano=${conteoCategorias != null and conteoCategorias['vidrio-plano'] != null ? conteoCategorias['vidrio-plano'] : 0},
+                  nFig=${conteoCategorias != null and conteoCategorias['figura'] != null ? conteoCategorias['figura'] : 0}">
         <div class="filtro-grupo" role="group">
             <a class="filtro" th:href="@{/catalogo(q=${query})}"
                th:attr="aria-current=${#strings.isEmpty(categoria) ? 'page' : null}"><span th:text="#{catalogo.todo}">Todo</span>
-               <span class="n" th:text="${nEsc + nPlano}">0</span></a>
+               <span class="n" th:text="${nEsc + nPlano + nFig}">0</span></a>
             <a class="filtro" th:href="@{/catalogo(q=${query},categoria='vidrio-plano')}"
                th:attr="aria-current=${categoria == 'vidrio-plano' ? 'page' : null}"><i class="ph ph-square-split-vertical" aria-hidden="true"></i> <span th:text="#{catalogo.vidrio_plano}">Vidrio plano</span>
                <span class="n" th:text="${nPlano}">0</span></a>
             <a class="filtro" th:href="@{/catalogo(q=${query},categoria='escultura')}"
                th:attr="aria-current=${categoria == 'escultura' ? 'page' : null}"><i class="ph ph-sketch-logo" aria-hidden="true"></i> <span th:text="#{catalogo.esculturas}">Esculturas</span>
                <span class="n" th:text="${nEsc}">0</span></a>
+            <a class="filtro" th:href="@{/catalogo(q=${query},categoria='figura')}"
+               th:attr="aria-current=${categoria == 'figura' ? 'page' : null}"><i class="ph ph-star-four" aria-hidden="true"></i> <span th:text="#{catalogo.figuras}">Figuras decorativas</span>
+               <span class="n" th:text="${nFig}">0</span></a>
         </div>
         <div class="filtro-grupo filtro-tamano" role="group" th:if="${categoria == 'escultura'}" aria-label="Tamaño" th:aria-label="#{catalogo.tamano}">
             <span class="filtro-titulo" aria-hidden="true" th:text="#{catalogo.tamano}">Tamaño</span>
@@ -189,8 +193,10 @@
                th:classappend="${producto.imagenPendiente} ? 'img-pendiente'">
                 <img th:src="@{${producto.imagenUrl}}" th:alt="${@contenido.nombre(producto)}" alt="" loading="lazy">
                 <span class="foto-pendiente" th:if="${producto.imagenPendiente}" th:text="#{catalogo.foto_en_preparacion}">Foto en preparación</span>
+                <span class="foto-pendiente" th:if="${producto.imagenIlustracion}" th:text="#{catalogo.ilustracion}">Ilustración de referencia</span>
                 <span class="producto-badge" th:if="${producto.escultura}"
                       th:text="${producto.tamano != null} ? #{${'catalogo.badge.' + producto.tamano}} : #{catalogo.badge.escultura}">Escultura grande</span>
+                <span class="producto-badge" th:if="${producto.figura}" th:text="#{catalogo.badge.figura}">Figura decorativa</span>
             </a>
 
             <label class="comparar-check">

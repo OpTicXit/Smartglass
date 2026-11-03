@@ -320,6 +320,9 @@
         .corte-acciones { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
         .corte-acciones[hidden] { display: none; }
         .corte-acciones .hint { margin: 0; }
+        .diseno-mini { display: flex; align-items: center; gap: 10px; margin: 0; }
+        .diseno-mini[hidden] { display: none; }
+        .diseno-mini img { width: 64px; height: 64px; object-fit: contain; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-tertiary); }
         .medida-campo.es-corte input[readonly] { opacity: 0.75; cursor: not-allowed; }
     </style>
 </head>
@@ -560,9 +563,15 @@
                     <p class="hint" th:text="#{cotizar.forma_nota}">Toda forma se cotiza por el rectángulo que la contiene, porque así se corta de la lámina. El corte personalizado se cobra por su área real.</p>
                     <!-- F45: vertices del corte ("x,y;x,y;..."); Spring los enlaza con CotizacionVidrioRequest.setPuntosTexto -->
                     <input type="hidden" name="puntosTexto" id="puntosTexto" value="">
+                    <!-- Diseno pintado en el editor (PNG): referencia para el taller, no cambia precio ni CO2 -->
+                    <input type="hidden" name="disenoPng" id="disenoPng" value="">
                     <div class="corte-acciones" id="corteAcciones" hidden>
                         <button type="button" class="btn btn-secondary" id="btnEditarCorte" data-sg-corte><i class="ph ph-pencil-simple" aria-hidden="true"></i> <span th:text="#{cotizar.editar_mi_corte}">Editar mi corte</span></button>
                         <p class="hint" id="corteResumen" aria-live="polite"></p>
+                        <figure class="diseno-mini" id="corteDiseno" hidden>
+                            <img id="corteDisenoImg" alt="" th:alt="#{cotizar.diseno_adjunto}">
+                            <figcaption class="hint" th:text="#{cotizar.diseno_adjunto_nota}">Diseño adjunto. Es una referencia para el taller y no cambia el precio.</figcaption>
+                        </figure>
                     </div>
                 </div>
 
@@ -702,6 +711,7 @@
 <th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>
 <script th:src="@{/js/corte-editor.js}" th:if="${@plan.activa('CORTE_PERSONALIZADO')}"></script>
+<script th:src="@{/js/corte-3d.js}" th:attr="data-three=@{/vendor/three/three.module.min.js}" data-three="" th:if="${@plan.activa('CORTE_PERSONALIZADO')}"></script>
 <script th:inline="javascript">
     /* T3: pesos y cortes del sello Compromiso verde (fuente unica: CompromisoVerde.java) */
     window.SG_COMPROMISO = /*[[${compromisoVerde}]]*/ { pesos: { usarVidrioReciclado: 20, energiaRenovable: 20, compensarCarbono: 15, retomaVidrio: 15, empaqueReutilizable: 10, entregaConsolidada: 10, usarRetazos: 10 }, oro: 85, plata: 60, bronce: 35 };
@@ -1060,6 +1070,9 @@
     document.addEventListener('sgcorte:cerrado', function (e) {
         /* cancelar sin tener un corte confirmado: se vuelve a la forma anterior */
         if (!e.detail.confirmado && !hayCorte() && $('forma').value === 'Personalizada') { $('forma').value = formaPrevia; evento($('forma')); }
+        var png = $('disenoPng').value;
+        $('corteDiseno').hidden = !png;
+        if (png) $('corteDisenoImg').src = png;
         modoCorte(); programar();
     });
     modoCorte();

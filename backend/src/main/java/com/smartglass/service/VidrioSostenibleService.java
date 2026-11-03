@@ -6,6 +6,8 @@ import com.smartglass.repository.mongo.VidrioSostenibleRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +39,10 @@ public class VidrioSostenibleService {
      * Solo presentacion: todas se cotizan por caja envolvente salvo "Personalizada" (F45).
      * Un valor desconocido se guarda como "Rectangular" en vez de texto libre.
      */
+    private static final int MAX_DISENO = 700_000;
+    private static final String PREFIJO_PNG = "data:image/png;base64,";
+    private static final byte[] FIRMA_PNG = { (byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1A, '\n' };
+
     public static final List<String> FORMAS = List.of(
             "Rectangular", "EsquinasRedondeadas", "Circular", "Capsula", "Arco", "Triangular",
             "TrianguloRectangulo", "TrapecioRectangulo", "Fronton", "Rombo", "Hexagonal", "Octogonal",
@@ -119,6 +125,7 @@ public class VidrioSostenibleService {
         // se descarta y la pieza queda cotizada por caja envolvente, igual que las formas fijas.
         if (resultado.isCorteAplicado()) {
             vidrio.setAreaPoligonal(resultado.getAreaTotal());
+            if (request.getDisenoPng() != null && !request.getDisenoPng().isBlank()) vidrio.setDisenoPng(request.getDisenoPng());
         } else {
             vidrio.setPuntosPersonalizados(null);
             vidrio.setAreaPoligonal(null);
@@ -208,8 +215,21 @@ public class VidrioSostenibleService {
                 || r.getCantidadCapas() < 1 || r.getCantidadCapas() > 10
                 || r.getPorcentajeReciclado() < 0 || r.getPorcentajeReciclado() > 100
                 || largo(r.getNotasAdicionales()) > 2000 || textosLargos
-                || (r.getPuntosPersonalizados() != null && r.getPuntosPersonalizados().size() > 200)) {
+                || (r.getPuntosPersonalizados() != null && r.getPuntosPersonalizados().size() > 200)
+                || !disenoValido(r.getDisenoPng())) {
             throw new IllegalArgumentException("Cotizacion fuera de los limites permitidos");
+        }
+    }
+
+    /** La vista lo pone en un img: solo se acepta un PNG de verdad, con tope, nunca otro tipo de data URL. */
+    static boolean disenoValido(String png) {
+        if (png == null || png.isBlank()) return true;
+        if (png.length() > MAX_DISENO || !png.startsWith(PREFIJO_PNG)) return false;
+        try {
+            byte[] datos = Base64.getDecoder().decode(png.substring(PREFIJO_PNG.length()));
+            return datos.length > FIRMA_PNG.length && Arrays.equals(Arrays.copyOf(datos, FIRMA_PNG.length), FIRMA_PNG);
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 

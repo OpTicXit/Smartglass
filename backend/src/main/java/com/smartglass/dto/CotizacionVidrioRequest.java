@@ -38,6 +38,8 @@ public class CotizacionVidrioRequest {
     // F45: vertices del corte personalizado (solo se usan si forma = "Personalizada").
     // La validacion vive en AnalisisService (cae a bbox si son invalidos), no en anotaciones del DTO.
     private List<PuntoCorte> puntosPersonalizados;
+    // Diseno pintado en el editor (PNG en data URL). No entra en precio ni CO2; lo valida VidrioSostenibleService.
+    private String disenoPng;
 
     public CotizacionVidrioRequest() {
     }
@@ -116,4 +118,7 @@ public class CotizacionVidrioRequest {
 
     /** Entrada del formulario HTML: campo oculto "puntosTexto" con "x,y;x,y;..." (formato de PuntoCorte). */
     public void setPuntosTexto(String puntosTexto) { this.puntosPersonalizados = PuntoCorte.desdeTexto(puntosTexto); }
+
+    public String getDisenoPng() { return disenoPng; }
+    public void setDisenoPng(String disenoPng) { this.disenoPng = disenoPng; }
 }

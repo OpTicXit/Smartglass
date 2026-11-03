@@ -249,6 +249,15 @@
         </div>
     </section>
 
+    <!-- Diseno pintado en el editor. El servidor solo guarda PNG validados (VidrioSostenibleService.disenoValido) -->
+    <section class="obra-diseno" th:if="${vidrio.disenoPng != null}" aria-labelledby="obraDisenoTitulo">
+        <img th:src="${vidrio.disenoPng}" alt="" th:alt="#{obra.diseno_titulo}">
+        <div>
+            <h2 id="obraDisenoTitulo" th:text="#{obra.diseno_titulo}">Diseño para el taller</h2>
+            <p th:text="#{obra.diseno_nota}">Es una referencia: no cambia el precio ni la huella.</p>
+        </div>
+    </section>
+
     <div class="obra-grid">
 
         <!-- ================= ESCENARIO ================= -->

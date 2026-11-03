@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+<defs>
+<radialGradient id="f" cx="50%" cy="36%" r="78%"><stop offset="0" stop-color="hsl(48 42% 24%)"/><stop offset=".62" stop-color="hsl(48 44% 11%)"/><stop offset="1" stop-color="hsl(48 50% 6%)"/></radialGradient>
+<linearGradient id="v" x1=".15" y1="0" x2=".85" y2="1"><stop offset="0" stop-color="hsl(48 90% 94%)"/><stop offset=".38" stop-color="hsl(48 85% 70%)"/><stop offset=".72" stop-color="hsl(48 80% 46%)"/><stop offset="1" stop-color="hsl(48 90% 78%)"/></linearGradient>
+<radialGradient id="s"><stop offset="0" stop-color="hsl(48 90% 70%)" stop-opacity=".5"/><stop offset="1" stop-color="hsl(48 90% 70%)" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="800" height="600" fill="url(#f)"/>
+<ellipse cx="400" cy="500" rx="260" ry="34" fill="url(#s)"/>
+<g fill="url(#v)" opacity=".86" stroke="hsl(48 95% 92%)" stroke-width="3" stroke-linejoin="round"><path d="M400 92L462 232L614 248L500 348L534 498L400 420L266 498L300 348L186 248L338 232Z"/></g>
+<g fill="hsl(48 60% 12%)" opacity=".8"></g>
+<g fill="none" stroke="#fff" stroke-opacity=".62" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M400 92L400 296"/><path d="M614 248L400 296"/><path d="M534 498L400 296"/><path d="M266 498L400 296"/><path d="M186 248L400 296"/></g>
+</svg>

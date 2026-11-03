@@ -1,8 +1,8 @@
 # FLUJO DE TRABAJO · SmartGlass
 
-Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-10-26 con el despliegue del piloto en Render y los datos de demostración; las seis tandas de optimización están integradas en `main` y subidas a GitHub). Sustituye a cualquier versión anterior de este documento.
+Estado de cada ítem **leído contra el código del repositorio** (rama `optimizacion-pre-despliegue`, actualizado el 2026-11-02; el detalle reciente está en las secciones de noviembre; las seis tandas de optimización están integradas en `main` y subidas a GitHub). Sustituye a cualquier versión anterior de este documento.
 
-Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento en `a2ddb2e`; U3 SaaS visible en `823801f`; U4 CO₂ por etapas en `a995e04`; U5 inmersión en `a0bc5fc`; U6 guía automatizada en el commit «U6 guia automatizada»). Todo está en `main` y subido a GitHub; el piloto corre en Railway (`https://smartglass-production.up.railway.app`; Render suspendió la cuenta).
+Ramas de trabajo: `cierre-bloqueantes` (ítems F y H) → `ux-accesibilidad-catalogo` (commit `8c13416`) → `comercio-stock-notif` (T0 en `fe2dfe8`; T1 y T2 en `c4cc809`; T3 en `57aea55`; T4 en `c6d8c16`; todo integrado en `main` local) → `mejoras-responsive-plano-saas` (T1 responsive en `901a93f`; T2 plano y cotizaciones en `d5f5ab6`; T3 sostenibilidad en `bed4199`; T4 estética en `ab3ccb1`; T5 SaaS en `515375e`; T6 despliegue en `38dc9b1`; todo integrado en `main` local) → `optimizacion-pre-despliegue` (U1 idiomas en `e42a55b`; U2 rendimiento en `a2ddb2e`; U3 SaaS visible en `823801f`; U4 CO₂ por etapas en `a995e04`; U5 inmersión en `a0bc5fc`; U6 guía automatizada en el commit «U6 guia automatizada»). Todo está en `main` y subido a GitHub; el piloto se desplegó en Railway (`https://smartglass-production.up.railway.app`; Render suspendió la cuenta), pero ese dominio respondía «Application not found» el 2026-11-02.
 
 ## Leyenda
 
@@ -302,6 +302,21 @@ Decisión del equipo: simular sin guardar. Sustituye al recorrido estático de T
 | **Arreglo de la revisión:** en oscuro los botones del admin («Crear», «Guardar», cambiar estado) y su contador llevaban texto blanco sobre cian (2,07:1); el contador de notificaciones y el botón principal del editor de corte, blanco sobre `#0072FF` (4,33:1). Ahora usan `--color-accent-solid` con `--on-accent-solid` | 🧪 ESCRITO (colores calculados en navegador: 8,92:1 en oscuro y 15,47:1 en claro; el panel del admin no se abrió con sesión) | `admin.css`, `theme.css` (`.notif-count`), `corte-editor.js` |
 | Barra del navegador en el móvil (`theme-color`) con los fondos nuevos: `#0E1420` en oscuro y `#EAF6FF` en claro | 🧪 ESCRITO | `fragments/recursos.html`, `main.js` |
 | Interruptor oscuro/claro con la marca (aún usaba el azul marino y el amarillo anteriores): riel Azul Profundo a Grafito o Hielo, y el botón redondo con el par de los botones del tema (cian con luna Grafito; Azul Profundo con sol Hielo). El revelado circular y su respeto a fotosensible y movimiento reducido no cambian | 🧪 ESCRITO (visto en navegador en los dos temas, cambiando con el propio interruptor) | `theme.css` «6. SWITCH DE TEMA» |
+
+### Figuras decorativas, lienzo libre y vista 3D (02/11/2026)
+
+| Qué cambió | Estado | Dónde |
+|---|---|---|
+| 15 figuras decorativas en el catálogo, con filtro propio y textos en español e inglés. Sus imágenes son ilustraciones rotuladas, y sus precios son de demostración, definidos por el equipo de desarrollo | 🧪 ESCRITO (visto en navegador) | `CatalogoFigurasSeeder`, `scripts/figuras_catalogo.py`, `static/img/figuras/` |
+| Contorno a mano en el lienzo: el trazo se simplifica a un máximo de 64 puntos y cuenta para área, precio y CO₂ | 🧪 ESCRITO (visto con trazos simulados) | `corte-editor.js` (`simplificarTrazo`) |
+| Pintar, rellenar y borrar un diseño sobre el vidrio. Sigue a la pieza al girar o reflejar, se puede deshacer y se guarda en el borrador. No cambia precio ni CO₂ | 🧪 ESCRITO (visto con trazos simulados; falta con mouse o dedo reales) | `corte-editor.js` |
+| El diseño llega al detalle de la cotización como referencia para el taller. El servidor solo acepta un PNG real de hasta 700.000 caracteres | 🧪 ESCRITO (prueba unitaria y navegador) | `VidrioSostenibleService.disenoValido`, `vidrio-personalizado-detalle.html` |
+| Vista 3D en vivo junto al lienzo; en celular flota sobre él. Sin giro automático con «Sin animaciones» | 🧪 ESCRITO (escritorio y móvil; sin WebGL no probado) | `corte-3d.js` |
+| «Lados del círculo» pasa a «Suavidad de la curva»: solo aparece con la forma circular y explica los tramos y su efecto en el área | 🧪 ESCRITO (visto en navegador) | `corte-editor.js`, `messages*.properties` |
+| **Limitaciones:** «Crear una variante» no conserva el diseño. El diseño tampoco aparece en la ficha imprimible | Abierto | `vidrio-personalizado-detalle.html`, `vidrio-ficha.html` |
+| **Hallazgos sin tocar:** el detalle consulta un servicio externo (`api-production-d556.up.railway.app`) que hoy no responde a este origen; la página sigue funcionando. Los PDF `Introduccion a Smartglass.pdf` y `propuesta_modelo_actualizada.pdf` conservan cifras viejas | Abierto | `vidrio-personalizado-detalle.html`, `documentos/` |
+
+Estado general al 02/11/2026: el último commit subido a GitHub es `f13c8a5`. El dominio de Railway respondía «Application not found», así que la demostración debe hacerse en local. VS Code necesita el JDK 27 en `.vscode/launch.json` y `settings.json`, que no se versionan.
 
 ### Recuperar y cambiar la contraseña por correo (02/11/2026)
 

@@ -107,6 +107,7 @@
             <div class="imagen-principal" th:classappend="${producto.imagenPendiente} ? 'img-pendiente'">
                 <img th:src="@{${producto.imagenUrl}}" th:alt="${@contenido.nombre(producto)}" alt="" data-galeria-principal>
                 <span class="foto-pendiente" th:if="${producto.imagenPendiente}" th:text="#{detalle.foto_en_preparacion}">Foto en preparación</span>
+                <span class="foto-pendiente" th:if="${producto.imagenIlustracion}" th:text="#{catalogo.ilustracion}">Ilustración de referencia</span>
             </div>
             <!-- T2: miniaturas solo si hay galeria real (archivos que existen) -->
             <ul class="miniaturas" th:if="${#lists.size(producto.imagenesUrl) > 1}" aria-label="Otras vistas" th:aria-label="#{detalle.otras_vistas}">
@@ -169,15 +170,15 @@
 
             <div class="especificaciones">
                 <h2><i class="ph ph-sliders-horizontal" aria-hidden="true"></i> <span th:text="#{detalle.ficha_tecnica}">Ficha técnica</span></h2>
-                <ul class="kv" th:unless="${producto.escultura}">
+                <ul class="kv" th:unless="${producto.escultura or producto.figura}">
                     <li><span th:text="#{detalle.tipo_de_vidrio}">Tipo de vidrio</span><span th:text="${producto.tipo}">Templado</span></li>
                     <li><span th:text="#{detalle.dimensiones}">Dimensiones</span><span th:text="${producto.ancho} + ' × ' + ${producto.alto} + ' cm'">0 × 0 cm</span></li>
                     <li><span th:text="#{detalle.espesor}">Espesor</span><span th:text="${producto.espesor} + ' mm'">0 mm</span></li>
                     <li><span th:text="#{detalle.codigo}">Código</span><span th:text="${producto.codigo}">SKU-000</span></li>
                 </ul>
                 <!-- T2: esculturas -->
-                <ul class="kv" th:if="${producto.escultura}">
-                    <li><span th:text="#{detalle.pieza}">Pieza</span><span th:text="#{detalle.escultura_de_vidrio}">Escultura de vidrio</span></li>
+                <ul class="kv" th:if="${producto.escultura or producto.figura}">
+                    <li><span th:text="#{detalle.pieza}">Pieza</span><span th:text="${producto.figura} ? #{detalle.figura_de_vidrio} : #{detalle.escultura_de_vidrio}">Escultura de vidrio</span></li>
                     <li th:if="${producto.tamano != null}"><span th:text="#{detalle.tamano}">Tamaño</span><span th:text="#{${'tamano.' + producto.tamano}}">Grande</span></li>
                     <li><span th:text="#{detalle.medidas_aproximadas}">Medidas aproximadas</span><span th:text="${#numbers.formatDecimal(producto.ancho, 1, 'POINT', 0, 'COMMA')} + ' × ' + ${#numbers.formatDecimal(producto.alto, 1, 'POINT', 0, 'COMMA')} + ' cm'">0 × 0 cm</span></li>
                     <li><span th:text="#{detalle.codigo}">Código</span><span th:text="${producto.codigo}">ESC-000</span></li>

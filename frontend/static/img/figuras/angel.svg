@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+<defs>
+<radialGradient id="f" cx="50%" cy="36%" r="78%"><stop offset="0" stop-color="hsl(225 42% 24%)"/><stop offset=".62" stop-color="hsl(225 44% 11%)"/><stop offset="1" stop-color="hsl(225 50% 6%)"/></radialGradient>
+<linearGradient id="v" x1=".15" y1="0" x2=".85" y2="1"><stop offset="0" stop-color="hsl(225 90% 94%)"/><stop offset=".38" stop-color="hsl(225 85% 70%)"/><stop offset=".72" stop-color="hsl(225 80% 46%)"/><stop offset="1" stop-color="hsl(225 90% 78%)"/></linearGradient>
+<radialGradient id="s"><stop offset="0" stop-color="hsl(225 90% 70%)" stop-opacity=".5"/><stop offset="1" stop-color="hsl(225 90% 70%)" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="800" height="600" fill="url(#f)"/>
+<ellipse cx="400" cy="500" rx="260" ry="34" fill="url(#s)"/>
+<g fill="url(#v)" opacity=".86" stroke="hsl(225 95% 92%)" stroke-width="3" stroke-linejoin="round"><path d="M400 120A44 44 0 1 1 399.9 120Z"/><path d="M368 200C384 192 416 192 432 200L506 468C444 490 356 490 294 468Z"/><path d="M372 232C326 188 240 152 170 170C182 244 252 330 346 332Z"/><path d="M428 232C474 188 560 152 630 170C618 244 548 330 454 332Z"/></g>
+<g fill="hsl(225 60% 12%)" opacity=".8"></g>
+<g fill="none" stroke="#fff" stroke-opacity=".62" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M400 88C422 80 446 86 452 96C446 106 424 110 400 106C376 110 354 106 348 96C354 86 378 80 400 88Z"/><path d="M210 192C262 212 312 248 348 292"/><path d="M590 192C538 212 488 248 452 292"/><path d="M372 300C360 356 344 410 328 462"/><path d="M428 300C440 356 456 410 472 462"/><path d="M400 290L400 474"/></g>
+</svg>

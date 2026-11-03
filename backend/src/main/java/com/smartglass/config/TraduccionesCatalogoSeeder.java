@@ -47,7 +47,22 @@ public class TraduccionesCatalogoSeeder implements CommandLineRunner {
             Map.entry("ESC-M-02", new String[]{"Recycled Spiral", "A spiral of 100 % recycled glass, melted and drawn by hand. Each piece keeps unique bubbles and shades."}),
             Map.entry("ESC-P-01", new String[]{"Crystal Drop", "A solid drop of extra-clear glass. A paperweight or desk piece that casts sparkles in daylight."}),
             Map.entry("ESC-P-02", new String[]{"Table Prism", "An optical glass prism that splits light into rainbows. A decorative piece for a table, shelf or studio."}),
-            Map.entry("ESC-P-03", new String[]{"Blown Hummingbird", "A hand-blown, hot-coloured glass hummingbird on a recycled glass base. Artisan edition."})
+            Map.entry("ESC-P-03", new String[]{"Blown Hummingbird", "A hand-blown, hot-coloured glass hummingbird on a recycled glass base. Artisan edition."}),
+            Map.entry("FIG-A-01", new String[]{"Crystal Swan", "A clear glass swan with a curved neck. A classic piece for display cases, coffee tables and anniversary gifts."}),
+            Map.entry("FIG-A-02", new String[]{"Lucky Elephant", "A glass elephant with its trunk raised, a traditional symbol of good fortune for shelves and desks."}),
+            Map.entry("FIG-A-03", new String[]{"Leaping Dolphin", "A blue glass dolphin in mid-leap on a base of the same material. It brings movement to shelves and display cases."}),
+            Map.entry("FIG-A-04", new String[]{"Stained-Glass Butterfly", "A glass butterfly with violet wings. It stands on its base or sits by a window so the light passes through."}),
+            Map.entry("FIG-A-05", new String[]{"Wise Owl", "An amber glass owl with large eyes. A desk figure for libraries, offices and studies."}),
+            Map.entry("FIG-A-06", new String[]{"Tropical Fish", "A turquoise glass fish with clear fins. Fresh and bright for bathrooms, kitchens and shelves."}),
+            Map.entry("FIG-N-01", new String[]{"Everlasting Rose", "A glass rose with layered petals on a solid stem. A gift that never wilts for special occasions."}),
+            Map.entry("FIG-N-02", new String[]{"Spring Tulip", "A pink glass tulip with leaves on its stem. It stands out alone or in a vase with other shades."}),
+            Map.entry("FIG-N-03", new String[]{"Tree of Life", "A glass disc engraved with a tree on a straight base. A symbolic piece for living rooms, clinics and receptions."}),
+            Map.entry("FIG-N-04", new String[]{"Seashell", "A glass shell with raised ribs that spread the light. Ideal as a small centrepiece or jewellery holder."}),
+            Map.entry("FIG-C-01", new String[]{"Faceted Heart", "A solid heart with carved faces that reflect the light. A classic keepsake for anniversaries and weddings."}),
+            Map.entry("FIG-C-02", new String[]{"Crystal Star", "A five-pointed faceted star. A table ornament, an award or a holiday season detail."}),
+            Map.entry("FIG-C-03", new String[]{"Luminous Sphere", "A solid clear glass sphere that inverts and enlarges what lies behind it. For desks, receptions and photography."}),
+            Map.entry("FIG-C-04", new String[]{"Blown Vase", "A blown glass vase with a classic profile and sea-green reflections. It works with flowers or as a piece on its own."}),
+            Map.entry("FIG-C-05", new String[]{"Guardian Angel", "A glass angel with open wings and a pleated robe. A common gift for baptisms, births and family keepsakes."})
     );
 
     private final CatalogoProductoRepository repositorio;

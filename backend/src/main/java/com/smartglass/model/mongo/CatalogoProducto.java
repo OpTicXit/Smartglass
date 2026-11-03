@@ -41,8 +41,8 @@ public class CatalogoProducto implements Serializable {
 
     // T2 catalogo ampliado. Todos nullable y aditivos: los documentos que ya
     // existen no los tienen y se leen como vidrio plano (ver getCategoriaEfectiva).
-    private String categoria;             // null o "vidrio-plano" | "escultura"
-    private String tamano;                // "grande" | "mediana" | "pequena" (esculturas)
+    private String categoria;             // null o "vidrio-plano" | "escultura" | "figura"
+    private String tamano;                // "grande" | "mediana" | "pequena" (esculturas y figuras)
     private String imagenPrincipal;       // foto realista en /img/; solo se llena si el archivo existe
     private List<String> galeria;         // vistas extra en /img/; idem
 
@@ -59,6 +59,9 @@ public class CatalogoProducto implements Serializable {
 
     public static final String CATEGORIA_VIDRIO_PLANO = "vidrio-plano";
     public static final String CATEGORIA_ESCULTURA = "escultura";
+    public static final String CATEGORIA_FIGURA = "figura";
+    /** Ilustraciones de las figuras decorativas, dentro de /img/. */
+    public static final String CARPETA_FIGURAS = "figuras/";
     /** Zona horaria de las fechas de oferta (la tienda vende en Colombia). */
     public static final ZoneId ZONA = ZoneId.of("America/Bogota");
     /** Umbral de "ultimas unidades" (stock > 0 y menor que esto). Lo fija StockService desde la configuracion. */
@@ -157,6 +160,15 @@ public class CatalogoProducto implements Serializable {
 
     public boolean isEscultura() {
         return CATEGORIA_ESCULTURA.equals(getCategoriaEfectiva());
+    }
+
+    public boolean isFigura() {
+        return CATEGORIA_FIGURA.equals(getCategoriaEfectiva());
+    }
+
+    /** La imagen es un dibujo de catalogo, no una foto: la vista lo dice. */
+    public boolean isImagenIlustracion() {
+        return imagenPrincipal != null && imagenPrincipal.startsWith(CARPETA_FIGURAS);
     }
 
     /**

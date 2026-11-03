@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+<defs>
+<radialGradient id="f" cx="50%" cy="36%" r="78%"><stop offset="0" stop-color="hsl(195 42% 24%)"/><stop offset=".62" stop-color="hsl(195 44% 11%)"/><stop offset="1" stop-color="hsl(195 50% 6%)"/></radialGradient>
+<linearGradient id="v" x1=".15" y1="0" x2=".85" y2="1"><stop offset="0" stop-color="hsl(195 90% 94%)"/><stop offset=".38" stop-color="hsl(195 85% 70%)"/><stop offset=".72" stop-color="hsl(195 80% 46%)"/><stop offset="1" stop-color="hsl(195 90% 78%)"/></linearGradient>
+<radialGradient id="s"><stop offset="0" stop-color="hsl(195 90% 70%)" stop-opacity=".5"/><stop offset="1" stop-color="hsl(195 90% 70%)" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="800" height="600" fill="url(#f)"/>
+<ellipse cx="400" cy="500" rx="260" ry="34" fill="url(#s)"/>
+<g fill="url(#v)" opacity=".86" stroke="hsl(195 95% 92%)" stroke-width="3" stroke-linejoin="round"><path d="M590 405C655 372 672 300 640 272C618 332 548 340 498 330C452 320 432 298 424 262C414 214 462 196 462 150C462 112 420 96 388 118L334 142L382 152C404 154 412 168 402 192C382 236 360 276 366 326C374 396 446 436 506 436C540 436 566 424 590 405Z"/></g>
+<g fill="hsl(195 60% 12%)" opacity=".8"><path d="M336 142L388 118L384 148Z"/></g>
+<g fill="none" stroke="#fff" stroke-opacity=".62" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M404 136C424 132 438 142 438 156"/><path d="M392 300C396 356 440 398 500 408"/><path d="M470 350C520 366 580 358 618 322"/></g>
+</svg>

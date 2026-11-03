@@ -83,6 +83,8 @@ public class VidrioSostenible {
     // F45: corte personalizado (nullable; solo existe si forma = "Personalizada" y el poligono fue valido)
     private List<PuntoCorte> puntosPersonalizados;
     private Double areaPoligonal;   // m2, calculada por AnalisisService y guardada para no recalcular en cada vista
+    // Diseno pintado sobre la pieza (PNG en data URL validado). Referencia para el taller: no cambia precio ni CO2
+    private String disenoPng;
 
     public VidrioSostenible() {
         this.fechaCreacion = LocalDateTime.now();
@@ -240,6 +242,8 @@ public class VidrioSostenible {
     public void setEstado(String estado) { this.estado = estado; }
     public List<PuntoCorte> getPuntosPersonalizados() { return puntosPersonalizados; }
     public void setPuntosPersonalizados(List<PuntoCorte> puntosPersonalizados) { this.puntosPersonalizados = puntosPersonalizados; }
+    public String getDisenoPng() { return disenoPng; }
+    public void setDisenoPng(String disenoPng) { this.disenoPng = disenoPng; }
     public Double getAreaPoligonal() { return areaPoligonal; }
     public void setAreaPoligonal(Double areaPoligonal) { this.areaPoligonal = areaPoligonal; }
 }

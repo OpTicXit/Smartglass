@@ -45,6 +45,7 @@ public class CatalogoComercioSeeder implements CommandLineRunner {
                 default -> 8;
             };
         }
+        if (p.isFigura()) return 12;
         String tipo = p.getTipo() == null ? "" : p.getTipo().trim().toLowerCase();
         return switch (tipo) {
             case "inteligente" -> 6;

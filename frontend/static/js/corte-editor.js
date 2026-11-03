@@ -11,6 +11,9 @@
    - Progreso: deshacer/rehacer, autoguardado en localStorage y banner de restauracion.
    - Al confirmar escribe en el formulario: ancho, alto (caja del corte), forma = Personalizada
      y el campo oculto "puntosTexto" ("x,y;x,y;..."). Avisa con el evento "sgcorte:cerrado".
+   - Herramientas: puntos, contorno a mano (se simplifica a un poligono), y pincel, relleno y goma para un
+     diseno sobre el vidrio. El diseno no entra en precio ni CO2: va al taller en el campo oculto "disenoPng".
+     La vista 3D en vivo vive en corte-3d.js.
    - T2: lienzo de 420 x 420 cm (cabe la pieza maxima del formulario, 400 x 400), vista con
      encuadre, zoom con la rueda y arrastre para desplazar; puntos de tamano tactil; edicion
      numerica del punto elegido; medidas exactas; girar, reflejar y centrar; iman de rejilla
@@ -29,11 +32,21 @@
     var KEY_PREVIO = 'sg-borrador-corte-previo';
     var KEY_LIMPIAR = 'sg-borrador-corte-limpiar';   // lo pone el formulario al enviar; lo consume el detalle
     var Z_MIN = 0.5, Z_MAX = 6;
+    /* Diseno pintado: mapa de bits que cubre el lienzo entero (2 px por cm) y se recorta con el contorno al mostrarlo */
+    var PX_POR_CM = 2, DISENO_PX = LIENZO_W * PX_POR_CM;
+    var DISENO_LADO_MAX = 1000, DISENO_BYTES_MAX = 500000;   // lo que se envia; el servidor rechaza mas de 700.000
+    var TOLERANCIA_RELLENO = 40;
+    var COLORES = ['#00C2FF', '#0072FF', '#00E5A0', '#FBBF24', '#F2542D', '#E0389A', '#7C4DFF', '#FFFFFF', '#111827'];
+    var MODOS = [
+        { id: 'puntos', icono: 'ph-cursor-click' }, { id: 'contorno', icono: 'ph-pencil-simple-line' },
+        { id: 'pincel', icono: 'ph-paint-brush' }, { id: 'relleno', icono: 'ph-paint-bucket' }, { id: 'goma', icono: 'ph-eraser' }
+    ];
 
     var estado = {
         abierto: false, puntos: [], formaBase: 'Rectangular', sel: -1,
         undo: [], redo: [], arrastrando: -1, movio: false, nCirculo: 32, previo: null, opener: null,
-        snap: 1, vista: { z: 1, cx: LIENZO_W / 2, cy: LIENZO_H / 2 }, gesto: null, base: { w: 120, h: 120 }
+        snap: 1, vista: { z: 1, cx: LIENZO_W / 2, cy: LIENZO_H / 2 }, gesto: null, base: { w: 120, h: 120 },
+        modo: 'puntos', color: COLORES[0], grosor: 6, diseno: null, disenoUrl: null, trazo: null
     };
 
     /* ------------------------------------------------------------------ textos (T2) */
@@ -115,6 +128,26 @@
             if (d < md) { md = d; mejor = i; }
         }
         return mejor;
+    }
+
+    /* Trazo a mano -> poligono: Ramer-Douglas-Peucker con tolerancia creciente hasta caber en el maximo de puntos */
+    function rdp(pts, tol) {
+        if (pts.length < 3) return pts.slice();
+        var a = pts[0], b = pts[pts.length - 1], peor = 0, ip = 0;
+        for (var i = 1; i < pts.length - 1; i++) { var d = distSeg(pts[i], a, b); if (d > peor) { peor = d; ip = i; } }
+        if (peor <= tol) return [a, b];
+        return rdp(pts.slice(0, ip + 1), tol).slice(0, -1).concat(rdp(pts.slice(ip), tol));
+    }
+    function simplificarTrazo(pts, maximo) {
+        if (pts.length < 3) return [];
+        // Se parte por el punto mas lejano al inicio: en un trazo cerrado, inicio y fin casi coinciden
+        var lejos = 0, md = -1;
+        pts.forEach(function (p, i) { var d = Math.hypot(p.x - pts[0].x, p.y - pts[0].y); if (d > md) { md = d; lejos = i; } });
+        for (var tol = 1.2; ; tol *= 1.3) {
+            var r = rdp(pts.slice(0, lejos + 1), tol).slice(0, -1).concat(rdp(pts.slice(lejos), tol));
+            r = sinRepetidos(snapAll(r, 1));
+            if (r.length <= maximo) return r;
+        }
     }
 
     /* Mueve el poligono lo justo para que quede dentro del lienzo */
@@ -236,6 +269,170 @@
         return { ok: true, msg: '' };
     }
 
+    /* ------------------------------------------------------------------ diseno pintado */
+    var versionDiseno = 0;
+    /* Cada cambio crea un lienzo nuevo: el historial de deshacer guarda referencias, sin copiar nada */
+    function copiaDiseno(origen) {
+        var c = document.createElement('canvas');
+        c.width = c.height = DISENO_PX;
+        if (origen) c.getContext('2d').drawImage(origen, 0, 0);
+        return c;
+    }
+    function trazarContorno(ctx, pts, escala) {
+        ctx.beginPath();
+        pts.forEach(function (p, i) { if (i) ctx.lineTo(p.x * escala, p.y * escala); else ctx.moveTo(p.x * escala, p.y * escala); });
+        ctx.closePath();
+    }
+    function hayPintura(ctx, w, h) {
+        var d = ctx.getImageData(0, 0, w, h).data;
+        for (var i = 3; i < d.length; i += 4) if (d[i]) return true;
+        return false;
+    }
+    /* Solo lo que queda dentro de la pieza, recortado a su caja: asi lo recibe el taller */
+    function exportarDiseno() {
+        if (!estado.diseno || estado.puntos.length < MIN_PUNTOS) return '';
+        var bb = bbox(estado.puntos), escala = Math.min(PX_POR_CM, DISENO_LADO_MAX / Math.max(bb.w, bb.h, 1));
+        for (var intento = 0; intento < 5; intento++, escala *= 0.75) {
+            var c = document.createElement('canvas');
+            c.width = Math.max(1, Math.round(bb.w * escala)); c.height = Math.max(1, Math.round(bb.h * escala));
+            var ctx = c.getContext('2d');
+            ctx.translate(-bb.minX * escala, -bb.minY * escala);
+            trazarContorno(ctx, estado.puntos, escala);
+            ctx.clip();
+            ctx.drawImage(estado.diseno, 0, 0, LIENZO_W * escala, LIENZO_H * escala);
+            if (!hayPintura(ctx, c.width, c.height)) return '';
+            var png = c.toDataURL('image/png');
+            if (png.length <= DISENO_BYTES_MAX) return png;
+        }
+        return '';
+    }
+    /* Inverso de exportarDiseno: lo vuelve a colocar sobre la caja de la pieza */
+    function cargarDiseno(png, pts) {
+        if (!png || pts.length < MIN_PUNTOS) return;
+        var img = new Image();
+        img.onload = function () {
+            var bb = bbox(pts), c = copiaDiseno(null);
+            c.getContext('2d').drawImage(img, bb.minX * PX_POR_CM, bb.minY * PX_POR_CM, bb.w * PX_POR_CM, bb.h * PX_POR_CM);
+            estado.diseno = c;
+            refrescarDiseno();
+        };
+        img.src = png;
+    }
+    function refrescarDiseno() {
+        var version = ++versionDiseno, lienzo = estado.diseno;
+        if (!lienzo) {
+            if (estado.disenoUrl) { URL.revokeObjectURL(estado.disenoUrl); estado.disenoUrl = null; }
+            pintarLienzo();
+            return;
+        }
+        lienzo.toBlob(function (b) {
+            if (version !== versionDiseno) return;             // toBlob es asincrono: un resultado viejo no pisa al nuevo
+            if (estado.disenoUrl) URL.revokeObjectURL(estado.disenoUrl);
+            estado.disenoUrl = URL.createObjectURL(b);
+            pintarLienzo();
+        });
+        pintarLienzo();
+    }
+    function empezarPincel(p) {
+        pushUndo();
+        estado.diseno = copiaDiseno(estado.diseno);
+        var ctx = estado.diseno.getContext('2d');
+        ctx.lineCap = ctx.lineJoin = 'round';
+        ctx.lineWidth = estado.grosor * PX_POR_CM;
+        ctx.strokeStyle = ctx.fillStyle = estado.color;
+        ctx.globalCompositeOperation = estado.modo === 'goma' ? 'destination-out' : 'source-over';
+        estado.trazo = { tipo: 'pincel', ctx: ctx, ultimo: p, d: 'M' + p.x + ' ' + p.y + ' L' + p.x + ' ' + p.y };
+        extenderPincel(p);
+    }
+    function extenderPincel(p) {
+        var t = estado.trazo, ctx = t.ctx;
+        ctx.beginPath();
+        ctx.moveTo(t.ultimo.x * PX_POR_CM, t.ultimo.y * PX_POR_CM);
+        ctx.lineTo(p.x * PX_POR_CM, p.y * PX_POR_CM);
+        ctx.stroke();
+        t.ultimo = p;
+        t.d += ' L' + p.x + ' ' + p.y;
+        var vivo = $('sgc-trazo');
+        if (vivo) vivo.setAttribute('d', t.d);
+        avisar3D();
+    }
+    /* Relleno por contagio dentro de la pieza: se detiene en lo pintado y en el contorno; sin dibujo, cubre toda la pieza */
+    function rellenar(p) {
+        var w = DISENO_PX, x0 = Math.floor(p.x * PX_POR_CM), y0 = Math.floor(p.y * PX_POR_CM);
+        if (estado.puntos.length < MIN_PUNTOS || x0 < 0 || y0 < 0 || x0 >= w || y0 >= w) return;
+        var mascara = copiaDiseno(null), mctx = mascara.getContext('2d');
+        trazarContorno(mctx, estado.puntos, PX_POR_CM);
+        mctx.fill();
+        var m = mctx.getImageData(0, 0, w, w).data;
+        if (m[(y0 * w + x0) * 4 + 3] < 128) return;              // fuera de la pieza
+
+        var nuevo = copiaDiseno(estado.diseno), ctx = nuevo.getContext('2d'), img = ctx.getImageData(0, 0, w, w), d = img.data;
+        var i0 = (y0 * w + x0) * 4, r0 = d[i0], g0 = d[i0 + 1], b0 = d[i0 + 2], a0 = d[i0 + 3];
+        var hex = parseInt(estado.color.slice(1), 16), r = hex >> 16 & 255, g = hex >> 8 & 255, b = hex & 255;
+        var visto = new Uint8Array(w * w), pila = [y0 * w + x0];
+        function entra(k) {
+            if (visto[k] || m[k * 4 + 3] < 128) return false;
+            var i = k * 4;
+            if (a0 < 16) return d[i + 3] < 110;                   // sobre vacio: el borde suavizado de un trazo tambien detiene
+            return Math.abs(d[i] - r0) + Math.abs(d[i + 1] - g0) + Math.abs(d[i + 2] - b0) + Math.abs(d[i + 3] - a0) <= TOLERANCIA_RELLENO;
+        }
+        while (pila.length) {
+            var k = pila.pop();
+            if (!entra(k)) continue;
+            visto[k] = 1;
+            var i = k * 4;
+            d[i] = r; d[i + 1] = g; d[i + 2] = b; d[i + 3] = 255;
+            var x = k % w;
+            if (x > 0) pila.push(k - 1);
+            if (x < w - 1) pila.push(k + 1);
+            if (k >= w) pila.push(k - w);
+            if (k < w * (w - 1)) pila.push(k + w);
+        }
+        ctx.putImageData(img, 0, 0);
+        pushUndo();
+        estado.diseno = nuevo;
+        refrescarDiseno();
+        autosave();
+    }
+    function borrarDiseno() {
+        if (!estado.diseno) return;
+        pushUndo();
+        estado.diseno = null;
+        refrescarDiseno();
+        autosave();
+    }
+    function terminarContorno(t) {
+        var r = simplificarTrazo(t.pts, MAX_PUNTOS);
+        if (r.length < MIN_PUNTOS) { pintarLienzo(); return; }
+        pushUndo();
+        estado.puntos = r; estado.formaBase = 'Libre'; estado.sel = -1;
+        encajar();
+        pintarLienzo();
+        autosave();
+    }
+    function cambiarModo(id) {
+        estado.modo = id;
+        var pinta = id === 'pincel' || id === 'relleno' || id === 'goma';
+        Array.prototype.forEach.call(document.querySelectorAll('.sgc-modo-btn'), function (b) {
+            b.setAttribute('aria-pressed', String(b.getAttribute('data-modo') === id));
+        });
+        $('sgc-pintura').hidden = !pinta;
+        $('sgc-grosor-box').hidden = id === 'relleno';
+        $('sgc-colores').hidden = id === 'goma';
+        $('sgc-modo-ayuda').textContent = T('ayuda_' + id, AYUDAS[id]);
+        pintarLienzo();
+    }
+    var AYUDAS = {
+        contorno: 'Dibuja de un solo trazo la silueta de la pieza; se cierra sola y se vuelve un corte con puntos que puedes ajustar. Si las líneas se cruzan, usa Deshacer.',
+        pincel: 'Pinta sobre el vidrio. Solo se ve dentro de la pieza. El diseño no cambia el precio: es una referencia para el taller, que confirma el acabado.',
+        relleno: 'Toca una zona para llenarla de color; se detiene en lo que hayas pintado. Sin dibujo, cubre toda la pieza.',
+        goma: 'Borra lo pintado. No cambia el contorno de la pieza.'
+    };
+    function avisar3D() {
+        if (!window.SGCorte3D || !estado.abierto) return;
+        window.SGCorte3D.actualizar({ puntos: estado.puntos, espesorMm: cfgDelForm().espesor, diseno: estado.diseno });
+    }
+
     /* ------------------------------------------------------------------ vista (zoom y desplazamiento) */
     function pxPorCm() {
         var svg = $('sgc-lienzo'); if (!svg) return 1;
@@ -290,6 +487,12 @@
                 (i === estado.sel ? ' sgc-punto-sel' : '') + '"/>';
         }).join('');
         var poly = pts.length >= 2 ? '<path d="' + svgPath(pts) + '" class="sgc-forma' + (v.ok || pts.length < MIN_PUNTOS ? '' : ' sgc-forma-mal') + '"/>' : '';
+        /* Diseno recortado por la pieza, con el trazo en curso encima; el contorno a mano se ve fuera del recorte */
+        var capaDiseno = pts.length >= MIN_PUNTOS ?
+            '<clipPath id="sgc-recorte"><path d="' + svgPath(pts) + '"/></clipPath><g clip-path="url(#sgc-recorte)">' +
+            (estado.disenoUrl ? '<image href="' + estado.disenoUrl + '" x="0" y="0" width="' + LIENZO_W + '" height="' + LIENZO_H + '" opacity=".9"/>' : '') +
+            '<path id="sgc-trazo" class="sgc-trazo' + (estado.modo === 'goma' ? ' sgc-trazo-goma' : '') + '" d="" stroke="' + esc(estado.color) + '" stroke-width="' + estado.grosor + '"/></g>' : '';
+        var aMano = '<path id="sgc-a-mano" class="sgc-a-mano" d=""/>';
         var bb = m.bbox, cotas = '';
         if (pts.length >= 2 && bb.w > 0) {
             var yc = bb.maxY + 18 * u, xc = bb.maxX + 18 * u, fs = 12 * u;
@@ -304,12 +507,14 @@
             '<g class="sgc-view" transform="translate(' + tx + ' ' + ty + ') scale(' + z + ')">' +
             '<rect x="0" y="0" width="' + LIENZO_W + '" height="' + LIENZO_H + '" class="sgc-fondo"/>' +
             rejilla + '<rect x="0" y="0" width="' + LIENZO_W + '" height="' + LIENZO_H + '" class="sgc-marco"/>' + etiquetas +
-            poly + cotas + asas + '</g>';
+            poly + capaDiseno + cotas + (estado.modo === 'puntos' ? asas : '') + aMano + '</g>';
+        svg.style.cursor = estado.modo === 'relleno' ? 'cell' : '';
         var zl = $('sgc-zval'); if (zl) zl.textContent = Math.round(z * 100) + ' %';
         pintarPanel(m, v);
         pintarPunto();
         pintarMedidas(bb);
         actualizarBotones(v);
+        avisar3D();
     }
 
     function fmt(n, d) { return G.fmtNum(n, d || 0); }
@@ -364,18 +569,28 @@
         Array.prototype.forEach.call(document.querySelectorAll('.sgc-forma-btn'), function (b) {
             b.setAttribute('aria-pressed', String(b.getAttribute('data-forma') === estado.formaBase));
         });
+        var suavidad = $('sgc-n-box'); if (suavidad) suavidad.hidden = estado.formaBase !== 'Circular';
+        dis('sgc-borrar-diseno', !estado.diseno);
     }
 
     /* ------------------------------------------------------------------ historial y autoguardado */
-    function pushUndo() { estado.undo.push(cloneP(estado.puntos)); if (estado.undo.length > UNDO_MAX) estado.undo.shift(); estado.redo.length = 0; }
-    function undo() { if (!estado.undo.length) return; estado.redo.push(cloneP(estado.puntos)); estado.puntos = estado.undo.pop(); estado.sel = -1; pintarLienzo(); autosave(); }
-    function redo() { if (!estado.redo.length) return; estado.undo.push(cloneP(estado.puntos)); estado.puntos = estado.redo.pop(); estado.sel = -1; pintarLienzo(); autosave(); }
+    /* Cada paso guarda los puntos y una referencia al diseno de ese momento */
+    function paso() { var e = cloneP(estado.puntos); e.diseno = estado.diseno; return e; }
+    function restaurarPaso(e) {
+        var cambioDiseno = e.diseno !== estado.diseno;
+        estado.puntos = e; estado.diseno = e.diseno; estado.sel = -1;
+        if (cambioDiseno) refrescarDiseno(); else pintarLienzo();
+        autosave();
+    }
+    function pushUndo() { estado.undo.push(paso()); if (estado.undo.length > UNDO_MAX) estado.undo.shift(); estado.redo.length = 0; }
+    function undo() { if (!estado.undo.length) return; estado.redo.push(paso()); restaurarPaso(estado.undo.pop()); }
+    function redo() { if (!estado.redo.length) return; estado.undo.push(paso()); restaurarPaso(estado.redo.pop()); }
 
     var timerAutosave = null;
     function guardarYa() {
         clearTimeout(timerAutosave);
         if (estado.puntos.length < MIN_PUNTOS) return;
-        try { localStorage.setItem(KEY_BORRADOR, JSON.stringify({ formaBase: estado.formaBase, puntos: estado.puntos, t: Date.now() })); } catch (e) { /* sin almacenamiento: no pasa nada */ }
+        try { localStorage.setItem(KEY_BORRADOR, JSON.stringify({ formaBase: estado.formaBase, puntos: estado.puntos, diseno: exportarDiseno(), t: Date.now() })); } catch (e) { /* sin almacenamiento: no pasa nada */ }
     }
     function autosave() { clearTimeout(timerAutosave); timerAutosave = setTimeout(guardarYa, 800); }
     function leerLS(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
@@ -443,7 +658,20 @@
         var pts = estado.puntos.map(function (p) { return fn(p, c, bb); });
         estado.puntos = sinRepetidos(snapAll(dentroDelLienzo(pts), 1));
         estado.sel = -1; estado.formaBase = 'Libre';
-        encajar(); pintarLienzo(); autosave();
+        encajar();
+        if (estado.diseno) {
+            // El diseno sigue a la pieza: fn es lineal, asi que tres puntos dan la matriz; lo demas es el ajuste al lienzo
+            var o = fn({ x: 0, y: 0 }, c, bb), ex = fn({ x: 1, y: 0 }, c, bb), ey = fn({ x: 0, y: 1 }, c, bb);
+            var crudo = bbox(pts), fin = bbox(estado.puntos), nuevo = copiaDiseno(null);
+            nuevo.getContext('2d').setTransform(ex.x - o.x, ex.y - o.y, ey.x - o.x, ey.y - o.y,
+                (o.x + fin.minX - crudo.minX) * PX_POR_CM, (o.y + fin.minY - crudo.minY) * PX_POR_CM);
+            nuevo.getContext('2d').drawImage(estado.diseno, 0, 0);
+            estado.diseno = nuevo;
+            refrescarDiseno();
+        } else {
+            pintarLienzo();
+        }
+        autosave();
     }
     function rotar90() { transformar(function (p, c) { return { x: c.x - (p.y - c.y), y: c.y + (p.x - c.x) }; }); }
     function espejoH() { transformar(function (p, c) { return { x: 2 * c.x - p.x, y: p.y }; }); }
@@ -501,6 +729,7 @@
         setValor('ancho', Math.round(bb.w));
         setValor('alto', Math.round(bb.h));
         setValor('puntosTexto', aTexto(estado.puntos));
+        var png = $('disenoPng'); if (png) png.value = exportarDiseno();
         if (sel) { sel.value = 'Personalizada'; dispararEventos(sel); }
         cerrar(true);
     }
@@ -535,8 +764,11 @@
         var o = opciones || {};
         estado.base = { w: parseFloat(o.ancho) > 0 ? parseFloat(o.ancho) : 120, h: parseFloat(o.alto) > 0 ? parseFloat(o.alto) : 120 };
         var conf = puntosConfirmados(), bor = leerLS(KEY_BORRADOR);
+        estado.diseno = null;
         if (conf.length) {
             estado.puntos = cloneP(conf); estado.formaBase = 'Libre';
+            var guardado = $('disenoPng');
+            if (guardado && guardado.value) cargarDiseno(guardado.value, conf);
         } else {
             var id = NOMBRES[o.forma] && o.forma !== 'Libre' ? o.forma : 'Rectangular';
             estado.puntos = formaBase(id); estado.formaBase = id;
@@ -545,6 +777,7 @@
                 mostrarBanner(T('borrador', 'Tenías un corte de {0} sin guardar.'), T('n_puntos', '{0} puntos', n), [
                     { id: 'sgc-restaurar', texto: T('restaurar', 'Restaurar mi corte anterior ({0} puntos)', n), fn: function () {
                         pushUndo(); estado.puntos = cloneP(bor.puntos); estado.formaBase = NOMBRES[bor.formaBase] ? bor.formaBase : 'Libre'; estado.sel = -1; encajar(); pintarLienzo(); ocultarBanner();
+                        if (typeof bor.diseno === 'string') cargarDiseno(bor.diseno, estado.puntos);
                     } },
                     { id: 'sgc-descartar', texto: T('empezar_cero', 'Empezar de cero'), ghost: true, fn: function () { borrarLS(KEY_BORRADOR); ocultarBanner(); } }
                 ]);
@@ -555,14 +788,24 @@
         $('sgc-modal').style.display = 'flex';
         document.body.classList.add('sgc-bloquear-scroll');
         encajar();
-        pintarLienzo();
+        cambiarModo('puntos');
+        refrescarDiseno();
         requestAnimationFrame(function () { pintarLienzo(); });   // con el modal ya medido, los puntos toman su tamano en pantalla
         var x = $('sgc-cerrar'); if (x) x.focus();
+        if (window.SGCorte3D) { window.SGCorte3D.abrir($('sgc-3d')); avisar3D(); pintarGiro(); }
+    }
+    function pintarGiro() {
+        var b = $('sgc-3d-giro'); if (!b) return;
+        // Sin animaciones no hay giro automatico que pausar; arrastrar sigue funcionando
+        b.hidden = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        b.textContent = T(window.SGCorte3D.girando() ? 'giro_pausar' : 'giro_seguir', window.SGCorte3D.girando() ? 'Pausar giro' : 'Girar');
     }
 
     function cerrar(confirmado) {
         if (!estado.abierto) return;
         estado.abierto = false;
+        estado.trazo = null;
+        if (window.SGCorte3D) window.SGCorte3D.cerrar();
         $('sgc-modal').style.display = 'none';
         document.body.classList.remove('sgc-bloquear-scroll');
         document.dispatchEvent(new CustomEvent('sgcorte:cerrado', { detail: { confirmado: confirmado === true } }));
@@ -575,6 +818,13 @@
         var botones = ORDEN_FORMAS.map(function (k) {
             return '<button type="button" class="sgc-forma-btn" data-forma="' + k + '" aria-pressed="false">' + iconoForma(k) + '<span>' + esc(nombreForma(k)) + '</span></button>';
         }).join('');
+        var NOMBRES_MODO = { puntos: 'Puntos', contorno: 'Dibujar contorno', pincel: 'Pintar', relleno: 'Rellenar', goma: 'Borrar' };
+        var botonesModo = MODOS.map(function (m) {
+            return '<button type="button" class="sgc-modo-btn" data-modo="' + m.id + '" aria-pressed="false"><i class="ph ' + m.icono + '" aria-hidden="true"></i><span>' + esc(T('modo_' + m.id, NOMBRES_MODO[m.id])) + '</span></button>';
+        }).join('');
+        var botonesColor = COLORES.map(function (c) {
+            return '<button type="button" class="sgc-color" data-color="' + c + '" style="background:' + c + '" aria-label="' + c + '"></button>';
+        }).join('');
         var html =
             '<div id="sgc-modal" class="sgc-modal" role="dialog" aria-modal="true" aria-labelledby="sgc-titulo">' +
             '<div class="sgc-modal-inner">' +
@@ -583,8 +833,18 @@
             '<div id="sgc-banner" class="sgc-banner" role="status"></div>' +
             '<div class="sgc-body">' +
             '<aside class="sgc-tools">' +
-            '<p class="sgc-tools-t">' + esc(T('forma_base', 'Forma base')) + '</p><div class="sgc-formas">' + botones + '</div>' +
-            '<label class="sgc-n"><span>' + esc(T('lados', 'Lados del círculo:')) + ' <b id="sgc-n-val">32</b></span><input type="range" id="sgc-n" min="8" max="64" step="1" value="32" aria-label="' + esc(T('lados_aria', 'Número de lados del círculo')) + '"></label>' +
+            '<p class="sgc-tools-t">' + esc(T('herramienta', 'Herramienta')) + '</p><div class="sgc-modos">' + botonesModo + '</div>' +
+            '<p id="sgc-modo-ayuda" class="sgc-hint sgc-modo-ayuda" aria-live="polite"></p>' +
+            '<div id="sgc-pintura" class="sgc-pintura" hidden>' +
+            '<div id="sgc-colores"><div class="sgc-colores">' + botonesColor + '<input type="color" id="sgc-color" value="' + COLORES[0] + '" aria-label="' + esc(T('otro_color', 'Otro color')) + '"></div></div>' +
+            '<label class="sgc-n" id="sgc-grosor-box"><span>' + esc(T('grosor', 'Grosor:')) + ' <b id="sgc-grosor-val">6</b> cm</span><input type="range" id="sgc-grosor" min="1" max="40" step="1" value="6"></label>' +
+            '<button type="button" id="sgc-borrar-diseno" class="sgc-btn sgc-btn-ghost sgc-btn-full">' + esc(T('borrar_diseno', 'Borrar todo el diseño')) + '</button></div>' +
+            '<p class="sgc-tools-t">' + esc(T('forma_base', 'Forma base')) + '</p>' +
+            '<div id="sgc-n-box" class="sgc-n" hidden><label for="sgc-n"><span>' + esc(T('lados', 'Suavidad de la curva:')) + ' <b id="sgc-n-val">32</b> ' + esc(T('tramos', 'tramos')) + '</span></label>' +
+            '<input type="range" id="sgc-n" min="8" max="64" step="1" value="32" aria-describedby="sgc-n-ayuda" aria-label="' + esc(T('lados_aria', 'Cantidad de tramos rectos que forman el círculo')) + '">' +
+            '<div class="sgc-n-escala" aria-hidden="true"><span>' + esc(T('lados_min', 'Facetado')) + '</span><span>' + esc(T('lados_max', 'Redondo')) + '</span></div>' +
+            '<p id="sgc-n-ayuda" class="sgc-hint">' + esc(T('lados_ayuda', 'El círculo se corta como muchos tramos rectos muy cortos. Con 8 parece un octágono y con 64 se ve redondo. Menos tramos también dan algo menos de área: con 8 es cerca de un 10 % menos que con 64.')) + '</p></div>' +
+            '<div class="sgc-formas">' + botones + '</div>' +
             '<p class="sgc-tools-t">' + esc(T('edicion', 'Edición')) + '</p>' +
             '<div class="sgc-row"><button type="button" id="sgc-undo" class="sgc-btn" title="' + esc(T('deshacer_t', 'Deshacer (Ctrl+Z)')) + '"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i> ' + esc(T('deshacer', 'Deshacer')) + '</button>' +
             '<button type="button" id="sgc-redo" class="sgc-btn" title="' + esc(T('rehacer_t', 'Rehacer (Ctrl+Y)')) + '"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i> ' + esc(T('rehacer', 'Rehacer')) + '</button></div>' +
@@ -603,7 +863,12 @@
             '<span id="sgc-zval" aria-live="polite">100 %</span>' +
             '<button type="button" id="sgc-zin" class="sgc-btn sgc-btn-mini" aria-label="' + esc(T('acercar', 'Acercar')) + '"><i class="ph ph-plus" aria-hidden="true"></i></button>' +
             '<button type="button" id="sgc-zfit" class="sgc-btn sgc-btn-mini"><i class="ph ph-corners-out" aria-hidden="true"></i> ' + esc(T('encajar', 'Encajar')) + '</button></div></main>' +
-            '<aside class="sgc-metrics"><p class="sgc-tools-t">' + esc(T('en_vivo', 'Tu corte, en vivo')) + '</p>' +
+            '<aside class="sgc-metrics"><p class="sgc-tools-t">' + esc(T('titulo_3d', 'Así va quedando')) + '</p>' +
+            '<div id="sgc-3d" class="sgc-3d"><canvas tabindex="0" role="img" aria-label="' + esc(T('aria_3d', 'Vista 3D de la pieza. Arrastra o usa las flechas para girarla.')) + '"></canvas>' +
+            '<p class="sgc-3d-aviso" hidden>' + esc(T('sin_3d', 'Este navegador no pudo mostrar la vista 3D. El corte funciona igual.')) + '</p>' +
+            '<button type="button" id="sgc-3d-giro" class="sgc-btn sgc-btn-mini sgc-3d-giro"></button></div>' +
+            '<p class="sgc-note sgc-3d-nota">' + esc(T('nota_3d', 'Arrastra para girar y usa la rueda para acercar. En piezas grandes el espesor se ve exagerado.')) + '</p>' +
+            '<p class="sgc-tools-t sgc-sep">' + esc(T('en_vivo', 'Tu corte, en vivo')) + '</p>' +
             '<div class="sgc-metric"><span>' + esc(T('area', 'Área del corte')) + '</span><b id="sgc-m-area">0 m²</b></div>' +
             '<div class="sgc-metric"><span>' + esc(T('perimetro', 'Perímetro')) + '</span><b id="sgc-m-perim">0 cm</b></div>' +
             '<div class="sgc-metric"><span>' + esc(T('vertices', 'Vértices')) + '</span><b id="sgc-m-vert">0</b></div>' +
@@ -636,7 +901,25 @@
             '.sgc-x:hover{color:var(--text-main);border-color:var(--border-hover)}' +
             '.sgc-banner{display:none;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 20px;background:var(--color-warning-dim);border-bottom:1px solid var(--color-warning);font-size:.88rem}' +
             '.sgc-banner-acc{display:flex;gap:8px;flex-wrap:wrap}' +
-            '.sgc-body{flex:1;display:grid;grid-template-columns:252px minmax(0,1fr) 270px;min-height:0;overflow:hidden}' +
+            '.sgc-body{flex:1;display:grid;grid-template-columns:252px minmax(0,1fr) 300px;min-height:0;overflow:hidden}' +
+            '.sgc-modos{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}' +
+            '.sgc-modo-btn{display:flex;align-items:center;gap:6px;min-height:40px;padding:6px 8px;text-align:left;border:1px solid var(--border-color);border-radius:10px;background:var(--bg-tertiary);color:var(--text-main);font:inherit;font-size:max(12px,.76rem);font-weight:700;line-height:1.15;cursor:pointer}' +
+            '.sgc-modo-btn i{font-size:18px;color:var(--color-accent);flex:none}.sgc-modo-btn:hover{border-color:var(--color-accent)}' +
+            '.sgc-modo-btn[aria-pressed="true"]{border-color:var(--color-accent);background:var(--color-accent-dim);box-shadow:0 0 0 2px var(--color-accent-dim)}' +
+            '.sgc-modo-btn:focus-visible,.sgc-color:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}' +
+            '.sgc-modo-ayuda{margin:0 0 12px}.sgc-modo-ayuda:empty{display:none}' +
+            '.sgc-pintura{margin-bottom:14px;padding:10px;border:1px solid var(--border-color);border-radius:10px}.sgc-pintura[hidden]{display:none}' +
+            '.sgc-colores{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}' +
+            '.sgc-color{height:30px;border:1px solid var(--border-strong);border-radius:8px;cursor:pointer}.sgc-color[aria-pressed="true"]{outline:2px solid var(--text-main);outline-offset:1px}' +
+            '#sgc-color{width:100%;height:30px;padding:0;border:1px solid var(--border-strong);border-radius:8px;background:none;cursor:pointer}' +
+            '.sgc-n[hidden],#sgc-colores[hidden]{display:none}.sgc-n-escala{display:flex;justify-content:space-between;font-size:max(12px,.72rem)}.sgc-n .sgc-hint{margin:6px 0 0}' +
+            '.sgc-trazo{fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.9;pointer-events:none}.sgc-trazo-goma{stroke:var(--bg-secondary)}' +
+            '.sgc-a-mano{fill:none;stroke:var(--color-warning);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;pointer-events:none}' +
+            '.sgc-3d{position:relative;height:230px;overflow:hidden;border:1px solid var(--border-color);border-radius:12px;background:radial-gradient(ellipse at 50% 42%,#1B3350 0%,#0B111C 72%)}' +
+            '.sgc-3d canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}.sgc-3d canvas:active{cursor:grabbing}.sgc-3d canvas:focus-visible{outline:2px solid var(--color-accent);outline-offset:-2px}' +
+            '.sgc-3d-giro{position:absolute;right:8px;bottom:8px;background:rgba(14,20,32,.82);color:#EAF6FF;border-color:rgba(255,255,255,.2)}.sgc-3d-giro[hidden]{display:none}' +
+            '.sgc-3d-aviso{position:absolute;inset:0;display:grid;place-items:center;margin:0;padding:16px;text-align:center;font-size:.84rem;color:#C7D6E8}.sgc-3d-aviso[hidden]{display:none}' +
+            '.sgc-3d-nota{margin:6px 0 0}' +
             '.sgc-tools,.sgc-metrics{padding:14px 16px;overflow:auto;border-right:1px solid var(--border-color);scrollbar-width:thin}' +
             '.sgc-metrics{border-right:0;border-left:1px solid var(--border-color)}' +
             '.sgc-tools-t{margin:0 0 8px;font-size:max(12px,.7rem);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}' +
@@ -699,9 +982,12 @@
             '.sgc-msg{min-height:1.1em;margin-top:4px;font-size:.84rem}.sgc-msg-mal{color:var(--color-error);font-weight:700}' +
             '.sgc-bloquear-scroll{overflow:hidden}' +
             '@media (pointer:coarse){.sgc-btn,.sgc-campo input,.sgc-campo select{min-height:44px}.sgc-btn-mini{min-height:44px;min-width:44px}.sgc-forma-btn{min-height:62px}}' +
-            '@media (max-width:1180px){.sgc-body{grid-template-columns:228px minmax(0,1fr) 240px}}' +
+            '@media (max-width:1180px){.sgc-body{grid-template-columns:228px minmax(0,1fr) 256px}.sgc-3d{height:190px}}' +
             '@media (max-width:980px){.sgc-modal{padding:0}.sgc-modal-inner{height:100vh;height:100dvh;border-radius:0;border:0}' +
-            '.sgc-body{display:flex;flex-direction:column;overflow:auto}' +
+            '.sgc-body{position:relative;display:flex;flex-direction:column;overflow:auto}' +
+            /* En celular el 3D flota sobre el lienzo: asi se ve como va quedando mientras se dibuja */
+            '.sgc-3d{position:absolute;top:8px;left:8px;z-index:2;width:136px;height:136px}.sgc-3d-giro{right:4px;bottom:4px;min-height:30px!important;min-width:0!important;padding:2px 6px;font-size:11px}' +
+            '.sgc-metrics>.sgc-tools-t:first-child,.sgc-3d-nota{display:none}.sgc-metrics>.sgc-sep{margin-top:0}' +
             '.sgc-canvas-wrap{order:-1;flex:none;height:min(100vw,58vh);height:min(100vw,58dvh);padding:6px}' +
             '.sgc-tools,.sgc-metrics{overflow:visible;border:0;border-top:1px solid var(--border-color)}' +
             '.sgc-formas{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}.sgc-grid-btn{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}' +
@@ -718,7 +1004,19 @@
         $('sgc-undo').onclick = undo;
         $('sgc-redo').onclick = redo;
         $('sgc-eliminar').onclick = eliminarSeleccion;
-        $('sgc-reset').onclick = function () { if (estado.puntos.length) pushUndo(); estado.puntos = []; estado.formaBase = 'Libre'; estado.sel = -1; encajar(); pintarLienzo(); };
+        $('sgc-reset').onclick = function () { if (estado.puntos.length || estado.diseno) pushUndo(); estado.puntos = []; estado.diseno = null; estado.formaBase = 'Libre'; estado.sel = -1; encajar(); refrescarDiseno(); };
+        Array.prototype.forEach.call(document.querySelectorAll('.sgc-modo-btn'), function (b) { b.onclick = function () { cambiarModo(b.getAttribute('data-modo')); }; });
+        function elegirColor(c) {
+            estado.color = c; $('sgc-color').value = c;
+            Array.prototype.forEach.call(document.querySelectorAll('.sgc-color'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-color') === c)); });
+            pintarLienzo();
+        }
+        Array.prototype.forEach.call(document.querySelectorAll('.sgc-color'), function (b) { b.onclick = function () { elegirColor(b.getAttribute('data-color')); }; });
+        $('sgc-color').addEventListener('input', function () { elegirColor(this.value); });
+        elegirColor(estado.color);
+        $('sgc-grosor').addEventListener('input', function () { estado.grosor = parseInt(this.value, 10) || 6; $('sgc-grosor-val').textContent = String(estado.grosor); pintarLienzo(); });
+        $('sgc-borrar-diseno').onclick = borrarDiseno;
+        $('sgc-3d-giro').onclick = function () { if (window.SGCorte3D) { window.SGCorte3D.alternarGiro(); pintarGiro(); } };
         $('sgc-r1').onclick = aplicarRecomendado;
         $('sgc-zin').onclick = function () { zoomEn(1.25); };
         $('sgc-zout').onclick = function () { zoomEn(1 / 1.25); };
@@ -753,10 +1051,23 @@
         }
         function recortar(p) { return { x: clamp(snap(p.x), 0, LIENZO_W), y: clamp(snap(p.y), 0, LIENZO_H) }; }
 
+        /* Punto dentro del lienzo, sin iman: un trazo a mano no debe verse escalonado */
+        function enLienzo(p) { return { x: clamp(p.x, 0, LIENZO_W), y: clamp(p.y, 0, LIENZO_H) }; }
+
         svg.addEventListener('pointerdown', function (e) {
             if (e.button !== undefined && e.button > 0 && e.pointerType === 'mouse') return;
             var asa = e.target.closest ? e.target.closest('.sgc-asas') : null;
             try { svg.setPointerCapture(e.pointerId); } catch (x) { /* idem */ }
+            if (estado.modo !== 'puntos') {
+                var inicio = aCoords(e);
+                e.preventDefault();
+                if (!inicio) return;
+                inicio = enLienzo(inicio);
+                if (estado.modo === 'contorno') estado.trazo = { tipo: 'contorno', pts: [inicio], d: 'M' + inicio.x + ' ' + inicio.y };
+                else if (estado.modo === 'relleno') rellenar(inicio);
+                else if (estado.puntos.length >= MIN_PUNTOS) empezarPincel(inicio);
+                return;
+            }
             if (asa) {
                 estado.arrastrando = parseInt(asa.getAttribute('data-i'), 10); estado.sel = estado.arrastrando; estado.movio = false;
                 pushUndo();                                              // un arrastre = un paso de deshacer
@@ -768,6 +1079,16 @@
             e.preventDefault();
         });
         svg.addEventListener('pointermove', function (e) {
+            if (estado.trazo) {
+                var ahora = aCoords(e); if (!ahora) return;
+                ahora = enLienzo(ahora);
+                if (estado.trazo.tipo === 'pincel') { extenderPincel(ahora); return; }
+                estado.trazo.pts.push(ahora);
+                estado.trazo.d += ' L' + ahora.x + ' ' + ahora.y;
+                var mano = $('sgc-a-mano'); if (mano) mano.setAttribute('d', estado.trazo.d);
+                return;
+            }
+            if (estado.modo !== 'puntos') return;
             if (estado.arrastrando >= 0) {
                 var p = aCoords(e); if (!p) return;
                 var q = recortar(p), actual = estado.puntos[estado.arrastrando];
@@ -786,6 +1107,12 @@
             pintarLienzo();
         });
         function soltar(e) {
+            if (estado.trazo) {
+                var hecho = estado.trazo; estado.trazo = null;
+                if (hecho.tipo === 'contorno') terminarContorno(hecho);
+                else { refrescarDiseno(); autosave(); }
+                return;
+            }
             svg.style.cursor = '';
             if (estado.arrastrando >= 0) {
                 if (!estado.movio) estado.undo.pop();                   // clic sin mover: no deja paso vacio en el historial
@@ -802,6 +1129,7 @@
         /* Doble clic sobre un punto lo elimina. Se busca por cercania: con la captura del puntero el
            destino del evento puede ser el propio SVG y no el circulo. */
         svg.addEventListener('dblclick', function (e) {
+            if (estado.modo !== 'puntos') return;
             var p = aCoords(e); if (!p) return;
             var radio = (tactil ? 22 : 12) / pxPorCm(), mejor = -1, md = Infinity;
             estado.puntos.forEach(function (q, i) { var d = Math.sqrt((q.x - p.x) * (q.x - p.x) + (q.y - p.y) * (q.y - p.y)); if (d < md) { md = d; mejor = i; } });
@@ -840,7 +1168,7 @@
         marcarEnviado: function () { try { localStorage.setItem(KEY_LIMPIAR, String(Date.now())); } catch (e) { /* idem */ } },
         aTexto: aTexto, desdeTexto: desdeTexto,
         /* ganchos de prueba (funciones puras; no los usa la aplicacion) */
-        _puro: { autointersecta: autointersecta, formasBase: formasBase, bbox: bbox, perimetro: perimetro, snap: snap, aristaMasCercana: aristaMasCercana, metricas: metricas, sinRepetidos: sinRepetidos }
+        _puro: { autointersecta: autointersecta, formasBase: formasBase, bbox: bbox, perimetro: perimetro, snap: snap, aristaMasCercana: aristaMasCercana, metricas: metricas, sinRepetidos: sinRepetidos, simplificarTrazo: simplificarTrazo }
     };
 
     document.addEventListener('click', function (e) {

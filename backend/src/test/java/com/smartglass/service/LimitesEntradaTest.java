@@ -34,6 +34,19 @@ class LimitesEntradaTest {
         assertThrows(IllegalArgumentException.class, () -> VidrioSostenibleService.validar(perforada));
     }
 
+    @Test
+    void elDisenoSoloAceptaUnPngDeVerdad() {
+        String png = "data:image/png;base64," + java.util.Base64.getEncoder().encodeToString(
+                new byte[] { (byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1A, '\n', 0, 0 });
+        assertEquals(true, VidrioSostenibleService.disenoValido(null));
+        assertEquals(true, VidrioSostenibleService.disenoValido(png));
+        assertEquals(false, VidrioSostenibleService.disenoValido("data:image/svg+xml;base64,PHN2Zz4="));
+        assertEquals(false, VidrioSostenibleService.disenoValido("javascript:alert(1)"));
+        assertEquals(false, VidrioSostenibleService.disenoValido("data:image/png;base64,no-es-base64!"));
+        assertEquals(false, VidrioSostenibleService.disenoValido("data:image/png;base64,QUJDREVGR0hJSktM"));
+        assertEquals(false, VidrioSostenibleService.disenoValido("data:image/png;base64," + "A".repeat(700_000)));
+    }
+
     private static CotizacionVidrioRequest cotizacion(double ancho, double alto, double espesor) {
         CotizacionVidrioRequest r = new CotizacionVidrioRequest();
         r.setAncho(ancho);

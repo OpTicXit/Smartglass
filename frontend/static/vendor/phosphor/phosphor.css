@@ -26,6 +26,8 @@
 .ph.ph-credit-card:before { content: "\e1d2"; }
 .ph.ph-crosshair:before { content: "\e1d6"; }
 .ph.ph-crosshair-simple:before { content: "\e1d8"; }
+.ph.ph-cursor-click:before { content: "\e7c8"; }
+.ph.ph-eraser:before { content: "\e21e"; }
 .ph.ph-eye:before { content: "\e220"; }
 .ph.ph-eye-slash:before { content: "\e224"; }
 .ph.ph-file-text:before { content: "\e23a"; }
@@ -45,6 +47,8 @@
 .ph.ph-minus:before { content: "\e32a"; }
 .ph.ph-minus-circle:before { content: "\e32c"; }
 .ph.ph-package:before { content: "\e390"; }
+.ph.ph-paint-brush:before { content: "\e6f0"; }
+.ph.ph-paint-bucket:before { content: "\e392"; }
 .ph.ph-paper-plane-tilt:before { content: "\e398"; }
 .ph.ph-pause:before { content: "\e39e"; }
 .ph.ph-pencil-ruler:before { content: "\e906"; }
@@ -74,6 +78,7 @@
 .ph.ph-square-split-vertical:before { content: "\e874"; }
 .ph.ph-stack:before { content: "\e466"; }
 .ph.ph-star:before { content: "\e46a"; }
+.ph.ph-star-four:before { content: "\e6a4"; }
 .ph.ph-storefront:before { content: "\e470"; }
 .ph.ph-sun:before { content: "\e472"; }
 .ph.ph-tag:before { content: "\e478"; }
@@ -116,6 +121,8 @@
 .ph-fill.ph-credit-card:before { content: "\e1d2"; }
 .ph-fill.ph-crosshair:before { content: "\e1d6"; }
 .ph-fill.ph-crosshair-simple:before { content: "\e1d8"; }
+.ph-fill.ph-cursor-click:before { content: "\e7c8"; }
+.ph-fill.ph-eraser:before { content: "\e21e"; }
 .ph-fill.ph-eye:before { content: "\e220"; }
 .ph-fill.ph-eye-slash:before { content: "\e224"; }
 .ph-fill.ph-file-text:before { content: "\e23a"; }
@@ -135,6 +142,8 @@
 .ph-fill.ph-minus:before { content: "\e32a"; }
 .ph-fill.ph-minus-circle:before { content: "\e32c"; }
 .ph-fill.ph-package:before { content: "\e390"; }
+.ph-fill.ph-paint-brush:before { content: "\e6f0"; }
+.ph-fill.ph-paint-bucket:before { content: "\e392"; }
 .ph-fill.ph-paper-plane-tilt:before { content: "\e398"; }
 .ph-fill.ph-pause:before { content: "\e39e"; }
 .ph-fill.ph-pencil-ruler:before { content: "\e906"; }
@@ -164,6 +173,7 @@
 .ph-fill.ph-square-split-vertical:before { content: "\e874"; }
 .ph-fill.ph-stack:before { content: "\e466"; }
 .ph-fill.ph-star:before { content: "\e46a"; }
+.ph-fill.ph-star-four:before { content: "\e6a4"; }
 .ph-fill.ph-storefront:before { content: "\e470"; }
 .ph-fill.ph-sun:before { content: "\e472"; }
 .ph-fill.ph-tag:before { content: "\e478"; }
