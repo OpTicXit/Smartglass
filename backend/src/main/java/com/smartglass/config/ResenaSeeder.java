@@ -15,9 +15,9 @@ import java.util.Random;
 
 /**
  * Genera reseñas simuladas para que el catalogo no se vea vacio de
- * opiniones. Se ejecuta despues de CatalogoProductoSeeder (@Order) y
- * solo si la coleccion de reseñas esta vacia -- no duplica en cada
- * arranque.
+ * opiniones. Se ejecuta despues de los seeders del catalogo (@Order) y
+ * solo para los productos sin reseñas simuladas -- asi los productos
+ * nuevos reciben las suyas y no se duplica en cada arranque.
  *
  * usuarioId usa numeros negativos (-1, -2, ...) para no chocar nunca
  * con los id reales de MySQL (todos positivos, autoincrementales) --
@@ -25,7 +25,7 @@ import java.util.Random;
  * hiciera falta despues.
  */
 @Component
-@Order(2)
+@Order(4)
 public class ResenaSeeder implements CommandLineRunner {
 
     private static final int RESENAS_POR_PRODUCTO = 40;
@@ -99,6 +99,64 @@ public class ResenaSeeder implements CommandLineRunner {
             "Tuve problemas para agendar la instalación."
     };
 
+    // Esculturas y figuras: no se instalan ni se cortan a medida, y sus opiniones hablan de la pieza.
+    private final String[] decorativos5 = {
+            "Es más bonita en persona que en la imagen.",
+            "Refleja la luz de la ventana y cambia durante todo el día.",
+            "Se ve espectacular en la sala, todos preguntan por ella.",
+            "Acabado impecable, se nota el cuidado en cada detalle.",
+            "Llegó perfectamente protegida, sin un solo rayón.",
+            "Era justo el detalle que le faltaba a ese espacio.",
+            "Muy buena calidad del vidrio, tiene un brillo precioso.",
+            "Fue un regalo y a la persona le encantó.",
+            "Se convirtió en la pieza favorita de la casa.",
+            "Con la luz de la tarde se ve increíble.",
+            "Mejor de lo que esperaba por el precio.",
+            "Despacho rápido y muy bien empacada.",
+            "Se siente sólida, nada frágil como temía.",
+            "Da un toque elegante sin recargar el lugar.",
+            "Ya es la segunda que compro, repetiría sin dudarlo.",
+            "Los detalles están muy bien logrados.",
+            "Muy contento con la compra, es tal como la describen.",
+            "Me gustó poder ver la huella de carbono de la pieza antes de comprarla.",
+            "Quedó preciosa en el lugar que le tenía pensado.",
+            "Un trabajo muy fino, se nota la calidad.",
+            "Quien la ve pregunta dónde la compré."
+    };
+
+    private final String[] decorativos4 = {
+            "Muy bonita, aunque la entrega tardó un par de días más.",
+            "Buen acabado; la caja llegó algo golpeada, pero la pieza intacta.",
+            "Me gustó mucho, aunque la imaginaba un poco más grande.",
+            "Bonita y bien hecha, el empaque podría ser mejor.",
+            "Buena pieza por el precio, aunque el tono es algo distinto a la imagen.",
+            "Cumple lo que promete, solo faltó una guía para limpiarla.",
+            "Se ve muy bien, aunque marca las huellas de los dedos con facilidad.",
+            "Muy linda, aunque esperaba que brillara un poco más.",
+            "Buena relación calidad-precio.",
+            "Todo bien, solo tardaron en confirmar el despacho.",
+            "Bien lograda, aunque tiene una marca mínima en un costado."
+    };
+
+    private final String[] decorativos3 = {
+            "Es bonita, pero nada extraordinario.",
+            "Correcta para el precio, esperaba un acabado más fino.",
+            "Se ve bien, pero la entrega fue larga.",
+            "Ni buena ni mala, cumple como adorno.",
+            "El precio me pareció un poco alto para lo que es.",
+            "Más pequeña de lo que imaginaba.",
+            "Aceptable, aunque el color me gustaba más en la imagen."
+    };
+
+    private final String[] decorativosBajos = {
+            "Llegó con una pequeña fisura, tuve que reclamar.",
+            "La entrega tardó mucho más de lo prometido.",
+            "No se parece tanto a la imagen como esperaba.",
+            "Esperaba mejor calidad por lo que pagué.",
+            "El servicio al cliente tardó en responder mi reclamo.",
+            "El acabado tiene marcas que no me convencieron."
+    };
+
     public ResenaSeeder(CatalogoProductoRepository catalogoProductoRepository,
                          ResenaRepository resenaRepository) {
         this.catalogoProductoRepository = catalogoProductoRepository;
@@ -107,37 +165,36 @@ public class ResenaSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (resenaRepository.count() > 0) {
-            return;
-        }
-
-        List<CatalogoProducto> productos = catalogoProductoRepository.findAll();
-        if (productos.isEmpty()) {
-            return; // el catalogo aun no tiene productos que reseñar
-        }
-
         List<Resena> todas = new ArrayList<>();
-        long usuarioIdSimulado = -1;
 
-        for (CatalogoProducto producto : productos) {
+        for (CatalogoProducto producto : catalogoProductoRepository.findAll()) {
+            if (resenaRepository.existsByProductoIdAndUsuarioIdLessThan(producto.getId(), 0L)) {
+                continue;
+            }
+            boolean decorativo = producto.isEscultura() || producto.isFigura();
+            int desfase = random.nextInt(100);
+            int[] usados = new int[6]; // por estrellas: recorre los comentarios para no repetirlos en un producto
+
             for (int i = 0; i < RESENAS_POR_PRODUCTO; i++) {
                 int calificacion = calificacionAleatoria();
-                String comentario = comentarioParaCalificacion(calificacion);
+                String[] comentarios = comentariosParaCalificacion(calificacion, decorativo);
+                String comentario = comentarios[(desfase + usados[calificacion]++) % comentarios.length];
                 String nombreCompleto = nombres[random.nextInt(nombres.length)] + " "
                         + apellidos[random.nextInt(apellidos.length)];
 
-                Resena resena = new Resena(producto.getId(), usuarioIdSimulado, nombreCompleto,
+                Resena resena = new Resena(producto.getId(), -(i + 1L), nombreCompleto,
                         calificacion, comentario);
                 resena.setFecha(fechaAleatoria());
                 todas.add(resena);
-
-                usuarioIdSimulado--;
             }
         }
 
+        if (todas.isEmpty()) {
+            return;
+        }
         resenaRepository.saveAll(todas);
         System.out.println("✅ Reseñas simuladas cargadas: " + todas.size()
-                + " (" + RESENAS_POR_PRODUCTO + " por producto x " + productos.size() + " productos).");
+                + " (" + RESENAS_POR_PRODUCTO + " por producto x " + todas.size() / RESENAS_POR_PRODUCTO + " productos).");
     }
 
     /**
@@ -154,12 +211,12 @@ public class ResenaSeeder implements CommandLineRunner {
         return 1;
     }
 
-    private String comentarioParaCalificacion(int calificacion) {
+    private String[] comentariosParaCalificacion(int calificacion, boolean decorativo) {
         return switch (calificacion) {
-            case 5 -> comentarios5[random.nextInt(comentarios5.length)];
-            case 4 -> comentarios4[random.nextInt(comentarios4.length)];
-            case 3 -> comentarios3[random.nextInt(comentarios3.length)];
-            default -> comentariosBajos[random.nextInt(comentariosBajos.length)];
+            case 5 -> decorativo ? decorativos5 : comentarios5;
+            case 4 -> decorativo ? decorativos4 : comentarios4;
+            case 3 -> decorativo ? decorativos3 : comentarios3;
+            default -> decorativo ? decorativosBajos : comentariosBajos;
         };
     }
 

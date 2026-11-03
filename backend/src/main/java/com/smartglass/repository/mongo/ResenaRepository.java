@@ -13,4 +13,6 @@ public interface ResenaRepository extends MongoRepository<Resena, String> {
     List<Resena> findByProductoIdOrderByFechaDesc(String productoId);
 
     Optional<Resena> findByProductoIdAndUsuarioId(String productoId, Long usuarioId);
+
+    boolean existsByProductoIdAndUsuarioIdLessThan(String productoId, Long usuarioId);
 }
