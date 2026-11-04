@@ -252,7 +252,7 @@
             <div class="form-row">
                 <div>
                     <label for="precio"><span th:text="#{admin.productos.precio_cop}">Precio (COP)</span> <span class="req">*</span></label>
-                    <input type="number" id="precio" name="precio" step="1" min="0" required>
+                    <input type="number" id="precio" name="precio" step="1" min="0" max="10000000000" required inputmode="numeric">
                 </div>
                 <div>
                     <label for="tipo" th:text="#{admin.productos.tipo}">Tipo</label>
@@ -276,22 +276,22 @@
             <div class="form-row">
                 <div>
                     <label for="ancho" th:text="#{admin.productos.ancho_cm}">Ancho (cm)</label>
-                    <input type="number" id="ancho" step="0.1" min="0" name="ancho">
+                    <input type="number" id="ancho" step="0.1" min="0" max="1000" name="ancho" inputmode="decimal">
                 </div>
                 <div>
                     <label for="alto" th:text="#{admin.productos.alto_cm}">Alto (cm)</label>
-                    <input type="number" id="alto" step="0.1" min="0" name="alto">
+                    <input type="number" id="alto" step="0.1" min="0" max="1000" name="alto" inputmode="decimal">
                 </div>
                 <div>
                     <label for="espesor" th:text="#{admin.productos.espesor_mm}">Espesor (mm)</label>
-                    <input type="number" id="espesor" step="0.1" min="0" name="espesor">
+                    <input type="number" id="espesor" step="0.1" min="0" max="50" name="espesor" inputmode="decimal">
                 </div>
             </div>
 
             <div class="form-row">
                 <div>
                     <label for="stock-nuevo" th:text="#{admin.productos.stock_inicial}">Stock inicial (opcional)</label>
-                    <input type="number" id="stock-nuevo" name="stock" step="1" min="0">
+                    <input type="number" id="stock-nuevo" name="stock" step="1" min="0" max="1000000" inputmode="numeric">
                 </div>
             </div>
 
@@ -337,7 +337,7 @@
             <div class="form-row">
                 <div>
                     <label for="c-stock" th:text="#{admin.productos.stock_unidades}">Stock (unidades)</label>
-                    <input type="number" id="c-stock" name="stock" step="1" min="0">
+                    <input type="number" id="c-stock" name="stock" step="1" min="0" max="1000000" inputmode="numeric">
                     <p class="ayuda" th:text="#{admin.productos.stock_ayuda}">Vacío = sin control de stock. Solo baja con compras reales.</p>
                 </div>
             </div>
@@ -348,7 +348,7 @@
             <div class="form-row">
                 <div>
                     <label for="c-oferta"><span th:text="#{admin.productos.precio_oferta}">Precio de oferta (COP)</span> · <span th:text="#{admin.productos.lista}">lista</span> $<span id="c-lista"></span></label>
-                    <input type="number" id="c-oferta" name="precioOferta" step="1" min="1">
+                    <input type="number" id="c-oferta" name="precioOferta" step="1" min="1" max="10000000000" inputmode="numeric">
                 </div>
                 <div>
                     <label class="check-linea"><input type="checkbox" id="c-activa" name="ofertaActiva" value="true"> <span th:text="#{admin.productos.oferta_activa}">Oferta activa</span></label>

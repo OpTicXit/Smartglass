@@ -167,6 +167,18 @@ public class AdminController {
     @org.springframework.beans.factory.annotation.Value("${smartglass.uploads.dir:uploads}")
     private String carpetaUploads;
     private static final long MAX_BYTES_FOTO = 5L * 1024 * 1024;
+    private static final double MAX_PRECIO_PRODUCTO = 10_000_000_000d; // 10.000 millones de COP; lo mas caro del catalogo ronda 6 millones
+
+    /** Spring convierte "NaN" e "Infinity" en double: sin esto se guardarian en el catalogo. Medidas iguales que una cotizacion. */
+    public static boolean productoEnLimites(CatalogoProducto p) {
+        return enRango(p.getPrecio(), 0, MAX_PRECIO_PRODUCTO)
+                && (p.getAncho() == null || enRango(p.getAncho(), 0, 1000))
+                && (p.getAlto() == null || enRango(p.getAlto(), 0, 1000))
+                && (p.getEspesor() == null || enRango(p.getEspesor(), 0, 50));
+    }
+
+    /** NaN no cumple ninguna comparacion, asi que tambien queda fuera. */
+    private static boolean enRango(double v, double min, double max) { return v >= min && v <= max; }
 
     /**
      * Crea un producto. La foto es opcional:
@@ -179,6 +191,10 @@ public class AdminController {
                                 @RequestParam(value = "foto", required = false) MultipartFile foto,
                                 RedirectAttributes ra) {
         producto.setId(null); // crear nunca sobrescribe un producto existente aunque el formulario mande id
+        if (!productoEnLimites(producto)) {
+            ra.addFlashAttribute("mensaje", textos.t("flash.producto_limites"));
+            return "redirect:/admin/productos";
+        }
         try {
             if (foto != null && !foto.isEmpty()) {
                 producto.setImagen(guardarFoto(foto));
@@ -242,7 +258,8 @@ public class AdminController {
             ra.addFlashAttribute("mensaje", textos.t("flash.stock_negativo"));
             return "redirect:/admin/productos";
         }
-        if (ofertaActiva && (precioOferta == null || precioOferta <= 0 || precioOferta >= p.getPrecio())) {
+        if ((precioOferta != null && !Double.isFinite(precioOferta))
+                || (ofertaActiva && (precioOferta == null || precioOferta <= 0 || precioOferta >= p.getPrecio()))) {
             ra.addFlashAttribute("mensaje", textos.t("flash.oferta_precio"));
             return "redirect:/admin/productos";
         }

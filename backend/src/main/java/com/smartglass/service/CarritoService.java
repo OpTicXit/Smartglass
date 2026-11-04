@@ -147,7 +147,7 @@ public class CarritoService {
             HttpSession sesion = sesionActual(true);
             if (sesion == null) return;
             Map<String, Integer> carrito = carritoAnonimo(sesion, true);
-            carrito.merge(producto.getId(), cantidad, (a, b) -> (int) Math.min(ItemCarrito.MAX_CANTIDAD, (long) a + b));
+            carrito.merge(producto.getId(), Math.min(cantidad, ItemCarrito.MAX_CANTIDAD), (a, b) -> (int) Math.min(ItemCarrito.MAX_CANTIDAD, (long) a + b));
             guardarAnonimo(sesion, carrito);
             return;
         }

@@ -99,7 +99,9 @@
         .medida-campo { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 16px; margin-bottom: 14px; }
         .medida-campo label { grid-column: 1 / -1; margin-bottom: -6px; color: var(--text-main); font-size: 0.86rem; font-weight: 700; }
         .num-unidad { position: relative; }
-        .num-unidad input { padding-right: 44px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .num-unidad input { padding-left: 10px; padding-right: 36px; font-weight: 700; font-variant-numeric: tabular-nums; appearance: textfield; }
+        /* las flechas del navegador tapaban el primer digito de "1000"; para eso esta el deslizador */
+        .num-unidad input::-webkit-inner-spin-button, .num-unidad input::-webkit-outer-spin-button { appearance: none; margin: 0; }
         .num-unidad span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: max(12px, 0.7rem); font-weight: 700; letter-spacing: 0; }
         input[type="range"] {
             --p: 50%; width: 100%; height: 6px; padding: 0; border: 0; border-radius: 99px; outline: none; cursor: pointer;
@@ -493,7 +495,7 @@
                 <div class="medida-campo">
                     <label for="ancho" th:text="#{cotizar.ancho}">Ancho</label>
                     <div class="num-unidad">
-                        <input type="number" name="ancho" id="ancho" value="105" min="10">
+                        <input type="number" name="ancho" id="ancho" value="105" min="10" max="1000" required inputmode="numeric">
                         <span th:text="#{cotizar.cm}">CM</span>
                     </div>
                     <input type="range" id="anchoRango" aria-label="Ancho en centímetros" th:aria-label="#{cotizar.ancho_en_centimetros}">
@@ -502,7 +504,7 @@
                 <div class="medida-campo">
                     <label for="alto" th:text="#{cotizar.alto}">Alto</label>
                     <div class="num-unidad">
-                        <input type="number" name="alto" id="alto" value="105" min="10">
+                        <input type="number" name="alto" id="alto" value="105" min="10" max="1000" required inputmode="numeric">
                         <span th:text="#{cotizar.cm}">CM</span>
                     </div>
                     <input type="range" id="altoRango" aria-label="Alto en centímetros" th:aria-label="#{cotizar.alto_en_centimetros}">
@@ -511,11 +513,12 @@
                 <div class="medida-campo">
                     <label for="espesor" th:text="#{cotizar.espesor}">Espesor</label>
                     <div class="num-unidad">
-                        <input type="number" name="espesor" id="espesor" value="7" min="4" max="40">
+                        <input type="number" name="espesor" id="espesor" value="7" min="4" max="40" required inputmode="numeric">
                         <span th:text="#{cotizar.mm}">MM</span>
                     </div>
                     <input type="range" id="espesorRango" aria-label="Espesor en milímetros" th:aria-label="#{cotizar.espesor_en_milimetros}">
                 </div>
+                <p class="hint" th:text="#{cotizar.limites_medidas}">Medidas permitidas: ancho y alto de 10 a 1.000 cm, espesor de 4 a 40 mm.</p>
                 <p class="hint" th:text="#{cotizar.referencias_muebles_68_mm_ventanas}">Referencias: muebles 6–8 mm · ventanas 6–10 mm · duchas 8–10 mm · barandas y pisos 12–25 mm.</p>
             </section>
 
@@ -737,7 +740,7 @@
                 var ok = Array.prototype.some.call(el.options, function (o) { return o.value === q.get(k); });
                 if (ok) el.value = q.get(k);
             } else if (parseFloat(q.get(k)) > 0) {
-                el.value = q.get(k);
+                el.value = Math.min(Math.max(parseFloat(q.get(k)), parseFloat(el.min)), parseFloat(el.max));   /* la URL se puede escribir a mano */
             }
         });
         var bool = function (v) { return v === '1' || v === 'true'; };

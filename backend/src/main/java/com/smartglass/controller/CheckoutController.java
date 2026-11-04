@@ -87,6 +87,9 @@ public class CheckoutController {
         Usuario usuario = usuarioRepository.findByUsername(principal.getName()).orElse(null);
         if (usuario == null) return "redirect:/login";
         try {
+            // "required" del navegador deja pasar solo espacios, y el metodo de pago viaja en el formulario
+            if (direccionEnvio.isBlank() || ciudad.isBlank()) throw new IllegalStateException(textos.t("checkout.direccion_requerida"));
+            if (!List.of("TARJETA_CREDITO", "PSE").contains(metodoPago)) throw new IllegalStateException(textos.t("checkout.metodo_invalido"));
             String direccionCompleta = direccionEnvio + ", " + ciudad;
             // La columna es VARCHAR(255): mas largo fallaba en MySQL y el aviso mostraba el SQL
             if (direccionCompleta.length() > 255) throw new IllegalStateException("La dirección es demasiado larga");

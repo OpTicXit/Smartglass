@@ -60,6 +60,7 @@
       inicializarConfirmaciones,
       inicializarEnvioDeFormularios,
       inicializarSteppers,
+      inicializarCamposNumericos,
       inicializarVerPassword,
       inicializarImagenesDeRespaldo,
       revelarAlEntrar,
@@ -283,6 +284,32 @@
         if (!b.hasAttribute('data-disabled')) b.disabled = false;
       });
     });
+  }
+
+  /* ==========================================================
+     CAMPOS NUMERICOS: sin potencias (1e25) ni signos, y dentro de su min/max.
+     Solo lo que escribe la persona (isTrusted): los valores que pone el codigo ya vienen calculados.
+  ========================================================== */
+  function inicializarCamposNumericos() {
+    function esNumero(e) { return e.isTrusted && e.target.matches && e.target.matches('input[type="number"]'); }
+    document.addEventListener('beforeinput', function (e) {
+      if (esNumero(e) && e.data && /[^0-9.,]/.test(e.data)) e.preventDefault();
+    });
+    /* En captura: corre antes que los calculos de cada formulario, que leen el valor en su propio 'input' */
+    document.addEventListener('input', function (e) {
+      if (!esNumero(e)) return;
+      var el = e.target;
+      if (/[eE+-]/.test(el.value)) el.value = el.value.replace(/[eE+-].*$/, '');   /* teclados que ignoran beforeinput */
+      if (el.max !== '' && parseFloat(el.value) > parseFloat(el.max)) el.value = el.max;
+    }, true);
+    /* El minimo se corrige al salir del campo: escribiendo, "1" es el camino hacia "105" */
+    document.addEventListener('change', function (e) {
+      if (!esNumero(e)) return;
+      var el = e.target, antes = el.value;
+      if (el.validity.badInput) el.value = '';
+      else if (el.value !== '' && el.min !== '' && parseFloat(el.value) < parseFloat(el.min)) el.value = el.min;
+      if (el.value !== antes) el.dispatchEvent(new Event('input', { bubbles: true }));
+    }, true);
   }
 
   /* ==========================================================

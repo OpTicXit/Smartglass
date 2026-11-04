@@ -91,7 +91,7 @@ public class AnalisisService {
     // --- F45: limites del corte personalizado ---
     private static final int MIN_PUNTOS_CORTE = 3;
     private static final int MAX_PUNTOS_CORTE = 64;
-    private static final double MAX_COORD_CORTE_CM = 10_000.0; // 100 m: cota de cordura, el editor trabaja en 300 x 200 cm
+    private static final double MAX_COORD_CORTE_CM = 1_000.0; // igual que el tope de ancho/alto: un corte no puede saltarselo
 
     /**
      * Calcula la huella de carbono de un item de pedido (productos de
