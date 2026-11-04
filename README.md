@@ -1,11 +1,13 @@
 # 🚀 SmartGlass
-### Plataforma de Gestión Sostenible e Industrial del Vidrio
+### Plataforma de venta de vidrio a medida con estimación de huella de carbono
 
-SmartGlass es una plataforma de software desarrollada con **Spring Boot** para la industria de manufactura y comercialización de vidrio. Integra la gestión de productos, inventarios y pedidos industriales con un cotizador que estima las emisiones de dióxido de carbono (CO₂) de cada pieza mediante fórmulas deterministas. Como componente de Minería de Datos I, incluye además un modelo predictivo de CO₂ entrenado y evaluado aparte; su integración en la aplicación es la siguiente fase.
+SmartGlass es una aplicación web desarrollada con **Spring Boot** para vidrierías. El cliente compra vidrio de catálogo o diseña una pieza a medida y ve al instante su precio y su CO₂ estimado; el taller aprueba la cotización antes del pago. Como componente de Minería de Datos I, incluye además un modelo predictivo de CO₂ entrenado y evaluado aparte; la aplicación no lo consulta.
 
-El proyecto combina tecnologías de desarrollo backend, persistencia híbrida y minería de datos para facilitar la toma de decisiones, mejorar la trazabilidad de los productos y promover prácticas de producción más sostenibles.
+El proyecto combina desarrollo backend, persistencia híbrida y minería de datos para facilitar la toma de decisiones, mejorar la trazabilidad de los productos y promover prácticas de producción más sostenibles.
 
-Entre sus principales funcionalidades se encuentran la autenticación segura mediante JWT y Google OAuth2, la administración de catálogos especializados, la gestión de pedidos y la estimación de la huella de carbono de piezas de vidrio personalizadas.
+> **Estado:** prototipo funcional, listo para iniciar una fase piloto. Usa datos, precios y reseñas de demostración y todavía no lo opera una vidriería real. El CO₂ es una estimación con factores promedio, no una medición ni una certificación.
+
+**¿Quieres practicar con el código?** Ve a [Practica con tu propia copia](#-practica-con-tu-propia-copia).
 
 ---
 
@@ -17,14 +19,16 @@ Entre sus principales funcionalidades se encuentran la autenticación segura med
 - [Arquitectura del sistema](#️-arquitectura-del-sistema)
 - [Tecnologías utilizadas](#️-tecnologías-utilizadas)
 - [Estructura del repositorio](#-estructura-del-repositorio)
-- [Requisitos previos](#-requisitos-previos)
+- [Requisitos previos](#️-requisitos-previos)
 - [Instalación y configuración](#-instalación-y-configuración)
-- [Ejecución del proyecto](#-ejecución-del-proyecto)
-- [Componente de minería de datos](#-componente-de-minería-de-datos)
+- [Ejecución del proyecto](#️-ejecución-del-proyecto)
+- [Practica con tu propia copia](#-practica-con-tu-propia-copia)
+- [Componente de Minería de Datos I](#-componente-de-minería-de-datos-i)
 - [Integración del modelo predictivo](#-integración-del-modelo-predictivo)
 - [Alineación con los ODS](#-alineación-con-los-objetivos-de-desarrollo-sostenible)
 - [Referencias técnicas](#-referencias-técnicas)
-- [Licencia](#-licencia)
+- [Licencia y uso académico](#️-licencia-y-uso-académico)
+- [Contribuciones](#-contribuciones)
 
 ---
 
@@ -32,10 +36,12 @@ Entre sus principales funcionalidades se encuentran la autenticación segura med
 
 | Rol | Información |
 |---|---|
-| Integrantes | Javier Berrio, Argenis Caro y Miguel Martinez |
+| Integrantes | Javier Berrio, Argenis Caro y Miguel Martínez |
 | Líder del proyecto de aula / Docente | Ing. Cristian Camilo Cuadrado Beltrán |
+| Programa | Tecnología en Desarrollo de Software |
 | Asignatura | Minería de Datos I |
-| Fecha | Octubre de 2026 |
+| Aplicación publicada | [smartglass-production.up.railway.app](https://smartglass-production.up.railway.app) |
+| Última actualización | Noviembre de 2026 |
 
 ---
 
@@ -43,38 +49,53 @@ Entre sus principales funcionalidades se encuentran la autenticación segura med
 
 ### Objetivo general
 
-Desarrollar una plataforma tecnológica para la gestión industrial del vidrio que integre procesos comerciales, administración de información y análisis predictivo de emisiones de CO₂, contribuyendo a una producción más eficiente y sostenible.
+Desarrollar y evaluar una plataforma web para la venta de vidrio a medida que integre procesos comerciales, administración de información y estimación de la huella de carbono de cada pieza antes de fabricarla.
 
 ### Objetivos específicos
 
-- Digitalizar la gestión de productos, inventarios y pedidos industriales.
+- Digitalizar el catálogo, el inventario, las cotizaciones y los pedidos.
 - Implementar mecanismos seguros de autenticación y autorización.
 - Organizar la información mediante una arquitectura de persistencia híbrida.
 - Construir un conjunto de datos reproducible para el análisis de la huella de carbono.
 - Entrenar y evaluar un modelo de aprendizaje automático para estimar las emisiones asociadas a piezas de vidrio.
-- Explorar alternativas de fabricación que permitan reducir el impacto ambiental.
+- Mostrar alternativas de fabricación que permitan comparar el impacto ambiental al decidir la compra.
 
 ---
 
 ## ✨ Funcionalidades principales
 
-### 🏭 Gestión industrial
-- Administración de catálogos de productos y especificaciones técnicas.
-- Gestión de pedidos y sus respectivos detalles.
-- Conservación de información histórica de precios y productos mediante campos de tipo *snapshot*.
-- Gestión de carritos de compra y sesiones de adquisición.
+### 🛒 Tienda
+- Catálogo de 42 productos: 20 de vidrio plano, 7 esculturas y 15 figuras decorativas, con filtros por categoría y búsqueda.
+- Las figuras usan ilustraciones rotuladas como tales; los precios y las reseñas son de demostración.
+- Comparador de hasta tres productos, ofertas, control de existencias y carrito que no exige cuenta.
+- Pedidos con factura y seguimiento. Los detalles conservan el precio de la compra mediante campos de tipo *snapshot*.
 
-### 🔐 Seguridad y autenticación
-- Gestión de usuarios, credenciales y roles.
-- Autenticación mediante JSON Web Tokens (JWT).
-- Integración con Google OAuth2 para el inicio de sesión.
-- Control de acceso mediante Spring Security.
+### 📐 Diseño a medida
+- Configurador con precio, peso, resistencia y CO₂ que se actualizan al instante.
+- Editor de corte: formas base, contorno dibujado a mano y puntos ajustables. El área real del contorno entra en el precio y la huella.
+- Pintar y rellenar un diseño de color, que llega al taller como referencia y no cambia el precio.
+- Vista 3D en vivo de la pieza, que se puede girar y acercar.
+- Cotización que el taller aprueba o rechaza antes de que la pieza pase al carrito.
 
 ### 🌱 Gestión ambiental
-- Estimación de emisiones de CO₂ por pieza de vidrio en el cotizador, con fórmulas deterministas (`AnalisisService`), no con el modelo predictivo.
-- Análisis de variables técnicas relacionadas con el impacto ambiental.
-- Evaluación del efecto potencial del contenido de vidrio reciclado o calcín.
-- Integración del modelo predictivo en la cotización: **siguiente fase** (no implementada; ver [Integración del modelo predictivo](#-integración-del-modelo-predictivo)).
+- Huella de CO₂ por etapas (fusión, templado, laminado, capa activa y transporte), calculada con fórmulas deterministas (`AnalisisService`), no con el modelo predictivo.
+- Opciones que cambian la estimación, como material reciclado y energía solar y eólica.
+- Compromisos verdes, sello ambiental y ficha ambiental imprimible.
+
+### 🔐 Seguridad y cuentas
+- Usuarios, roles y autenticación con JSON Web Tokens (JWT) y Google OAuth2.
+- Spring Security con denegación por defecto, protección CSRF y límites de solicitudes.
+- Recuperación y cambio de contraseña con un código enviado por correo, si se configura un remitente.
+
+### 🧭 Experiencia de uso
+- Guía de compra y recorrido guiado automático, con opción de pausarlo o repetirlo.
+- Español de Colombia, español de España e inglés.
+- Tema claro y oscuro, colores para daltonismo y un modo sin animaciones ni destellos.
+
+### 🧰 Panel de administración
+- Gestión de productos, pedidos, cotizaciones, usuarios y reseñas.
+- Planes Básico y Avanzado que activan o limitan funciones de la plataforma. Aún no tienen precio: se definirán con los resultados del piloto.
+- Informe técnico con un globo 3D interactivo y las gráficas del modelo. El globo muestra el CO₂ fósil total por país en 2024 como contexto, no el del vidrio.
 
 ### 📊 Minería de datos
 - Generación reproducible de datos sintéticos basados en factores de emisión documentados.
@@ -96,7 +117,7 @@ Se utiliza mediante **Spring Data JPA e Hibernate** para administrar informació
 | Entidad | Responsabilidad |
 |---|---|
 | `Usuario` | Gestión de usuarios, credenciales, roles y accesos. |
-| `Pedido` | Registro y administración de órdenes de compra industriales. |
+| `Pedido` | Registro y administración de órdenes de compra. |
 | `DetallePedido` | Almacenamiento de los productos, cantidades y precios asociados a cada pedido. |
 
 Los detalles de los pedidos utilizan campos *snapshot* para conservar información histórica relevante, evitando que los cambios posteriores en los catálogos alteren los datos de operaciones anteriores.
@@ -107,20 +128,22 @@ Se utiliza mediante **Spring Data MongoDB** para almacenar documentos flexibles,
 
 | Documento | Responsabilidad |
 |---|---|
-| `CatalogoProducto` | Variedades de vidrio y sus especificaciones técnicas. |
-| `VidrioSostenible` | Métricas ambientales, huella de carbono y eficiencia energética. |
+| `CatalogoProducto` | Productos de la tienda y sus especificaciones técnicas. |
+| `VidrioSostenible` | Piezas a medida, cotizaciones, huella de carbono y diseño adjunto. |
 | `Carrito` | Información temporal relacionada con las compras de los usuarios. |
+| `Resena` | Opiniones y calificaciones de los productos. |
+| `Notificacion` | Avisos de pedidos y cotizaciones. |
+| `ConfiguracionPlataforma` | Plan activo y funciones de la plataforma. |
 
 ### 🔄 Flujo general de información
 
-1. El usuario accede a la plataforma mediante los mecanismos de autenticación disponibles.
+1. El usuario accede a la plataforma; la tienda y el configurador no exigen cuenta hasta el momento de pagar.
 2. Los controladores reciben las solicitudes y las delegan a los servicios de negocio.
 3. La información transaccional se gestiona mediante MySQL.
 4. Los catálogos y documentos flexibles se administran mediante MongoDB.
 5. El cotizador calcula peso, huella de CO₂, intensidad (kg CO₂e/m²), precio y resistencia de cada pieza con fórmulas deterministas en el backend (`AnalisisService`).
-6. El modelo predictivo de minería de datos se entrena y evalúa aparte, en Python; la aplicación Java **no** lo consulta.
-
-> **Nota:** los pasos 1 a 5 están implementados en el repositorio. Conectar el modelo del paso 6 con las cotizaciones es la siguiente fase.
+6. El taller revisa la cotización en el panel de administración; al aprobarla, la pieza puede pasar al carrito y al pago.
+7. El modelo predictivo de minería de datos se entrena y evalúa aparte, en Python; la aplicación Java **no** lo consulta.
 
 ---
 
@@ -129,33 +152,36 @@ Se utiliza mediante **Spring Data MongoDB** para almacenar documentos flexibles,
 | Categoría | Tecnologías |
 |---|---|
 | Lenguaje backend | Java |
-| Framework | Spring Boot 4.x |
+| Framework | Spring Boot 4.1.1 |
 | Motor de plantillas | Thymeleaf |
+| Interfaz | JavaScript, CSS y Three.js para las vistas 3D |
 | Seguridad | Spring Security, JWT y OAuth2 Client |
 | Base de datos relacional | MySQL 8.x |
 | Base de datos documental | MongoDB |
 | Persistencia | Spring Data JPA, Hibernate y Spring Data MongoDB |
 | Gestión de dependencias | Maven |
 | Lenguaje de análisis | Python 3.13 |
-| Procesamiento de datos | pandas |
+| Procesamiento de datos | pandas y NumPy |
 | Aprendizaje automático | scikit-learn |
 | Visualización | matplotlib y seaborn |
 | Entorno de análisis | Google Colab y Jupyter Notebook |
+| Despliegue | Docker y Railway |
 | Control de versiones | Git y GitHub |
 
-**Compatibilidad de Java:** el proyecto usa Spring Boot 4.1.1 y compila para Java 26 (`java.version` en `backend/pom.xml`); se necesita un JDK 26 o posterior.
+**Compatibilidad de Java:** el proyecto compila para Java 26 (`java.version` en `backend/pom.xml`); se necesita un JDK 26 o posterior. Los pasos de este README se probaron con JDK 27.
 
 ---
 
 ## 📂 Estructura del repositorio
 
 ```text
-SmartGlass/
+Smartglass/
 ├── README.md
 ├── FLUJO-DE-TRABAJO.md             # Estado de cada ítem contra el código
+├── DESPLIEGUE.md                   # Publicar en Render o Railway
+├── Dockerfile, railway.json, render.yaml
 ├── requirements.txt                # Dependencias de Python
 ├── .env.example                    # Plantilla de variables de entorno (sin secretos)
-├── .gitignore
 │
 ├── backend/                        # API y lógica (Spring Boot): mvnw, pom.xml, src/
 │  └── src/
@@ -171,9 +197,9 @@ SmartGlass/
 │   │   │   ├── validation/         # Validadores del registro
 │   │   │   └── SmartglassApplication.java
 │   │   │
-│   │   └── resources/          # application*.properties y textos i18n (messages*)
+│   │   └── resources/              # application*.properties, textos i18n (messages*) e informe técnico
 │   │
-│   └── test/                       # Prueba de carga del contexto (contextLoads)
+│   └── test/                       # Pruebas automáticas
 │
 ├── frontend/                       # Interfaz: el pom.xml la empaqueta en el mismo JAR
 │   ├── templates/                  # Vistas Thymeleaf
@@ -191,30 +217,26 @@ SmartGlass/
 │   ├── metricas_modelo.csv         # Resultados de evaluación
 │   └── exportar_informe.py         # JSON del informe técnico del panel admin
 │
-└── documentos/
-    ├── propuesta_modelo.pdf        # Entregable 2
-    └── informe_metodologico.pdf    # Entregable 3
+├── scripts/                        # Utilidades, como las ilustraciones de las figuras
+├── video promocional/              # Video del proyecto
+└── documentos/                     # Informe, propuesta del modelo, marca y pendón
 ```
 
 ---
 
 ## ⚙️ Requisitos previos
 
-Antes de ejecutar SmartGlass, verifica que el entorno disponga de los siguientes componentes.
-
 ### Backend
 
-- JDK compatible con la versión de Spring Boot utilizada.
-- MySQL Server 8.x en ejecución, normalmente en el puerto `3306`.
-- MongoDB en ejecución local o una instancia accesible mediante URI.
-- Maven o el Maven Wrapper incluido en el repositorio.
-- Git para clonar y administrar el código fuente.
+- **JDK 26 o posterior.** Compruébalo con `java -version`.
+- **MySQL Server 8.x** en ejecución, normalmente en el puerto `3306`.
+- **MongoDB** en ejecución local o una instancia accesible mediante URI.
+- **Git** para clonar el repositorio. Maven no hace falta: el repositorio incluye Maven Wrapper (`mvnw`).
 
 ### Minería de datos
 
-- Python 3.13 o una versión compatible con las dependencias seleccionadas.
-- `pip` para instalar las bibliotecas.
-- Google Colab o Jupyter Notebook para ejecutar el análisis.
+- **Python 3.13** y `pip`.
+- **Jupyter Notebook** o Google Colab para ejecutar el análisis.
 
 ---
 
@@ -227,79 +249,87 @@ git clone https://github.com/OpTicXit/Smartglass.git
 cd Smartglass
 ```
 
-### 2. Configurar las bases de datos
+### 2. Crear la base de datos de MySQL
 
-Asegúrate de que MySQL y MongoDB estén instalados y accesibles.
+La aplicación crea las tablas, pero la base de datos debe existir. Con MySQL en ejecución:
 
-Configura las credenciales y las URI de conexión mediante las propiedades de Spring Boot o variables de entorno. No publiques contraseñas, tokens ni credenciales reales en el repositorio.
+```sql
+CREATE DATABASE smartglass_db;
+```
 
-Las propiedades de conexión deben corresponder con los nombres y mecanismos de configuración que utilice la aplicación.
+MongoDB no necesita preparación: por defecto se conecta a `mongodb://localhost:27017/test`.
 
-### 3. Configurar las variables de entorno
+### 3. Crear el archivo `.env`
 
-Si el proyecto utiliza autenticación con Google OAuth2, registra las credenciales correspondientes en Google Cloud y configura el identificador y el secreto del cliente fuera del código fuente.
+Copia la plantilla en la raíz del repositorio. Spring Boot lee `.env` al arrancar, y Git lo ignora.
 
-De igual manera, configura las claves utilizadas para firmar o validar los JWT mediante un mecanismo seguro.
+**Windows PowerShell:**
 
-`application.properties` no contiene secretos: los lee de estas variables de entorno. La plantilla [`.env.example`](.env.example) las lista con valores de ejemplo no secretos. **Forma recomendada en local:** cópiala a `.env` en la raíz del repositorio y rellena los valores; Spring Boot la lee al arrancar (desde VS Code o desde `backend/` con `mvnw`). `.env` está en `.gitignore` y `.dockerignore`. También puedes definir las variables en el entorno (abajo); las del entorno ganan sobre `.env`.
+```powershell
+Copy-Item .env.example .env
+```
+
+**Linux o macOS:**
+
+```bash
+cp .env.example .env
+```
+
+Después abre `.env` y ajusta estas variables:
 
 | Variable | Obligatoria | Uso |
 |---|---|---|
-| `MYSQL_PASSWORD` | Sí | Contraseña de MySQL |
+| `MYSQL_PASSWORD` | Sí | Contraseña de tu MySQL |
+| `JWT_SECRET` | Sí | Clave para firmar los JWT, de al menos 32 bytes; debe ser **fija** mientras la app esté en uso |
+| `GOOGLE_CLIENT_ID` | Sí | Cliente OAuth2 de Google; para practicar sirve el valor de la plantilla |
+| `GOOGLE_CLIENT_SECRET` | Sí | Secreto de ese cliente; para practicar sirve el valor de la plantilla |
 | `MYSQL_USER` | No (por defecto `root`) | Usuario de MySQL |
-| `JWT_SECRET` | Sí | Clave HMAC-SHA256 para firmar los JWT (mínimo 32 bytes); debe ser **fija** mientras la app esté en uso |
-| `GOOGLE_CLIENT_ID` | Sí | Cliente OAuth2 de Google |
-| `GOOGLE_CLIENT_SECRET` | Sí | Secreto del cliente OAuth2 de Google |
-| `ADMIN_PASSWORD` | Solo la primera vez | Contraseña del administrador inicial (`admin`); si falta, no se crea |
+| `ADMIN_PASSWORD` | Solo la primera vez | Crea el administrador inicial (usuario `admin`); si falta, no se crea |
+| `DEMO_DATOS` | No | Con `true`, carga clientes, cotizaciones y pedidos de ejemplo una sola vez, en una instalación nueva |
+| `DEMO_PASSWORD` | No | Contraseña de los clientes de ejemplo; sin ella nadie puede entrar con esas cuentas |
+| `MAIL_USERNAME`, `MAIL_PASSWORD` | No | Remitente de los códigos de recuperación; sin ellos, el inicio de sesión no ofrece esa opción |
 
-Sin las obligatorias, la aplicación no arranca (`PlaceholderResolutionException: Could not resolve placeholder 'JWT_SECRET'`, por ejemplo). MongoDB no necesita variables: se conecta a `mongodb://localhost:27017/smartglass_catalog`.
+Las variables de despliegue de la plantilla van comentadas con `#`; déjalas así en local, porque una línea vacía como `MYSQL_URL=` impide arrancar. Sin una variable obligatoria, la aplicación tampoco arranca.
 
-Genera **una vez** un `JWT_SECRET` y guárdalo fijo en tu usuario de Windows (así sobrevive a reinicios de la app y de DevTools; si cambia, los JWT ya emitidos dejan de valer):
+Para generar un `JWT_SECRET` propio:
 
-```powershell
-[Environment]::SetEnvironmentVariable('JWT_SECRET', [Convert]::ToBase64String((1..48 | ForEach-Object { Get-Random -Maximum 256 })), 'User')
-```
-
-Luego, en cada terminal nueva (las variables de usuario se cargan al abrirla):
+**Windows PowerShell:**
 
 ```powershell
-$env:MYSQL_PASSWORD = '<tu contraseña de MySQL>'
-$env:GOOGLE_CLIENT_ID = '<id de cliente de Google>'
-$env:GOOGLE_CLIENT_SECRET = '<secreto de cliente de Google>'
-# $env:ADMIN_PASSWORD = '<contraseña>'   # solo si el admin aún no existe en MySQL
-cd backend
-.\mvnw.cmd spring-boot:run
+[Convert]::ToBase64String((1..48 | ForEach-Object { Get-Random -Maximum 256 }))
 ```
 
-Para comprobar qué falta antes de arrancar:
+**Linux o macOS:**
 
-```powershell
-'MYSQL_PASSWORD','JWT_SECRET','GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET' | Where-Object { -not [Environment]::GetEnvironmentVariable($_) }
+```bash
+openssl rand -base64 48
 ```
 
-**Importante:** no subas secretos reales a GitHub ni incluyas credenciales directamente en `application.properties`.
+**Importante:** no subas secretos reales a GitHub ni los incluyas en `application.properties`.
 
 ### 4. Instalar las dependencias de Python
 
-Desde la raíz del repositorio, ejecuta:
+Solo hacen falta para la parte de minería de datos. Desde la raíz del repositorio, crea un entorno virtual y actívalo:
 
-```bash
-python -m pip install -r requirements.txt
-```
-
-Se recomienda utilizar un entorno virtual para aislar las dependencias:
-
-```bash
-python -m venv .venv
-```
-
-En Windows PowerShell:
+**Windows PowerShell:**
 
 ```powershell
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-Después de activar el entorno, instala las dependencias de nuevo si es necesario.
+**Linux o macOS:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Después instala las dependencias y Jupyter:
+
+```bash
+python -m pip install -r requirements.txt notebook
+```
 
 ---
 
@@ -307,9 +337,9 @@ Después de activar el entorno, instala las dependencias de nuevo si es necesari
 
 > Para publicar la aplicación en Render o Railway (Docker, perfil `prod`, MongoDB Atlas y MySQL gestionado), sigue [DESPLIEGUE.md](DESPLIEGUE.md).
 
-### 1. Iniciar el backend
+### 1. Iniciar la aplicación
 
-Desde la carpeta `backend/`, ejecuta el Maven Wrapper (los secretos salen de `.env` en la raíz).
+Ejecútala desde la carpeta `backend/`.
 
 **Windows PowerShell:**
 
@@ -325,39 +355,117 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-Si el proyecto no contiene el Maven Wrapper, utiliza Maven instalado localmente:
-
-```bash
-mvn spring-boot:run
-```
-
-Cuando la aplicación se inicie correctamente, estará disponible en:
+La primera vez tarda más porque descarga las dependencias. Al arrancar con las bases vacías, carga el catálogo y las reseñas de demostración. Cuando termine, abre:
 
 **http://localhost:50500**
 
-Este puerto corresponde a la configuración indicada para el proyecto y debe coincidir con la propiedad `server.port` de Spring Boot.
+### 2. Ejecutar las pruebas
 
-### 2. Generar el dataset
+Desde `backend/`, con MySQL y MongoDB en ejecución:
 
-Desde la raíz del repositorio, ejecuta:
+**Windows PowerShell:**
+
+```powershell
+.\mvnw.cmd test
+```
+
+**Linux o macOS:**
+
+```bash
+./mvnw test
+```
+
+Una de las pruebas arranca la aplicación completa, así que usa las bases de datos configuradas en `.env` y puede cargar en ellas los datos iniciales.
+
+### 3. Generar el dataset
+
+Desde la raíz del repositorio:
 
 ```bash
 python data/generacion_dataset.py
 ```
 
-El script está diseñado para generar un conjunto reproducible de 10.000 registros de piezas de vidrio, con una semilla aleatoria fija de `42`.
+El script genera 10.000 registros con la semilla fija `42` en `data/raw/smartglass_co2.csv`. Con la misma semilla y los mismos factores, el resultado es idéntico.
 
-El archivo de salida esperado es:
+### 4. Ejecutar el análisis predictivo
 
-```text
-data/raw/smartglass_co2.csv
+Abre `mineria de datos/analisis.ipynb` en Jupyter Notebook o Google Colab y ejecuta las celdas en orden:
+
+```bash
+jupyter notebook "mineria de datos/analisis.ipynb"
 ```
 
-### 3. Ejecutar el análisis predictivo
+El notebook busca el CSV junto a sí mismo (en Colab, subiéndolo) o en `../data/raw/` (desde el repositorio). Al terminar, reescribe `modelo_smartglass_co2.pkl` y `metricas_modelo.csv`.
 
-Abre el archivo `mineria de datos/analisis.ipynb` en Google Colab o Jupyter Notebook.
+---
 
-Ejecuta las celdas en orden para reproducir el análisis exploratorio, el preprocesamiento, el entrenamiento y la evaluación del modelo. El notebook busca el CSV junto a sí mismo (Colab, subiéndolo) o en `../data/raw/` (desde el repositorio). Al terminar, reescribe `modelo_smartglass_co2.pkl` y `metricas_modelo.csv`.
+## 🧪 Practica con tu propia copia
+
+Puedes copiar este repositorio para aprender y hacer pruebas sin afectar el original. Todo lo que hagas queda en tu copia.
+
+### 1. Haz tu copia
+
+- **Con GitHub:** pulsa **Fork** en [el repositorio](https://github.com/OpTicXit/Smartglass) y clona tu copia con tu usuario.
+- **Sin cuenta de GitHub:** clónalo directamente, como en la [instalación](#-instalación-y-configuración). También puedes descargarlo con **Code > Download ZIP**.
+
+Luego trabaja en una rama propia:
+
+```bash
+git switch -c mi-practica
+```
+
+### 2. Usa valores de práctica en `.env`
+
+Tras seguir la [instalación](#-instalación-y-configuración), esta configuración basta para practicar. Google queda con los valores de la plantilla y el correo queda vacío:
+
+```dotenv
+MYSQL_PASSWORD=la_contraseña_de_tu_mysql_local
+JWT_SECRET=un_valor_generado_con_el_comando_de_la_instalacion
+ADMIN_PASSWORD=una_contraseña_solo_para_practicar
+DEMO_DATOS=true
+DEMO_PASSWORD=otra_contraseña_solo_para_practicar
+```
+
+Usa contraseñas inventadas para esta práctica, nunca las de tus cuentas reales.
+
+### 3. Entra a la aplicación
+
+| Cuenta | Usuario | Contraseña |
+|---|---|---|
+| Administrador | `admin` | La de `ADMIN_PASSWORD` |
+| Cliente de ejemplo | `laura.gomez` | La de `DEMO_PASSWORD` |
+
+El inicio de sesión pide el usuario, no el correo. Si `ADMIN_PASSWORD` estaba vacía la primera vez, agrégala y reinicia: el administrador se crea solo si aún no existe.
+
+Con esta configuración funcionan la tienda, el configurador, las cuentas locales y el panel de administración. **No** funcionan el inicio de sesión con Google ni la recuperación de contraseña, porque necesitan credenciales propias.
+
+### 4. Ideas para practicar
+
+**Desarrollo web:**
+
+- Agrega un producto en `CatalogoFigurasSeeder` y mira cómo aparece al reiniciar.
+- Cambia un texto en `backend/src/main/resources/messages.properties` y su versión en `messages_en.properties`.
+- Modifica un factor de CO₂ en `AnalisisService` y en `frontend/static/js/glass-preview.js`, que hace el mismo cálculo en pantalla, y comprueba cómo cambia la cifra en el configurador.
+- Escribe una prueba nueva en `backend/src/test` y ejecútala.
+
+**Minería de datos:**
+
+- Cambia `n` o un multiplicador en `data/generacion_dataset.py` y vuelve a ejecutar el notebook.
+- Compara Random Forest con otro algoritmo de regresión, usando MAE, RMSE y R².
+- Agrega `masa_kg` a las variables y observa por qué sube la métrica: es el efecto de la filtración descrita en [el componente de minería](#-componente-de-minería-de-datos-i).
+- Si reentrenas y quieres ver los resultados en el panel, ejecuta `mineria de datos/exportar_informe.py`, que necesita conexión a internet.
+
+### 5. Si algo falla
+
+| Mensaje | Causa probable | Solución |
+|---|---|---|
+| `UnsupportedClassVersionError` o error de versión de Java | JDK anterior a 26 | Instala un JDK 26 o posterior y apunta `JAVA_HOME` a él |
+| `Could not resolve placeholder` | Falta `.env` o una variable obligatoria | Revisa el paso 3 de la instalación y arranca desde `backend/` |
+| `Failed to configure a DataSource` | `MYSQL_URL` quedó definida y vacía en `.env` | Coméntala con `#` o bórrala |
+| `Unknown database 'smartglass_db'` | No se creó la base | Ejecuta `CREATE DATABASE smartglass_db;` |
+| `Access denied for user` | Credenciales de MySQL incorrectas | Revisa `MYSQL_USER` y `MYSQL_PASSWORD` |
+| No entra `admin` | `ADMIN_PASSWORD` estaba vacía al arrancar | Defínela y reinicia |
+| El puerto `50500` está ocupado | Otra aplicación lo usa | Define `PORT=50501` en `.env` y usa ese puerto |
 
 ---
 
@@ -379,7 +487,9 @@ El proyecto aborda esta pregunta mediante un modelo de regresión que utiliza ca
 | Variable objetivo | `co2_kg` |
 | Tipo de problema | Regresión supervisada |
 | Semilla de generación | `42` |
-| Fuente | Datos derivados de factores de emisión documentados |
+| Fuente | Datos sintéticos derivados de factores de emisión documentados y de multiplicadores por tipo definidos por el equipo |
+
+El dataset **no** proviene de una planta ni de una vidriería. Contiene 0 valores nulos y 2 filas repetidas (0,02 %), que se conservan porque dos piezas pueden coincidir. El generador sortea el tipo de vidrio y el proceso de forma independiente, así que algunas combinaciones son poco realistas.
 
 Entre los tipos de vidrio considerados se encuentran:
 
@@ -396,6 +506,16 @@ Entre los tipos de vidrio considerados se encuentran:
 El modelo usa **6 variables predictoras**: `tipo_vidrio` y `proceso` (categóricas, One-Hot) y `area_m2`, `espesor_mm`, `calcin_pct` y `energia_kwh_kg` (numéricas). **`masa_kg` se excluye**: el generador la calcula como `area_m2 × espesor_mm × 2,5`, la misma fórmula de la que sale `co2_kg`, así que incluirla filtraría la respuesta al modelo (*leakage*) e inflaría las métricas.
 
 El dataset modela sus propios factores de emisión (multiplicador por tipo, energía del proceso, factor de red de 0,220 kg CO₂/kWh de UPME para 2024, calcín de 10 a 80 % con media cercana al 25 %). **No** reproduce las fórmulas del cotizador web (`AnalisisService`), que usa 7 tipos y factores distintos. Por eso el modelo es un estudio independiente, no una validación del cotizador.
+
+### Patrones encontrados
+
+| Patrón | Evidencia en el dataset |
+|---|---|
+| El peso domina el CO₂ total | Correlación de 0,905 entre `masa_kg` y `co2_kg` |
+| El tipo de vidrio cambia la intensidad | De 0,99 kg de CO₂ por kg en el reciclado a 3,10 en el inteligente, frente a 1,40 del float |
+| El calcín reduce la huella | Sin el tipo reciclado, de 1,81 kg de CO₂ por kg con 10 % de calcín a 1,55 con 40 % (14,3 % menos) |
+
+Como el generador se construye con estas relaciones, los patrones comprueban que el método las recupera; no prueban que ocurran igual en una vidriería real.
 
 ### Modelo predictivo
 
@@ -414,18 +534,17 @@ El algoritmo seleccionado es **Random Forest Regressor**, un método de aprendiz
 
 ### Métricas de evaluación
 
-Resultados del notebook re-ejecutado sin `masa_kg` (los mismos que guarda `metricas_modelo.csv`):
+Resultados en los 2.000 registros de prueba:
 
-| Métrica | Resultado | Interpretación |
-|---|---:|---|
-| MAE | 13,52 kg de CO₂ | Error absoluto medio en el conjunto de prueba. |
-| RMSE | 25,56 kg de CO₂ | Penaliza en mayor medida los errores grandes. |
-| R² (prueba) | 0,9613 | El modelo explica cerca del 96,1 % de la variabilidad en el conjunto de prueba. |
-| R² de validación cruzada | 0,9615 ± 0,0036 | Media y desviación en cinco particiones; es la cifra más representativa. |
+| Modelo | MAE (kg de CO₂) | RMSE (kg de CO₂) | R² |
+|---|---:|---:|---:|
+| Media (siempre predice el promedio) | 99,87 | 129,99 | -0,0004 |
+| Regresión lineal | 31,84 | 45,09 | 0,880 |
+| **Random Forest (200 árboles)** | **13,52** | **25,56** | **0,9613** |
 
-Una versión anterior reportaba MAE 20,69 y R² 0,9461. Esas cifras salían de un modelo que **incluía `masa_kg`** y por eso eran más altas; se descartaron por la filtración descrita arriba.
+El R² de validación cruzada es de 0,9615 ± 0,0036. En entrenamiento, el modelo obtiene R² 0,9947 y MAE de 4,86 kg: hay algo de sobreajuste, aunque la validación cruzada es estable.
 
-**Consideración metodológica:** un R² elevado no demuestra por sí solo que las predicciones representen con precisión las emisiones industriales reales. La calidad del modelo depende de la fiabilidad de los factores de emisión, la representatividad del dataset y la ausencia de filtraciones de información entre entrenamiento y prueba.
+**Consideración metodológica:** el R² de 0,9613 no significa que acierte el 96 % de las veces: explica esa parte de la variación dentro de datos sintéticos. El modelo también falla más en los tipos con pocos registros; por ejemplo, fotovoltaico promedia 314 kg reales y 215 predichos. La precisión con piezas reales se medirá en la fase piloto.
 
 ### Flujo de trabajo analítico
 
@@ -446,13 +565,13 @@ Una versión anterior reportaba MAE 20,69 y R² 0,9461. Esas cifras salían de u
 
 ### Estado actual
 
-**El modelo no está integrado en la aplicación.** `modelo_smartglass_co2.pkl` es un artefacto entrenado y evaluado aparte (MAE 13,52 kg · R² de validación cruzada 0,9615, sin filtración), versionado en el repositorio. Ningún componente Java lo carga ni lo consulta (el informe técnico del panel admin solo muestra sus resultados, ya exportados): las cifras de CO₂ que muestra la web salen de las fórmulas deterministas de `AnalisisService`. La presencia del archivo `.pkl` no implica integración.
+**El modelo no está integrado en la aplicación.** `modelo_smartglass_co2.pkl` es un artefacto entrenado y evaluado aparte, versionado en el repositorio. Ningún componente Java lo carga ni lo consulta (el informe técnico del panel admin solo muestra sus resultados, ya exportados): las cifras de CO₂ que muestra la web salen de las fórmulas deterministas de `AnalisisService`. La presencia del archivo `.pkl` no implica integración.
 
 Además, hoy no se podría conectar directamente: el modelo necesita `proceso`, `energia_kwh_kg` y `calcin_pct`, que el formulario de cotización no pide, y conoce 20 tipos de vidrio frente a los 7 del cotizador.
 
 ### Siguiente fase (no implementada)
 
-La integración prevista, relacionada con las historias de usuario US-09 y US-13, permitiría:
+La decisión actual es no usar el modelo para cotizar hasta validarlo con datos reales del piloto. Una integración futura permitiría:
 
 - **Estimación durante la cotización:** consultar el modelo con los parámetros de la pieza, como segunda opinión junto al cálculo determinista.
 - **Recomendación de alternativas sostenibles:** comparar escenarios de fabricación (por ejemplo, más calcín). Estas recomendaciones deben sustentarse en los datos y en las restricciones técnicas del proceso; no se debe asumir que aumentar el contenido reciclado siempre reduce las emisiones.
@@ -497,20 +616,21 @@ Incorpora la estimación de emisiones de CO₂ en el cotizador y un análisis pr
 
 - Branca, T. A., Colla, V., & Algermissen, D. (2020). *Reducing CO₂ emissions in energy-intensive industries*. Energy, 211, 118650.
 - Ministerio para la Transición Ecológica y el Reto Demográfico (MITECO). (2013). *Fabricación de vidrio: Proceso*.
-- Guardian Glass. *How glass is made*.
+- Unidad de Planeación Minero Energética (UPME). (2024). [*Factores de emisión del Sistema Interconectado Nacional*](https://docs.upme.gov.co/SIMEC/Cambio-Climatico/Documents/Calculo-FE-del-SIN/Factores_de_emision_SIN_2024.pdf).
+- Guardian Glass. *How glass is made* y declaraciones ambientales de producto.
+- Glass for Europe. Datos del contenido de calcín en el vidrio plano.
+- Our World in Data. [*CO₂ and greenhouse gas emissions*](https://github.com/owid/co2-data). Usado solo como contexto en el globo del informe técnico.
 - Colombia. Ley 2169 de 2021. Medidas para impulsar el desarrollo bajo en carbono del país y establecer metas y medidas mínimas en materia de carbono-neutralidad y resiliencia climática.
-
-Las referencias deben contrastarse con las fuentes originales antes de la entrega académica, especialmente los factores de emisión específicos utilizados para construir el dataset.
 
 ---
 
 ## ⚖️ Licencia y uso académico
 
-SmartGlass es un proyecto desarrollado con fines académicos
+SmartGlass es un proyecto desarrollado con fines académicos.
 
 Su propósito es aplicar conocimientos de ingeniería de software, persistencia de datos y aprendizaje automático a un problema relacionado con la sostenibilidad en la industria del vidrio.
 
-No se especifica una licencia de software abierta en este documento.
+Puedes clonar, ejecutar y modificar este repositorio para aprender y practicar. No se especifica una licencia de software abierta; para otros usos, consulta al equipo.
 
 ---
 
@@ -518,7 +638,7 @@ No se especifica una licencia de software abierta en este documento.
 
 Para contribuir al proyecto:
 
-1. Clona el repositorio.
+1. Crea un *fork* del repositorio y clónalo.
 2. Crea una rama para tus cambios.
 3. Implementa y prueba las modificaciones.
 4. Registra los cambios mediante commits descriptivos.
