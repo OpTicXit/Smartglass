@@ -304,6 +304,74 @@
         });
     }
 
+    /* Actividad en vivo: consulta la plataforma cada 30 s mientras la pestana esta a la vista */
+    var CADA_MS = 30000, vivoFig = document.querySelector('[data-vivo-grafica]'), vivoEstado = document.getElementById('vivo-estado');
+    var vivoMetricas = document.getElementById('vivo-metricas'), vivoHora = '';
+
+    function grafVivo(dias) {
+        var abierta = vivoFig.querySelector('details');
+        var estabaAbierta = abierta && abierta.open;
+        var ancho = Math.max(280, vivoFig.clientWidth - 36), alto = 190, m = { a: 8, b: 26, i: 44, d: 6 };
+        var max = Math.max.apply(null, dias.map(function (d) { return d.co2Kg; }));
+        var ticks = escalaBonita(max || 1), tope = ticks[ticks.length - 1];
+        var s = lienzo(vivoFig, ancho, alto), util = alto - m.a - m.b, paso = (ancho - m.i - m.d) / dias.length;
+        var y = function (v) { return m.a + util * (1 - v / tope); };
+        ticks.forEach(function (t) {
+            nodo('line', { x1: m.i, x2: ancho - m.d, y1: y(t), y2: y(t), 'class': 'g-eje' }, s);
+            nodo('text', { x: m.i - 6, y: y(t), 'text-anchor': 'end', 'dominant-baseline': 'central' }, s, compacto(t));
+        });
+        dias.forEach(function (d, i) {
+            var x = m.i + i * paso, fecha = d.fecha.slice(8) + '/' + d.fecha.slice(5, 7);
+            var franja = nodo('rect', { x: x, y: m.a, width: paso, height: util, 'class': 'g-fila' }, s);
+            if (d.co2Kg > 0) {
+                var w = Math.max(2, paso - 2), h = Math.max(2, util * d.co2Kg / tope), r = Math.min(3, w / 2, h);
+                nodo('path', {
+                    d: 'M' + (x + 1) + ' ' + (m.a + util) + 'v' + (r - h) + 'a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + (-r) + 'h' + (w - 2 * r) +
+                       'a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + 'v' + (h - r) + 'z',
+                    'class': 'g-a', 'pointer-events': 'none'
+                }, s);
+            }
+            if ((dias.length - 1 - i) % 7 === 0) nodo('text', { x: x + paso / 2, y: alto - 8, 'text-anchor': 'middle' }, s, fecha);
+            conTip(franja, fecha, NUM.format(d.co2Kg) + ' kg · ' + d.cotizaciones + ' ' + sgT('inf_vivo_cotizaciones').toLowerCase());
+        });
+        if (abierta) abierta.remove();
+        tabla(vivoFig, [sgT('inf_vivo_fecha'), sgT('inf_kg'), sgT('inf_vivo_cotizaciones')], dias.map(function (d) {
+            return [d.fecha, NUM.format(d.co2Kg), d.cotizaciones];
+        }));
+        vivoFig.querySelector('details').open = !!estabaAbierta;
+    }
+
+    function pintarVivo(a) {
+        vivoHora = new Date().toLocaleTimeString(window.SG_LANG || 'es-CO');
+        vivoEstado.classList.remove('con-error');
+        vivoEstado.textContent = sgT('inf_vivo_estado', '', vivoHora);
+        vivoMetricas.textContent = '';
+        [[ENTERO.format(a.cotizaciones), sgT('inf_vivo_cotizaciones')], [ENTERO.format(a.pendientes), sgT('inf_vivo_pendientes')],
+         [ENTERO.format(a.pedidos), sgT('inf_vivo_pedidos')], [NUM.format(a.co2Kg) + ' kg', sgT('inf_vivo_co2')],
+         [ENTERO.format(a.cotizacionesSemana), sgT('inf_vivo_semana')], [NUM.format(a.co2KgSemana) + ' kg', sgT('inf_vivo_co2_semana')],
+         [ENTERO.format(a.pedidosSemana), sgT('inf_vivo_pedidos') + ' · 7 d'], [a.pctReciclado + ' %', sgT('inf_vivo_reciclado')]].forEach(function (x) {
+            var d = document.createElement('div'), b = document.createElement('b'), t = document.createElement('small');
+            b.textContent = x[0]; t.textContent = x[1]; d.appendChild(b); d.appendChild(t); vivoMetricas.appendChild(d);
+        });
+        grafVivo(a.dias);
+        vivoFig.sgDias = a.dias;
+    }
+
+    function consultarVivo() {
+        if (document.hidden) return;
+        fetch(main.dataset.vivo, { headers: { Accept: 'application/json' } })
+            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+            .then(pintarVivo)
+            .catch(function () {
+                vivoEstado.classList.add('con-error');
+                vivoEstado.textContent = sgT('inf_vivo_error', '', vivoHora || '-');
+            });
+    }
+    consultarVivo();
+    setInterval(consultarVivo, CADA_MS);
+    document.addEventListener('visibilitychange', consultarVivo);
+    addEventListener('resize', function () { if (vivoFig.sgDias) grafVivo(vivoFig.sgDias); });
+
     window.sgInformeDatos.then(pintar).catch(function () {
         var nota = document.querySelector('.informe-nota');
         nota.textContent = sgT('inf_error_datos');

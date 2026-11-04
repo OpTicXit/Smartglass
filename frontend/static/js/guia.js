@@ -1,5 +1,7 @@
 /* U6 · Guia automatizada (textos: fragments/tour.html; estilos: theme.css "U6 · Guia automatizada").
-   Recorre inicio -> catalogo -> detalle -> configurador (y su editor de corte) y vuelve al inicio.
+   Recorre inicio -> catalogo -> detalle -> configurador (y su editor de corte) y deja a la persona en /login?guia=fin.
+   Si a los dos minutos no ha terminado, ofrece seguir, repetirlo a su ritmo (sin avance automatico), ir al inicio
+   de sesion o salir.
    Un recuadro iluminado viaja suavemente hasta cada cosa mientras la pagina se desplaza con el, y el
    mensaje aparece a su lado con una flecha que la senala: nunca encima de lo que se explica. Se pide lo
    minimo a la pagina: si lo que se explica y su mensaje ya caben, no se desplaza.
@@ -8,7 +10,7 @@
    - no pulsa "agregar al carrito", "cotizar" ni los interruptores de accesibilidad (esos se guardan);
    - al terminar o salir restaura el borrador del editor (localStorage sg-borrador*) tal como estaba.
    Solo pasa por paginas publicas: nada del panel de administracion.
-   Estado entre paginas en sessionStorage "sg-guia" ({ i, pausado, detalle, guardado }); a11y-init.js lo
+   Estado entre paginas en sessionStorage "sg-guia" ({ i, pausado, detalle, guardado, inicio, modo, avisado }); a11y-init.js lo
    lee antes de pintar para atenuar la pagina desde el primer cuadro.
    Accesible: region con aria-live, pausa (WCAG 2.2.2), siguiente y salir; Esc sale. Con movimiento
    reducido o fotosensible sigue avanzando sola, pero los cambios son inmediatos. */
@@ -19,7 +21,7 @@
   // En una pagina de error (templates/error.html) la invitacion taparia los botones para salir de ella
   if (!datos || !datos.content || document.querySelector('.pagina-error')) return;
   var CLAVE = 'sg-guia', VISTO = 'sg-tour-visto';
-  var MARGEN = 10, SEPARACION = 24, RELLENO = 8;   // separacion: del borde del objetivo al mensaje, con la flecha en medio
+  var LIMITE_MS = 120000, MARGEN = 10, SEPARACION = 24, RELLENO = 8;   // separacion: del borde del objetivo al mensaje, con la flecha en medio
   var TXT = {};
   Array.prototype.forEach.call(datos.content.querySelectorAll('section[data-id]'), function (s) {
     TXT[s.getAttribute('data-id')] = { t: s.querySelector('h2').textContent, p: s.querySelector('p').textContent };
@@ -182,7 +184,7 @@
     var r0 = rectObjetivo() || centroPantalla(), corrimiento = plan.ventana + plan.enPanel;
     var fin = { top: r0.top - corrimiento, left: r0.left, width: r0.width, height: r0.height };
     var distancia = Math.abs(corrimiento) + Math.abs(fin.top - desde.top) + Math.abs(fin.left - desde.left);
-    var dura = acotar(420 + distancia * 0.45, 500, 1000);
+    var dura = acotar(300 + distancia * 0.3, 340, 680);
     moviendo = true;
     return new Promise(function (hecho) {
       var ini = 0;
@@ -226,14 +228,14 @@
   function evento(el, tipo) { el.dispatchEvent(new Event(tipo, { bubbles: true })); }
   function deslizar(el, fin) {
     if (!el) return Promise.resolve();
-    var ini = parseFloat(el.value) || 0, pasos = quieto() || saltando ? 1 : 24, k = 0;
+    var ini = parseFloat(el.value) || 0, pasos = quieto() || saltando ? 1 : 14, k = 0;
     return new Promise(function (r) {
       (function paso() {
         k++;
         el.value = String(Math.round(ini + (fin - ini) * k / pasos));
         evento(el, 'input');
         if (k >= pasos || saltando) { el.value = String(fin); evento(el, 'input'); evento(el, 'change'); r(); return; }
-        setTimeout(paso, 40);
+        setTimeout(paso, 30);
       })();
     });
   }
@@ -257,7 +259,7 @@
       demo: function () {
         var eco = $('#opcionEco');
         tildar(eco, false);
-        return esperar(1600).then(function () { tildar(eco, true); });
+        return esperar(1100).then(function () { tildar(eco, true); });
       } },
     { id: 'editor', pagina: COTIZAR, saltarSi: function () { return !window.SGCorte || !$('[data-sg-corte]'); },
       foco: function () { return [$('#sgc-3d')]; },
@@ -269,11 +271,11 @@
         var a = [$('.navbar [data-tour="ajustes"]'), $('.navbar [data-a11y-control]')];
         return visibles(a).length ? a : [$('.nav-toggle')];
       } },
-    { id: 'final', pagina: '/home', foco: function () { return [$('.hero-cta')]; }, fin: true }
+    { id: 'final', pagina: COTIZAR, fin: true }
   ];
 
   /* ---------- Caja ---------- */
-  var estado = leer(), caja = null, temporizador = 0, saltando = false, corriendo = false, esperando = false, alSalir = null, vigia = null;
+  var estado = leer(), caja = null, temporizador = 0, saltando = false, corriendo = false, esperando = false, alSalir = null, vigia = null, reloj = 0;
 
   function enPagina(p) {
     var ruta = location.pathname;
@@ -296,11 +298,17 @@
     caja.setAttribute('role', 'region');
     caja.setAttribute('aria-label', d('region', 'Recorrido guiado'));
     caja.innerHTML = '<i class="sg-guia-flecha" aria-hidden="true" hidden></i>' +
-      '<p class="sg-tour-n"></p><div class="sg-guia-barra" aria-hidden="true"><i></i></div>' +
+      '<p class="sg-tour-n"></p><div class="sg-guia-barra" aria-hidden="true">' + PASOS.map(function () { return '<i></i>'; }).join('') + '</div>' +
       '<h2 class="sg-tour-titulo" tabindex="-1"></h2><p class="sg-tour-texto" aria-live="polite"></p>' +
       '<dl class="sg-guia-cifras" hidden><div><dt></dt><dd data-c="p"></dd></div><div><dt></dt><dd data-c="co"></dd></div></dl>' +
       '<p class="sg-guia-nota" hidden></p>' +
+      '<div class="sg-guia-opciones" hidden>' +
+      '<button type="button" class="btn btn-primary btn-sm" data-o="seguir"></button>' +
+      '<button type="button" class="btn btn-secondary btn-sm" data-o="ritmo"></button>' +
+      '<button type="button" class="btn btn-secondary btn-sm" data-o="login"></button>' +
+      '<button type="button" class="sg-tour-saltar" data-o="salir"></button></div>' +
       '<div class="sg-tour-acciones"><button type="button" class="sg-tour-saltar" data-g="salir"></button>' +
+      '<button type="button" class="btn btn-secondary btn-sm" data-g="atras"></button>' +
       '<button type="button" class="btn btn-secondary btn-sm" data-g="pausa"></button>' +
       '<button type="button" class="btn btn-primary btn-sm" data-g="sig"></button></div>';
     document.body.appendChild(caja);
@@ -313,21 +321,79 @@
     caja.querySelector('[data-g="pausa"]').addEventListener('click', function () {
       estado.pausado = !estado.pausado; guardar(estado); pintarControles(); programar();
     });
+    caja.querySelector('[data-g="atras"]').textContent = d('atras', 'Atrás');
+    caja.querySelector('[data-g="atras"]').addEventListener('click', anterior);
+    caja.querySelector('[data-o="seguir"]').textContent = d('op_seguir', 'Seguir donde iba');
+    caja.querySelector('[data-o="ritmo"]').textContent = d('op_ritmo', 'Repetirlo a mi ritmo');
+    caja.querySelector('[data-o="login"]').textContent = d('op_login', 'Ir al inicio de sesión');
+    caja.querySelector('[data-o="salir"]').textContent = d('op_salir', 'Salir de la guía');
+    caja.querySelector('[data-o="seguir"]').addEventListener('click', function () {
+      estado.pausado = false; quitarOpciones(); ejecutar();
+    });
+    caja.querySelector('[data-o="ritmo"]').addEventListener('click', function () {
+      estado.i = 0; estado.modo = 'ritmo'; estado.pausado = false; quitarOpciones(); ejecutar();
+    });
+    caja.querySelector('[data-o="login"]').addEventListener('click', function () { terminar(); });
+    caja.querySelector('[data-o="salir"]').addEventListener('click', function () { salir(); });
     caja.querySelector('[data-g="sig"]').addEventListener('click', function () {
       if (esperando) { esperando = false; ejecutar(); return; }   // vuelve a la pagina del paso pendiente
       siguiente(true);
     });
     document.addEventListener('keydown', teclas);
     cuadro = requestAnimationFrame(seguir);
+    vigilarLimite();
+  }
+  /* ---------- Dos minutos sin terminar: se ofrecen opciones ---------- */
+  function vigilarLimite() {
+    clearTimeout(reloj);
+    if (!estado || estado.avisado || estado.modo === 'ritmo') return;
+    reloj = setTimeout(mostrarOpciones, Math.max(0, (estado.inicio || Date.now()) + LIMITE_MS - Date.now()));
+  }
+  function mostrarOpciones() {
+    if (!caja) return;
+    if (corriendo) { reloj = setTimeout(mostrarOpciones, 300); return; }
+    clearTimeout(temporizador);
+    estado.avisado = true;
+    estado.pausado = true;
+    esperando = false;
+    guardar(estado);
+    soltar();
+    objetivos = [];
+    caja.querySelector('.sg-tour-titulo').textContent = d('opciones_t', '¿Cómo seguimos?');
+    caja.querySelector('.sg-tour-texto').textContent = d('opciones', 'Llevas dos minutos en el recorrido.');
+    caja.querySelector('.sg-guia-cifras').hidden = true;
+    caja.querySelector('.sg-guia-nota').hidden = true;
+    caja.querySelector('.sg-guia-opciones').hidden = false;
+    caja.classList.add('con-opciones');
+    caja.classList.remove('is-oculta');
+    var r = centroPantalla();
+    ultimo = r;
+    pintarFoco(r);
+    colocarCaja(r);
+    caja.querySelector('[data-o="seguir"]').focus({ preventScroll: true });
+  }
+  function quitarOpciones() {
+    caja.querySelector('.sg-guia-opciones').hidden = true;
+    caja.classList.remove('con-opciones');
+    guardar(estado);
+  }
+  function anterior() {
+    if (corriendo || estado.i <= 0) return;
+    clearTimeout(temporizador);
+    estado.i--;
+    while (estado.i > 0 && PASOS[estado.i].saltarSi && PASOS[estado.i].saltarSi()) estado.i--;
+    guardar(estado);
+    ejecutar();
   }
   function teclas(e) { if (e.key === 'Escape' && caja) { e.preventDefault(); salir(); } }
   function pintarControles() {
     var p = caja.querySelector('[data-g="pausa"]'), fin = !!(PASOS[estado.i] && PASOS[estado.i].fin);
     p.textContent = estado.pausado ? d('reanudar', 'Reanudar') : d('pausar', 'Pausar');
     p.setAttribute('aria-pressed', String(!!estado.pausado));
-    p.hidden = fin;
-    caja.querySelector('[data-g="salir"]').hidden = fin;
-    caja.querySelector('[data-g="sig"]').textContent = fin ? d('terminar', 'Terminar') : d('siguiente', 'Siguiente');
+    var aRitmo = estado.modo === 'ritmo';
+    p.hidden = aRitmo;
+    caja.querySelector('[data-g="atras"]').hidden = !aRitmo || estado.i === 0;
+    caja.querySelector('[data-g="sig"]').textContent = fin ? d('ir_login', 'Ir al inicio de sesión') : d('siguiente', 'Siguiente');
   }
   /** Copia en la caja el precio y el CO2 de la pagina: se ven cambiar sin mover la pantalla hasta donde estan. */
   function pintarCifras(si) {
@@ -346,7 +412,7 @@
   function pintar(paso) {
     var tx = TXT[paso.id] || { t: '', p: '' };
     caja.querySelector('.sg-tour-n').textContent = d('paso', 'Paso {0} de {1}').replace('{0}', estado.i + 1).replace('{1}', PASOS.length);
-    caja.querySelector('.sg-guia-barra i').style.width = ((estado.i + 1) / PASOS.length * 100) + '%';
+    Array.prototype.forEach.call(caja.querySelectorAll('.sg-guia-barra i'), function (s, k) { s.classList.toggle('hecho', k <= estado.i); });
     var h = caja.querySelector('.sg-tour-titulo');
     h.textContent = tx.t;
     caja.querySelector('.sg-tour-texto').textContent = tx.p;
@@ -360,10 +426,10 @@
     clearTimeout(temporizador);
     // Avanza solo tambien con movimiento reducido (Android lo activa con "Quitar animaciones" y, en algunos
     // telefonos, con el ahorro de bateria): lo que se quita es el movimiento, no la automatizacion. Pausar siempre esta.
-    // El ultimo paso no avanza: la persona decide cuando cerrarlo.
-    if (!caja || corriendo || estado.pausado || (PASOS[estado.i] || {}).fin) return;
+    // A su ritmo, solo avanza con Siguiente.
+    if (!caja || corriendo || estado.pausado || estado.modo === 'ritmo') return;
     var tx = TXT[(PASOS[estado.i] || {}).id] || { p: '' };
-    temporizador = setTimeout(function () { siguiente(false); }, Math.min(12000, Math.max(4200, 1800 + tx.p.length * 55)));
+    temporizador = setTimeout(function () { siguiente(false); }, Math.min(9000, Math.max(3000, 1200 + tx.p.length * 38)));
   }
 
   function soltar() {
@@ -397,7 +463,7 @@
     corriendo = true;
     saltando = false;
     caja.classList.add('is-oculta');
-    (llegando ? Promise.resolve() : esperar(160))
+    (llegando ? Promise.resolve() : esperar(90))
       .then(function () {
         if (paso.antes || alSalir) { desde = null; return cruzar(function () { prepararPaso(paso); }); }
         prepararPaso(paso);
@@ -412,7 +478,8 @@
         pintarFoco(r);
         colocarCaja(r);
         caja.classList.remove('is-oculta');
-        return paso.demo ? esperar(900).then(paso.demo) : null;
+        foco.classList.remove('llega'); void foco.offsetWidth; foco.classList.add('llega');
+        return paso.demo ? esperar(350).then(paso.demo) : null;
       })
       .catch(function () { /* un elemento que no esta: se sigue */ })
       .then(function () {
@@ -432,6 +499,7 @@
   }
   function limpiar() {
     clearTimeout(temporizador);
+    clearTimeout(reloj);
     cancelAnimationFrame(cuadro);
     soltar();
     objetivos = [];
@@ -445,11 +513,15 @@
     try { sessionStorage.removeItem(CLAVE); } catch (e) { /* nada */ }
   }
   function salir() { limpiar(); estado = null; }
-  function terminar() { salir(); }
+  function terminar() {
+    var conCuenta = !!document.querySelector('.navbar[data-auth="true"]');
+    salir();
+    location.assign(conCuenta ? '/home' : '/login?guia=fin');
+  }
 
   function iniciar() {
     try { localStorage.setItem(VISTO, '1'); } catch (e) { /* nada */ }
-    estado = { i: 0, pausado: false, detalle: null, guardado: fotografia() };
+    estado = { i: 0, pausado: false, detalle: null, guardado: fotografia(), inicio: Date.now(), modo: 'auto', avisado: false };
     guardar(estado);
     ejecutar();
   }
@@ -471,7 +543,7 @@
     c.innerHTML = '<h2 class="sg-tour-titulo"></h2><p class="sg-tour-texto"></p><div class="sg-tour-acciones">' +
       '<button type="button" class="sg-tour-saltar"></button><button type="button" class="btn btn-primary btn-sm"></button></div>';
     c.querySelector('h2').textContent = d('invita_t', '¿Te mostramos SmartGlass?');
-    c.querySelector('.sg-tour-texto').textContent = d('invita', 'Un recorrido automático de poco más de un minuto. No se guarda nada.');
+    c.querySelector('.sg-tour-texto').textContent = d('invita', 'Un recorrido automático de cerca de un minuto. No se guarda nada.');
     var no = c.querySelector('.sg-tour-saltar'), si = c.querySelector('.btn');
     no.textContent = d('ahora_no', 'Ahora no');
     si.textContent = d('ver', 'Ver el recorrido');

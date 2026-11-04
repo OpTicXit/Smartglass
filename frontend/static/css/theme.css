@@ -18,17 +18,17 @@
    1. TOKENS
 ========================================================= */
 :root {
-  /* Manual de marca (oct. 2026), tema oscuro "Deep Dark Tech": fondos Grafito Tech #0E1420,
+  /* Manual de marca (oct. 2026), tema oscuro: fondos grafito azulado #1D2531 (aclarado en nov. 2026, antes #0E1420),
      textos Hielo #EAF6FF, acento Cian Vidrio #00C2FF, secundario Azul Electrico #0072FF y
      Verde ODS #00E5A0 para lo sostenible. Regla 60-30-10: fondos, marca, acentos. */
-  --bg-primary: #0E1420;
-  --bg-secondary: #131B2B;
-  --bg-tertiary: #1A2438;
+  --bg-primary: #1D2531;
+  --bg-secondary: #252F3E;
+  --bg-tertiary: #2E3A4B;
 
-  /* Textos (Hielo y sus grises azulados; todos >= 4,5:1 sobre Grafito) */
+  /* Textos (Hielo y sus grises azulados; todos >= 4,5:1 sobre las tres superficies) */
   --text-main: #EAF6FF;
-  --text-muted: #AFC2D6;
-  --text-subtle: #8197B2;
+  --text-muted: #B9CADC;
+  --text-subtle: #A0B2C8;
   --text-on-accent: #0E1420;
 
   /* Acento - Cian Vidrio (el bisel de la G). En oscuro el boton es cian con texto Grafito (9:1);
@@ -46,20 +46,20 @@
   --color-success-dim: rgba(0, 229, 160, 0.14);
   --color-warning: #FBBF24;
   --color-warning-dim: rgba(251, 191, 36, 0.14);
-  --color-info: #4D9CFF;
+  --color-info: #6FB1FF;
   --color-info-dim: rgba(0, 114, 255, 0.18);
-  --color-error: #F87171;
+  --color-error: #FB8A8A;
   --color-error-dim: rgba(248, 113, 113, 0.14);
   --color-violet: #00C2FF;
   --color-violet-dim: rgba(0, 194, 255, 0.14);
 
   /* Bordes y sombras */
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-color: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.17);
   --border-hover: rgba(0, 194, 255, 0.4);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-main: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-  --shadow-hover: 0 12px 30px -6px rgba(0, 0, 0, 0.8);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.26);
+  --shadow-main: 0 10px 25px -5px rgba(0, 0, 0, 0.32), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 12px 30px -6px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 20px rgba(0, 194, 255, 0.22);
   --shadow-card: var(--shadow-main);
   /* Canto de vidrio: brillo de 1px en el borde superior de las superficies */
@@ -98,19 +98,19 @@
   color-scheme: dark;
 
   /* Superficies que cambian entre modo oscuro y claro */
-  --nav-bg: rgba(14, 20, 32, 0.74);
-  --card-bg: rgba(19, 27, 43, 0.6);
-  --card-bg-soft: rgba(19, 27, 43, 0.4);
-  --card-solid: #131B2B;
-  --input-bg: rgba(19, 27, 43, 0.7);
-  --placeholder: #8197B2;
-  /* Fondo liso Grafito Tech con dos luces de marca (Azul Electrico y Cian Vidrio), sin cuadricula */
+  --nav-bg: rgba(29, 37, 49, 0.82);
+  --card-bg: rgba(37, 47, 62, 0.78);
+  --card-bg-soft: rgba(37, 47, 62, 0.55);
+  --card-solid: #252F3E;
+  --input-bg: rgba(46, 58, 75, 0.72);
+  --placeholder: #A0B2C8;
+  /* Fondo liso grafito azulado con dos luces de marca (Azul Electrico y Cian Vidrio), sin cuadricula */
   --bg-ambient:
-    radial-gradient(900px 500px at 85% -5%, rgba(0, 114, 255, 0.14), transparent 60%),
-    radial-gradient(700px 420px at 4% 6%, rgba(0, 194, 255, 0.06), transparent 60%);
+    radial-gradient(900px 500px at 85% -5%, rgba(0, 114, 255, 0.07), transparent 60%),
+    radial-gradient(700px 420px at 4% 6%, rgba(0, 194, 255, 0.035), transparent 60%);
   --surface-hover: rgba(255, 255, 255, 0.035);
-  --scroll-hover: #1E2A3F;
-  --overlay: rgba(6, 10, 18, 0.66);
+  --scroll-hover: #3A4759;
+  --overlay: rgba(14, 19, 27, 0.6);
 
   --color-background: var(--bg-primary);
   --co2-glow-normal: 0 0 28px rgba(0, 229, 160, 0.25);
@@ -137,7 +137,7 @@
   --media-scrim: rgba(14, 20, 32, 0.92);
   --media-scrim-soft: rgba(14, 20, 32, 0.4);
   --media-chip: rgba(14, 20, 32, 0.72);
-  --backdrop: rgba(6, 10, 18, 0.65);
+  --backdrop: rgba(14, 19, 27, 0.6);
   --shadow-control: 0 2px 8px rgba(0, 0, 0, 0.35);
 
   /* T3: hoja de documento (factura): siempre clara, en ambos temas y al imprimir (papeleria
@@ -1138,10 +1138,10 @@ html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-tr
 
 /* ---------- Escenario de vidrio (lo dibuja glass-preview.js) ---------- */
 :root {
-  --stage-spot: rgba(0, 114, 255, 0.24);
-  --stage-top: #0B1330;
-  --stage-bottom: #0E1420;
-  --stage-floor: rgba(0, 0, 0, 0.45);
+  --stage-spot: rgba(0, 114, 255, 0.14);
+  --stage-top: #24344D;
+  --stage-bottom: #1D2531;
+  --stage-floor: rgba(0, 0, 0, 0.3);
   --glass-face-a: rgba(190, 228, 255, 0.34);
   --glass-face-b: rgba(0, 114, 255, 0.12);
   --glass-edge-a: #00C2FF;
@@ -1149,7 +1149,7 @@ html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-tr
   --glass-outline: rgba(205, 236, 255, 0.75);
   --glass-hi: rgba(255, 255, 255, 0.6);
   --glass-dim: #9FB4D4;
-  --glass-shadow: rgba(0, 0, 0, 0.55);
+  --glass-shadow: rgba(0, 0, 0, 0.38);
 }
 :root[data-theme="light"] {
   --stage-spot: rgba(0, 114, 255, 0.16);
@@ -1801,8 +1801,9 @@ body[data-nivel-co2="alto"] .stage-wrap { --stage-halo: color-mix(in srgb, var(-
    U6 · Guia automatizada (js/guia.js). Encima del editor de corte (z-index 9999).
 ========================================================= */
 .sg-guia, .sg-guia-invita { z-index: 10000; }
-.sg-guia-barra { height: 4px; margin: 0 0 12px; border-radius: 999px; background: var(--border-color); overflow: hidden; }
-.sg-guia-barra i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--color-cyan); transition: width 0.5s var(--ease-out); }
+.sg-guia-barra { display: flex; gap: 3px; margin: 0 0 12px; }
+.sg-guia-barra i { flex: 1; height: 4px; border-radius: 999px; background: var(--border-strong); transition: background-color 0.2s ease; }
+.sg-guia-barra i.hecho { background: var(--color-cyan); }
 .sg-guia-nota { margin: -6px 0 12px; padding: 6px 10px; border-radius: var(--r-sm); background: var(--color-info-dim); color: var(--text-main); font-size: max(12px, 0.82rem); }
 .sg-guia .sg-tour-acciones [hidden] { display: none; }
 .sg-guia-cifras { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: -4px 0 14px; padding: 10px 12px; border-radius: var(--r-sm); background: var(--color-info-dim); }
@@ -1810,7 +1811,7 @@ body[data-nivel-co2="alto"] .stage-wrap { --stage-halo: color-mix(in srgb, var(-
 .sg-guia-cifras dt { color: var(--text-muted); font-size: max(12px, 0.76rem); }
 .sg-guia-cifras dd { margin: 2px 0 0; color: var(--text-main); font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 /* El recuadro atenua todo lo demas con su sombra y lo mueve guia.js, a la par del desplazamiento */
-:root { --sg-guia-velo: rgba(4, 10, 24, 0.55); }
+:root { --sg-guia-velo: rgba(9, 13, 21, 0.62); }
 .sg-guia-foco {
   position: fixed; z-index: 10000; pointer-events: none;
   border: 2px solid var(--color-cyan); border-radius: 12px; box-shadow: 0 0 0 200vmax var(--sg-guia-velo);
@@ -1826,9 +1827,20 @@ html.sg-guia-activa .precio-caja { position: static; }
 /* El mensaje: lo coloca guia.js junto a lo que explica y aparece cuando el recuadro ya llego */
 .sg-tour.sg-guia {
   right: auto; bottom: auto; z-index: 10001; width: min(340px, calc(100vw - 20px));
-  border-left: 1px solid var(--color-cyan); border-color: var(--color-cyan); transition: opacity 0.18s ease;
+  border-left: 1px solid var(--color-cyan); border-color: var(--color-cyan); transition: opacity 0.14s ease;
 }
 .sg-guia.is-oculta { opacity: 0; }
+.sg-tour.sg-guia .sg-tour-titulo { font-size: 1.18rem; }
+.sg-tour.sg-guia .sg-tour-texto { color: var(--text-main); font-size: 0.95rem; }
+/* Al llegar, un pulso breve indica adonde mirar */
+.sg-guia-foco::after { content: ""; position: absolute; inset: -2px; border: 2px solid var(--color-cyan); border-radius: inherit; opacity: 0; pointer-events: none; }
+.sg-guia-foco.llega::after { animation: sgGuiaPulso 0.6s ease-out; }
+.sg-guia-foco.sin-objetivo::after { display: none; }
+@keyframes sgGuiaPulso { from { opacity: 0.9; transform: scale(1); } to { opacity: 0; transform: scale(1.06); } }
+/* A los dos minutos sin terminar: opciones en lugar de los controles normales */
+.sg-guia-opciones { display: grid; gap: 8px; }
+.sg-guia-opciones[hidden], .sg-guia.con-opciones .sg-tour-acciones, .sg-guia.con-opciones .sg-guia-barra, .sg-guia.con-opciones .sg-tour-n { display: none; }
+.sg-guia-opciones .sg-tour-saltar { margin: 2px auto 0; }
 .sg-guia-flecha { position: absolute; width: 14px; height: 14px; background: var(--bg-primary); border: solid var(--color-cyan); border-width: 1px 0 0 1px; transform: rotate(45deg); }
 .sg-guia-flecha[hidden] { display: none; }
 .sg-guia[data-lado="abajo"] .sg-guia-flecha { top: -8px; }
@@ -1845,9 +1857,11 @@ html.sg-guia-vt::view-transition-old(root) { animation: sgVtSalir 0.3s ease both
 html.sg-guia-vt::view-transition-new(root) { animation: sgGuiaEntrar 0.3s ease both; }
 @keyframes sgGuiaEntrar { from { opacity: 0; } }
 [data-a11y~="fotosensible"] .sg-guia, [data-a11y~="fotosensible"] .sg-guia-barra i { transition: none; }
+[data-a11y~="fotosensible"] .sg-guia-foco::after { display: none; }
 [data-a11y~="fotosensible"] .sg-guia-invita { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   .sg-guia, .sg-guia-barra i { transition: none; }
+  .sg-guia-foco::after { display: none; }
   .sg-guia-invita { animation: none; }
 }
 @media print { .sg-guia, .sg-guia-invita, .sg-guia-foco { display: none !important; } }

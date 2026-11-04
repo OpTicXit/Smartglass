@@ -21,9 +21,9 @@ tarjetas KPI, tablas, badges, botones de fila, etc.)
     --color-success-dim: rgba(0, 229, 160, 0.14);
     --color-warning: #FBBF24;
     --color-warning-dim: rgba(251, 191, 36, 0.14);
-    --color-error: #F87171;
+    --color-error: #FB8A8A;
     --color-error-dim: rgba(248, 113, 113, 0.14);
-    --color-info: #4D9CFF;
+    --color-info: #6FB1FF;
     --color-info-dim: rgba(0, 114, 255, 0.14);
     --color-violet: #00C2FF;
     --color-violet-dim: rgba(0, 194, 255, 0.14);
@@ -31,11 +31,11 @@ tarjetas KPI, tablas, badges, botones de fila, etc.)
     --color-neutral-dim: rgba(148, 163, 184, 0.12);
     /* Slate para headers de tabla y etiquetas secundarias -- mas
        apagado que --text-muted para que nunca compita con el dato. */
-    --text-label: #9BAAC3;
+    --text-label: #A9B8CE;
     /* Profundidad propia de las tarjetas del admin (KPIs, formularios,
        ficha de usuario) -- un tono apenas mas claro que bg-primary. */
-    --admin-card-border: rgba(255, 255, 255, 0.06);
-    --admin-shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.4), 0 2px 8px -2px rgba(0, 0, 0, 0.3);
+    --admin-card-border: rgba(255, 255, 255, 0.09);
+    --admin-shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.26), 0 2px 8px -2px rgba(0, 0, 0, 0.2);
 }
 
 /* Modo claro del panel (ver data-theme en theme.css) */

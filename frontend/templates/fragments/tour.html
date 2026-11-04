@@ -4,7 +4,7 @@
 
 <!--
     U6 · Guia automatizada. js/guia.js la ejecuta: pasa por las paginas publicas, prueba opciones en el
-    configurador y abre el editor de corte SIN guardar ni enviar nada, y termina en el inicio.
+    configurador y abre el editor de corte SIN guardar ni enviar nada, y termina en el inicio de sesion.
     - Cada <section data-id> es un paso; el orden, la pagina y la accion de cada id viven en guia.js.
     - Se ofrece una vez en la primera visita (localStorage "sg-tour-visto"); se inicia con
       [data-tour-iniciar] (pagina /guia) o con ?tour=1.
@@ -13,7 +13,7 @@
     Textos en el idioma activo. Estilos: theme.css, "U6 · Guia automatizada".
 -->
 <template th:fragment="tour" id="sg-tour-datos"
-          th:attr="data-paso=#{tour.paso},data-siguiente=#{tour.siguiente},data-terminar=#{tour.terminar},data-salir=#{guia2.salir},data-pausar=#{guia2.pausar},data-reanudar=#{guia2.reanudar},data-continuar=#{guia2.continuar},data-pausada=#{guia2.pausada},data-no_envia=#{guia2.no_envia},data-invita_t=#{guia2.invita_t},data-invita=#{guia2.invita},data-ver=#{guia2.ver},data-ahora_no=#{guia2.ahora_no},data-region=#{guia2.region},data-precio=#{guia2.precio},data-co2=#{guia2.co2}">
+          th:attr="data-paso=#{tour.paso},data-siguiente=#{tour.siguiente},data-terminar=#{tour.terminar},data-salir=#{guia2.salir},data-pausar=#{guia2.pausar},data-reanudar=#{guia2.reanudar},data-continuar=#{guia2.continuar},data-pausada=#{guia2.pausada},data-no_envia=#{guia2.no_envia},data-invita_t=#{guia2.invita_t},data-invita=#{guia2.invita},data-ver=#{guia2.ver},data-ahora_no=#{guia2.ahora_no},data-region=#{guia2.region},data-precio=#{guia2.precio},data-co2=#{guia2.co2},data-ir_login=#{guia2.ir_login},data-atras=#{guia2.atras},data-opciones_t=#{guia2.opciones_t},data-opciones=#{guia2.opciones},data-op_seguir=#{guia2.op_seguir},data-op_ritmo=#{guia2.op_ritmo},data-op_login=#{guia2.op_login},data-op_salir=#{guia2.op_salir}">
     <section data-id="bienvenida"><h2 th:text="#{guia2.bienvenida_t}">Te mostramos SmartGlass</h2><p th:text="#{guia2.bienvenida}">Compra vidrio o diseña una pieza a tu medida, y conoce su precio y su CO₂ antes de pedirla. Sigue el recuadro iluminado: te señala cada cosa.</p></section>
     <section data-id="tienda"><h2 th:text="#{guia2.tienda_t}">Encuentra tu vidrio</h2><p th:text="#{guia2.tienda}">Filtra aquí entre vidrio plano, esculturas y figuras decorativas.</p></section>
     <section data-id="comparar"><h2 th:text="#{guia2.comparar_t}">Compara antes de decidir</h2><p th:text="#{guia2.comparar}">Marca esta casilla en 2 o 3 productos para verlos lado a lado.</p></section>
@@ -23,7 +23,7 @@
     <section data-id="editor"><h2 th:text="#{guia2.editor_t}">¿Una forma especial?</h2><p th:text="#{guia2.editor}">Aquí dibujas el contorno, le pones color y ves tu pieza en 3D antes de pedirla.</p></section>
     <section data-id="enviar"><h2 th:text="#{guia2.enviar_t}">Pide tu cotización</h2><p th:text="#{guia2.enviar}">Con este botón la envías. El taller la revisa y solo pagas cuando la aprueba. Ahora no la enviamos.</p></section>
     <section data-id="ajustes"><h2 th:text="#{guia2.ajustes_t}">A tu manera</h2><p th:text="#{guia2.ajustes}">Aquí cambias el idioma, activas colores para daltonismo o quitas las animaciones.</p></section>
-    <section data-id="final"><h2 th:text="#{guia2.final_t}">Ahora te toca a ti</h2><p th:text="#{guia2.final}">Entra a la tienda o diseña tu pieza. Solo te pedimos cuenta al pagar.</p></section>
+    <section data-id="final"><h2 th:text="#{guia2.final_t}">Listo, ahora tú</h2><p th:text="#{guia2.final}">Te llevamos al inicio de sesión. También puedes salir y seguir comprando: solo pedimos cuenta al pagar.</p></section>
 </template>
 
 </body>

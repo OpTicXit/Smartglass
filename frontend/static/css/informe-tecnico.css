@@ -3,9 +3,9 @@
 :root {
     --graf-a: #1C8FD6;
     --graf-b: #E2601E;
-    --graf-medio: #2A3346;
-    --graf-rejilla: rgba(255, 255, 255, 0.08);
-    --graf-sobre: #0B111C;
+    --graf-medio: #364356;
+    --graf-rejilla: rgba(255, 255, 255, 0.10);
+    --graf-sobre: #1D2531;
 }
 :root[data-theme="light"] {
     --graf-a: #0072FF;
@@ -25,7 +25,7 @@
     height: clamp(520px, 84svh, 860px);
     overflow: hidden;
     color: var(--globo-texto);
-    background: radial-gradient(ellipse at 50% 45%, #12233A 0%, #0B111C 62%, #070B13 100%);
+    background: radial-gradient(ellipse at 50% 45%, #26384F 0%, #1A2432 62%, #131B26 100%);
     outline-offset: -3px;
 }
 #globo-lienzo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
@@ -73,6 +73,10 @@
 .informe-meta { margin: 0 0 20px; font-size: 0.84rem; color: var(--text-subtle); }
 .informe-titulo2 { margin-top: 48px; margin-bottom: 8px; }
 .informe-titulo3 { margin: 32px 0 12px; font-size: 1.05rem; color: var(--text-main); }
+.informe-vivo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 16px; font-size: 0.84rem; color: var(--text-subtle); }
+.informe-vivo::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); }
+.informe-vivo.con-error::before { background: var(--color-warning); }
+#vivo-metricas { margin-bottom: 18px; }
 .informe-metricas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .informe-metricas div { padding: 16px 18px; border: 1px solid var(--admin-card-border); border-radius: 14px; background: var(--bg-secondary); }
 .informe-metricas b { display: block; font-family: var(--font-display); font-size: 1.6rem; color: var(--text-main); }

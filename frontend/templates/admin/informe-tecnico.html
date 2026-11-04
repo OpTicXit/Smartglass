@@ -33,6 +33,16 @@
         inf_correlacion: /*[[#{admin.informe.correlacion}]]*/ 'Correlación',
         inf_muestra: /*[[#{admin.informe.piezas_prueba}]]*/ '{0} piezas de prueba',
         inf_generado: /*[[#{admin.informe.generado}]]*/ 'Datos exportados el {0} · {1} registros sintéticos · {2} árboles',
+        inf_vivo_estado: /*[[#{admin.informe.vivo_estado}]]*/ 'Actualizado a las {0}',
+        inf_vivo_error: /*[[#{admin.informe.vivo_error}]]*/ 'No se pudo actualizar.',
+        inf_vivo_cotizaciones: /*[[#{admin.informe.vivo_cotizaciones}]]*/ 'Cotizaciones',
+        inf_vivo_pendientes: /*[[#{admin.informe.vivo_pendientes}]]*/ 'Por revisar',
+        inf_vivo_pedidos: /*[[#{admin.informe.vivo_pedidos}]]*/ 'Pedidos',
+        inf_vivo_co2: /*[[#{admin.informe.vivo_co2}]]*/ 'CO₂ estimado cotizado',
+        inf_vivo_semana: /*[[#{admin.informe.vivo_semana}]]*/ 'Cotizaciones en 7 días',
+        inf_vivo_co2_semana: /*[[#{admin.informe.vivo_co2_semana}]]*/ 'CO₂ estimado en 7 días',
+        inf_vivo_reciclado: /*[[#{admin.informe.vivo_reciclado}]]*/ 'Con material reciclado',
+        inf_vivo_fecha: /*[[#{admin.informe.vivo_fecha}]]*/ 'Fecha',
         'inf_v_area_m2': /*[[#{admin.informe.v.area_m2}]]*/ 'Área (m²)',
         'inf_v_espesor_mm': /*[[#{admin.informe.v.espesor_mm}]]*/ 'Espesor (mm)',
         'inf_v_calcin_pct': /*[[#{admin.informe.v.calcin_pct}]]*/ 'Calcín (%)',
@@ -71,8 +81,8 @@
 <nav th:replace="~{admin/fragments/nav :: navbar}"></nav>
 
 <main id="contenido"
-      th:attr="data-datos=@{/admin/informe-tecnico/datos},data-three=@{/vendor/three/three.module.min.js},data-mapa=@{/vendor/mapas/countries-110m.json}"
-      data-datos="" data-three="" data-mapa="">
+      th:attr="data-datos=@{/admin/informe-tecnico/datos},data-vivo=@{/admin/informe-tecnico/vivo},data-three=@{/vendor/three/three.module.min.js},data-mapa=@{/vendor/mapas/countries-110m.json}"
+      data-datos="" data-vivo="" data-three="" data-mapa="">
 
     <section class="globo-escena" id="globo-escena" tabindex="0" aria-labelledby="informe-titulo">
         <canvas id="globo-lienzo" role="img"></canvas>
@@ -114,6 +124,12 @@
         <figure class="grafica" data-grafica="paises">
             <figcaption th:text="#{admin.informe.g_paises}">Países con más emisiones de CO₂</figcaption>
         </figure>
+
+        <h2 class="admin-subtitle informe-titulo2" id="actividad" th:text="#{admin.informe.vivo_titulo}">Actividad de la plataforma</h2>
+        <p class="informe-intro" th:text="#{admin.informe.vivo_intro}">Se actualiza sola con las cotizaciones y pedidos guardados en SmartGlass.</p>
+        <p class="informe-vivo" id="vivo-estado" role="status"></p>
+        <div class="informe-metricas" id="vivo-metricas"></div>
+        <figure class="grafica" data-vivo-grafica><figcaption th:text="#{admin.informe.g_vivo}">CO₂ estimado cotizado por día, últimos 30 días</figcaption></figure>
 
         <h2 class="admin-subtitle informe-titulo2" id="modelo" th:text="#{admin.informe.modelo_titulo}">Modelo de predicción de CO₂</h2>
         <p class="informe-intro" th:text="#{admin.informe.modelo_intro}">Random Forest entrenado con datos sintéticos, creados a partir de factores de emisión publicados. Estima el CO₂ de una pieza; no mide emisiones reales ni se usa todavía en el cotizador.</p>
