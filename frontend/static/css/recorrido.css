@@ -1,144 +1,149 @@
 /* =========================================================
-   Recorrido de una pieza (inicio): version sin costo de "scroll world".
-   El scroll mueve una camara alrededor de la pieza de vidrio del configurador
-   (SGGlass) y la pieza cambia de capitulo en capitulo. Sin video: todo es SVG + CSS.
-   Con movimiento reducido o el modo fotosensible queda quieta y los capitulos se leen igual.
+   Recorrido de una pieza (inicio) como linea de produccion de vidrio. Version sin costo
+   de "scroll world": la pantalla queda fija y, al bajar, la pieza del configurador (SGGlass)
+   viaja de izquierda a derecha por 5 estaciones (materia, temple, forma, energia y huella).
+   La luz del taller cambia de tono en cada estacion con fundidos lentos, sin destellos.
+   El texto entra de lado; nada sube ni baja. Con movimiento reducido o el modo fotosensible
+   la pieza no gira y los cambios no se animan.
 ========================================================= */
-.recorrido {
-    --p: 0;
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: 0 clamp(24px, 4vw, 64px);
-    width: min(100% - 2 * var(--gutter), var(--content-max));
-    margin: clamp(48px, 8vw, 110px) auto;
+.linea { --p: 0; overflow-x: clip; width: min(100% - 2 * var(--gutter), var(--content-max)); margin: clamp(64px, 10vw, 140px) auto; }
+.linea-titulo { max-width: 880px; }
+.linea-titulo h2 {
+  margin: 0 0 14px; font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(2.4rem, 1.4rem + 4vw, 4.4rem); line-height: 1.02; letter-spacing: -0.045em; text-wrap: balance;
 }
-.recorrido-titulo {
-    grid-column: 1 / -1;
-    max-width: 720px;
-    margin: 0 0 clamp(8px, 3vw, 24px);
-}
-.recorrido-titulo h2 { margin: 0 0 10px; font-family: var(--font-display); font-size: var(--fs-3xl); letter-spacing: -0.02em; }
-.recorrido-titulo p { margin: 0; color: var(--text-muted); font-size: var(--fs-lg); }
+.linea-titulo h2 em { font-style: normal; color: var(--color-accent-text); }
+.linea-titulo p { margin: 0; max-width: 52ch; color: var(--text-muted); font-size: clamp(1rem, 0.95rem + 0.3vw, 1.2rem); }
+.linea-sello { display: inline-block; margin-bottom: 18px; padding: 6px 14px; border-radius: 999px; background: var(--bg-tertiary); color: var(--text-muted); font-size: 0.8rem; font-weight: 600; }
 
-.recorrido-pasos { grid-column: 1; grid-row: 2; }
-.recorrido-paso {
-    min-height: 82vh;
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 24px 0;
-    opacity: 0.35;
-    transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
-    transform: translateY(8px);
+/* Pista de scroll: 100vh + 70vh por cada estacion despues de la primera */
+.linea-pista { position: relative; height: calc(100vh + 4 * 70vh); }
+.linea-pin {
+  position: sticky; top: 0; height: 100vh; height: 100dvh;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: clamp(24px, 5vw, 80px);
+  padding-top: 56px;
 }
-.recorrido-paso.es-activo { opacity: 1; transform: none; }
-.recorrido-paso:first-child { min-height: 64vh; }
-.recorrido-paso:last-child { min-height: 70vh; }
-.recorrido-ceja {
-    display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
-    padding: 5px 12px; margin-bottom: 14px; border-radius: var(--r-pill);
-    background: var(--color-accent-dim); color: var(--color-accent-text);
-    font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em;
-}
-.recorrido-paso h3 { margin: 0 0 12px; font-family: var(--font-display); font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem); line-height: 1.1; letter-spacing: -0.02em; }
-.recorrido-paso p { margin: 0; max-width: 46ch; color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; }
-.recorrido-etiquetas { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
-.recorrido-etiquetas li { padding: 5px 12px; border-radius: var(--r-pill); border: 1px solid var(--border-color); color: var(--text-main); font-size: 0.82rem; }
-.recorrido-paso .btn { align-self: flex-start; margin-top: 22px; }
 
-.recorrido-pin {
-    grid-column: 2; grid-row: 2;
-    position: sticky; top: 0;
-    height: 100vh; height: 100dvh;
-    display: grid; place-items: center;
+/* ---------- Texto: una estacion a la vez, entra de lado ---------- */
+.linea-lado { display: grid; gap: 18px; }
+.linea-panel { display: grid; }
+.linea-capitulo {
+  grid-area: 1 / 1; display: flex; flex-direction: column;
+  padding: clamp(24px, 3vw, 36px); border-radius: 20px;
+  background: var(--bg-secondary); border: 1px solid var(--border-color);
+  opacity: 0; visibility: hidden; transform: translateX(40px);
+  transition: opacity 0.35s ease, transform 0.5s var(--ease-out), visibility 0s linear 0.5s;
 }
-.recorrido-escena {
-    position: relative;
-    width: min(100%, 560px);
-    aspect-ratio: 1 / 1.05;
-    display: grid; place-items: center;
-    perspective: 1300px;
-}
-.recorrido-luz {
-    position: absolute; inset: 6%;
-    border-radius: 50%;
-    background:
-        radial-gradient(closest-side, color-mix(in srgb, var(--color-accent) 38%, transparent), transparent 72%),
-        radial-gradient(60% 50% at calc(30% + var(--p) * 40%) 70%, color-mix(in srgb, var(--color-success) 30%, transparent), transparent 70%);
-    filter: blur(28px);
-    opacity: 0.7;
-    transform: scale(calc(0.9 + var(--p) * 0.25));
-}
-.recorrido-suelo {
-    position: absolute; left: 12%; right: 12%; bottom: 9%;
-    height: 14%;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgba(0, 0, 0, 0.32), transparent);
-    filter: blur(6px);
-    transform: scaleX(calc(0.85 + var(--p) * 0.2));
-}
-:root[data-theme="light"] .recorrido-suelo { background: radial-gradient(closest-side, rgba(11, 36, 71, 0.22), transparent); }
-.recorrido-pieza {
-    position: relative;
-    width: 78%;
-    transform-style: preserve-3d;
-    transform:
-        rotateY(calc(-26deg + var(--p) * 52deg))
-        rotateX(calc(12deg - var(--p) * 18deg))
-        translateZ(calc(var(--p) * 40px))
-        scale(calc(0.92 + var(--p) * 0.12));
-    will-change: transform;
-}
-.recorrido-pieza > div { transition: opacity 0.28s ease, filter 0.28s ease; }
-.recorrido-pieza.cambiando > div { opacity: 0; filter: blur(6px); }
-.recorrido-dato {
-    position: absolute; right: 2%; bottom: 14%;
-    display: grid; gap: 2px;
-    padding: 12px 16px;
-    border-radius: var(--r-lg);
-    background: var(--card-bg); border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-main), var(--glass-edge);
-    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-    opacity: 0; transform: translateY(10px);
-    transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
-}
-.recorrido-dato.visible { opacity: 1; transform: none; }
-.recorrido-dato strong { font-family: var(--font-display); font-size: 1.5rem; color: var(--color-success); }
-.recorrido-dato small { color: var(--text-muted); font-size: 0.78rem; }
+.linea-capitulo.antes { transform: translateX(-40px); }
+.linea-capitulo.es-activo { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.linea-ceja { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 18px; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; }
+.linea-ceja b { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: var(--color-accent); color: var(--text-on-accent); font-family: var(--font-display); font-weight: 700; }
+.linea-capitulo h3 { margin: 0 0 12px; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.6rem); line-height: 1.05; letter-spacing: -0.035em; }
+.linea-capitulo p { margin: 0; max-width: 46ch; color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; }
+.linea-etiquetas { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+.linea-etiquetas li { padding: 6px 14px; border-radius: 999px; background: var(--bg-tertiary); color: var(--text-main); font-size: 0.84rem; }
+.linea-dato { display: inline-flex; align-items: baseline; gap: 10px; align-self: flex-start; margin: 20px 0 0; padding: 10px 18px; border-radius: 999px; background: var(--bg-tertiary); }
+.linea-dato strong { font-family: var(--font-display); font-size: 1.35rem; color: var(--color-success); }
+.linea-dato small { color: var(--text-muted); font-size: 0.8rem; }
+.linea-capitulo .btn { align-self: flex-start; margin-top: 18px; }
 
-.recorrido-ruta {
-    position: absolute; right: -6px; top: 50%;
-    display: grid; gap: 10px;
-    margin: 0; padding: 0; list-style: none;
-    transform: translateY(-50%);
+.linea-mando { display: flex; align-items: center; gap: 10px; }
+.linea-mando button {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; cursor: pointer;
+  background: var(--bg-tertiary); color: var(--text-main); border: 1px solid var(--border-color); font-size: 1.1rem;
 }
-.recorrido-ruta li {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: color-mix(in srgb, var(--text-main) 22%, transparent);
-    transition: background-color 0.3s ease, transform 0.3s var(--ease-out);
-}
-.recorrido-ruta li.es-activo { background: var(--color-accent); transform: scale(1.5); }
+.linea-mando button:hover { border-color: var(--color-accent); }
+.linea-cuenta { color: var(--text-muted); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
 
-/* Telefono: la escena queda arriba y los capitulos pasan por debajo */
+/* ---------- Taller: la pieza y la luz de cada estacion ---------- */
+.linea-taller {
+  --luz: var(--color-accent);
+  position: relative; overflow: hidden; justify-self: center;
+  width: min(100%, 600px); aspect-ratio: 1 / 1.02;
+  border-radius: 28px; background: var(--bg-secondary); border: 1px solid var(--border-color);
+  perspective: 1300px;
+}
+.linea-taller[data-luz="calor"] { --luz: #FF9F43; }
+.linea-taller[data-luz="sol"] { --luz: #FFC93C; }
+.linea-taller[data-luz="verde"] { --luz: var(--color-success); }
+.linea-luz {
+  position: absolute; left: 10%; right: 10%; top: 4%; height: 70%; border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--luz) 22%, transparent), transparent 75%);
+  transition: background 0.8s ease;
+}
+/* Cristal del taller: dos planos inclinados muy tenues detras de la pieza */
+.linea-taller::before, .linea-taller::after {
+  content: ""; position: absolute; top: -10%; bottom: 30%; width: 26%; pointer-events: none;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--text-main) 5%, transparent), transparent);
+  transform: skewX(-14deg);
+}
+.linea-taller::before { left: 8%; }
+.linea-taller::after { left: 64%; width: 12%; }
+.linea-centro { position: absolute; left: 14%; right: 14%; top: 6%; bottom: 30%; display: grid; place-items: center; }
+.linea-pieza {
+  width: 100%; transform-style: preserve-3d;
+  transform: rotateY(calc(-26deg + var(--p) * 52deg)) rotateX(calc(10deg - var(--p) * 14deg)) scale(calc(0.94 + var(--p) * 0.08));
+  will-change: transform;
+}
+.linea .sg-stage { border: 0; background: transparent; }
+.linea .sg-stage::after { display: none; }
+.linea-pieza > div { transition: opacity 0.28s ease, filter 0.28s ease; }
+.linea-pieza.cambiando > div { opacity: 0; filter: blur(6px); }
+
+/* ---------- Banda: 5 estaciones y el carro de vidrio que viaja ---------- */
+.linea-banda { position: absolute; left: 22px; right: 22px; bottom: 22px; display: flex; justify-content: space-between; }
+.linea-riel { position: absolute; left: 22px; right: 22px; top: 21px; height: 4px; border-radius: 999px; background: var(--bg-tertiary); }
+.linea-avance { position: absolute; inset: 0 auto 0 0; width: calc(var(--p) * 100%); border-radius: inherit; background: var(--color-accent); }
+.linea-carro {
+  position: absolute; z-index: 4; left: calc(var(--p) * 100%); top: -62px;
+  width: 26px; height: 34px; margin-left: -13px; border-radius: 4px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 55%, white), color-mix(in srgb, var(--color-accent) 25%, transparent));
+  border: 1px solid color-mix(in srgb, var(--color-accent) 70%, white);
+  pointer-events: none;
+}
+.linea-estacion {
+  position: relative; z-index: 1; display: grid; justify-items: center; gap: 8px; width: 44px;
+  padding: 0; background: none; border: 0; cursor: pointer; color: var(--text-muted);
+}
+.linea-estacion i {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px;
+  background: var(--bg-tertiary); border: 1px solid var(--border-color); font-size: 1.25rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.linea-estacion span { font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+.linea-estacion:hover i { border-color: var(--color-accent); color: var(--text-main); }
+.linea-estacion.antes i { background: color-mix(in srgb, var(--color-accent) 14%, var(--bg-secondary)); color: var(--color-accent-text); }
+.linea-estacion.es-activo i { background: var(--color-accent); color: var(--text-on-accent); border-color: transparent; }
+.linea-estacion.es-activo span { color: var(--text-main); }
+.linea-estacion:focus-visible, .linea-mando button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 14px; }
+/* El carro (un vidrio pequeño) viaja por encima de las estaciones y marca por dónde va la pieza */
+.linea-estacion.es-activo { z-index: 3; }
+
+/* ---------- Telefono: taller arriba, texto abajo ---------- */
 @media (max-width: 860px) {
-    .recorrido { grid-template-columns: 1fr; }
-    .recorrido-pin {
-        grid-column: 1; grid-row: 2;
-        top: 64px;
-        height: 46vh; height: 46svh;
-        z-index: 0;
-    }
-    .recorrido-escena { width: min(78vw, 360px); }
-    .recorrido-pasos { grid-row: 3; position: relative; z-index: 1; margin-top: -10vh; }
-    .recorrido-paso { min-height: 62vh; justify-content: flex-end; }
-    .recorrido-paso:first-child { min-height: 40vh; }
-    .recorrido-paso h3, .recorrido-paso p, .recorrido-etiquetas, .recorrido-ceja { text-shadow: 0 1px 12px var(--bg-primary); }
-    .recorrido-ruta { right: 0; }
+  .linea-pin { grid-template-columns: 1fr; align-content: center; gap: 16px; padding-top: 64px; }
+  .linea-taller { grid-row: 1; width: 100%; aspect-ratio: auto; height: min(40vh, 40svh, 360px); }
+  .linea-lado { grid-row: 2; }
+  .linea-capitulo { padding: 20px; }
+  .linea-capitulo h3 { font-size: 1.5rem; }
+  .linea-capitulo p { font-size: 0.95rem; }
+  .linea-banda { left: 14px; right: 14px; bottom: 14px; }
+  .linea-riel { left: 19px; right: 19px; top: 18px; }
+  .linea-estacion { width: 38px; }
+  .linea-estacion i { width: 38px; height: 38px; border-radius: 12px; font-size: 1.1rem; }
+  .linea-estacion span { font-size: 0.66rem; }
+  .linea-mando button { width: 40px; height: 40px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .recorrido-pieza { transform: none; will-change: auto; }
-    .recorrido-pieza > div, .recorrido-paso, .recorrido-dato { transition: none; }
+  .linea-pieza { transform: none; will-change: auto; }
+  .linea-pieza > div, .linea-capitulo, .linea-estacion i, .linea-luz { transition: none; }
 }
-html[data-a11y~="fotosensible"] .recorrido-pieza { transform: none !important; }
-html[data-a11y~="fotosensible"] :is(.recorrido-pieza > div, .recorrido-paso, .recorrido-dato) { transition: none !important; }
-@media print { .recorrido-pin { display: none; } .recorrido-paso { min-height: 0; opacity: 1; } }
+html[data-a11y~="fotosensible"] .linea-pieza { transform: none !important; }
+html[data-a11y~="fotosensible"] :is(.linea-pieza > div, .linea-capitulo, .linea-estacion i) { transition: none !important; }
+@media print {
+  .linea-pista { height: auto; }
+  .linea-pin { position: static; height: auto; display: block; }
+  .linea-taller, .linea-mando { display: none; }
+  .linea-capitulo { position: static; opacity: 1; visibility: visible; transform: none; margin-bottom: 12px; }
+}

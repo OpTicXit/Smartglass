@@ -18,25 +18,26 @@
    1. TOKENS
 ========================================================= */
 :root {
-  /* Manual de marca (oct. 2026), tema oscuro: fondos grafito azulado #1D2531 (aclarado en nov. 2026, antes #0E1420),
+  /* Manual de marca (oct. 2026), tema oscuro. Nov. 2026: estilo plano con referencia Platzi, grafito casi negro #101417
+     (antes #1D2531),
      textos Hielo #EAF6FF, acento Cian Vidrio #00C2FF, secundario Azul Electrico #0072FF y
      Verde ODS #00E5A0 para lo sostenible. Regla 60-30-10: fondos, marca, acentos. */
-  --bg-primary: #1D2531;
-  --bg-secondary: #252F3E;
-  --bg-tertiary: #2E3A4B;
+  --bg-primary: #101417;
+  --bg-secondary: #171C20;
+  --bg-tertiary: #20272C;
 
   /* Textos (Hielo y sus grises azulados; todos >= 4,5:1 sobre las tres superficies) */
-  --text-main: #EAF6FF;
-  --text-muted: #B9CADC;
-  --text-subtle: #A0B2C8;
-  --text-on-accent: #0E1420;
+  --text-main: #E7EEF2;
+  --text-muted: #A3B0BA;
+  --text-subtle: #8796A1;
+  --text-on-accent: #06131A;
 
   /* Acento - Cian Vidrio (el bisel de la G). En oscuro el boton es cian con texto Grafito (9:1);
      el blanco sobre cian no llega al contraste minimo */
   --color-accent: #00C2FF;
   --color-accent-hover: #5AD8FF;
   --color-accent-dim: rgba(0, 194, 255, 0.14);
-  --color-accent-text: #00C2FF;
+  --color-accent-text: #33CEFF;
   --color-accent-solid: #00C2FF;
   --color-accent-solid-hover: #5AD8FF;
   --color-star: #FBBF24;
@@ -54,16 +55,16 @@
   --color-violet-dim: rgba(0, 194, 255, 0.14);
 
   /* Bordes y sombras */
-  --border-color: rgba(255, 255, 255, 0.10);
-  --border-strong: rgba(255, 255, 255, 0.17);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
   --border-hover: rgba(0, 194, 255, 0.4);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.26);
-  --shadow-main: 0 10px 25px -5px rgba(0, 0, 0, 0.32), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --shadow-main: 0 0 0 transparent;   /* plano: valor neutro (no "none") para que las sombras combinadas sigan siendo validas */
   --shadow-hover: 0 12px 30px -6px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(0, 194, 255, 0.22);
+  --shadow-glow: 0 0 0 transparent;
   --shadow-card: var(--shadow-main);
   /* Canto de vidrio: brillo de 1px en el borde superior de las superficies */
-  --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --glass-edge: inset 0 0 0 transparent;
 
   /* Tipografia del manual de marca: Poppins en titulares, Inter en texto e interfaz */
   --font-display: 'Poppins', 'Inter', system-ui, sans-serif;
@@ -98,18 +99,18 @@
   color-scheme: dark;
 
   /* Superficies que cambian entre modo oscuro y claro */
-  --nav-bg: rgba(29, 37, 49, 0.82);
-  --card-bg: rgba(37, 47, 62, 0.78);
-  --card-bg-soft: rgba(37, 47, 62, 0.55);
-  --card-solid: #252F3E;
-  --input-bg: rgba(46, 58, 75, 0.72);
-  --placeholder: #A0B2C8;
+  --nav-bg: rgba(16, 20, 23, 0.92);
+  --card-bg: #171C20;
+  --card-bg-soft: rgba(23, 28, 32, 0.7);
+  --card-solid: #171C20;
+  --input-bg: #20272C;
+  --placeholder: #8796A1;
   /* Fondo liso grafito azulado con dos luces de marca (Azul Electrico y Cian Vidrio), sin cuadricula */
-  --bg-ambient:
-    radial-gradient(900px 500px at 85% -5%, rgba(0, 114, 255, 0.07), transparent 60%),
-    radial-gradient(700px 420px at 4% 6%, rgba(0, 194, 255, 0.035), transparent 60%);
+  /* Fondo plano (estilo nov. 2026, referencia Platzi): sin luces de fondo */
+  --bg-ambient: none;
+  --ambiente-a: 0%; --ambiente-b: 0%; --ambiente-c: 0%;
   --surface-hover: rgba(255, 255, 255, 0.035);
-  --scroll-hover: #3A4759;
+  --scroll-hover: #2C353C;
   --overlay: rgba(14, 19, 27, 0.6);
 
   --color-background: var(--bg-primary);
@@ -126,7 +127,7 @@
   --on-success: #04140D;
   --on-warning: #1A1200;
   --on-error: #1A0505;
-  --on-accent-solid: #0E1420;
+  --on-accent-solid: #06131A;
 
   /* T3: elementos sobre fotos u overlays oscuros (iguales en ambos temas,
      porque la foto no cambia con el tema) */
@@ -161,21 +162,21 @@
 
   /* Manual de marca, tema claro: fondos Hielo #EAF6FF, textos y botones Azul Profundo #0B2447,
      acento Azul Electrico #0072FF (como texto, una version mas profunda: #005BD1, 5,6:1 sobre Hielo) */
-  --bg-primary: #EAF6FF;
+  --bg-primary: #F3F5F6;
   --bg-secondary: #FFFFFF;
-  --bg-tertiary: #D9ECFB;
+  --bg-tertiary: #E7ECEF;
 
-  --text-main: #0B2447;
-  --text-muted: #3A5274;
-  --text-subtle: #556B8A;
+  --text-main: #0D1B26;
+  --text-muted: #475663;
+  --text-subtle: #5E6C78;
   --text-on-accent: #FFFFFF;
 
-  --color-accent: #0072FF;
-  --color-accent-hover: #005BD1;
-  --color-accent-dim: rgba(0, 114, 255, 0.10);
-  --color-accent-text: #005BD1;
-  --color-accent-solid: #0B2447;
-  --color-accent-solid-hover: #16396A;
+  --color-accent: #0066E6;
+  --color-accent-hover: #0057C2;
+  --color-accent-dim: rgba(0, 102, 230, 0.10);
+  --color-accent-text: #0057C2;
+  --color-accent-solid: #0D1B26;
+  --color-accent-solid-hover: #1E3040;
   --on-accent-solid: #FFFFFF;
   --color-star: #C2610A;
 
@@ -191,26 +192,24 @@
   --color-violet-dim: rgba(0, 116, 154, 0.10);
   --co2-glow-normal: 0 0 28px rgba(0, 122, 85, 0.22);
 
-  --border-color: rgba(11, 36, 71, 0.10);
-  --border-strong: rgba(11, 36, 71, 0.18);
+  --border-color: rgba(13, 27, 38, 0.09);
+  --border-strong: rgba(13, 27, 38, 0.16);
   --border-hover: rgba(0, 114, 255, 0.45);
   --shadow-sm: 0 1px 2px rgba(11, 36, 71, 0.10);
-  --shadow-main: 0 10px 30px -12px rgba(11, 36, 71, 0.18), 0 4px 12px -6px rgba(11, 36, 71, 0.10);
+  --shadow-main: 0 0 0 transparent;   /* plano: valor neutro (no "none") para que las sombras combinadas sigan siendo validas */
   --shadow-hover: 0 18px 40px -14px rgba(11, 36, 71, 0.30);
-  --shadow-glow: 0 0 22px rgba(0, 114, 255, 0.18);
-  --glass-edge: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-glow: 0 0 0 transparent;
+  --glass-edge: inset 0 0 0 transparent;
 
-  --nav-bg: rgba(255, 255, 255, 0.8);
-  --card-bg: rgba(255, 255, 255, 0.82);
-  --card-bg-soft: rgba(255, 255, 255, 0.65);
+  --nav-bg: rgba(243, 245, 246, 0.92);
+  --card-bg: #FFFFFF;
+  --card-bg-soft: rgba(255, 255, 255, 0.7);
   --card-solid: #FFFFFF;
   --input-bg: #FFFFFF;
   --placeholder: #5E6C88;
-  --bg-ambient:
-    radial-gradient(900px 520px at 88% -8%, rgba(0, 114, 255, 0.12), transparent 62%),
-    radial-gradient(700px 420px at 4% 6%, rgba(0, 194, 255, 0.10), transparent 60%);
+  --bg-ambient: none;
   --surface-hover: rgba(11, 36, 71, 0.04);
-  --scroll-hover: #C3DAF0;
+  --scroll-hover: #C9D2D8;
   --overlay: rgba(11, 36, 71, 0.4);
 
   --color-cyan: #00749A;
@@ -468,7 +467,7 @@ html { scrollbar-color: var(--bg-tertiary) var(--bg-primary); }
   --btn-h: 44px;
   position: relative;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: var(--btn-h); padding: 0 20px; border-radius: var(--r-sm);
+  min-height: var(--btn-h); padding: 0 20px; border-radius: var(--r-pill);
   border: 1px solid transparent; cursor: pointer; text-decoration: none; white-space: nowrap;
   font-family: var(--font-primary); font-weight: 600; font-size: 0.93rem; line-height: 1;
   transition: background-color var(--dur) ease, border-color var(--dur) ease, color var(--dur) ease,
@@ -477,14 +476,14 @@ html { scrollbar-color: var(--bg-tertiary) var(--bg-primary); }
 .btn i, .btn svg { font-size: 1.1em; flex: none; }
 .btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
-.btn-sm { --btn-h: 36px; padding: 0 14px; font-size: 0.84rem; border-radius: var(--r-xs); }
-.btn-lg { --btn-h: 52px; padding: 0 28px; font-size: 1rem; border-radius: var(--r-md); }
+.btn-sm { --btn-h: 36px; padding: 0 14px; font-size: 0.84rem; }
+.btn-lg { --btn-h: 52px; padding: 0 28px; font-size: 1rem; }
 .btn-block { width: 100%; }
 .btn-icon { width: var(--btn-h); padding: 0; }
 
 .btn-primary {
   background-color: var(--color-accent-solid); color: var(--text-on-accent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--on-accent-solid) 8%, transparent) inset, 0 8px 20px -10px color-mix(in srgb, var(--color-accent-solid) 90%, transparent);
+  box-shadow: none;
 }
 .btn-primary:hover { background-color: var(--color-accent-solid-hover); color: var(--on-accent-solid); transform: translateY(-1px); box-shadow: var(--shadow-glow); }
 
@@ -1139,8 +1138,8 @@ html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-tr
 /* ---------- Escenario de vidrio (lo dibuja glass-preview.js) ---------- */
 :root {
   --stage-spot: rgba(0, 114, 255, 0.14);
-  --stage-top: #24344D;
-  --stage-bottom: #1D2531;
+  --stage-top: #1A2025;
+  --stage-bottom: #14191D;
   --stage-floor: rgba(0, 0, 0, 0.3);
   --glass-face-a: rgba(190, 228, 255, 0.34);
   --glass-face-b: rgba(0, 114, 255, 0.12);
@@ -1154,7 +1153,7 @@ html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-tr
 :root[data-theme="light"] {
   --stage-spot: rgba(0, 114, 255, 0.16);
   --stage-top: #FFFFFF;
-  --stage-bottom: #E3ECFA;
+  --stage-bottom: #EEF2F5;
   --stage-floor: rgba(11, 36, 71, 0.10);
   --glass-face-a: rgba(110, 185, 235, 0.42);
   --glass-face-b: rgba(60, 130, 210, 0.16);
@@ -1591,7 +1590,7 @@ body::before {
     radial-gradient(48vw 50vh at 0% 58%, color-mix(in srgb, var(--color-cyan) var(--ambiente-b, 8%), transparent), transparent 70%),
     radial-gradient(44vw 34vh at 62% 108%, color-mix(in srgb, var(--color-accent) var(--ambiente-c, 7%), transparent), transparent 70%);
 }
-:root[data-theme="light"] { --ambiente-a: 9%; --ambiente-b: 6%; --ambiente-c: 5%; }
+:root[data-theme="light"] { --ambiente-a: 0%; --ambiente-b: 0%; --ambiente-c: 0%; }
 @media print { body::before { display: none; } }
 
 /* Cifras que cuentan al entrar en pantalla (main.js: contarAlEntrar). Sin JS se ve el valor final. */

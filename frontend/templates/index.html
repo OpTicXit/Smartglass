@@ -329,52 +329,69 @@
         </div>
     </section>
 
-    <!-- Recorrido de una pieza: el scroll gira la pieza del configurador y cambia de capitulo (recorrido.js) -->
-    <section class="recorrido" id="recorrido" aria-labelledby="recorrido-t">
-        <header class="recorrido-titulo">
-            <h2 id="recorrido-t" th:text="#{index3.rec_t}">Así nace una pieza SmartGlass</h2>
+    <!-- Recorrido de una pieza: linea de produccion. La pantalla queda fija y, al bajar, la pieza avanza
+         de izquierda a derecha por 5 estaciones; el texto entra de lado (recorrido.js) -->
+    <section class="linea" id="recorrido" aria-labelledby="recorrido-t">
+        <header class="linea-titulo">
+            <span class="linea-sello" th:text="#{index3.rec_sello}">El recorrido</span>
+            <h2 id="recorrido-t"><span th:text="#{index3.rec_t_a}">Así nace una</span> <em th:text="#{index3.rec_t_b}">pieza</em> <span th:text="#{index3.rec_t_c}">SmartGlass</span></h2>
             <p th:text="#{index3.rec_d}">Baja despacio: la misma pieza cambia contigo, de la materia prima a su huella de carbono.</p>
         </header>
-        <div class="recorrido-pin" aria-hidden="true">
-            <div class="recorrido-escena">
-                <div class="recorrido-luz"></div>
-                <div class="recorrido-suelo"></div>
-                <div class="recorrido-pieza"><div id="recorridoVidrio" class="sg-stage"></div></div>
-                <p class="recorrido-dato" id="recorridoDato"><strong>0 kg</strong><small th:text="#{index3.rec_dato}">CO₂ estimado de esta pieza</small></p>
-                <ol class="recorrido-ruta"><li></li><li></li><li></li><li></li><li></li></ol>
+        <div class="linea-pista">
+            <div class="linea-pin">
+                <div class="linea-lado">
+                    <div class="linea-panel">
+                    <article class="linea-capitulo" data-paso='{"tipo":"Crudo","reciclado":true,"espesor":6}'>
+                        <span class="linea-ceja"><b>1</b><span th:text="#{index3.rec1_c}"></span></span>
+                        <h3 th:text="#{index3.rec1_t}"></h3>
+                        <p th:text="#{index3.rec1_d}"></p>
+                    </article>
+                    <article class="linea-capitulo" data-luz="calor" data-paso='{"tipo":"Templado","reciclado":true}'>
+                        <span class="linea-ceja"><b>2</b><span th:text="#{index3.rec2_c}"></span></span>
+                        <h3 th:text="#{index3.rec2_t}"></h3>
+                        <p th:text="#{index3.rec2_d}"></p>
+                    </article>
+                    <article class="linea-capitulo" data-paso='{"tipo":"Laminado","forma":"Arco","ancho":140,"alto":160}'>
+                        <span class="linea-ceja"><b>3</b><span th:text="#{index3.rec3_c}"></span></span>
+                        <h3 th:text="#{index3.rec3_t}"></h3>
+                        <p th:text="#{index3.rec3_d}"></p>
+                        <ul class="linea-etiquetas">
+                            <li th:text="#{index3.rec3_e1}">Medidas exactas</li>
+                            <li th:text="#{index3.rec3_e2}">Cortes libres</li>
+                        </ul>
+                    </article>
+                    <article class="linea-capitulo" data-luz="sol" data-paso='{"tipo":"Fotovoltaico","ancho":150,"alto":150}'>
+                        <span class="linea-ceja"><b>4</b><span th:text="#{index3.rec4_c}"></span></span>
+                        <h3 th:text="#{index3.rec4_t}"></h3>
+                        <p th:text="#{index3.rec4_d}"></p>
+                    </article>
+                    <article class="linea-capitulo" data-luz="verde" data-paso='{"tipo":"Templado","reciclado":true,"espesor":6,"ancho":100,"alto":140}'>
+                        <span class="linea-ceja"><b>5</b><span th:text="#{index3.rec5_c}"></span></span>
+                        <h3 th:text="#{index3.rec5_t}"></h3>
+                        <p th:text="#{index3.rec5_d}"></p>
+                        <p class="linea-dato"><strong>0 kg</strong><small th:text="#{index3.rec_dato}">CO₂ estimado de esta pieza</small></p>
+                        <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler" aria-hidden="true"></i> <span th:text="#{index3.rec_cta}">Diseñar la mía</span></a>
+                    </article>
+                    </div>
+                    <div class="linea-mando">
+                        <button type="button" data-ir="-1" th:aria-label="#{index3.rec_ant}" aria-label="Estación anterior"><i class="ph ph-caret-left" aria-hidden="true"></i></button>
+                        <button type="button" data-ir="1" th:aria-label="#{index3.rec_sig}" aria-label="Estación siguiente"><i class="ph ph-caret-right" aria-hidden="true"></i></button>
+                        <span class="linea-cuenta" aria-live="polite">1 / 5</span>
+                    </div>
+                </div>
+                <div class="linea-taller">
+                    <div class="linea-luz" aria-hidden="true"></div>
+                    <div class="linea-centro" aria-hidden="true"><div class="linea-pieza"><div id="recorridoVidrio" class="sg-stage"></div></div></div>
+                    <nav class="linea-banda" th:aria-label="#{index3.rec_estaciones}" aria-label="Estaciones del recorrido">
+                        <div class="linea-riel" aria-hidden="true"><div class="linea-avance"></div><div class="linea-carro"></div></div>
+                    <button class="linea-estacion" type="button"><i class="ph ph-recycle" aria-hidden="true"></i><span th:text="#{index3.rec_e1}"></span></button>
+                    <button class="linea-estacion" type="button"><i class="ph ph-shield-check" aria-hidden="true"></i><span th:text="#{index3.rec_e2}"></span></button>
+                    <button class="linea-estacion" type="button"><i class="ph ph-shapes" aria-hidden="true"></i><span th:text="#{index3.rec_e3}"></span></button>
+                    <button class="linea-estacion" type="button"><i class="ph ph-sun" aria-hidden="true"></i><span th:text="#{index3.rec_e4}"></span></button>
+                    <button class="linea-estacion" type="button"><i class="ph ph-leaf" aria-hidden="true"></i><span th:text="#{index3.rec_e5}"></span></button>
+                    </nav>
+                </div>
             </div>
-        </div>
-        <div class="recorrido-pasos">
-            <article class="recorrido-paso" data-paso='{"tipo":"Crudo","reciclado":true,"espesor":6}'>
-                <span class="recorrido-ceja" th:text="#{index3.rec1_c}">1 · La materia</span>
-                <h3 th:text="#{index3.rec1_t}">Empieza con vidrio que vuelve</h3>
-                <p th:text="#{index3.rec1_d}">Parte de cada pieza puede llevar vidrio reciclado: menos materia nueva y menos energía en el horno.</p>
-            </article>
-            <article class="recorrido-paso" data-paso='{"tipo":"Templado","reciclado":true}'>
-                <span class="recorrido-ceja" th:text="#{index3.rec2_c}">2 · La fuerza</span>
-                <h3 th:text="#{index3.rec2_t}">Templado para el día a día</h3>
-                <p th:text="#{index3.rec2_d}">Se calienta y se enfría de golpe: queda hasta cinco veces más resistente y, si se rompe, lo hace en trozos pequeños.</p>
-            </article>
-            <article class="recorrido-paso" data-paso='{"tipo":"Laminado","forma":"Arco","ancho":140,"alto":160}'>
-                <span class="recorrido-ceja" th:text="#{index3.rec3_c}">3 · Tu forma</span>
-                <h3 th:text="#{index3.rec3_t}">Con la forma que imaginas</h3>
-                <p th:text="#{index3.rec3_d}">Rectángulo, arco, hexágono o tu propio corte dibujado a mano: ves la pieza antes de pedirla.</p>
-                <ul class="recorrido-etiquetas">
-                    <li th:text="#{index3.rec3_e1}">Medidas exactas</li>
-                    <li th:text="#{index3.rec3_e2}">Cortes libres</li>
-                </ul>
-            </article>
-            <article class="recorrido-paso" data-paso='{"tipo":"Fotovoltaico","ancho":150,"alto":150}'>
-                <span class="recorrido-ceja" th:text="#{index3.rec4_c}">4 · La energía</span>
-                <h3 th:text="#{index3.rec4_t}">Vidrio que también genera</h3>
-                <p th:text="#{index3.rec4_d}">El vidrio fotovoltaico convierte la luz en electricidad sin dejar de ser ventana.</p>
-            </article>
-            <article class="recorrido-paso" data-con-dato data-paso='{"tipo":"Templado","reciclado":true,"espesor":6,"ancho":100,"alto":140}'>
-                <span class="recorrido-ceja" th:text="#{index3.rec5_c}">5 · La huella</span>
-                <h3 th:text="#{index3.rec5_t}">Y su CO₂, a la vista</h3>
-                <p th:text="#{index3.rec5_d}">Cada pieza muestra cuánto CO₂ estima su fabricación, para que elijas con datos y no con promesas.</p>
-                <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler" aria-hidden="true"></i> <span th:text="#{index3.rec_cta}">Diseñar la mía</span></a>
-            </article>
         </div>
     </section>
 

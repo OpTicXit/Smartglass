@@ -1084,7 +1084,7 @@
       boton.setAttribute('aria-checked', String(claro));
       boton.setAttribute('aria-label', claro ? tx('tema_claro_on', 'Modo claro activado. Cambiar a modo oscuro') : tx('tema_oscuro_on', 'Modo oscuro activado. Cambiar a modo claro'));
       boton.title = claro ? tx('tema_a_oscuro', 'Cambiar a modo oscuro') : tx('tema_a_claro', 'Cambiar a modo claro');
-      if (metaColor) metaColor.setAttribute('content', claro ? '#EAF6FF' : '#1D2531');
+      if (metaColor) metaColor.setAttribute('content', claro ? '#F3F5F6' : '#101417');
       if (guardar) {
         try { localStorage.setItem(CLAVE, tema); } catch (e) { /* sin almacenamiento */ }
       }
