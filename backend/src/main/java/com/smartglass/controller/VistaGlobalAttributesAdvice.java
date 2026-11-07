@@ -72,6 +72,8 @@ public class VistaGlobalAttributesAdvice {
         model.addAttribute("usuarioLogueado", usuario != null);
 
         model.addAttribute("usuario", usuario);
+        // Nombre de quien tiene la sesion: algunas vistas del admin reutilizan "usuario" para otra persona
+        model.addAttribute("cuentaNombre", usuario != null ? usuario.getNombre() : null);
 
         // Variables claras para UI.
         model.addAttribute("esAdmin", esAdmin);

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.toLanguageTag()}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{admin.fin.titulo_pagina}">SmartGlass - Finanzas</title>
+    <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+<nav th:replace="~{admin/fragments/nav :: navbar}"></nav>
+
+<!-- Finanzas: todo sale de los pedidos guardados (FinanzasService); los cancelados no suman ingresos -->
+<main class="container adm-pagina" id="contenido">
+
+    <header class="adm-cab">
+        <div>
+            <h1 class="adm-h1" th:text="#{admin.fin.titulo}">Finanzas</h1>
+            <p class="adm-sub" th:text="#{admin.fin.subtitulo}">Ingresos, pagos y pedidos por cobrar de la tienda.</p>
+        </div>
+        <div class="adm-cab-acciones">
+            <button type="button" class="adm-btn" data-adm-csv="#adm-tabla-pedidos" data-archivo="smartglass-finanzas">
+                <i class="ph ph-download-simple" aria-hidden="true"></i><span th:text="#{admin.fin.exportar}">Exportar CSV</span>
+            </button>
+            <a class="adm-btn adm-btn--oscuro" th:href="@{/admin/pedidos}"><i class="ph ph-package" aria-hidden="true"></i><span th:text="#{admin.fin.gestionar}">Gestionar pedidos</span></a>
+        </div>
+    </header>
+
+    <ul class="adm-kpis adm-kpis--4" role="list">
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-currency-circle-dollar"></i></span>
+            <span class="adm-chip" th:if="${fin.variacionMes != null}"
+                  th:classappend="${fin.variacionMes >= 0} ? 'adm-chip--sube' : 'adm-chip--baja'"
+                  th:text="(${fin.variacionMes >= 0} ? '+' : '') + ${#numbers.formatDecimal(fin.variacionMes, 1, 'POINT', 1, 'COMMA')} + ' %'"
+                  th:title="#{admin.res.vs_mes}">+0 %</span>
+            <strong class="adm-kpi-v">$<span th:attr="data-contar=${fin.ingresos}" th:text="${#numbers.formatDecimal(fin.ingresos, 1, 'POINT', 0, 'COMMA')}">0</span></strong>
+            <span class="adm-kpi-t" th:text="#{admin.res.kpi_ingresos}">Ingresos</span>
+            <small class="adm-kpi-s" th:text="#{admin.res.kpi_ingresos_s(${#numbers.formatDecimal(fin.ingresosMes, 1, 'POINT', 0, 'COMMA')})}">este mes</small>
+        </li>
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-hourglass-medium"></i></span>
+            <strong class="adm-kpi-v">$<span th:attr="data-contar=${fin.porCobrar}" th:text="${#numbers.formatDecimal(fin.porCobrar, 1, 'POINT', 0, 'COMMA')}">0</span></strong>
+            <span class="adm-kpi-t" th:text="#{admin.fin.por_cobrar}">Por cobrar</span>
+            <small class="adm-kpi-s" th:text="#{admin.fin.por_cobrar_s(${fin.porAtender})}">pedidos pendientes</small>
+        </li>
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-check-circle"></i></span>
+            <strong class="adm-kpi-v">$<span th:attr="data-contar=${fin.entregado}" th:text="${#numbers.formatDecimal(fin.entregado, 1, 'POINT', 0, 'COMMA')}">0</span></strong>
+            <span class="adm-kpi-t" th:text="#{admin.fin.entregado}">Entregado</span>
+            <small class="adm-kpi-s" th:text="#{admin.res.kpi_pedidos_s(${fin.porEstado['ENTREGADO']})}">entregados</small>
+        </li>
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-receipt"></i></span>
+            <strong class="adm-kpi-v">$<span th:attr="data-contar=${fin.ticketPromedio}" th:text="${#numbers.formatDecimal(fin.ticketPromedio, 1, 'POINT', 0, 'COMMA')}">0</span></strong>
+            <span class="adm-kpi-t" th:text="#{admin.res.kpi_ticket}">Ticket promedio</span>
+            <small class="adm-kpi-s" th:text="#{admin.res.kpi_ticket_s}">Por pedido</small>
+        </li>
+    </ul>
+
+    <div class="adm-fila-graf">
+        <section class="adm-card adm-card--graf" data-adm-barras="meses" data-unidad="$ "
+                 th:attr="data-aria=#{admin.res.ventas_aria}" aria-labelledby="t-mes">
+            <div class="adm-card-cab">
+                <div>
+                    <h2 class="adm-h2" id="t-mes" th:text="#{admin.fin.por_mes}">Ingresos por mes</h2>
+                    <p class="adm-card-sub" th:text="#{admin.res.ventas_sub}">Sin pedidos cancelados</p>
+                </div>
+                <div class="adm-tabs" role="group" th:aria-label="#{admin.res.periodo}" aria-label="Periodo">
+                    <button type="button" data-meses="3" aria-pressed="false" th:text="#{admin.res.meses(3)}">3 meses</button>
+                    <button type="button" data-meses="6" aria-pressed="false" th:text="#{admin.res.meses(6)}">6 meses</button>
+                    <button type="button" data-meses="12" aria-pressed="true" th:text="#{admin.res.meses(12)}">12 meses</button>
+                </div>
+            </div>
+            <div class="adm-graf"></div>
+        </section>
+
+        <section class="adm-card adm-card--dona" data-adm-dona="metodos" aria-labelledby="t-pago"
+                 th:with="tarjeta=${fin.porMetodo['TARJETA_CREDITO']}, pse=${fin.porMetodo['PSE']},
+                          suma=${fin.porMetodo['TARJETA_CREDITO'] + fin.porMetodo['PSE']}">
+            <div class="adm-card-cab">
+                <div>
+                    <h2 class="adm-h2" id="t-pago" th:text="#{admin.fin.como_pagan}">Cómo pagan</h2>
+                    <p class="adm-card-sub" th:text="#{admin.fin.como_pagan_s}">Parte de los ingresos por método de pago</p>
+                </div>
+            </div>
+            <div class="adm-dona">
+                <div class="adm-dona-svg"></div>
+                <p class="adm-dona-centro">
+                    <strong><span th:with="pct=${suma > 0 ? 100 * tarjeta / suma : 0}"
+                                  th:attr="data-contar=${#numbers.formatDecimal(pct, 1, 'NONE', 0, 'POINT')}"
+                                  th:text="${#numbers.formatDecimal(pct, 1, 'NONE', 0, 'POINT')}">0</span> %</strong>
+                    <small th:text="#{admin.fin.con_tarjeta}">con tarjeta</small>
+                </p>
+            </div>
+            <div class="adm-mini-grid">
+                <p class="adm-mini"><strong th:text="'$' + ${#numbers.formatDecimal(tarjeta, 1, 'POINT', 0, 'COMMA')}">$0</strong><small th:text="#{checkout.tarjeta_de_credito_o_debito}">Tarjeta</small></p>
+                <p class="adm-mini"><strong th:text="'$' + ${#numbers.formatDecimal(pse, 1, 'POINT', 0, 'COMMA')}">$0</strong><small th:text="#{checkout.pse_o_transferencia}">PSE</small></p>
+                <p class="adm-mini"><strong th:text="${fin.pctCompensados} + ' %'">0 %</strong><small th:text="#{admin.fin.compensaron}">compensaron su CO₂</small></p>
+            </div>
+        </section>
+    </div>
+
+    <section class="adm-card" aria-labelledby="t-pedidos">
+        <div class="adm-card-cab">
+            <div>
+                <h2 class="adm-h2" id="t-pedidos" th:text="#{admin.fin.pedidos}">Pedidos recientes</h2>
+                <p class="adm-card-sub" th:text="#{admin.fin.pedidos_s}">Los 12 más recientes; el estado se cambia en Pedidos.</p>
+            </div>
+            <div class="adm-tabs" role="group" th:aria-label="#{admin.fin.filtrar}" aria-label="Filtrar">
+                <button type="button" data-filtro="todos" aria-pressed="true" th:text="#{admin.fin.f_todos}">Todos</button>
+                <button type="button" data-filtro="PENDIENTE PROCESANDO" aria-pressed="false" th:text="#{admin.fin.f_atender}">Por atender</button>
+                <button type="button" data-filtro="ENVIADO" aria-pressed="false" th:text="#{admin.pedidos.enviado}">Enviado</button>
+                <button type="button" data-filtro="ENTREGADO" aria-pressed="false" th:text="#{admin.pedidos.entregado}">Entregado</button>
+                <button type="button" data-filtro="CANCELADO" aria-pressed="false" th:text="#{admin.pedidos.cancelado}">Cancelado</button>
+            </div>
+        </div>
+        <div class="adm-tabla-wrap">
+            <table class="adm-tabla" id="adm-tabla-pedidos">
+                <thead>
+                    <tr>
+                        <th scope="col" th:text="#{admin.fin.cliente}">Cliente</th>
+                        <th scope="col" th:text="#{admin.dashboard.factura}">Factura</th>
+                        <th scope="col" th:text="#{admin.fin.fecha}">Fecha</th>
+                        <th scope="col" th:text="#{admin.fin.metodo}">Método</th>
+                        <th scope="col" class="num" th:text="#{admin.dashboard.total}">Total</th>
+                        <th scope="col" th:text="#{admin.dashboard.estado}">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pedido : ${fin.recientes}" th:attr="data-estado=${pedido.estado}">
+                        <td>
+                            <span class="adm-persona">
+                                <span class="adm-ini" aria-hidden="true" th:text="${pedido.usuario != null and pedido.usuario.nombre != null} ? ${#strings.substring(pedido.usuario.nombre, 0, 1)} : '?'">?</span>
+                                <span th:text="${pedido.usuario != null} ? ${pedido.usuario.nombre} : '—'">—</span>
+                            </span>
+                        </td>
+                        <td class="td-strong" th:text="${pedido.numeroFactura}"></td>
+                        <td th:text="${pedido.fechaPedido != null} ? ${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy')} : '—'"></td>
+                        <td th:text="${pedido.metodoPagoClave != null} ? ${#messages.msg(pedido.metodoPagoClave)} : ${pedido.metodoPago}"></td>
+                        <td class="num" th:attr="data-csv=${#numbers.formatDecimal(pedido.total, 1, 'NONE', 0, 'POINT')}" th:text="${pedido.totalFormateado}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${pedido.estado == 'PENDIENTE'} ? 'badge-warning' :
+                                                  (${pedido.estado == 'PROCESANDO'} ? 'badge-info' :
+                                                  (${pedido.estado == 'ENVIADO'} ? 'badge-violet' :
+                                                  (${pedido.estado == 'ENTREGADO'} ? 'badge-success' : 'badge-error')))"
+                                  th:text="${#messages.msgOrNull('admin.pedidos.' + #strings.toLowerCase(pedido.estado)) ?: pedido.estado}"></span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(fin.recientes)}">
+                        <td colspan="6" class="td-vacio" th:text="#{admin.dashboard.no_hay_pedidos_recientes}">No hay pedidos recientes.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="td-vacio" data-filtro-vacio hidden th:text="#{admin.fin.sin_filtro}">No hay pedidos con ese estado.</p>
+        </div>
+    </section>
+
+    <script th:inline="javascript">
+        window.SG_ADM = {
+            meses: /*[[${fin.meses}]]*/ [],
+            metodos: [
+                { valor: /*[[${fin.porMetodo['TARJETA_CREDITO']}]]*/ 0, color: '#38BDF8' },
+                { valor: /*[[${fin.porMetodo['PSE']}]]*/ 0, color: '#34D399' }
+            ]
+        };
+    </script>
+</main>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

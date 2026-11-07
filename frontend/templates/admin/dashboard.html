@@ -8,84 +8,187 @@
 </head>
 <body>
 
-<!-- 1. Insertamos el Navbar dinámico -->
 <nav th:replace="~{admin/fragments/nav :: navbar}"></nav>
 
-<main class="container" id="contenido">
-    
-    <!-- Título principal -->
-    <h1 class="admin-title" th:text="#{admin.dashboard.panel_de_administracion}">Panel de administración</h1>
+<!-- Resumen del panel: datos reales de pedidos, cotizaciones, usuarios y catalogo (sin datos de ejemplo) -->
+<main class="container adm-pagina" id="contenido"
+      th:with="nombre=${cuentaNombre != null ? #strings.arraySplit(cuentaNombre, ' ')[0] : ''}">
 
-    <!-- Alerta de éxito (si viene de cambiar un rol o estado) -->
+    <header class="adm-cab">
+        <div>
+            <h1 class="adm-h1" data-adm-saludo
+                th:attr="data-nombre=${nombre},data-manana=#{admin.res.saludo_manana},data-tarde=#{admin.res.saludo_tarde},data-noche=#{admin.res.saludo_noche}"
+                th:text="#{admin.res.hola(${nombre})}">Hola</h1>
+            <p class="adm-sub" th:text="#{admin.res.subtitulo(${#temporals.format(T(java.time.LocalDate).now(T(com.smartglass.model.mongo.CatalogoProducto).ZONA), 'd MMMM yyyy', #locale)})}">Así va SmartGlass hoy.</p>
+        </div>
+        <div class="adm-cab-acciones">
+            <a class="adm-btn" th:href="@{/admin/informe-tecnico}"><i class="ph ph-chart-line-up" aria-hidden="true"></i><span th:text="#{admin.res.ver_informe}">Informe técnico</span></a>
+            <a class="adm-btn adm-btn--oscuro" th:href="@{/admin/productos#form-nuevo}"><i class="ph ph-plus" aria-hidden="true"></i><span th:text="#{admin.res.nuevo_producto}">Nuevo producto</span></a>
+        </div>
+    </header>
+
     <div th:if="${mensaje}" class="flash" th:text="${mensaje}"></div>
 
-    <!-- 2. Grid de KPIs (Estadísticas) -->
-    <div class="stats-grid stats-6">
-        <div class="stat-box card-panel">
-            <span class="value" th:text="'$ ' + ${#numbers.formatDecimal(stats.ingresos, 1, 'COMMA', 0, 'POINT')}"></span>
-            <span class="label" th:text="#{admin.dashboard.ingresos}">Ingresos</span>
-        </div>
-        <div class="stat-box card-panel">
-            <span class="value" th:text="${stats.co2Total} + ' kg'"></span>
-            <span class="label" th:text="#{admin.dashboard.co2_total}">CO₂ total</span>
-        </div>
-        <div class="stat-box card-panel">
-            <span class="value" th:text="${stats.pendientes}"></span>
-            <span class="label" th:text="#{admin.dashboard.pedidos_pendientes}">Pedidos pendientes</span>
-        </div>
-        <div class="stat-box card-panel">
-            <span class="value" th:text="${stats.totalPedidos}"></span>
-            <span class="label" th:text="#{admin.dashboard.total_pedidos}">Total pedidos</span>
-        </div>
-        <div class="stat-box card-panel">
-            <span class="value" th:text="${totalUsuarios}"></span>
-            <span class="label" th:text="#{admin.dashboard.usuarios_registrados}">Usuarios registrados</span>
-        </div>
-        <div class="stat-box card-panel">
-            <span class="value" th:text="${totalProductos}"></span>
-            <span class="label" th:text="#{admin.dashboard.productos_en_catalogo}">Productos en catálogo</span>
-        </div>
+    <div class="adm-fila-graf">
+        <section class="adm-card adm-card--graf" data-adm-barras="meses" data-unidad="$ "
+                 th:attr="data-aria=#{admin.res.ventas_aria}" aria-labelledby="t-ventas">
+            <div class="adm-card-cab">
+                <div>
+                    <h2 class="adm-h2" id="t-ventas" th:text="#{admin.res.ventas}">Ventas</h2>
+                    <p class="adm-card-sub" th:text="#{admin.res.ventas_sub}">Ingresos por mes, sin pedidos cancelados</p>
+                </div>
+                <div class="adm-card-ctl">
+                    <div class="adm-tabs" role="group" th:aria-label="#{admin.res.periodo}" aria-label="Periodo">
+                        <button type="button" data-meses="3" aria-pressed="false" th:text="#{admin.res.meses(3)}">3 meses</button>
+                        <button type="button" data-meses="6" aria-pressed="true" th:text="#{admin.res.meses(6)}">6 meses</button>
+                        <button type="button" data-meses="12" aria-pressed="false" th:text="#{admin.res.meses(12)}">12 meses</button>
+                    </div>
+                    <a class="adm-btn adm-btn--oscuro adm-btn--sm" th:href="@{/admin/finanzas}"><i class="ph ph-wallet" aria-hidden="true"></i><span th:text="#{admin.res.ver_finanzas}">Ver finanzas</span></a>
+                </div>
+            </div>
+            <div class="adm-graf"></div>
+        </section>
+
+        <section class="adm-card adm-card--dona" data-adm-dona="cotizaciones" aria-labelledby="t-cot">
+            <div class="adm-card-cab">
+                <div>
+                    <h2 class="adm-h2" id="t-cot" th:text="#{admin.res.cotizaciones}">Cotizaciones</h2>
+                    <p class="adm-card-sub" th:text="#{admin.res.cotizaciones_sub}">Obras a medida por estado</p>
+                </div>
+            </div>
+            <div class="adm-dona">
+                <div class="adm-dona-svg"></div>
+                <p class="adm-dona-centro">
+                    <strong th:attr="data-contar=${cotTotal}" th:text="${cotTotal}">0</strong>
+                    <small th:text="#{admin.res.total}">Total</small>
+                </p>
+            </div>
+            <ul class="adm-leyenda">
+                <li th:each="e, it : ${cotEstados}" th:style="'--adm-color:' + ${ {'#38BDF8','#34D399','#FB923C'}[it.index] }">
+                    <span class="adm-punto" aria-hidden="true"></span>
+                    <span th:text="${#messages.msg('admin.res.est_' + e.key)}">Estado</span>
+                    <strong th:text="${e.value}">0</strong>
+                </li>
+            </ul>
+        </section>
     </div>
 
-    <!-- Informe tecnico: globo de emisiones y graficas del modelo -->
-    <div class="informe-cta">
-        <div>
-            <h2 class="admin-subtitle" th:text="#{admin.informe.cta_titulo}">Informe técnico</h2>
-            <p th:text="#{admin.informe.cta_detalle}">Emisiones de CO₂ en el mundo y resultados del modelo de predicción.</p>
-        </div>
-        <a class="btn btn-primary" th:href="@{/admin/informe-tecnico}" th:text="#{admin.informe.generar}">Generar informe técnico completo</a>
+    <ul class="adm-kpis" role="list">
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-currency-circle-dollar"></i></span>
+            <span class="adm-chip" th:if="${fin.variacionMes != null}"
+                  th:classappend="${fin.variacionMes >= 0} ? 'adm-chip--sube' : 'adm-chip--baja'"
+                  th:text="(${fin.variacionMes >= 0} ? '+' : '') + ${#numbers.formatDecimal(fin.variacionMes, 1, 'POINT', 1, 'COMMA')} + ' %'"
+                  th:title="#{admin.res.vs_mes}">+0 %</span>
+            <strong class="adm-kpi-v">$<span th:attr="data-contar=${fin.ingresos}" th:text="${#numbers.formatDecimal(fin.ingresos, 1, 'POINT', 0, 'COMMA')}">0</span></strong>
+            <span class="adm-kpi-t" th:text="#{admin.res.kpi_ingresos}">Ingresos</span>
+            <small class="adm-kpi-s" th:text="#{admin.res.kpi_ingresos_s(${#numbers.formatDecimal(fin.ingresosMes, 1, 'POINT', 0, 'COMMA')})}">este mes</small>
+        </li>
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-leaf"></i></span>
+            <strong class="adm-kpi-v"><span th:attr="data-contar=${stats.co2Total}" th:text="${#numbers.formatDecimal(stats.co2Total, 1, 'POINT', 0, 'COMMA')}">0</span> kg</strong>
+            <span class="adm-kpi-t" th:text="#{admin.res.kpi_co2}">CO₂ estimado de los pedidos</span>
+            <small class="adm-kpi-s" th:text="#{admin.res.kpi_co2_s(${fin.pctCompensados})}">compensado</small>
+        </li>
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-hourglass-medium"></i></span>
+            <strong class="adm-kpi-v" th:attr="data-contar=${fin.porAtender}" th:text="${fin.porAtender}">0</strong>
+            <span class="adm-kpi-t" th:text="#{admin.res.kpi_atender}">Pedidos por atender</span>
+            <small class="adm-kpi-s" th:text="#{admin.res.kpi_atender_s}">Pendientes y en proceso</small>
+        </li>
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-clipboard-text"></i></span>
+            <strong class="adm-kpi-v" th:attr="data-contar=${cotEstados['COTIZACION']}" th:text="${cotEstados['COTIZACION']}">0</strong>
+            <span class="adm-kpi-t" th:text="#{admin.res.kpi_revisar}">Cotizaciones por revisar</span>
+            <small class="adm-kpi-s"><a th:href="@{/admin/cotizaciones}" th:text="#{admin.res.revisar_ahora}">Revisar ahora</a></small>
+        </li>
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-package"></i></span>
+            <strong class="adm-kpi-v" th:attr="data-contar=${stats.totalPedidos}" th:text="${stats.totalPedidos}">0</strong>
+            <span class="adm-kpi-t" th:text="#{admin.res.kpi_pedidos}">Pedidos en total</span>
+            <small class="adm-kpi-s" th:text="#{admin.res.kpi_pedidos_s(${fin.porEstado['ENTREGADO']})}">entregados</small>
+        </li>
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-receipt"></i></span>
+            <strong class="adm-kpi-v">$<span th:attr="data-contar=${fin.ticketPromedio}" th:text="${#numbers.formatDecimal(fin.ticketPromedio, 1, 'POINT', 0, 'COMMA')}">0</span></strong>
+            <span class="adm-kpi-t" th:text="#{admin.res.kpi_ticket}">Ticket promedio</span>
+            <small class="adm-kpi-s" th:text="#{admin.res.kpi_ticket_s}">Por pedido</small>
+        </li>
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-users-three"></i></span>
+            <strong class="adm-kpi-v" th:attr="data-contar=${totalUsuarios}" th:text="${totalUsuarios}">0</strong>
+            <span class="adm-kpi-t" th:text="#{admin.dashboard.usuarios_registrados}">Usuarios registrados</span>
+            <small class="adm-kpi-s"><a th:href="@{/admin/usuarios}" th:text="#{admin.res.ver_usuarios}">Ver usuarios</a></small>
+        </li>
+        <li class="adm-kpi">
+            <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-storefront"></i></span>
+            <strong class="adm-kpi-v" th:attr="data-contar=${totalProductos}" th:text="${totalProductos}">0</strong>
+            <span class="adm-kpi-t" th:text="#{admin.dashboard.productos_en_catalogo}">Productos en catálogo</span>
+            <small class="adm-kpi-s"><a th:href="@{/admin/productos}" th:text="#{admin.res.ver_catalogo}">Ver catálogo</a></small>
+        </li>
+    </ul>
+
+    <div class="adm-fila-dos">
+        <section class="adm-card" aria-labelledby="t-ultimos">
+            <div class="adm-card-cab">
+                <h2 class="adm-h2" id="t-ultimos" th:text="#{admin.dashboard.ultimos_pedidos}">Últimos pedidos</h2>
+                <a class="adm-btn adm-btn--sm" th:href="@{/admin/pedidos}" th:text="#{admin.res.ver_pedidos}">Ver pedidos</a>
+            </div>
+            <div class="adm-tabla-wrap">
+                <table class="adm-tabla">
+                    <thead>
+                        <tr>
+                            <th scope="col" th:text="#{admin.dashboard.factura}">Factura</th>
+                            <th scope="col" th:text="#{admin.fin.cliente}">Cliente</th>
+                            <th scope="col" th:text="#{admin.dashboard.estado}">Estado</th>
+                            <th scope="col" class="num" th:text="#{admin.dashboard.total}">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="pedido, it : ${fin.recientes}" th:if="${it.index < 6}">
+                            <td class="td-strong" th:text="${pedido.numeroFactura}"></td>
+                            <td>
+                                <span class="adm-persona">
+                                    <span class="adm-ini" aria-hidden="true" th:text="${pedido.usuario != null and pedido.usuario.nombre != null} ? ${#strings.substring(pedido.usuario.nombre, 0, 1)} : '?'">?</span>
+                                    <span th:text="${pedido.usuario != null} ? ${pedido.usuario.nombre} : '—'">—</span>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${pedido.estado == 'PENDIENTE'} ? 'badge-warning' :
+                                                      (${pedido.estado == 'PROCESANDO'} ? 'badge-info' :
+                                                      (${pedido.estado == 'ENVIADO'} ? 'badge-violet' :
+                                                      (${pedido.estado == 'ENTREGADO'} ? 'badge-success' : 'badge-error')))"
+                                      th:text="${#messages.msgOrNull('admin.pedidos.' + #strings.toLowerCase(pedido.estado)) ?: pedido.estado}"></span>
+                            </td>
+                            <td class="num" th:text="${pedido.totalFormateado}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(fin.recientes)}">
+                            <td colspan="4" class="td-vacio" th:text="#{admin.dashboard.no_hay_pedidos_recientes}">No hay pedidos recientes.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="adm-card adm-card--cta" aria-labelledby="t-informe">
+            <span class="adm-kpi-ico adm-kpi-ico--grande" aria-hidden="true"><i class="ph ph-globe-hemisphere-west"></i></span>
+            <h2 class="adm-h2" id="t-informe" th:text="#{admin.informe.cta_titulo}">Informe técnico</h2>
+            <p class="adm-card-sub" th:text="#{admin.res.informe_d}">Emisiones de CO₂ en el mundo, el modelo de predicción y la proyección del CO₂ estimado.</p>
+            <a class="adm-btn adm-btn--oscuro" th:href="@{/admin/informe-tecnico}" th:text="#{admin.informe.generar}">Generar informe técnico completo</a>
+        </section>
     </div>
 
-    <!-- 3. Tabla de Últimos Pedidos -->
-    <h2 class="admin-subtitle" th:text="#{admin.dashboard.ultimos_pedidos}">Últimos pedidos</h2>
-    <div class="table-wrap">
-        <table class="table-admin">
-            <thead>
-                <tr>
-                    <th th:text="#{admin.dashboard.factura}">Factura</th>
-                    <th th:text="#{admin.dashboard.estado}">Estado</th>
-                    <th th:text="#{admin.dashboard.total}">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="pedido : ${stats.pedidos}">
-                    <td class="td-strong" th:text="${pedido.numeroFactura}"></td>
-                    <td>
-                        <span class="badge"
-                              th:classappend="${pedido.estado == 'PENDIENTE'} ? 'badge-warning' : 
-                                              (${pedido.estado == 'PROCESANDO'} ? 'badge-info' : 
-                                              (${pedido.estado == 'ENVIADO'} ? 'badge-violet' : 
-                                              (${pedido.estado == 'ENTREGADO'} ? 'badge-success' : 'badge-error')))"
-                              th:text="${#messages.msgOrNull('admin.pedidos.' + #strings.toLowerCase(pedido.estado)) ?: pedido.estado}"></span>
-                    </td>
-                    <td th:text="${pedido.totalFormateado}"></td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(stats.pedidos)}">
-                    <td colspan="3" class="td-vacio" th:text="#{admin.dashboard.no_hay_pedidos_recientes}">No hay pedidos recientes.</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <script th:inline="javascript">
+        window.SG_ADM = {
+            meses: /*[[${fin.meses}]]*/ [],
+            cotizaciones: [
+                { valor: /*[[${cotEstados['COTIZACION']}]]*/ 0, color: '#38BDF8' },
+                { valor: /*[[${cotEstados['APROBADO']}]]*/ 0, color: '#34D399' },
+                { valor: /*[[${cotEstados['RECHAZADA']}]]*/ 0, color: '#FB923C' }
+            ]
+        };
+    </script>
 </main>
 
 <script th:src="@{/js/main.js}"></script>

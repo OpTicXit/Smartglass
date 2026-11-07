@@ -1,0 +1,144 @@
+/* =========================================================
+   Recorrido de una pieza (inicio): version sin costo de "scroll world".
+   El scroll mueve una camara alrededor de la pieza de vidrio del configurador
+   (SGGlass) y la pieza cambia de capitulo en capitulo. Sin video: todo es SVG + CSS.
+   Con movimiento reducido o el modo fotosensible queda quieta y los capitulos se leen igual.
+========================================================= */
+.recorrido {
+    --p: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 0 clamp(24px, 4vw, 64px);
+    width: min(100% - 2 * var(--gutter), var(--content-max));
+    margin: clamp(48px, 8vw, 110px) auto;
+}
+.recorrido-titulo {
+    grid-column: 1 / -1;
+    max-width: 720px;
+    margin: 0 0 clamp(8px, 3vw, 24px);
+}
+.recorrido-titulo h2 { margin: 0 0 10px; font-family: var(--font-display); font-size: var(--fs-3xl); letter-spacing: -0.02em; }
+.recorrido-titulo p { margin: 0; color: var(--text-muted); font-size: var(--fs-lg); }
+
+.recorrido-pasos { grid-column: 1; grid-row: 2; }
+.recorrido-paso {
+    min-height: 82vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 24px 0;
+    opacity: 0.35;
+    transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out);
+    transform: translateY(8px);
+}
+.recorrido-paso.es-activo { opacity: 1; transform: none; }
+.recorrido-paso:first-child { min-height: 64vh; }
+.recorrido-paso:last-child { min-height: 70vh; }
+.recorrido-ceja {
+    display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
+    padding: 5px 12px; margin-bottom: 14px; border-radius: var(--r-pill);
+    background: var(--color-accent-dim); color: var(--color-accent-text);
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em;
+}
+.recorrido-paso h3 { margin: 0 0 12px; font-family: var(--font-display); font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem); line-height: 1.1; letter-spacing: -0.02em; }
+.recorrido-paso p { margin: 0; max-width: 46ch; color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; }
+.recorrido-etiquetas { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+.recorrido-etiquetas li { padding: 5px 12px; border-radius: var(--r-pill); border: 1px solid var(--border-color); color: var(--text-main); font-size: 0.82rem; }
+.recorrido-paso .btn { align-self: flex-start; margin-top: 22px; }
+
+.recorrido-pin {
+    grid-column: 2; grid-row: 2;
+    position: sticky; top: 0;
+    height: 100vh; height: 100dvh;
+    display: grid; place-items: center;
+}
+.recorrido-escena {
+    position: relative;
+    width: min(100%, 560px);
+    aspect-ratio: 1 / 1.05;
+    display: grid; place-items: center;
+    perspective: 1300px;
+}
+.recorrido-luz {
+    position: absolute; inset: 6%;
+    border-radius: 50%;
+    background:
+        radial-gradient(closest-side, color-mix(in srgb, var(--color-accent) 38%, transparent), transparent 72%),
+        radial-gradient(60% 50% at calc(30% + var(--p) * 40%) 70%, color-mix(in srgb, var(--color-success) 30%, transparent), transparent 70%);
+    filter: blur(28px);
+    opacity: 0.7;
+    transform: scale(calc(0.9 + var(--p) * 0.25));
+}
+.recorrido-suelo {
+    position: absolute; left: 12%; right: 12%; bottom: 9%;
+    height: 14%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(0, 0, 0, 0.32), transparent);
+    filter: blur(6px);
+    transform: scaleX(calc(0.85 + var(--p) * 0.2));
+}
+:root[data-theme="light"] .recorrido-suelo { background: radial-gradient(closest-side, rgba(11, 36, 71, 0.22), transparent); }
+.recorrido-pieza {
+    position: relative;
+    width: 78%;
+    transform-style: preserve-3d;
+    transform:
+        rotateY(calc(-26deg + var(--p) * 52deg))
+        rotateX(calc(12deg - var(--p) * 18deg))
+        translateZ(calc(var(--p) * 40px))
+        scale(calc(0.92 + var(--p) * 0.12));
+    will-change: transform;
+}
+.recorrido-pieza > div { transition: opacity 0.28s ease, filter 0.28s ease; }
+.recorrido-pieza.cambiando > div { opacity: 0; filter: blur(6px); }
+.recorrido-dato {
+    position: absolute; right: 2%; bottom: 14%;
+    display: grid; gap: 2px;
+    padding: 12px 16px;
+    border-radius: var(--r-lg);
+    background: var(--card-bg); border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-main), var(--glass-edge);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    opacity: 0; transform: translateY(10px);
+    transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
+}
+.recorrido-dato.visible { opacity: 1; transform: none; }
+.recorrido-dato strong { font-family: var(--font-display); font-size: 1.5rem; color: var(--color-success); }
+.recorrido-dato small { color: var(--text-muted); font-size: 0.78rem; }
+
+.recorrido-ruta {
+    position: absolute; right: -6px; top: 50%;
+    display: grid; gap: 10px;
+    margin: 0; padding: 0; list-style: none;
+    transform: translateY(-50%);
+}
+.recorrido-ruta li {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: color-mix(in srgb, var(--text-main) 22%, transparent);
+    transition: background-color 0.3s ease, transform 0.3s var(--ease-out);
+}
+.recorrido-ruta li.es-activo { background: var(--color-accent); transform: scale(1.5); }
+
+/* Telefono: la escena queda arriba y los capitulos pasan por debajo */
+@media (max-width: 860px) {
+    .recorrido { grid-template-columns: 1fr; }
+    .recorrido-pin {
+        grid-column: 1; grid-row: 2;
+        top: 64px;
+        height: 46vh; height: 46svh;
+        z-index: 0;
+    }
+    .recorrido-escena { width: min(78vw, 360px); }
+    .recorrido-pasos { grid-row: 3; position: relative; z-index: 1; margin-top: -10vh; }
+    .recorrido-paso { min-height: 62vh; justify-content: flex-end; }
+    .recorrido-paso:first-child { min-height: 40vh; }
+    .recorrido-paso h3, .recorrido-paso p, .recorrido-etiquetas, .recorrido-ceja { text-shadow: 0 1px 12px var(--bg-primary); }
+    .recorrido-ruta { right: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .recorrido-pieza { transform: none; will-change: auto; }
+    .recorrido-pieza > div, .recorrido-paso, .recorrido-dato { transition: none; }
+}
+html[data-a11y~="fotosensible"] .recorrido-pieza { transform: none !important; }
+html[data-a11y~="fotosensible"] :is(.recorrido-pieza > div, .recorrido-paso, .recorrido-dato) { transition: none !important; }
+@media print { .recorrido-pin { display: none; } .recorrido-paso { min-height: 0; opacity: 1; } }

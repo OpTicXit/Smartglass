@@ -357,6 +357,144 @@
         vivoFig.sgDias = a.dias;
     }
 
+    /* ---------- Proyecciones del CO2 estimado ----------
+       "Simulacion" (JSON exportado, fin = null: la historia se ancla a hoy) y "Actividad de la plataforma"
+       (en vivo). Forma: { fin, historia[], futuro[{y,lo,hi}], horizontes[{clave,dias,total,lo,hi}], metricas? }.
+       La grafica muestra CO2 por periodo; la frase, el acumulado desde hoy hasta el horizonte. */
+    var FECHA = new Intl.DateTimeFormat(window.SG_LANG || 'es-CO', { day: 'numeric', month: 'short', year: '2-digit' });
+    function masDias(fecha, n) { var d = new Date(fecha.getTime()); d.setDate(d.getDate() + n); return d; }
+    /* Solo bloques completos: uno incompleto (p. ej. el dia 365 en semanas) sumaria menos y la curva caeria sin motivo */
+    function bloques(valores, tam, desdeElFinal) {
+        var out = [], n = valores.length;
+        if (desdeElFinal) {
+            for (var fin = n; fin - tam >= 0; fin -= tam) out.unshift({ ini: fin - tam, fin: fin - 1 });
+        } else {
+            for (var ini = 0; ini + tam <= n; ini += tam) out.push({ ini: ini, fin: ini + tam - 1 });
+        }
+        return out;
+    }
+    function suma(lista, a, b, campo) {
+        var s = 0;
+        for (var k = a; k <= b; k++) s += campo ? lista[k][campo] : lista[k];
+        return s;
+    }
+
+    function grafProyeccion(bloque, p, clave) {
+        var fig = bloque.querySelector('[data-proy-grafica]');
+        var h = p.horizontes.filter(function (x) { return x.clave === clave; })[0];
+        if (!fig || !h) return;
+        var abierta = fig.querySelector('details'), estabaAbierta = abierta && abierta.open;
+        var tam = h.dias <= 31 ? 1 : (h.dias <= 366 ? 7 : 30);
+        var hoy = p.fin ? new Date(p.fin + 'T12:00:00') : new Date();
+        var historia = p.historia.slice(-Math.max(h.dias, 30));
+        var futuro = p.futuro.slice(0, h.dias);
+        var pasados = bloques(historia, tam, true).map(function (b) {
+            return { v: suma(historia, b.ini, b.fin), desde: masDias(hoy, b.ini - historia.length + 1), hasta: masDias(hoy, b.fin - historia.length + 1) };
+        });
+        var proximos = bloques(futuro, tam, false).map(function (b) {
+            return { v: suma(futuro, b.ini, b.fin, 'y'), lo: suma(futuro, b.ini, b.fin, 'lo'), hi: suma(futuro, b.ini, b.fin, 'hi'),
+                     desde: masDias(hoy, b.ini + 1), hasta: masDias(hoy, b.fin + 1) };
+        });
+        var todos = pasados.concat(proximos);
+        var max = Math.max.apply(null, todos.map(function (b) { return b.hi != null ? b.hi : b.v; }).concat([1]));
+        var ticks = escalaBonita(max), tope = ticks[ticks.length - 1];
+        var ancho = Math.max(280, fig.clientWidth - 36), alto = 230, m = { a: 10, b: 28, i: 52, d: 10 };
+        var s = lienzo(fig, ancho, alto), util = alto - m.a - m.b;
+        var paso = (ancho - m.i - m.d) / Math.max(1, todos.length - 1);
+        var x = function (i) { return m.i + i * paso; };
+        var y = function (v) { return m.a + util * (1 - v / tope); };
+        ticks.forEach(function (t) {
+            nodo('line', { x1: m.i, x2: ancho - m.d, y1: y(t), y2: y(t), 'class': 'g-eje' }, s);
+            nodo('text', { x: m.i - 6, y: y(t), 'text-anchor': 'end', 'dominant-baseline': 'central' }, s, compacto(t));
+        });
+        var corte = pasados.length - 1;
+        // Banda del rango probable (desde el ultimo punto conocido)
+        if (proximos.length) {
+            var arriba = ['M' + x(corte) + ' ' + y(pasados[corte] ? pasados[corte].v : 0)];
+            proximos.forEach(function (b, i) { arriba.push('L' + x(corte + 1 + i) + ' ' + y(Math.min(tope, b.hi))); });
+            for (var i = proximos.length - 1; i >= 0; i--) arriba.push('L' + x(corte + 1 + i) + ' ' + y(Math.max(0, proximos[i].lo)));
+            arriba.push('Z');
+            nodo('path', { d: arriba.join(' '), 'class': 'g-banda' }, s);
+        }
+        var linea = function (desde, lista, clase) {
+            var d = lista.map(function (b, i) { return (i ? 'L' : 'M') + x(desde + i) + ' ' + y(b.v); }).join(' ');
+            nodo('path', { d: d, 'class': clase }, s);
+        };
+        linea(0, pasados, 'g-historia');
+        if (proximos.length) linea(corte, [pasados[corte]].concat(proximos), 'g-proyeccion');
+        nodo('line', { x1: x(corte), x2: x(corte), y1: m.a, y2: m.a + util, 'class': 'g-hoy' }, s);
+        nodo('circle', { cx: x(corte), cy: y(pasados[corte].v), r: 4, 'class': 'g-resalte' }, s);
+        // Etiquetas: inicio, hoy y fin
+        [[0, pasados[0].desde, 'start'], [corte, hoy, 'middle'], [todos.length - 1, todos[todos.length - 1].hasta, 'end']].forEach(function (e) {
+            nodo('text', { x: x(e[0]), y: alto - 8, 'text-anchor': e[2] }, s, FECHA.format(e[1]));
+        });
+        // Zonas de lectura para el tooltip
+        todos.forEach(function (b, i) {
+            var zona = nodo('rect', { x: x(i) - paso / 2, y: m.a, width: Math.max(4, paso), height: util, 'class': 'g-fila' }, s);
+            var rango = tam === 1 ? FECHA.format(b.desde) : FECHA.format(b.desde) + ' – ' + FECHA.format(b.hasta);
+            conTip(zona, rango, NUM.format(b.v) + ' kg' + (b.hi != null ? ' (' + NUM.format(b.lo) + ' – ' + NUM.format(b.hi) + ')' : ''));
+        });
+        if (abierta) abierta.remove();
+        tabla(fig, [sgT('inf_vivo_fecha'), sgT('inf_proy_futuro'), sgT('inf_proy_rango')], proximos.map(function (b) {
+            return [FECHA.format(b.desde) + (tam > 1 ? ' – ' + FECHA.format(b.hasta) : ''), NUM.format(b.v), NUM.format(b.lo) + ' – ' + NUM.format(b.hi)];
+        }));
+        fig.querySelector('details').open = !!estabaAbierta;
+    }
+
+    function pintarProyeccion(bloque, p) {
+        var ctl = bloque.querySelector('[data-proy-horizontes]');
+        var resumen = bloque.querySelector('[data-proy-resumen]');
+        var fig = bloque.querySelector('[data-proy-grafica]');
+        var validacion = bloque.querySelector('[data-proy-validacion]');
+        var claves = (p.horizontes || []).map(function (h) { return h.clave; });
+        if (!claves.length) {
+            ctl.hidden = true; fig.hidden = true;
+            resumen.textContent = sgT('inf_proy_sin_datos');
+            bloque.sgProy = null;
+            return;
+        }
+        ctl.hidden = false; fig.hidden = false;
+        var previa = bloque.sgProy && claves.indexOf(bloque.sgProy.clave) !== -1 ? bloque.sgProy.clave : null;
+        var clave = previa || (claves.indexOf('anio') !== -1 ? 'anio' : claves[claves.length - 1]);
+        function elegir(c) {
+            clave = c;
+            bloque.sgProy = { p: p, clave: c };
+            Array.prototype.forEach.call(ctl.children, function (b) { b.setAttribute('aria-pressed', String(b.dataset.h === c)); });
+            var h = p.horizontes.filter(function (x) { return x.clave === c; })[0];
+            resumen.textContent = sgT('inf_proy_resumen', '', sgT('inf_proy_r_' + c), ENTERO.format(h.total), ENTERO.format(h.lo), ENTERO.format(h.hi));
+            grafProyeccion(bloque, p, c);
+        }
+        if (ctl.dataset.claves !== claves.join()) {
+            ctl.textContent = '';
+            ctl.dataset.claves = claves.join();
+            claves.forEach(function (c) {
+                var b = document.createElement('button');
+                b.type = 'button'; b.dataset.h = c; b.textContent = sgT('inf_proy_h_' + c, c);
+                b.addEventListener('click', function () { elegir(c); });
+                ctl.appendChild(b);
+            });
+        }
+        if (validacion && p.metricas) {
+            validacion.textContent = sgT('inf_proy_validacion', '', NUM.format(p.metricas.mae), NUM.format(p.metricas.mape_semanal), NUM.format(p.metricas.mae_ingenuo));
+        }
+        elegir(clave);
+    }
+
+    var bloquePlataforma = document.querySelector('[data-proyeccion-bloque="plataforma"]');
+    var bloqueSimulacion = document.querySelector('[data-proyeccion-bloque="simulacion"]');
+    function pedirJson(url) {
+        return fetch(url, { headers: { Accept: 'application/json' } }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+    }
+    function sinProyeccion(bloque) {
+        var r = bloque.querySelector('[data-proy-resumen]');
+        r.textContent = sgT('inf_vivo_error', '', vivoHora || '-');
+        r.classList.add('con-error');
+    }
+    if (bloqueSimulacion && main.dataset.simulacion) {
+        pedirJson(main.dataset.simulacion).then(function (p) { pintarProyeccion(bloqueSimulacion, p); })
+            .catch(function () { sinProyeccion(bloqueSimulacion); });
+    }
+
     function consultarVivo() {
         if (document.hidden) return;
         fetch(main.dataset.vivo, { headers: { Accept: 'application/json' } })
@@ -366,11 +504,20 @@
                 vivoEstado.classList.add('con-error');
                 vivoEstado.textContent = sgT('inf_vivo_error', '', vivoHora || '-');
             });
+        if (bloquePlataforma && main.dataset.proyeccion) {
+            pedirJson(main.dataset.proyeccion).then(function (p) {
+                bloquePlataforma.querySelector('[data-proy-resumen]').classList.remove('con-error');
+                pintarProyeccion(bloquePlataforma, p);
+            }).catch(function () { sinProyeccion(bloquePlataforma); });
+        }
     }
     consultarVivo();
     setInterval(consultarVivo, CADA_MS);
     document.addEventListener('visibilitychange', consultarVivo);
-    addEventListener('resize', function () { if (vivoFig.sgDias) grafVivo(vivoFig.sgDias); });
+    addEventListener('resize', function () {
+        if (vivoFig.sgDias) grafVivo(vivoFig.sgDias);
+        [bloquePlataforma, bloqueSimulacion].forEach(function (b) { if (b && b.sgProy) grafProyeccion(b, b.sgProy.p, b.sgProy.clave); });
+    });
 
     window.sgInformeDatos.then(pintar).catch(function () {
         var nota = document.querySelector('.informe-nota');

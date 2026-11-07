@@ -43,6 +43,21 @@
         inf_vivo_co2_semana: /*[[#{admin.informe.vivo_co2_semana}]]*/ 'CO₂ estimado en 7 días',
         inf_vivo_reciclado: /*[[#{admin.informe.vivo_reciclado}]]*/ 'Con material reciclado',
         inf_vivo_fecha: /*[[#{admin.informe.vivo_fecha}]]*/ 'Fecha',
+        inf_proy_resumen: /*[[#{admin.informe.proy_resumen}]]*/ 'En {0} se estiman {1} kg de CO₂e (entre {2} y {3}).',
+        inf_proy_sin_datos: /*[[#{admin.informe.proy_sin_datos}]]*/ 'Todavía no hay datos suficientes para proyectar.',
+        inf_proy_futuro: /*[[#{admin.informe.proy_futuro}]]*/ 'Proyección (kg)',
+        inf_proy_rango: /*[[#{admin.informe.proy_rango}]]*/ 'Rango probable (kg)',
+        inf_proy_validacion: /*[[#{admin.informe.proy_validacion}]]*/ 'Validación con los últimos 6 meses',
+        inf_proy_h_semana: /*[[#{admin.informe.proy_h_semana}]]*/ '1 semana',
+        inf_proy_h_mes: /*[[#{admin.informe.proy_h_mes}]]*/ '1 mes',
+        inf_proy_h_cinco_meses: /*[[#{admin.informe.proy_h_cinco_meses}]]*/ '5 meses',
+        inf_proy_h_anio: /*[[#{admin.informe.proy_h_anio}]]*/ '1 año',
+        inf_proy_h_cinco_anios: /*[[#{admin.informe.proy_h_cinco_anios}]]*/ '5 años',
+        inf_proy_r_semana: /*[[#{admin.informe.proy_r_semana}]]*/ 'la próxima semana',
+        inf_proy_r_mes: /*[[#{admin.informe.proy_r_mes}]]*/ 'el próximo mes',
+        inf_proy_r_cinco_meses: /*[[#{admin.informe.proy_r_cinco_meses}]]*/ 'los próximos 5 meses',
+        inf_proy_r_anio: /*[[#{admin.informe.proy_r_anio}]]*/ 'el próximo año',
+        inf_proy_r_cinco_anios: /*[[#{admin.informe.proy_r_cinco_anios}]]*/ 'los próximos 5 años',
         'inf_v_area_m2': /*[[#{admin.informe.v.area_m2}]]*/ 'Área (m²)',
         'inf_v_espesor_mm': /*[[#{admin.informe.v.espesor_mm}]]*/ 'Espesor (mm)',
         'inf_v_calcin_pct': /*[[#{admin.informe.v.calcin_pct}]]*/ 'Calcín (%)',
@@ -81,8 +96,8 @@
 <nav th:replace="~{admin/fragments/nav :: navbar}"></nav>
 
 <main id="contenido"
-      th:attr="data-datos=@{/admin/informe-tecnico/datos},data-vivo=@{/admin/informe-tecnico/vivo},data-three=@{/vendor/three/three.module.min.js},data-mapa=@{/vendor/mapas/countries-110m.json}"
-      data-datos="" data-vivo="" data-three="" data-mapa="">
+      th:attr="data-datos=@{/admin/informe-tecnico/datos},data-vivo=@{/admin/informe-tecnico/vivo},data-proyeccion=@{/admin/informe-tecnico/proyeccion},data-simulacion=@{/admin/informe-tecnico/proyeccion-simulacion},data-three=@{/vendor/three/three.module.min.js},data-mapa=@{/vendor/mapas/countries-110m.json}"
+      data-datos="" data-vivo="" data-proyeccion="" data-simulacion="" data-three="" data-mapa="">
 
     <section class="globo-escena" id="globo-escena" tabindex="0" aria-labelledby="informe-titulo">
         <canvas id="globo-lienzo" role="img"></canvas>
@@ -130,6 +145,27 @@
         <p class="informe-vivo" id="vivo-estado" role="status"></p>
         <div class="informe-metricas" id="vivo-metricas"></div>
         <figure class="grafica" data-vivo-grafica><figcaption th:text="#{admin.informe.g_vivo}">CO₂ estimado cotizado por día, últimos 30 días</figcaption></figure>
+
+        <section class="proy" data-proyeccion-bloque="plataforma" aria-labelledby="proy-plataforma-t">
+            <div class="proy-cab">
+                <h3 class="informe-titulo3" id="proy-plataforma-t" th:text="#{admin.informe.proy_titulo}">Proyección del CO₂ estimado</h3>
+                <div class="adm-tabs" role="group" data-proy-horizontes hidden th:aria-label="#{admin.informe.proy_horizonte}" aria-label="Horizonte"></div>
+            </div>
+            <p class="proy-resumen" data-proy-resumen aria-live="polite"></p>
+            <figure class="grafica" data-proy-grafica hidden><figcaption th:text="#{admin.informe.proy_g_plataforma}">CO₂ estimado por periodo: lo cotizado y lo proyectado</figcaption></figure>
+        </section>
+
+        <h2 class="admin-subtitle informe-titulo2" id="simulacion" th:text="#{admin.informe.sim_titulo}">Simulación</h2>
+        <p class="informe-intro" th:text="#{admin.informe.sim_intro}">Historia de 5 años generada a partir del dataset sintético de 10.000 piezas. Muestra cómo se proyecta el CO₂ estimado; no son emisiones medidas.</p>
+        <section class="proy" data-proyeccion-bloque="simulacion" aria-labelledby="proy-simulacion-t">
+            <div class="proy-cab">
+                <h3 class="informe-titulo3" id="proy-simulacion-t" th:text="#{admin.informe.proy_titulo}">Proyección del CO₂ estimado</h3>
+                <div class="adm-tabs" role="group" data-proy-horizontes hidden th:aria-label="#{admin.informe.proy_horizonte}" aria-label="Horizonte"></div>
+            </div>
+            <p class="proy-resumen" data-proy-resumen aria-live="polite"></p>
+            <figure class="grafica" data-proy-grafica hidden><figcaption th:text="#{admin.informe.proy_g_simulacion}">CO₂ estimado por periodo en la historia sintética y su proyección</figcaption></figure>
+            <p class="informe-meta" data-proy-validacion></p>
+        </section>
 
         <h2 class="admin-subtitle informe-titulo2" id="modelo" th:text="#{admin.informe.modelo_titulo}">Modelo de predicción de CO₂</h2>
         <p class="informe-intro" th:text="#{admin.informe.modelo_intro}">Random Forest entrenado con datos sintéticos, creados a partir de factores de emisión publicados. Estima el CO₂ de una pieza; no mide emisiones reales ni se usa todavía en el cotizador.</p>

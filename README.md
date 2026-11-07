@@ -93,9 +93,10 @@ Desarrollar y evaluar una plataforma web para la venta de vidrio a medida que in
 - Tema claro y oscuro, colores para daltonismo y un modo sin animaciones ni destellos.
 
 ### 🧰 Panel de administración
+- Panel de vidrio con menú lateral, buscador de secciones (Ctrl+K), resumen con ventas por mes, cotizaciones por estado y cifras clave, y una página de Finanzas (ingresos, por cobrar, métodos de pago y exportación a CSV).
 - Gestión de productos, pedidos, cotizaciones, usuarios y reseñas.
 - Planes Básico y Avanzado que activan o limitan funciones de la plataforma. Aún no tienen precio: se definirán con los resultados del piloto.
-- Informe técnico con un globo 3D interactivo y las gráficas del modelo. El globo muestra el CO₂ fósil total por país en 2024 como contexto, no el del vidrio.
+- Informe técnico con un globo 3D interactivo, las gráficas del modelo y la proyección del CO₂ estimado a 1 semana, 1 mes, 5 meses, 1 año o 5 años (nunca más lejos que el historial disponible). El globo muestra el CO₂ fósil total por país en 2024 como contexto, no el del vidrio.
 
 ### 📊 Minería de datos
 - Generación reproducible de datos sintéticos basados en factores de emisión documentados.
@@ -568,6 +569,15 @@ El R² de validación cruzada es de 0,9615 ± 0,0036. En entrenamiento, el model
 **El modelo no está integrado en la aplicación.** `modelo_smartglass_co2.pkl` es un artefacto entrenado y evaluado aparte, versionado en el repositorio. Ningún componente Java lo carga ni lo consulta (el informe técnico del panel admin solo muestra sus resultados, ya exportados): las cifras de CO₂ que muestra la web salen de las fórmulas deterministas de `AnalisisService`. La presencia del archivo `.pkl` no implica integración.
 
 Además, hoy no se podría conectar directamente: el modelo necesita `proceso`, `energia_kwh_kg` y `calcin_pct`, que el formulario de cotización no pide, y conoce 20 tipos de vidrio frente a los 7 del cotizador.
+
+### Proyecciones del CO₂ estimado
+
+El informe técnico proyecta el CO₂ total estimado con un modelo de series de tiempo aparte del Random Forest: mínimos cuadrados con tendencia y estacionalidad semanal y anual (términos de Fourier). La misma fórmula está en `mineria de datos/proyeccion_co2.py` y en `ProyeccionCo2.java`, y `test_proyeccion.py` comprueba que den los mismos números. Hay dos apartados:
+
+- **Simulación:** `data/generacion_historial.py` genera 5 años de actividad diaria sintética tomando piezas del dataset de 10.000 (sin modificarlo) y `mineria de datos/exportar_proyeccion.py` valida el método con los últimos 6 meses y exporta `informe/proyeccion-simulacion.json`. Las fechas son ilustrativas: la página ancla la historia a la fecha de hoy.
+- **Actividad de la plataforma:** se calcula en vivo con las cotizaciones guardadas. Con `DEMO_DATOS=true`, `HistorialActividadSeeder` agrega una sola vez 2 años de **historial de demostración** en la colección `historial_actividad`, anterior a la primera cotización real, cotizado con el mismo `AnalisisService` y empalmado con el ritmo actual. Ese historial no es una cotización: no aparece en listas, contadores ni en el dashboard, y la pantalla no lo distingue. Para dejar solo datos reales, se borra esa colección.
+
+Ninguna proyección es una medición: son estimaciones con un rango probable que se abre con el horizonte.
 
 ### Siguiente fase (no implementada)
 

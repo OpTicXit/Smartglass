@@ -57,10 +57,17 @@ public class AdminController {
     private final Textos textos;
     private final com.smartglass.service.ContenidoLocalizado contenido;
 
+    private final com.smartglass.service.FinanzasService finanzas;
+    private final com.smartglass.service.VidrioSostenibleService cotizaciones;
+
     public AdminController(UsuarioRepository usuarioRepository, PedidoService pedidoService,
                             ProductoService productoService, ResenaService resenaService,
                             NotificacionService notificacionService, PlanService plan, Textos textos,
-                            com.smartglass.service.ContenidoLocalizado contenido) {
+                            com.smartglass.service.ContenidoLocalizado contenido,
+                            com.smartglass.service.FinanzasService finanzas,
+                            com.smartglass.service.VidrioSostenibleService cotizaciones) {
+        this.finanzas = finanzas;
+        this.cotizaciones = cotizaciones;
         this.contenido = contenido;
         this.plan = plan;
         this.textos = textos;
@@ -76,7 +83,21 @@ public class AdminController {
         model.addAttribute("stats", pedidoService.obtenerEstadisticasDashboard());
         model.addAttribute("totalUsuarios", usuarioRepository.count());
         model.addAttribute("totalProductos", productoService.obtenerTodos().size());
+        model.addAttribute("fin", finanzas.resumen());
+        // Cotizaciones por estado para la dona del resumen (orden fijo de la leyenda)
+        Map<String, Long> cotEstados = new LinkedHashMap<>();
+        for (String e : List.of("COTIZACION", "APROBADO", "RECHAZADA")) cotEstados.put(e, 0L);
+        cotizaciones.obtenerTodas().forEach(v -> { if (v.getEstado() != null) cotEstados.merge(v.getEstado(), 1L, Long::sum); });
+        model.addAttribute("cotEstados", cotEstados);
+        model.addAttribute("cotTotal", cotEstados.values().stream().mapToLong(Long::longValue).sum());
         return "admin/dashboard";
+    }
+
+    /** Finanzas: ingresos por mes, por cobrar, metodos de pago y pedidos recientes (sin cancelados en los ingresos). */
+    @GetMapping("/finanzas")
+    public String finanzas(Model model) {
+        model.addAttribute("fin", finanzas.resumen());
+        return "admin/finanzas";
     }
 
     // --- Usuarios ---

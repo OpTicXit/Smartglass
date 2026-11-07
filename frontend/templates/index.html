@@ -202,6 +202,7 @@
             .panel-vidrio, .panel-vidrio::after, .badge-flotante { animation: none !important; }
         }
     </style>
+<link rel="stylesheet" th:href="@{/css/recorrido.css}">
 </head>
 <body>
 
@@ -328,6 +329,55 @@
         </div>
     </section>
 
+    <!-- Recorrido de una pieza: el scroll gira la pieza del configurador y cambia de capitulo (recorrido.js) -->
+    <section class="recorrido" id="recorrido" aria-labelledby="recorrido-t">
+        <header class="recorrido-titulo">
+            <h2 id="recorrido-t" th:text="#{index3.rec_t}">Así nace una pieza SmartGlass</h2>
+            <p th:text="#{index3.rec_d}">Baja despacio: la misma pieza cambia contigo, de la materia prima a su huella de carbono.</p>
+        </header>
+        <div class="recorrido-pin" aria-hidden="true">
+            <div class="recorrido-escena">
+                <div class="recorrido-luz"></div>
+                <div class="recorrido-suelo"></div>
+                <div class="recorrido-pieza"><div id="recorridoVidrio" class="sg-stage"></div></div>
+                <p class="recorrido-dato" id="recorridoDato"><strong>0 kg</strong><small th:text="#{index3.rec_dato}">CO₂ estimado de esta pieza</small></p>
+                <ol class="recorrido-ruta"><li></li><li></li><li></li><li></li><li></li></ol>
+            </div>
+        </div>
+        <div class="recorrido-pasos">
+            <article class="recorrido-paso" data-paso='{"tipo":"Crudo","reciclado":true,"espesor":6}'>
+                <span class="recorrido-ceja" th:text="#{index3.rec1_c}">1 · La materia</span>
+                <h3 th:text="#{index3.rec1_t}">Empieza con vidrio que vuelve</h3>
+                <p th:text="#{index3.rec1_d}">Parte de cada pieza puede llevar vidrio reciclado: menos materia nueva y menos energía en el horno.</p>
+            </article>
+            <article class="recorrido-paso" data-paso='{"tipo":"Templado","reciclado":true}'>
+                <span class="recorrido-ceja" th:text="#{index3.rec2_c}">2 · La fuerza</span>
+                <h3 th:text="#{index3.rec2_t}">Templado para el día a día</h3>
+                <p th:text="#{index3.rec2_d}">Se calienta y se enfría de golpe: queda hasta cinco veces más resistente y, si se rompe, lo hace en trozos pequeños.</p>
+            </article>
+            <article class="recorrido-paso" data-paso='{"tipo":"Laminado","forma":"Arco","ancho":140,"alto":160}'>
+                <span class="recorrido-ceja" th:text="#{index3.rec3_c}">3 · Tu forma</span>
+                <h3 th:text="#{index3.rec3_t}">Con la forma que imaginas</h3>
+                <p th:text="#{index3.rec3_d}">Rectángulo, arco, hexágono o tu propio corte dibujado a mano: ves la pieza antes de pedirla.</p>
+                <ul class="recorrido-etiquetas">
+                    <li th:text="#{index3.rec3_e1}">Medidas exactas</li>
+                    <li th:text="#{index3.rec3_e2}">Cortes libres</li>
+                </ul>
+            </article>
+            <article class="recorrido-paso" data-paso='{"tipo":"Fotovoltaico","ancho":150,"alto":150}'>
+                <span class="recorrido-ceja" th:text="#{index3.rec4_c}">4 · La energía</span>
+                <h3 th:text="#{index3.rec4_t}">Vidrio que también genera</h3>
+                <p th:text="#{index3.rec4_d}">El vidrio fotovoltaico convierte la luz en electricidad sin dejar de ser ventana.</p>
+            </article>
+            <article class="recorrido-paso" data-con-dato data-paso='{"tipo":"Templado","reciclado":true,"espesor":6,"ancho":100,"alto":140}'>
+                <span class="recorrido-ceja" th:text="#{index3.rec5_c}">5 · La huella</span>
+                <h3 th:text="#{index3.rec5_t}">Y su CO₂, a la vista</h3>
+                <p th:text="#{index3.rec5_d}">Cada pieza muestra cuánto CO₂ estima su fabricación, para que elijas con datos y no con promesas.</p>
+                <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-lg"><i class="ph ph-pencil-ruler" aria-hidden="true"></i> <span th:text="#{index3.rec_cta}">Diseñar la mía</span></a>
+            </article>
+        </div>
+    </section>
+
     <!-- T4: de la idea a la pieza -->
     <section class="pasos">
         <div class="container">
@@ -367,6 +417,7 @@
 <th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:inline="javascript">window.SG_TXT.index_vista_previa = /*[[#{index2.vista_previa}]]*/ 'Vista previa de una pieza de vidrio {0}';</script>
 <script th:src="@{/js/glass-preview.js}"></script>
+<script th:src="@{/js/recorrido.js}" defer></script>
 <script>
 /* Muestra del configurador: cada boton redibuja la pieza con otro tipo de vidrio */
 (function () {

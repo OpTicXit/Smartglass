@@ -1,6 +1,8 @@
 package com.smartglass.controller;
 
 import com.smartglass.service.ActividadPlataformaService;
+import com.smartglass.service.ProyeccionCo2;
+import com.smartglass.service.ProyeccionPlataformaService;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -22,11 +24,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class AdminInformeController {
 
     private static final Resource DATOS = new ClassPathResource("informe/informe-tecnico.json");
+    private static final Resource SIMULACION = new ClassPathResource("informe/proyeccion-simulacion.json");
 
     private final ActividadPlataformaService actividad;
+    private final ProyeccionPlataformaService proyeccion;
 
-    public AdminInformeController(ActividadPlataformaService actividad) {
+    public AdminInformeController(ActividadPlataformaService actividad, ProyeccionPlataformaService proyeccion) {
         this.actividad = actividad;
+        this.proyeccion = proyeccion;
     }
 
     @GetMapping("/admin/informe-tecnico")
@@ -43,5 +48,18 @@ public class AdminInformeController {
     @ResponseBody
     public ActividadPlataformaService.Actividad vivo() {
         return actividad.actividad();
+    }
+
+    /** "Actividad de la plataforma": cotizaciones guardadas + historial, proyectado en vivo. */
+    @GetMapping("/admin/informe-tecnico/proyeccion")
+    @ResponseBody
+    public ProyeccionCo2.Proyeccion proyeccion() {
+        return proyeccion.proyeccion();
+    }
+
+    /** "Simulacion": JSON de "mineria de datos/exportar_proyeccion.py" (historia sintetica de 5 anios). */
+    @GetMapping("/admin/informe-tecnico/proyeccion-simulacion")
+    public ResponseEntity<Resource> proyeccionSimulacion() {
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(SIMULACION);
     }
 }

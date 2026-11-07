@@ -211,6 +211,7 @@ public class DemoDatosSeeder {
     // ------------------------------------------------------------------ carga
 
     @EventListener(ApplicationReadyEvent.class)
+    @org.springframework.core.annotation.Order(1)   // antes que HistorialActividadSeeder, que empalma con estas cotizaciones
     public void cargar() {
         if (usuarioRepository.findByUsername(CLIENTES.get(0).username()).isPresent()) {
             log.info("Datos de demostracion: ya estaban cargados, no se toca nada.");

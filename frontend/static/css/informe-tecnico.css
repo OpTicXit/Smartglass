@@ -132,3 +132,15 @@
     .globo-controles { bottom: 14px; flex-direction: row; align-items: flex-end; left: var(--gutter, 16px); right: var(--gutter, 16px); justify-content: space-between; flex-wrap: wrap; }
     .globo-controles .globo-pausa { width: auto; padding: 0 12px; }
 }
+
+/* Proyecciones del CO2 estimado (Simulacion y Actividad de la plataforma) */
+.proy { margin: 26px 0 8px; }
+.proy-cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: 6px; }
+.proy-cab .informe-titulo3 { margin: 0; }
+.proy .adm-tabs[hidden], .proy .grafica[hidden] { display: none; }
+.proy-resumen { margin: 4px 0 12px; font-size: 1.02rem; font-weight: 600; color: var(--text-main); }
+.proy-resumen.con-error { color: var(--color-error); font-weight: 500; }
+.grafica .g-historia { fill: none; stroke: var(--graf-a); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.grafica .g-proyeccion { fill: none; stroke: var(--graf-b); stroke-width: 2.4; stroke-dasharray: 7 6; stroke-linecap: round; }
+.grafica .g-banda { fill: var(--graf-b); fill-opacity: 0.16; stroke: none; }
+.grafica .g-hoy { stroke: var(--text-subtle); stroke-width: 1; stroke-dasharray: 2 4; }

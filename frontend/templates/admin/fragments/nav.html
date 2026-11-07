@@ -3,56 +3,97 @@
 <body>
 
 <!--
-    Barra del panel de administracion.
-    Estilos en theme.css ("NAVEGACION ORGANIZADA"); main.js marca la pestana activa
-    y controla los menus via data-match. Un solo menu a la derecha reune el resto
-    de acciones.
-    
-    CAMBIO de esta ronda:
-    - Item "Cotizaciones" en la lista principal entre Dashboard y Pedidos,
-      con badge de pendientes (cotizacionesPendientes publica PermisosAdvice).
-    - Estado activo por data-match (mismo patron que los demas items), NO por
-      #request.requestURI (Thymeleaf 3.1 ya no lo expone en expresiones).
+    Armazon del panel de administracion (nov. 2026): menu lateral de vidrio + barra superior.
+    Estilos en admin.css ("ARMAZON DE VIDRIO"); comportamiento en admin-shell.js (buscador Ctrl+K,
+    menu movil) y main.js (pagina activa por data-match, menus de idioma, accesibilidad y cuenta).
+    Sigue siendo <nav class="navbar" data-nav> para que main.js lo encuentre igual que antes.
+    En el menu solo hay secciones que funcionan.
 -->
 <nav th:fragment="navbar"
      id="admin-navbar"
-     class="navbar navbar--admin"
-     data-nav="admin">
+     class="navbar navbar--admin adm-shell"
+     data-nav="admin"
+     aria-label="Panel de administración" th:aria-label="#{adminnav.panel}">
 
-    <a th:href="@{/admin/dashboard}" class="logo">
-        <img th:src="@{/img/logo-icono-sm.png}" alt="">
-        <span th:text="#{adminnav.smartglass}">SmartGlass</span>
-        <span class="logo-tag" th:text="#{adminnav.admin}">Admin</span>
-    </a>
+    <aside class="adm-side" id="adm-side">
+        <a th:href="@{/admin/dashboard}" class="adm-brand">
+            <span class="adm-brand-ico"><img th:src="@{/img/logo-icono-sm.png}" alt=""></span>
+            <span class="adm-brand-txt">
+                <strong th:text="#{adminnav.marca}">SmartGlass Admin</strong>
+                <small th:text="#{adminnav.centro_control}">Centro de control</small>
+            </span>
+        </a>
 
-    <button type="button" class="nav-toggle" aria-label="Abrir menú de administración" th:aria-label="#{adminnav.abrir_menu_de_administracion}" aria-expanded="false" aria-controls="nav-panel-admin">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
+        <div class="adm-grupos">
+            <p class="adm-grupo-t" th:text="#{adminnav.grupo_panel}">Panel</p>
+            <ul class="nav-links adm-links">
+                <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}" data-match="/admin/dashboard"><i class="ph ph-squares-four" aria-hidden="true"></i><span th:text="#{adminnav.resumen}">Resumen</span></a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/admin/informe-tecnico}" data-match="/admin/informe-tecnico"><i class="ph ph-chart-line-up" aria-hidden="true"></i><span th:text="#{adminnav.informe}">Informe técnico</span></a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/admin/finanzas}" data-match="/admin/finanzas"><i class="ph ph-wallet" aria-hidden="true"></i><span th:text="#{adminnav.finanzas}">Finanzas</span></a></li>
+            </ul>
 
-    <div class="nav-panel" id="nav-panel-admin">
+            <p class="adm-grupo-t" th:text="#{adminnav.grupo_comercio}">Comercio</p>
+            <ul class="nav-links adm-links">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/cotizaciones}" data-match="/admin/cotizaciones">
+                        <i class="ph ph-clipboard-text" aria-hidden="true"></i><span th:text="#{adminnav.cotizaciones}">Cotizaciones</span>
+                        <span class="nav-badge"
+                              th:if="${cotizacionesPendientes != null and cotizacionesPendientes > 0}"
+                              th:text="${cotizacionesPendientes}"
+                              th:title="#{adminnav.por_revisar}">0</span>
+                    </a>
+                </li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/admin/pedidos}" data-match="/admin/pedidos"><i class="ph ph-package" aria-hidden="true"></i><span th:text="#{adminnav.pedidos}">Pedidos</span></a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/admin/productos}" data-match="/admin/productos"><i class="ph ph-storefront" aria-hidden="true"></i><span th:text="#{adminnav.catalogo}">Catálogo</span></a></li>
+            </ul>
 
-        <ul class="nav-links">
-            <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}" data-match="/admin/dashboard" th:text="#{adminnav.dashboard}">Dashboard</a></li>
+            <p class="adm-grupo-t" th:text="#{adminnav.grupo_personas}">Personas</p>
+            <ul class="nav-links adm-links">
+                <li class="nav-item"><a class="nav-link" th:href="@{/admin/usuarios}" data-match="/admin/usuarios"><i class="ph ph-users-three" aria-hidden="true"></i><span th:text="#{adminnav.usuarios}">Usuarios</span></a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/admin/resenas}" data-match="/admin/resenas"><i class="ph ph-star" aria-hidden="true"></i><span th:text="#{adminnav.resenas}">Reseñas</span></a></li>
+            </ul>
 
-            <!-- NUEVO: panel de aprobacion de cotizaciones -->
-            <li class="nav-item">
-                <a class="nav-link" th:href="@{/admin/cotizaciones}" data-match="/admin/cotizaciones">
-                    <span th:text="#{adminnav.cotizaciones}">Cotizaciones</span>
-                    <span class="nav-badge"
-                          th:if="${cotizacionesPendientes != null and cotizacionesPendientes > 0}"
-                          th:text="${cotizacionesPendientes}">0</span>
-                </a>
-            </li>
+            <p class="adm-grupo-t" th:text="#{adminnav.grupo_sistema}">Sistema</p>
+            <ul class="nav-links adm-links">
+                <li class="nav-item"><a class="nav-link" th:href="@{/admin/planes}" data-match="/admin/planes"><i class="ph ph-sliders-horizontal" aria-hidden="true"></i><span th:text="#{adminnav.planes}">Planes</span></a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/home}"><i class="ph ph-arrow-square-out" aria-hidden="true"></i><span th:text="#{adminnav.ver_la_tienda}">Ver la tienda</span></a></li>
+            </ul>
+        </div>
 
-            <li class="nav-item"><a class="nav-link" th:href="@{/admin/pedidos}" data-match="/admin/pedidos" th:text="#{adminnav.pedidos}">Pedidos</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/admin/productos}" data-match="/admin/productos" th:text="#{adminnav.catalogo}">Catálogo</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/admin/usuarios}" data-match="/admin/usuarios" th:text="#{adminnav.usuarios}">Usuarios</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/admin/resenas}" data-match="/admin/resenas" th:text="#{adminnav.resenas}">Reseñas</a></li>
-            <!-- U3: planes SaaS (antes consola /superadmin aparte) -->
-            <li class="nav-item"><a class="nav-link" th:href="@{/admin/planes}" data-match="/admin/planes" th:text="#{adminnav.planes}">Planes</a></li>
-        </ul>
+        <!-- Plan activo y cuantas funciones incluye (mismo dato que /admin/planes) -->
+        <a class="adm-plan" th:href="@{/admin/planes}"
+           th:with="todas=${T(com.smartglass.service.Funcion).values()},
+                    activas=${#arrays.length(T(com.smartglass.service.Funcion).values().?[@plan.activa(#this)])}">
+            <span class="adm-plan-cab">
+                <strong th:text="#{adminnav.plan(${#messages.msg('superadmin.plan.' + @plan.planActual())})}">Plan Avanzado</strong>
+                <small th:text="#{adminnav.funciones(${activas}, ${#arrays.length(todas)})}">7 de 7 funciones</small>
+            </span>
+            <span class="adm-plan-barra" aria-hidden="true">
+                <span th:style="'width:' + ${100 * activas / #arrays.length(todas)} + '%'"></span>
+            </span>
+        </a>
+    </aside>
 
-        <div class="nav-actions">
+    <div class="adm-scrim" data-adm-cerrar aria-hidden="true"></div>
+
+    <div class="adm-top">
+        <button type="button" class="nav-toggle adm-toggle" aria-label="Abrir menú de administración" th:aria-label="#{adminnav.abrir_menu_de_administracion}" aria-expanded="false" aria-controls="adm-side">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+
+        <!-- Buscador del panel: salta a cualquier seccion del menu (Ctrl+K o Cmd+K) -->
+        <div class="adm-search" role="search">
+            <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+            <input type="search" id="adm-buscar" autocomplete="off" spellcheck="false"
+                   role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="adm-buscar-lista"
+                   placeholder="Buscar en el panel…" th:placeholder="#{adminnav.buscar}"
+                   aria-label="Buscar una sección del panel" th:aria-label="#{adminnav.buscar_aria}">
+            <kbd class="adm-kbd" aria-hidden="true">Ctrl K</kbd>
+            <ul class="adm-buscar-lista" id="adm-buscar-lista" role="listbox" hidden
+                th:attr="data-vacio=#{adminnav.sin_resultados}"></ul>
+        </div>
+
+        <div class="nav-actions adm-acciones">
             <!-- T3: campana de notificaciones (polling) -->
             <div th:replace="~{fragments/notificaciones :: campana}"></div>
 
@@ -105,12 +146,14 @@
                 </div>
             </div>
 
-            <div class="nav-item has-menu nav-account">
+            <div class="nav-item has-menu nav-account adm-cuenta">
                 <button type="button" class="nav-link nav-trigger" aria-haspopup="true" aria-expanded="false">
-                    <span class="nav-avatar" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                    <span class="adm-avatar" aria-hidden="true"
+                          th:text="${cuentaNombre != null and !#strings.isEmpty(cuentaNombre)} ? ${#strings.toUpperCase(#strings.substring(cuentaNombre, 0, 1))} : 'A'">A</span>
+                    <span class="adm-cuenta-txt">
+                        <strong th:text="${cuentaNombre != null} ? ${cuentaNombre} : #{adminnav.administrador}">Administrador</strong>
+                        <small th:text="#{adminnav.rol_admin}">Administración</small>
                     </span>
-                    <span th:text="#{adminnav.administrador}">Administrador</span>
                     <svg class="nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
                 <ul class="nav-dropdown nav-dropdown--right">
@@ -135,6 +178,7 @@
         </div>
     </div>
 
+    <script th:src="@{/js/admin-shell.js}" defer></script>
 </nav>
 
 </body>
