@@ -75,7 +75,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
             res.getOutputStream().write(
                     ("{\"error\":\"" + msg + "\",\"mensaje\":\"" + msg + "\"}").getBytes(StandardCharsets.UTF_8));
         } else {
-            // Formulario HTML: volver al login con aviso (login.html lee ${param.bloqueado})
+            // Formulario HTML: volver al login con aviso (acceso.html (vista de login) lee ${param.bloqueado})
             res.sendRedirect(req.getContextPath() + "/login?bloqueado");
         }
     }

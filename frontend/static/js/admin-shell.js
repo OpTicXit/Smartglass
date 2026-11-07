@@ -28,6 +28,93 @@
     return '$' + NUM.format(v);
   }
 
+  var raiz = document.documentElement;
+  function reducido() {
+    return (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) ||
+      /(^|\s)fotosensible(\s|$)/.test(raiz.getAttribute('data-a11y') || '');
+  }
+
+  /* ---------- Entrada al panel (una vez por sesion; la marca html.adm-intro la pone nav.html) ----------
+     Pantalla Azul Profundo: dos mitades del isotipo se unen, aparece el nombre y un circulo que crece
+     desde la esquina superior izquierda revela el panel; el contenido arranca su cascada al revelarse. */
+  if (raiz.classList.contains('adm-intro')) {
+    var terminado = false;
+    var capa = document.createElement('div');
+    var terminar = function () {
+      if (terminado) return;
+      terminado = true;
+      raiz.classList.remove('adm-intro', 'adm-intro-lista');
+      capa.remove();
+      try { sessionStorage.setItem('sg-adm-intro', '1'); } catch (e) { /* sin almacenamiento */ }
+    };
+    setTimeout(terminar, 3200);   // nunca debe quedar tapando el panel
+    var logo = nav.querySelector('.adm-brand-ico img');
+    var marca = nav.querySelector('.adm-brand-txt strong');
+    capa.className = 'adm-intro-capa';
+    capa.setAttribute('aria-hidden', 'true');
+    var caja = document.createElement('span');
+    caja.className = 'adm-intro-logo';
+    [0, 1].forEach(function () { var im = document.createElement('img'); im.alt = ''; im.src = logo ? logo.src : ''; caja.appendChild(im); });
+    var nombre = document.createElement('p');
+    nombre.className = 'adm-intro-nombre';
+    nombre.textContent = marca ? marca.textContent : 'SmartGlass';
+    capa.append(caja, nombre);
+    document.body.appendChild(capa);
+    raiz.classList.add('adm-intro-lista');
+    if (typeof capa.animate !== 'function' || reducido()) {
+      terminar();
+    } else {
+      var curva = 'cubic-bezier(0.2, 0.8, 0.2, 1)', mitades = caja.querySelectorAll('img');
+      var uno = mitades[0].animate([{ transform: 'translate(-90px, -80px) rotate(-30deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 420, easing: curva, fill: 'both' });
+      mitades[1].animate([{ transform: 'translate(90px, 80px) rotate(30deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 420, easing: curva, fill: 'both' });
+      nombre.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 320, delay: 300, easing: 'ease-out', fill: 'both' });
+      uno.finished.then(function () {
+        return new Promise(function (r) { setTimeout(r, 420); });
+      }).then(function () {
+        raiz.classList.remove('adm-intro');   // el contenido empieza su cascada mientras se revela
+        var radio = Math.hypot(innerWidth, innerHeight) + 40;
+        return capa.animate([{ '--adm-hueco': '0px' }, { '--adm-hueco': radio + 'px' }],
+          { duration: 720, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' }).finished;
+      }).then(terminar, terminar);
+    }
+  }
+
+  /* ---------- Cifras que ruedan como un contador (referencia V22) ----------
+     Corre antes que main.js (este script es defer), asi que le quita data-contar para que no las cuente
+     tambien. El lector de pantalla oye el valor final; las columnas que ruedan son decorativas. */
+  var contenido = document.getElementById('contenido');
+  if (contenido && !reducido()) {
+    contenido.querySelectorAll('[data-contar]').forEach(function (n) {
+      var final = n.textContent.trim();
+      if (!/\d/.test(final)) return;
+      n.removeAttribute('data-contar');
+      n.textContent = '';
+      var leido = document.createElement('span');
+      leido.className = 'visually-hidden';
+      leido.textContent = final;
+      var cifra = document.createElement('span');
+      cifra.className = 'adm-cifra';
+      cifra.setAttribute('aria-hidden', 'true');
+      var k = 0;
+      Array.prototype.forEach.call(final, function (ch) {
+        var s = document.createElement('span');
+        if (/\d/.test(ch)) {
+          s.className = 'adm-rueda';
+          var col = document.createElement('span');
+          col.className = 'adm-rueda-col';
+          col.style.setProperty('--d', String(10 + Number(ch)));
+          col.style.setProperty('--k', String(k++));
+          for (var v = 0; v < 20; v++) { var dig = document.createElement('span'); dig.textContent = String(v % 10); col.appendChild(dig); }
+          s.appendChild(col);
+        } else {
+          s.textContent = ch;
+        }
+        cifra.appendChild(s);
+      });
+      n.append(leido, cifra);
+    });
+  }
+
   /* ---------- Menu movil ---------- */
   function cerrarMovil() {
     nav.classList.remove('mobile-open');
@@ -133,6 +220,10 @@
       if (/^(SCRIPT|STYLE|TEMPLATE)$/.test(hijo.tagName)) return;
       hijo.classList.add('adm-entra');
       hijo.style.setProperty('--adm-i', Math.min(i++, 8));
+      // Las tarjetas de cada bloque entran una tras otra (--adm-j)
+      hijo.querySelectorAll('.adm-card, .adm-kpi, .cot-card, .card-panel, .stat-box, .form-card, .admin-card, .usuario-card, .plan-card').forEach(function (t, j) {
+        t.style.setProperty('--adm-j', Math.min(j, 10));
+      });
     });
 
     /* ---------- Graficas ---------- */

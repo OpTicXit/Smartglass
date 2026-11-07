@@ -271,11 +271,34 @@
     var principal = document.querySelector('[data-galeria-principal]');
     var minis = document.querySelectorAll('[data-galeria-miniatura]');
     if (!principal || !minis.length) return;
-    minis.forEach(function (b) {
-        b.addEventListener('click', function () {
-            principal.src = b.getAttribute('data-src');
-            minis.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
-        });
+    var actual = 0;
+    function mostrar(i, dir) {
+        actual = (i + minis.length) % minis.length;
+        var b = minis[actual];
+        principal.src = b.getAttribute('data-src');
+        minis.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        if (dir && !matchMedia('(prefers-reduced-motion: reduce)').matches && !/fotosensible/.test(document.documentElement.getAttribute('data-a11y') || '')) {
+            principal.animate([{ opacity: 0.4, transform: 'translateX(' + (dir * 24) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'ease-out' });
+        }
+    }
+    minis.forEach(function (b, i) { b.addEventListener('click', function () { mostrar(i); }); });
+
+    /* Deslizar la foto con el dedo: izquierda = siguiente, derecha = anterior (el scroll vertical sigue libre) */
+    var caja = principal.parentElement, x0 = null, y0 = 0;
+    caja.style.touchAction = 'pan-y';
+    caja.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') { x0 = e.clientX; y0 = e.clientY; } });
+    caja.addEventListener('pointerup', function (e) {
+        if (x0 === null) return;
+        var dx = e.clientX - x0, dy = e.clientY - y0;
+        x0 = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) mostrar(actual + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+    });
+    caja.addEventListener('pointercancel', function () { x0 = null; });
+    /* Teclado: flechas sobre la foto */
+    caja.tabIndex = 0;
+    caja.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight') { e.preventDefault(); mostrar(actual + 1, 1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); mostrar(actual - 1, -1); }
     });
 })();
 

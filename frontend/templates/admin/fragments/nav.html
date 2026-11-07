@@ -15,6 +15,21 @@
      data-nav="admin"
      aria-label="Panel de administración" th:aria-label="#{adminnav.panel}">
 
+    <!-- Entrada al panel una vez por sesion (admin-shell.js la anima). Va en linea para tapar el panel
+         desde el primer cuadro; si algo falla, a los 4 s se quita sola. acceso.js la rearma al iniciar sesion. -->
+    <script>
+    (function () {
+        try {
+            var h = document.documentElement;
+            if (sessionStorage.getItem('sg-adm-intro')) return;
+            if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            if (/(^|\s)fotosensible(\s|$)/.test(h.getAttribute('data-a11y') || '')) return;
+            h.classList.add('adm-intro');
+            setTimeout(function () { h.classList.remove('adm-intro', 'adm-intro-lista'); }, 4000);
+        } catch (e) { /* sin sessionStorage: sin entrada */ }
+    })();
+    </script>
+
     <aside class="adm-side" id="adm-side">
         <a th:href="@{/admin/dashboard}" class="adm-brand">
             <span class="adm-brand-ico"><img th:src="@{/img/logo-icono-sm.png}" alt=""></span>

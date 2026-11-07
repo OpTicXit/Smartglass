@@ -18,7 +18,7 @@ import java.net.URI;
  * cualquier redireccion a login (incluida la de un visitante que
  * intenta agregar algo al carrito) termina en 404.
  *
- * No arma atributos de Model: login.html lee "${param.error}" y
+ * No arma atributos de Model: acceso.html (vista de login) lee "${param.error}" y
  * "${param.logout}" directamente de la query string, y "${mensaje}"
  * llega como flash attribute desde RegistroController -- no hace
  * falta duplicarlos aqui.
@@ -39,7 +39,8 @@ public class LoginController {
     public String login(HttpServletRequest request, HttpServletResponse response, Model model) {
         model.addAttribute("paraPagar", vieneDelPago(requestCache.getRequest(request, response)));
         model.addAttribute("recuperacionActiva", recuperacion.activa());
-        return "login";
+        model.addAttribute("vista", "login");
+        return "acceso"; // nov. 2026: login y registro comparten la tarjeta de acceso.html
     }
 
     private static boolean vieneDelPago(SavedRequest guardada) {

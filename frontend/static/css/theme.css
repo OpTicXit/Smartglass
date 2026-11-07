@@ -1129,6 +1129,13 @@ body { padding-bottom: 64px; }
 html.sg-vt::view-transition-old(root), html.sg-vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; }   /* U5: solo el cambio de tema */
 html.sg-vt::view-transition-old(root) { z-index: 1; }
 html.sg-vt::view-transition-new(root) { z-index: 2; }
+/* Nov. 2026 (referencia "vidrio liquido"): el tema nuevo crece desde el interruptor con el borde
+   difuso, no con un circulo nitido. --sg-r lo anima main.js; --sg-x / --sg-y marcan el interruptor. */
+@property --sg-r { syntax: '<length>'; inherits: false; initial-value: 0px; }
+html.sg-vt::view-transition-new(root) {
+  -webkit-mask-image: radial-gradient(circle at var(--sg-x, 50%) var(--sg-y, 50%), #000 calc(var(--sg-r) - 180px), transparent var(--sg-r));
+          mask-image: radial-gradient(circle at var(--sg-x, 50%) var(--sg-y, 50%), #000 calc(var(--sg-r) - 180px), transparent var(--sg-r));
+}
 html.sg-vt *:not(.sg-theme-switch):not(.sg-theme-switch *), html.sg-vt *::before, html.sg-vt *::after { transition: none !important; }
 /* Respaldo (sin View Transitions): fundido de colores */
 html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-transition *::after {
@@ -1769,6 +1776,17 @@ html.sg-vt .navbar[data-nav] { view-transition-name: none; }
 ::view-transition-group(barra) { animation-duration: 0.25s; }
 @keyframes sgVtSalir { to { opacity: 0; } }
 @keyframes sgVtEntrar { from { opacity: 0; transform: translateY(10px); } }
+/* Entrada al configurador (nov. 2026): el circulo lo anima el <head> de vidrio-personalizado-form.html;
+   aqui se apagan las animaciones por defecto para que solo se vea el circulo, y los bloques entran
+   en cascada (solo hacia atras: al terminar no dejan transformaciones puestas) */
+html.sg-config-circulo::view-transition-old(root), html.sg-config-circulo::view-transition-new(root) { animation: none; }
+html.sg-config-entra .sg-config-bloque {
+  animation: sgCfgEntra 0.55s var(--ease-out) backwards;
+  animation-delay: calc(var(--cfg-i, 0) * 80ms + 280ms);
+}
+@keyframes sgCfgEntra { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } }
+html[data-a11y~="fotosensible"] .sg-config-bloque { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { html.sg-config-entra .sg-config-bloque { animation: none; } }
 html[data-a11y~="fotosensible"]::view-transition-group(*),
 html[data-a11y~="fotosensible"]::view-transition-old(*),
 html[data-a11y~="fotosensible"]::view-transition-new(*) { animation: none !important; }

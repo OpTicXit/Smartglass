@@ -4,6 +4,36 @@
     <meta charset="UTF-8">
     <title th:text="#{cotizar.smartglass_atelier_disena_tu_obra}">SmartGlass - Atelier: diseña tu obra</title>
     <th:block th:replace="~{fragments/recursos :: recursos}"></th:block>
+    <!-- Entrada al configurador (nov. 2026): si se llego desde un boton de "Diseñar", un circulo crece
+         desde ese punto (main.js lo guarda) y los bloques entran en cascada. Va en <head> porque
+         pagereveal ocurre antes del primer cuadro. Sin movimiento reducido ni modo fotosensible. -->
+    <script>
+    (function () {
+        var d = null, h = document.documentElement;
+        try { d = JSON.parse(sessionStorage.getItem('sg-config-desde') || 'null'); sessionStorage.removeItem('sg-config-desde'); } catch (e) { /* sin almacenamiento */ }
+        var quieto = (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) ||
+            /(^|\s)fotosensible(\s|$)/.test(h.getAttribute('data-a11y') || '');
+        if (!d || quieto || Date.now() - d.t > 10000) return;
+        h.classList.add('sg-config-entra');
+        addEventListener('pagereveal', function (e) {
+            if (!e.viewTransition) return;
+            h.classList.add('sg-config-circulo');
+            e.viewTransition.ready.then(function () {
+                var r = Math.hypot(Math.max(d.x, innerWidth - d.x), Math.max(d.y, innerHeight - d.y));
+                h.animate({ clipPath: ['circle(0px at ' + d.x + 'px ' + d.y + 'px)', 'circle(' + r + 'px at ' + d.x + 'px ' + d.y + 'px)'] },
+                    { duration: 650, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' });
+            }).catch(function () {});
+            e.viewTransition.finished.finally(function () { h.classList.remove('sg-config-circulo'); });
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            var i = 0;
+            document.querySelectorAll('.atelier-hero, .atelier-grid > *, .atelier-form > .capitulo').forEach(function (b) {
+                b.classList.add('sg-config-bloque');
+                b.style.setProperty('--cfg-i', Math.min(i++, 8));
+            });
+        });
+    })();
+    </script>
 
     <style>
         /* =========================================================

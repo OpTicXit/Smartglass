@@ -45,6 +45,22 @@
     else document.addEventListener('DOMContentLoaded', fn);
   }
 
+  /* Entrada al configurador (nov. 2026): guarda el punto del boton que lleva a "Diseñar" / "Vidrio
+     personalizado"; vidrio-personalizado-form.html hace crecer un circulo desde ahi al llegar. */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var url;
+    try { url = new URL(a.href, location.href); } catch (x) { return; }
+    if (url.origin !== location.origin || !/\/vidrio-personalizado\/cotizar\/?$/.test(url.pathname)) return;
+    var r = a.getBoundingClientRect();
+    try {
+      sessionStorage.setItem('sg-config-desde', JSON.stringify({
+        x: Math.round(e.clientX || r.left + r.width / 2), y: Math.round(e.clientY || r.top + r.height / 2), t: Date.now()
+      }));
+    } catch (x) { /* sin almacenamiento: entra sin circulo */ }
+  }, true);
+
   ready(function () {
     // Cada inicializador va aislado: si uno falla, los demas siguen.
     [
@@ -1102,15 +1118,26 @@
       var y = r.top + r.height / 2;
       var radio = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
 
+      raiz.style.setProperty('--sg-x', x + 'px');
+      raiz.style.setProperty('--sg-y', y + 'px');
       raiz.classList.add('sg-vt');
       var vt = document.startViewTransition(function () { aplicar(tema, true, false); });
       vt.ready.then(function () {
+        // Borde difuso que avanza (mascara de theme.css) y un desenfoque que se aclara: efecto de vidrio liquido
         raiz.animate(
-          { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + radio + 'px at ' + x + 'px ' + y + 'px)'] },
-          { duration: 700, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+          { '--sg-r': ['0px', (radio + 200) + 'px'], filter: ['blur(14px) saturate(1.25)', 'blur(0) saturate(1)'] },
+          { duration: 900, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+        );
+        raiz.animate(
+          { filter: ['blur(0)', 'blur(3px)'] },
+          { duration: 900, easing: 'ease-in', pseudoElement: '::view-transition-old(root)' }
         );
       }).catch(function () {});
-      vt.finished.finally(function () { raiz.classList.remove('sg-vt'); });
+      vt.finished.finally(function () {
+        raiz.classList.remove('sg-vt');
+        raiz.style.removeProperty('--sg-x');
+        raiz.style.removeProperty('--sg-y');
+      });
     }
 
     boton.addEventListener('click', function () {

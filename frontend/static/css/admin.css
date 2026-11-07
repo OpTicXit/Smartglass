@@ -488,53 +488,83 @@ T3: clases que reemplazan estilos en linea del panel
 .compromisos-ped { display: inline-flex; gap: 4px; margin-left: 8px; color: var(--color-success); font-size: 1.05rem; vertical-align: middle; }
 
 /* =========================================================
-   ARMAZON DE VIDRIO (nov. 2026)
-   Menu lateral y barra superior de vidrio sobre un degradado azul petroleo,
-   panel de contenido esmerilado y tarjetas blancas translucidas.
+   ARMAZON DEL PANEL (nov. 2026, segunda version)
+   Referencia "Dashboard V22": fondo claro con bruma pastel (cielo, cian y durazno),
+   menu lateral en capsula Azul Profundo con iconos y nombres (la seccion activa es una
+   pildora clara), barra superior y panel de vidrio blanco esmerilado y tarjetas blancas
+   muy redondeadas. Paleta SmartGlass en pastel; version oscura con el mismo orden.
    Fragmento: admin/fragments/nav.html · comportamiento: js/admin-shell.js.
    El vidrio usa ::before con backdrop-filter para no crear un bloque contenedor
    (los modales position:fixed de las vistas siguen anclados a la ventana).
 ========================================================= */
 :root {
-    --adm-side: 252px;
+    --adm-side: 236px;
     --adm-gap: 16px;
-    --adm-r: 22px;
+    --adm-r: 28px;
+    /* Claro (por defecto en estas variables; el modo oscuro las reemplaza abajo) */
     --adm-fondo:
-        radial-gradient(55% 60% at 12% 18%, rgba(45, 196, 214, 0.55), transparent 62%),
-        radial-gradient(45% 55% at 88% 10%, rgba(76, 140, 255, 0.55), transparent 60%),
-        radial-gradient(60% 55% at 72% 92%, rgba(20, 184, 166, 0.42), transparent 62%),
-        linear-gradient(140deg, #0A3346 0%, #0C4D66 42%, #164C8F 100%);
-    --adm-vidrio: rgba(255, 255, 255, 0.11);
-    --adm-vidrio-borde: rgba(255, 255, 255, 0.20);
-    --adm-panel: rgba(16, 32, 46, 0.58);
-    --adm-panel-borde: rgba(255, 255, 255, 0.12);
-    --adm-card: rgba(32, 52, 72, 0.62);
-    --adm-card-borde: rgba(255, 255, 255, 0.10);
-    --adm-card-sombra: 0 10px 30px -14px rgba(0, 10, 20, 0.55);
-    --adm-activo: linear-gradient(100deg, rgba(56, 189, 248, 0.95), rgba(59, 130, 246, 0.92));
-    --adm-oscuro: #0B1B2B;
+        radial-gradient(48% 55% at 8% 6%, rgba(186, 230, 253, 0.85), transparent 64%),
+        radial-gradient(42% 50% at 92% 4%, rgba(199, 210, 254, 0.70), transparent 62%),
+        radial-gradient(55% 55% at 88% 96%, rgba(254, 215, 188, 0.75), transparent 64%),
+        radial-gradient(45% 50% at 20% 98%, rgba(204, 251, 241, 0.70), transparent 62%),
+        linear-gradient(160deg, #F2F7FA 0%, #F5F4F1 100%);
+    --adm-capsula: #0B2447;                       /* Azul Profundo del manual */
+    --adm-capsula-txt: #E9F3FB;
+    --adm-capsula-sub: rgba(214, 230, 244, 0.72);
+    --adm-capsula-hover: rgba(255, 255, 255, 0.09);
+    --adm-capsula-activo: #FFFFFF;
+    --adm-capsula-activo-txt: #0B2447;
+    --adm-top-bg: rgba(255, 255, 255, 0.66);
+    --adm-top-borde: rgba(255, 255, 255, 0.9);
+    --adm-top-txt: #0D1B26;
+    --adm-top-sub: #4C5D6B;
+    --adm-top-ctl: rgba(11, 36, 71, 0.06);
+    --adm-top-ctl-hover: rgba(11, 36, 71, 0.11);
+    --adm-panel: rgba(255, 255, 255, 0.42);
+    --adm-panel-borde: rgba(255, 255, 255, 0.85);
+    --adm-card: rgba(255, 255, 255, 0.86);
+    --adm-card-borde: rgba(255, 255, 255, 0.95);
+    --adm-card-sombra: 0 14px 34px -22px rgba(11, 36, 71, 0.35), 0 2px 6px -3px rgba(11, 36, 71, 0.08);
+    --adm-activo: #0B2447;
+    --adm-oscuro: #0B2447;                        /* tarjetas y pestanas destacadas */
     --adm-oscuro-txt: #FFFFFF;
-    --adm-barra: #38BDF8;
-    --adm-barra-2: #2563EB;
-}
-:root[data-theme="light"] {
-    --adm-panel: rgba(240, 249, 255, 0.60);
-    --adm-panel-borde: rgba(255, 255, 255, 0.70);
-    --adm-card: rgba(255, 255, 255, 0.74);
-    --adm-card-borde: rgba(255, 255, 255, 0.85);
-    --adm-card-sombra: 0 10px 28px -16px rgba(9, 40, 70, 0.45);
-    --adm-oscuro: #0B1B2B;
-    --adm-barra: #3BA7E8;
-    --adm-barra-2: #1D6FD6;
+    --adm-pastel-cielo: #DDF0FB;
+    --adm-pastel-cian: #D9F6F4;
+    --adm-pastel-durazno: #FDE6D6;
+    --adm-barra: #F4A26B;                         /* acento calido de las graficas */
+    --adm-barra-2: #0B2447;
+    --adm-raya: #7CC4E8;
 }
 :root:not([data-theme="light"]) {
     --adm-fondo:
-        radial-gradient(55% 60% at 12% 18%, rgba(30, 150, 170, 0.32), transparent 62%),
-        radial-gradient(45% 55% at 88% 10%, rgba(60, 110, 220, 0.30), transparent 60%),
-        radial-gradient(60% 55% at 72% 92%, rgba(16, 140, 130, 0.24), transparent 62%),
-        linear-gradient(140deg, #071C27 0%, #0A2A3A 45%, #0F2148 100%);
-    --adm-oscuro: #E8F6FF;
-    --adm-oscuro-txt: #0B1B2B;
+        radial-gradient(48% 55% at 8% 6%, rgba(56, 130, 190, 0.30), transparent 64%),
+        radial-gradient(42% 50% at 92% 4%, rgba(99, 102, 241, 0.20), transparent 62%),
+        radial-gradient(55% 55% at 88% 96%, rgba(244, 162, 107, 0.16), transparent 64%),
+        radial-gradient(45% 50% at 20% 98%, rgba(45, 212, 191, 0.14), transparent 62%),
+        linear-gradient(160deg, #0C141B 0%, #11161C 100%);
+    --adm-capsula: #050B12;
+    --adm-capsula-activo: #DDF0FB;
+    --adm-capsula-activo-txt: #0B2447;
+    --adm-top-bg: rgba(20, 28, 36, 0.78);
+    --adm-top-borde: rgba(255, 255, 255, 0.08);
+    --adm-top-txt: #E7EEF2;
+    --adm-top-sub: #A3B0BA;
+    --adm-top-ctl: rgba(255, 255, 255, 0.06);
+    --adm-top-ctl-hover: rgba(255, 255, 255, 0.12);
+    --adm-panel: rgba(18, 25, 33, 0.55);
+    --adm-panel-borde: rgba(255, 255, 255, 0.06);
+    --adm-card: rgba(26, 34, 44, 0.86);
+    --adm-card-borde: rgba(255, 255, 255, 0.07);
+    --adm-card-sombra: 0 14px 34px -22px rgba(0, 0, 0, 0.7);
+    --adm-activo: #DDF0FB;
+    --adm-oscuro: #DDF0FB;
+    --adm-oscuro-txt: #0B2447;
+    --adm-pastel-cielo: rgba(125, 196, 232, 0.16);
+    --adm-pastel-cian: rgba(45, 212, 191, 0.14);
+    --adm-pastel-durazno: rgba(244, 162, 107, 0.16);
+    --adm-barra: #F4A26B;
+    --adm-barra-2: #DDF0FB;
+    --adm-raya: #7CC4E8;
 }
 html[data-a11y~="daltotonico"] { --adm-barra: #3B82F6; --adm-barra-2: #1E40AF; }
 
@@ -555,150 +585,160 @@ body:has(> .adm-shell)::before { display: none; }
 }
 .navbar.adm-shell.scrolled { box-shadow: none; }
 
-/* Superficies de vidrio con texto claro (menu y barra) */
-.adm-side, .adm-top {
-    --text-main: #F3FAFF;
-    --text-muted: rgba(226, 240, 252, 0.80);
-    --border-color: rgba(255, 255, 255, 0.18);
-    --surface-hover: rgba(255, 255, 255, 0.10);
-    --card-solid: #10334A;
+/* ---------- Capsula lateral: siempre oscura, texto claro ---------- */
+.adm-side {
+    --text-main: var(--adm-capsula-txt);
+    --text-muted: var(--adm-capsula-sub);
+    --border-color: rgba(255, 255, 255, 0.12);
+    --surface-hover: var(--adm-capsula-hover);
     --color-accent: #7DD3FC;
     --color-accent-text: #A5E4FF;
-    --color-accent-dim: rgba(255, 255, 255, 0.14);
-    --color-error: #FFB4B4;
-    --color-error-dim: rgba(255, 120, 120, 0.16);
     color: var(--text-main);
     isolation: isolate;
-}
-.adm-side::before, .adm-top::before, body:has(> .adm-shell) > main#contenido::before {
-    content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
-    background: var(--adm-vidrio);
-    border: 1px solid var(--adm-vidrio-borde);
-    -webkit-backdrop-filter: blur(22px) saturate(160%);
-    backdrop-filter: blur(22px) saturate(160%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 18px 40px -24px rgba(0, 12, 24, 0.6);
-}
-
-.adm-side {
     position: fixed; z-index: 950;
     top: var(--adm-gap); bottom: var(--adm-gap); left: var(--adm-gap);
     width: var(--adm-side);
     display: flex; flex-direction: column; gap: 6px;
-    padding: 14px 12px 12px;
+    padding: 16px 12px 12px;
     border-radius: var(--adm-r);
+    background: var(--adm-capsula);
+    box-shadow: 0 24px 50px -28px rgba(11, 36, 71, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     transition: transform 0.35s var(--ease-out);
 }
 .adm-brand {
     display: flex; align-items: center; gap: 11px;
-    padding: 6px 8px 14px; margin-bottom: 4px;
+    padding: 4px 8px 14px; margin-bottom: 4px;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-main); text-decoration: none;
 }
 .adm-brand-ico {
-    display: grid; place-items: center; width: 38px; height: 38px; flex: none;
-    border-radius: 12px; background: rgba(255, 255, 255, 0.16);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    display: grid; place-items: center; width: 40px; height: 40px; flex: none;
+    border-radius: 50%; background: rgba(255, 255, 255, 0.10);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
 }
 .adm-brand-ico img { width: 24px; height: 24px; }
 .adm-brand-txt { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
-.adm-brand-txt strong { font-family: var(--font-display); font-size: 0.98rem; font-weight: 650; letter-spacing: -0.01em; }
+.adm-brand-txt strong { font-family: var(--font-display); font-size: 0.9rem; font-weight: 650; letter-spacing: -0.01em; white-space: nowrap; }
 .adm-brand-txt small { color: var(--text-muted); font-size: 0.75rem; }
 
-.adm-grupos { flex: 1 1 auto; overflow-y: auto; margin: 0 -4px; padding: 0 4px; scrollbar-width: thin; }
+.adm-grupos { flex: 1 1 auto; overflow-y: auto; margin: 0 -4px; padding: 0 4px; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.2) transparent; }
 .adm-grupo-t {
-    margin: 14px 10px 6px; color: var(--text-muted);
-    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    margin: 14px 12px 6px; color: var(--text-muted);
+    font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
 }
 .adm-grupo-t:first-child { margin-top: 6px; }
 .navbar[data-nav] .adm-links { display: flex; flex-direction: column; align-items: stretch; gap: 2px; margin: 0; padding: 0; list-style: none; }
 .adm-shell .adm-links .nav-link {
     width: 100%; justify-content: flex-start; gap: 11px;
-    padding: 9px 12px; border-radius: 12px;
+    padding: 6px 12px 6px 6px; border-radius: 999px;
     color: var(--text-muted); font-size: 0.88rem; font-weight: 550;
     transition: color var(--dur-fast) ease, background-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out);
 }
-.adm-shell .adm-links .nav-link i { font-size: 1.12rem; flex: none; }
+/* Cada icono va en un circulo, como en la referencia */
+.adm-shell .adm-links .nav-link i {
+    display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 50%;
+    font-size: 1.08rem; background: rgba(255, 255, 255, 0.06);
+    transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease;
+}
 .adm-shell .adm-links .nav-link:hover { color: var(--text-main); background: var(--surface-hover); }
 .adm-shell .adm-links .nav-link:active { transform: scale(0.98); }
 .adm-shell .nav-link::after { display: none !important; }
 .adm-shell .adm-links .nav-link[aria-current="page"] {
-    color: #FFFFFF; background: var(--adm-activo);
-    box-shadow: 0 8px 20px -10px rgba(37, 99, 235, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    color: var(--adm-capsula-activo-txt); background: var(--adm-capsula-activo); font-weight: 650;
 }
+.adm-shell .adm-links .nav-link[aria-current="page"] i { background: var(--adm-capsula-activo-txt); color: var(--adm-capsula-activo); }
 .adm-shell .adm-links .nav-badge {
     margin-left: auto; min-width: 22px; height: 20px; padding: 0 7px;
     display: inline-grid; place-items: center; border-radius: 999px;
-    background: rgba(255, 255, 255, 0.22); color: #FFFFFF;
-    font-size: 0.72rem; font-weight: 700; box-shadow: none;
+    background: #7DD3FC; color: #0B2447;
+    font-size: 0.72rem; font-weight: 800; box-shadow: none;
 }
 
+/* Tarjeta del plan, como la tarjeta "Pro" de la referencia */
 .adm-plan {
-    display: grid; gap: 9px; margin-top: 8px; padding: 12px;
-    border-radius: 14px; background: rgba(255, 255, 255, 0.10);
-    border: 1px solid var(--border-color);
-    color: var(--text-main); text-decoration: none;
-    transition: background-color var(--dur-fast) ease;
+    display: grid; gap: 9px; margin-top: 8px; padding: 14px;
+    border-radius: 20px; background: linear-gradient(150deg, #DDF0FB, #D9F6F4 55%, #FDE6D6);
+    color: #0B2447; text-decoration: none;
+    transition: transform var(--dur-fast) var(--ease-out);
 }
-.adm-plan:hover { background: rgba(255, 255, 255, 0.16); color: var(--text-main); }
+.adm-plan:hover { color: #0B2447; transform: translateY(-1px); }
 .adm-plan-cab { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.adm-plan-cab strong { font-size: 0.82rem; }
-.adm-plan-cab small { color: var(--text-muted); font-size: 0.72rem; white-space: nowrap; }
-.adm-plan-barra { display: block; height: 5px; border-radius: 99px; background: rgba(255, 255, 255, 0.18); overflow: hidden; }
-.adm-plan-barra span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #7DD3FC, #FFFFFF); }
+.adm-plan-cab strong { font-size: 0.84rem; }
+.adm-plan-cab small { color: #36506B; font-size: 0.72rem; white-space: nowrap; }
+.adm-plan-barra { display: block; height: 8px; border-radius: 99px; background: rgba(11, 36, 71, 0.12); overflow: hidden; }
+.adm-plan-barra span {
+    display: block; height: 100%; border-radius: inherit;
+    background: repeating-linear-gradient(120deg, #0B2447 0 4px, #2E5B8C 4px 8px);
+}
 
-/* Barra superior. El contenido pasa por debajo al hacer scroll y el <nav> (view-transition-name)
-   limita el desenfoque, asi que el tinte va mas denso para que siempre se lea. */
-.adm-top::before { background: linear-gradient(100deg, rgba(10, 50, 70, 0.84), rgba(20, 58, 108, 0.84)); }
+/* ---------- Barra superior: vidrio blanco esmerilado ---------- */
 .adm-top {
+    --text-main: var(--adm-top-txt);
+    --text-muted: var(--adm-top-sub);
+    --border-color: color-mix(in srgb, var(--adm-top-txt) 12%, transparent);
+    --surface-hover: var(--adm-top-ctl-hover);
+    color: var(--text-main);
+    isolation: isolate;
     position: relative;
     display: flex; align-items: center; gap: 12px;
     min-height: 62px; padding: 9px 12px 9px 14px;
-    border-radius: 18px;
+    border-radius: 999px;
 }
-.adm-shell .adm-toggle { display: none; margin: 0; flex: none; border-color: var(--border-color); color: var(--text-main); }
+.adm-top::before, body:has(> .adm-shell) > main#contenido::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    backdrop-filter: blur(22px) saturate(160%);
+}
+/* El contenido pasa por debajo al hacer scroll y el <nav> (view-transition-name) limita el
+   desenfoque, asi que la barra va casi opaca para que siempre se lea */
+.adm-top::before {
+    background: var(--adm-top-bg); border: 1px solid var(--adm-top-borde);
+    box-shadow: 0 14px 30px -22px rgba(11, 36, 71, 0.45);
+}
+.adm-shell .adm-toggle { display: none; margin: 0; flex: none; border-color: var(--border-color); color: var(--text-main); border-radius: 50%; }
 .adm-search { position: relative; flex: 1 1 auto; max-width: 460px; display: flex; align-items: center; }
 .adm-search > i { position: absolute; left: 14px; color: var(--text-muted); font-size: 1.05rem; pointer-events: none; }
 .adm-search input {
     width: 100%; height: 42px; padding: 0 74px 0 40px;
-    border-radius: 999px; border: 1px solid var(--border-color);
-    background: rgba(255, 255, 255, 0.10); color: var(--text-main);
+    border-radius: 999px; border: 1px solid transparent;
+    background: var(--adm-top-ctl); color: var(--text-main);
     font: inherit; font-size: 0.88rem; box-shadow: none;
 }
 .adm-search input::placeholder { color: var(--text-muted); opacity: 1; }
-.adm-search input:focus { outline: none; border-color: rgba(255, 255, 255, 0.55); background: rgba(255, 255, 255, 0.16); box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.35); }
+.adm-search input:focus { outline: none; border-color: color-mix(in srgb, var(--color-accent) 55%, transparent); background: var(--adm-top-ctl-hover); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 22%, transparent); }
 .adm-search input::-webkit-search-cancel-button { display: none; }
 .adm-kbd {
     position: absolute; right: 10px; padding: 2px 8px; border-radius: 7px;
-    border: 1px solid var(--border-color); background: rgba(255, 255, 255, 0.10);
+    border: 1px solid var(--border-color); background: var(--adm-top-ctl);
     color: var(--text-muted); font: 600 0.7rem/1.6 var(--font-primary); pointer-events: none;
 }
 .adm-buscar-lista {
     position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 1200;
     margin: 0; padding: 6px; list-style: none;
-    background: #10334A; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 14px;
-    box-shadow: 0 24px 50px -20px rgba(0, 10, 20, 0.7);
+    background: var(--adm-capsula); border: 1px solid rgba(255, 255, 255, 0.10); border-radius: 18px;
+    box-shadow: 0 24px 50px -20px rgba(11, 36, 71, 0.6);
 }
-.adm-buscar-lista li { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; color: #F3FAFF; font-size: 0.88rem; cursor: pointer; }
-.adm-buscar-lista li i { font-size: 1.05rem; color: rgba(226, 240, 252, 0.8); }
-.adm-buscar-lista li small { margin-left: auto; color: rgba(226, 240, 252, 0.65); font-size: 0.74rem; }
-.adm-buscar-lista li[aria-selected="true"], .adm-buscar-lista li:hover { background: rgba(255, 255, 255, 0.12); }
-.adm-buscar-lista li.es-vacio { cursor: default; color: rgba(226, 240, 252, 0.7); }
+.adm-buscar-lista li { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 12px; color: #E9F3FB; font-size: 0.88rem; cursor: pointer; }
+.adm-buscar-lista li i { font-size: 1.05rem; color: rgba(214, 230, 244, 0.8); }
+.adm-buscar-lista li small { margin-left: auto; color: rgba(214, 230, 244, 0.65); font-size: 0.74rem; }
+.adm-buscar-lista li[aria-selected="true"], .adm-buscar-lista li:hover { background: rgba(255, 255, 255, 0.10); }
+.adm-buscar-lista li.es-vacio { cursor: default; color: rgba(214, 230, 244, 0.7); }
 
 .adm-shell .adm-acciones {
     display: flex; align-items: center; gap: 6px; margin-left: auto;
     flex-wrap: nowrap; padding: 0; border: 0;
 }
 .adm-shell .adm-acciones > .nav-item > .nav-link {
-    width: auto; justify-content: center; padding: 9px 11px; border-radius: 12px;
-    color: var(--text-main); background: rgba(255, 255, 255, 0.08);
+    width: auto; justify-content: center; padding: 9px 11px; border-radius: 999px;
+    color: var(--text-main); background: var(--adm-top-ctl);
 }
-.adm-shell .adm-acciones > .nav-item > .nav-link:hover { background: rgba(255, 255, 255, 0.16); }
-.adm-shell .adm-cuenta > .nav-link { gap: 10px; padding: 5px 12px 5px 5px; border: 0; }
+.adm-shell .adm-acciones > .nav-item > .nav-link:hover { background: var(--adm-top-ctl-hover); }
+.adm-shell .adm-cuenta > .nav-link { gap: 10px; padding: 4px 12px 4px 4px; border: 0; }
 .adm-avatar {
     display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 50%;
-    background: conic-gradient(from 210deg, #38BDF8, #22D3EE, #34D399, #FBBF24, #F472B6, #818CF8, #38BDF8);
-    color: #0B1B2B; font-weight: 800; font-size: 0.9rem;
-    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.75);
+    background: linear-gradient(140deg, #BAE6FD, #CCFBF1 55%, #FED7BC);
+    color: #0B2447; font-weight: 800; font-size: 0.9rem;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.85);
 }
 .adm-cuenta-txt { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
 .adm-cuenta-txt strong { font-size: 0.84rem; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -706,8 +746,8 @@ body:has(> .adm-shell)::before { display: none; }
 /* Los menus de la barra siguen flotando aunque theme.css los aplane en pantallas medianas */
 .adm-top .nav-dropdown {
     position: absolute; top: calc(100% + 10px); display: block; min-width: 240px;
-    padding: 6px; border: 1px solid var(--border-color); background: var(--card-solid);
-    box-shadow: 0 24px 50px -20px rgba(0, 10, 20, 0.7);
+    padding: 6px; border: 1px solid var(--border-color); border-radius: 18px; background: var(--bg-secondary);
+    box-shadow: 0 24px 50px -20px rgba(11, 36, 71, 0.45);
     opacity: 0; visibility: hidden; transform: translateY(-6px) scale(0.98);
 }
 .adm-top .nav-item.open > .nav-dropdown { opacity: 1; visibility: visible; transform: none; }
@@ -715,7 +755,7 @@ body:has(> .adm-shell)::before { display: none; }
 
 .adm-scrim { display: none; }
 
-/* Panel de contenido */
+/* ---------- Panel de contenido ---------- */
 body:has(> .adm-shell) > main#contenido {
     --border-color: var(--adm-card-borde);
     --card-bg: var(--adm-card);
@@ -727,42 +767,81 @@ body:has(> .adm-shell) > main#contenido {
     width: auto; max-width: none; min-height: calc(100dvh - 62px - 3 * var(--adm-gap));
     margin: var(--adm-gap) var(--adm-gap) var(--adm-gap) calc(var(--adm-side) + 2 * var(--adm-gap));
     padding: clamp(20px, 2.2vw, 34px);
-    border-radius: 26px;
+    border-radius: 32px;
     view-transition-name: adm-contenido;
 }
 body:has(> .adm-shell) > main#contenido::before {
     background: var(--adm-panel);
-    border-color: var(--adm-panel-borde);
+    border: 1px solid var(--adm-panel-borde);
     -webkit-backdrop-filter: blur(30px) saturate(150%);
     backdrop-filter: blur(30px) saturate(150%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 30px 60px -36px rgba(11, 36, 71, 0.35);
 }
-:root[data-theme="light"] body:has(> .adm-shell) > main#contenido::before {
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 30px 60px -30px rgba(4, 30, 50, 0.55);
-}
-/* Superficies existentes de las vistas del panel: mismo vidrio que las tarjetas nuevas */
+:root:not([data-theme="light"]) body:has(> .adm-shell) > main#contenido::before { box-shadow: 0 30px 60px -36px rgba(0, 0, 0, 0.7); }
+/* Superficies existentes de las vistas del panel: mismas tarjetas blancas */
 body:has(> .adm-shell) > main#contenido :is(.card-panel, .stat-box, .table-wrap, .form-card, .admin-card, .informe-cta, .usuario-card, .plan-card) {
     background: var(--adm-card);
     border: 1px solid var(--adm-card-borde);
+    border-radius: 24px;
     box-shadow: var(--adm-card-sombra);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
     backdrop-filter: blur(16px) saturate(140%);
 }
 body:has(> .adm-shell) > main#contenido .admin-title { margin-top: 0; }
 
-/* Cambio de seccion: el menu queda quieto y el contenido entra con un desenfoque breve */
-::view-transition-old(adm-contenido) { animation: admVtSalir 0.18s ease-in both; }
-::view-transition-new(adm-contenido) { animation: admVtEntrar 0.42s var(--ease-out) both; }
-@keyframes admVtSalir { to { opacity: 0; filter: blur(10px); transform: scale(0.99); } }
-@keyframes admVtEntrar { from { opacity: 0; filter: blur(12px); transform: translateY(8px); } }
+/* ---------- Cambio de seccion ----------
+   El menu queda quieto; el contenido viejo se esmerila y se borra (desenfoque y blanco) y el nuevo
+   entra con las tarjetas primero vacias y luego llenas, en cascada (admin-shell.js pone --adm-i/--adm-j) */
+::view-transition-old(adm-contenido) { animation: admVtSalir 0.26s ease-in both; }
+::view-transition-new(adm-contenido) { animation: admVtEntrar 0.2s ease-out both; }
+@keyframes admVtSalir { to { opacity: 0; filter: blur(18px) saturate(0.6) brightness(1.18); } }
+@keyframes admVtEntrar { from { opacity: 0; } }
 
-/* Entrada escalonada de los bloques (admin-shell.js pone --adm-i) */
-.adm-entra { animation: admEntrar 0.62s var(--ease-out) both; animation-delay: calc(var(--adm-i, 0) * 55ms); }
-@keyframes admEntrar { from { opacity: 0; filter: blur(8px); transform: translateY(12px); } }
-@media (prefers-reduced-motion: reduce) {
-    .adm-entra { animation: none; }
-    ::view-transition-old(adm-contenido), ::view-transition-new(adm-contenido) { animation: none; }
+.adm-entra { animation: admBloque 0.5s var(--ease-out) both; animation-delay: calc(var(--adm-i, 0) * 60ms); }
+.adm-entra :is(.adm-card, .adm-kpi, .cot-card, .card-panel, .stat-box, .form-card, .admin-card, .usuario-card, .plan-card) {
+    animation: admTarjeta 0.55s var(--ease-out) both;
+    animation-delay: calc(var(--adm-i, 0) * 60ms + var(--adm-j, 0) * 50ms);
 }
-html[data-a11y~="fotosensible"] .adm-entra { animation: none !important; }
+.adm-entra :is(.adm-card, .adm-kpi, .cot-card, .card-panel, .stat-box, .form-card, .admin-card, .usuario-card, .plan-card) > * {
+    animation: admLlenar 0.42s ease-out both;
+    animation-delay: calc(var(--adm-i, 0) * 60ms + var(--adm-j, 0) * 50ms + 240ms);
+}
+@keyframes admBloque { from { opacity: 0; } }
+@keyframes admTarjeta { from { opacity: 0; transform: translateY(14px) scale(0.985); } }
+@keyframes admLlenar { from { opacity: 0; } }
+
+/* Entrada al panel (una vez por sesion, admin-shell.js): pantalla Azul Profundo, el isotipo se arma,
+   aparece el nombre y un circulo que crece desde la esquina revela el panel. Mientras dura, las
+   animaciones del contenido esperan para arrancar en cascada al revelarse. */
+@property --adm-hueco { syntax: '<length>'; inherits: false; initial-value: 0px; }
+html.adm-intro body::after {
+    content: ""; position: fixed; inset: 0; z-index: 5000;
+    background: radial-gradient(60% 60% at 50% 45%, #14335C, #0B2447 55%, #071629);
+}
+html.adm-intro.adm-intro-lista body::after { display: none; }
+html.adm-intro main#contenido, html.adm-intro main#contenido * { animation-play-state: paused !important; }
+.adm-intro-capa {
+    position: fixed; inset: 0; z-index: 5001;
+    display: grid; place-items: center; align-content: center; gap: 18px;
+    background: radial-gradient(60% 60% at 50% 45%, #14335C, #0B2447 55%, #071629);
+    color: #E9F3FB;
+    -webkit-mask-image: radial-gradient(circle at 0 0, transparent var(--adm-hueco), #000 calc(var(--adm-hueco) + 2px));
+            mask-image: radial-gradient(circle at 0 0, transparent var(--adm-hueco), #000 calc(var(--adm-hueco) + 2px));
+}
+.adm-intro-logo { position: relative; width: 64px; height: 74px; }
+.adm-intro-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 14px rgba(125, 211, 252, 0.45)); }
+.adm-intro-logo img:first-child { clip-path: polygon(0 0, 100% 0, 0 100%); }
+.adm-intro-logo img:last-child { clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+.adm-intro-nombre { margin: 0; font-family: var(--font-display); font-size: 1rem; font-weight: 600; letter-spacing: 0.02em; color: rgba(233, 243, 251, 0.85); }
+
+@media (prefers-reduced-motion: reduce) {
+    .adm-entra, .adm-entra :is(.adm-card, .adm-kpi, .cot-card, .card-panel, .stat-box, .form-card, .admin-card, .usuario-card, .plan-card),
+    .adm-entra :is(.adm-card, .adm-kpi, .cot-card, .card-panel, .stat-box, .form-card, .admin-card, .usuario-card, .plan-card) > * { animation: none; }
+    ::view-transition-old(adm-contenido), ::view-transition-new(adm-contenido) { animation: none; }
+    html.adm-intro body::after { display: none; }
+}
+html[data-a11y~="fotosensible"] :is(.adm-entra, .adm-entra *) { animation: none !important; }
+html.adm-intro[data-a11y~="fotosensible"] body::after { display: none !important; }
 
 /* Tableta y movil: el menu lateral se desliza desde la izquierda */
 @media (max-width: 1080px) {
@@ -770,24 +849,22 @@ html[data-a11y~="fotosensible"] .adm-entra { animation: none !important; }
     body:has(> .adm-shell) > main#contenido { margin-left: var(--adm-gap); }
     .adm-shell .adm-toggle { display: inline-grid; }
     .adm-side { transform: translateX(calc(-100% - 2 * var(--adm-gap))); z-index: 1300; }
-    /* El <nav> tiene view-transition-name y el vidrio no puede desenfocar lo que hay detras: en el cajon movil va casi opaco */
-    .adm-side::before { background: linear-gradient(160deg, rgba(10, 52, 72, 0.96), rgba(16, 48, 98, 0.96)); }
     .navbar.adm-shell.mobile-open .adm-side { transform: none; }
     .navbar.adm-shell.mobile-open .adm-scrim {
         display: block; position: fixed; inset: 0; z-index: 1250;
-        background: rgba(3, 14, 24, 0.55);
+        background: rgba(7, 22, 41, 0.45);
     }
     .adm-cuenta-txt, .adm-kbd { display: none; }
 }
 @media (max-width: 640px) {
     :root { --adm-gap: 10px; }
-    .adm-top { flex-wrap: wrap; gap: 8px; padding: 8px; }
+    .adm-top { flex-wrap: wrap; gap: 8px; padding: 8px; border-radius: 26px; }
     .adm-search { order: 3; flex: 1 0 100%; max-width: none; }
     .adm-shell .adm-acciones { gap: 4px; }
     .adm-shell .adm-acciones > .nav-item > .nav-link { padding: 8px; }
     .nav-idioma-codigo { display: none; }
     .adm-search input { padding-right: 14px; }
-    body:has(> .adm-shell) > main#contenido { padding: 18px 14px; border-radius: 20px; }
+    body:has(> .adm-shell) > main#contenido { padding: 18px 14px; border-radius: 24px; }
     .adm-top .nav-dropdown { position: fixed; top: 128px; left: 10px; right: 10px; min-width: 0; width: auto; }
 }
 @media (pointer: coarse) {
@@ -824,7 +901,7 @@ html[data-a11y~="fotosensible"] .adm-entra { animation: none !important; }
 .adm-btn--sm { min-height: 34px; padding: 0 14px; font-size: 0.8rem; }
 
 .adm-card {
-    position: relative; padding: 20px 22px; border-radius: 20px;
+    position: relative; padding: 20px 22px; border-radius: 24px;
     background: var(--adm-card); border: 1px solid var(--adm-card-borde);
     box-shadow: var(--adm-card-sombra);
     -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%);
@@ -879,16 +956,19 @@ html[data-a11y~="fotosensible"] .adm-entra { animation: none !important; }
 .adm-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
 .adm-kpi {
     position: relative; display: grid; gap: 4px; align-content: start; min-width: 0;
-    padding: 18px 18px 16px; border-radius: 20px;
+    padding: 18px 18px 16px; border-radius: 24px;
     background: var(--adm-card); border: 1px solid var(--adm-card-borde); box-shadow: var(--adm-card-sombra);
     -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%);
     transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) ease;
 }
-.adm-kpi:hover { transform: translateY(-2px); box-shadow: 0 16px 34px -16px rgba(4, 30, 50, 0.55); }
+.adm-kpi:hover { transform: translateY(-2px); box-shadow: 0 18px 38px -20px rgba(11, 36, 71, 0.45); }
 .adm-kpi-ico {
     display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 10px; border-radius: 50%;
-    background: color-mix(in srgb, var(--text-main) 8%, transparent); color: var(--text-main); font-size: 1.15rem;
+    background: var(--adm-pastel-cielo); color: var(--text-main); font-size: 1.15rem;
 }
+/* Iconos de las cifras en pastel, alternando cielo, cian y durazno (referencia V22) */
+.adm-kpi:nth-child(3n+2) .adm-kpi-ico { background: var(--adm-pastel-cian); }
+.adm-kpi:nth-child(3n) .adm-kpi-ico { background: var(--adm-pastel-durazno); }
 .adm-kpi-ico--grande { width: 48px; height: 48px; font-size: 1.5rem; }
 .adm-kpi-v { font-family: var(--font-display); font-size: clamp(1.45rem, 1.1rem + 0.9vw, 1.9rem); font-weight: 700; letter-spacing: -0.02em; color: var(--text-main); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .adm-kpi-t { font-size: 0.86rem; font-weight: 600; color: var(--text-main); }
@@ -909,8 +989,12 @@ html[data-a11y~="fotosensible"] .adm-entra { animation: none !important; }
 .adm-tabla .num { text-align: right; font-variant-numeric: tabular-nums; }
 .adm-persona { display: inline-flex; align-items: center; gap: 10px; }
 .adm-ini { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; flex: none;
-    background: linear-gradient(135deg, #38BDF8, #6366F1); color: #FFFFFF; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; }
+    background: linear-gradient(140deg, #BAE6FD, #CCFBF1 55%, #FED7BC); color: #0B2447; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; }
 .adm-card--cta { display: grid; align-content: start; gap: 10px; }
+/* Tarjeta destacada oscura, como la de la referencia */
+body:has(> .adm-shell) > main#contenido .adm-card--cta { --text-main: var(--adm-oscuro-txt); --text-muted: color-mix(in srgb, var(--adm-oscuro-txt) 72%, transparent); background: var(--adm-oscuro); border-color: transparent; color: var(--adm-oscuro-txt); }
+.adm-card--cta .adm-btn { background: var(--adm-oscuro-txt); color: var(--adm-oscuro); border-color: transparent; }
+.adm-card--cta .adm-btn:hover { color: var(--adm-oscuro); }
 .adm-card--cta .adm-btn { justify-self: start; margin-top: 6px; }
 .adm-pagina > .flash { margin-bottom: 18px; }
 
@@ -931,3 +1015,19 @@ html[data-a11y~="fotosensible"] .adm-entra { animation: none !important; }
     .adm-barra path, .adm-dona-parte { animation: none; }
 }
 html[data-a11y~="fotosensible"] :is(.adm-barra path, .adm-dona-parte) { animation: none !important; }
+
+/* Cifras que ruedan como contador (admin-shell.js): cada digito es una columna 0-9 dos veces
+   que se desliza hasta su valor; --k escalona los digitos */
+.adm-cifra { display: inline-flex; align-items: flex-end; line-height: 1.15; }
+.adm-cifra > span { display: inline-block; height: 1.15em; }
+.adm-rueda { overflow: hidden; }
+.adm-rueda-col {
+    display: flex; flex-direction: column;
+    transform: translateY(calc(var(--d) * -1.15em));
+    animation: admRueda 1.15s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(var(--adm-i, 0) * 60ms + var(--adm-j, 0) * 50ms + 260ms + var(--k, 0) * 45ms);
+}
+.adm-rueda-col > span { display: block; height: 1.15em; text-align: center; }
+@keyframes admRueda { from { transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .adm-rueda-col { animation: none; } }
+html[data-a11y~="fotosensible"] .adm-rueda-col { animation: none !important; }

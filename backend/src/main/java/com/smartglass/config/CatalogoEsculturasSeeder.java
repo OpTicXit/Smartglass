@@ -113,7 +113,8 @@ public class CatalogoEsculturasSeeder implements CommandLineRunner {
 
         for (Map.Entry<String, String> foto : fotosRealistas().entrySet()) {
             CatalogoProducto p = repositorio.findFirstByCodigo(foto.getKey()).orElse(null);
-            if (p != null && enlazarFotos(p, foto.getValue(), List.of())) {
+            String base = foto.getValue().replace(".jpg", "");   // vistas extra: <nombre>-2.jpg y <nombre>-3.jpg
+            if (p != null && enlazarFotos(p, foto.getValue(), List.of(base + "-2.jpg", base + "-3.jpg"))) {
                 repositorio.save(p);
                 fotos++;
             }

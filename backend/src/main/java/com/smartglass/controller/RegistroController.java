@@ -23,14 +23,14 @@ import java.util.Map;
 /**
  * Envoltorio MVC (formulario HTML) sobre AuthService.register(...).
  * AuthController ya expone el mismo registro como API REST
- * (POST /auth/registro, JSON); este controller es solo para registro.html.
+ * (POST /auth/registro, JSON); este controller es solo para la vista de registro de acceso.html.
  *
  * F43: @Valid + BindingResult activan los validadores del DTO y vuelven al
  * form con el primer mensaje de error en espanol. El honeypot redirige en
  * silencio a /login. El parametro ?limite lo pone RateLimitFilter (F41)
  * cuando se agota la cubeta de 10 registros/min por IP.
  *
- * H06: GET /registro/disponible responde a la comprobacion en vivo de registro.html
+ * H06: GET /registro/disponible responde a la comprobacion en vivo de la vista de registro (acceso.html)
  * (comprobarDisponibilidad). RateLimitFilter ya la trata como ruta sensible (429 JSON).
  */
 @Controller
@@ -74,7 +74,7 @@ public class RegistroController {
         if (limite != null) {
             model.addAttribute("error", textos.t("flash.demasiados_intentos"));
         }
-        return "registro";
+        return vistaRegistro(model);
     }
 
     @PostMapping("/registro")
@@ -87,7 +87,7 @@ public class RegistroController {
         }
         if (errores.hasErrors()) {
             model.addAttribute("error", errores.getAllErrors().get(0).getDefaultMessage());
-            return "registro"; // Spring repuebla el form con el atributo "registroRequest"
+            return vistaRegistro(model); // Spring repuebla el form con el atributo "registroRequest"
         }
         try {
             authService.register(request);
@@ -95,7 +95,13 @@ public class RegistroController {
             return "redirect:/login";
         } catch (IllegalStateException ex) {
             model.addAttribute("error", textos.traducir(ex.getMessage()));
-            return "registro";
+            return vistaRegistro(model);
         }
+    }
+
+    /** Login y registro comparten acceso.html (nov. 2026); aqui se abre en la vista de registro. */
+    private static String vistaRegistro(Model model) {
+        model.addAttribute("vista", "registro");
+        return "acceso";
     }
 }
