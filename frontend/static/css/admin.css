@@ -541,20 +541,20 @@ T3: clases que reemplazan estilos en linea del panel
         radial-gradient(42% 50% at 92% 4%, rgba(99, 102, 241, 0.20), transparent 62%),
         radial-gradient(55% 55% at 88% 96%, rgba(244, 162, 107, 0.16), transparent 64%),
         radial-gradient(45% 50% at 20% 98%, rgba(45, 212, 191, 0.14), transparent 62%),
-        linear-gradient(160deg, #0C141B 0%, #11161C 100%);
-    --adm-capsula: #050B12;
+        linear-gradient(160deg, #172028 0%, #1B2026 100%);
+    --adm-capsula: #0E1822;
     --adm-capsula-activo: #DDF0FB;
     --adm-capsula-activo-txt: #0B2447;
-    --adm-top-bg: rgba(20, 28, 36, 0.78);
+    --adm-top-bg: rgba(35, 43, 52, 0.82);
     --adm-top-borde: rgba(255, 255, 255, 0.08);
     --adm-top-txt: #E7EEF2;
     --adm-top-sub: #A3B0BA;
     --adm-top-ctl: rgba(255, 255, 255, 0.06);
     --adm-top-ctl-hover: rgba(255, 255, 255, 0.12);
-    --adm-panel: rgba(18, 25, 33, 0.55);
+    --adm-panel: rgba(32, 40, 49, 0.55);
     --adm-panel-borde: rgba(255, 255, 255, 0.06);
-    --adm-card: rgba(26, 34, 44, 0.86);
-    --adm-card-borde: rgba(255, 255, 255, 0.07);
+    --adm-card: rgba(41, 50, 61, 0.88);
+    --adm-card-borde: rgba(255, 255, 255, 0.08);
     --adm-card-sombra: 0 14px 34px -22px rgba(0, 0, 0, 0.7);
     --adm-activo: #DDF0FB;
     --adm-oscuro: #DDF0FB;
@@ -810,38 +810,14 @@ body:has(> .adm-shell) > main#contenido .admin-title { margin-top: 0; }
 @keyframes admTarjeta { from { opacity: 0; transform: translateY(14px) scale(0.985); } }
 @keyframes admLlenar { from { opacity: 0; } }
 
-/* Entrada al panel (una vez por sesion, admin-shell.js): pantalla Azul Profundo, el isotipo se arma,
-   aparece el nombre y un circulo que crece desde la esquina revela el panel. Mientras dura, las
-   animaciones del contenido esperan para arrancar en cascada al revelarse. */
-@property --adm-hueco { syntax: '<length>'; inherits: false; initial-value: 0px; }
-html.adm-intro body::after {
-    content: ""; position: fixed; inset: 0; z-index: 5000;
-    background: radial-gradient(60% 60% at 50% 45%, #14335C, #0B2447 55%, #071629);
-}
-html.adm-intro.adm-intro-lista body::after { display: none; }
-html.adm-intro main#contenido, html.adm-intro main#contenido * { animation-play-state: paused !important; }
-.adm-intro-capa {
-    position: fixed; inset: 0; z-index: 5001;
-    display: grid; place-items: center; align-content: center; gap: 18px;
-    background: radial-gradient(60% 60% at 50% 45%, #14335C, #0B2447 55%, #071629);
-    color: #E9F3FB;
-    -webkit-mask-image: radial-gradient(circle at 0 0, transparent var(--adm-hueco), #000 calc(var(--adm-hueco) + 2px));
-            mask-image: radial-gradient(circle at 0 0, transparent var(--adm-hueco), #000 calc(var(--adm-hueco) + 2px));
-}
-.adm-intro-logo { position: relative; width: 64px; height: 74px; }
-.adm-intro-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 14px rgba(125, 211, 252, 0.45)); }
-.adm-intro-logo img:first-child { clip-path: polygon(0 0, 100% 0, 0 100%); }
-.adm-intro-logo img:last-child { clip-path: polygon(100% 0, 100% 100%, 0 100%); }
-.adm-intro-nombre { margin: 0; font-family: var(--font-display); font-size: 1rem; font-weight: 600; letter-spacing: 0.02em; color: rgba(233, 243, 251, 0.85); }
+/* La entrada al panel (pantalla Azul Profundo + circulo) es la misma de los usuarios: theme.css "ENTRADA TRAS INICIAR SESION" */
 
 @media (prefers-reduced-motion: reduce) {
     .adm-entra, .adm-entra :is(.adm-card, .adm-kpi, .cot-card, .card-panel, .stat-box, .form-card, .admin-card, .usuario-card, .plan-card),
     .adm-entra :is(.adm-card, .adm-kpi, .cot-card, .card-panel, .stat-box, .form-card, .admin-card, .usuario-card, .plan-card) > * { animation: none; }
     ::view-transition-old(adm-contenido), ::view-transition-new(adm-contenido) { animation: none; }
-    html.adm-intro body::after { display: none; }
 }
 html[data-a11y~="fotosensible"] :is(.adm-entra, .adm-entra *) { animation: none !important; }
-html.adm-intro[data-a11y~="fotosensible"] body::after { display: none !important; }
 
 /* Tableta y movil: el menu lateral se desliza desde la izquierda */
 @media (max-width: 1080px) {

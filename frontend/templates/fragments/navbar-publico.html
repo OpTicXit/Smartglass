@@ -20,6 +20,9 @@
               cartCount=${cantidadCarrito != null ? cantidadCarrito : 0}"
      th:attr="data-auth=${auth},data-admin=${admin}">
 
+    <!-- Entrada justo despues de iniciar sesion, igual a la del admin (fragments/entrada.html) -->
+    <th:block th:if="${auth}"><th:block th:replace="~{fragments/entrada :: entrada(#{login.smartglass})}"></th:block></th:block>
+
     <a th:href="@{/home}" class="logo">
         <img th:src="@{/img/logo-icono-sm.png}" alt="">
         <span th:text="#{nav.smartglass}">SmartGlass</span>

@@ -1100,7 +1100,7 @@
       boton.setAttribute('aria-checked', String(claro));
       boton.setAttribute('aria-label', claro ? tx('tema_claro_on', 'Modo claro activado. Cambiar a modo oscuro') : tx('tema_oscuro_on', 'Modo oscuro activado. Cambiar a modo claro'));
       boton.title = claro ? tx('tema_a_oscuro', 'Cambiar a modo oscuro') : tx('tema_a_claro', 'Cambiar a modo claro');
-      if (metaColor) metaColor.setAttribute('content', claro ? '#F3F5F6' : '#101417');
+      if (metaColor) metaColor.setAttribute('content', claro ? '#F3F5F6' : '#1B2026');
       if (guardar) {
         try { localStorage.setItem(CLAVE, tema); } catch (e) { /* sin almacenamiento */ }
       }
@@ -1123,14 +1123,16 @@
       raiz.classList.add('sg-vt');
       var vt = document.startViewTransition(function () { aplicar(tema, true, false); });
       vt.ready.then(function () {
-        // Borde difuso que avanza (mascara de theme.css) y un desenfoque que se aclara: efecto de vidrio liquido
+        // Borde difuso que avanza (mascara de theme.css) y un desenfoque que se aclara: efecto de vidrio liquido.
+        // fill 'forwards': la transicion termina un cuadro despues que estas animaciones; sin conservar el
+        // estado final, en ese cuadro la mascara volvia a --sg-r = 0px y se veia la pagina vieja (parpadeo).
         raiz.animate(
           { '--sg-r': ['0px', (radio + 200) + 'px'], filter: ['blur(14px) saturate(1.25)', 'blur(0) saturate(1)'] },
-          { duration: 900, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+          { duration: 900, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards', pseudoElement: '::view-transition-new(root)' }
         );
         raiz.animate(
           { filter: ['blur(0)', 'blur(3px)'] },
-          { duration: 900, easing: 'ease-in', pseudoElement: '::view-transition-old(root)' }
+          { duration: 900, easing: 'ease-in', fill: 'forwards', pseudoElement: '::view-transition-old(root)' }
         );
       }).catch(function () {});
       vt.finished.finally(function () {

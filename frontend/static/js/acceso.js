@@ -7,8 +7,15 @@
   'use strict';
   var card = document.getElementById('acceso');
   if (!card) return;
-  // Al iniciar sesion de nuevo, el panel de admin vuelve a mostrar su entrada (admin-shell.js)
-  try { sessionStorage.removeItem('sg-adm-intro'); } catch (e) { /* sin almacenamiento */ }
+  // Al enviar el login (o entrar con Google) se deja la marca para la entrada animada de la primera
+  // pagina tras iniciar sesion (fragments/entrada.html + js/entrada.js), para admin y usuarios
+  function marcarEntrada() {
+    try { sessionStorage.setItem('sg-entrada-pendiente', '1'); } catch (e) { /* sin almacenamiento */ }
+  }
+  card.querySelectorAll('.acceso-vista[data-vista="login"] form').forEach(function (f) {
+    f.addEventListener('submit', function (e) { if (!e.defaultPrevented) marcarEntrada(); });
+  });
+  card.querySelectorAll('a[href*="/oauth2/authorization/"]').forEach(function (a) { a.addEventListener('click', marcarEntrada); });
   var vistas = {
     login: card.querySelector('.acceso-vista[data-vista="login"]'),
     registro: card.querySelector('.acceso-vista[data-vista="registro"]')

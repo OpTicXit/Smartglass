@@ -18,16 +18,25 @@
         addEventListener('pagereveal', function (e) {
             if (!e.viewTransition) return;
             h.classList.add('sg-config-circulo');
+            h.style.setProperty('--sg-cfg-x', d.x + 'px');
+            h.style.setProperty('--sg-cfg-y', d.y + 'px');
             e.viewTransition.ready.then(function () {
-                var r = Math.hypot(Math.max(d.x, innerWidth - d.x), Math.max(d.y, innerHeight - d.y));
-                h.animate({ clipPath: ['circle(0px at ' + d.x + 'px ' + d.y + 'px)', 'circle(' + r + 'px at ' + d.x + 'px ' + d.y + 'px)'] },
-                    { duration: 650, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' });
+                // Circulo de borde difuso (mascara de theme.css) que se abre con suavidad desde el boton.
+                // fill 'forwards' para que el ultimo cuadro no vuelva al radio 0 (parpadeo).
+                var r = Math.hypot(Math.max(d.x, innerWidth - d.x), Math.max(d.y, innerHeight - d.y)) + 160;
+                h.animate({ '--sg-cfg-r': ['0px', r + 'px'] },
+                    { duration: 760, easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)', fill: 'forwards', pseudoElement: '::view-transition-new(root)' });
             }).catch(function () {});
-            e.viewTransition.finished.finally(function () { h.classList.remove('sg-config-circulo'); });
+            e.viewTransition.finished.finally(function () {
+                h.classList.remove('sg-config-circulo');
+                h.style.removeProperty('--sg-cfg-x');
+                h.style.removeProperty('--sg-cfg-y');
+            });
         });
         document.addEventListener('DOMContentLoaded', function () {
             var i = 0;
-            document.querySelectorAll('.atelier-hero, .atelier-grid > *, .atelier-form > .capitulo').forEach(function (b) {
+            // Sin el formulario entero: solo sus capitulos, para no sumar dos fundidos uno dentro del otro
+            document.querySelectorAll('.atelier-hero, .atelier-grid > :not(.atelier-form), .atelier-form > .capitulo').forEach(function (b) {
                 b.classList.add('sg-config-bloque');
                 b.style.setProperty('--cfg-i', Math.min(i++, 8));
             });

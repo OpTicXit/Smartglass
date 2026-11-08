@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+    Entrada tras iniciar sesion (nov. 2026), comun al admin y a los usuarios.
+    El primer script va en linea para tapar la pagina desde el primer cuadro, y solo si acceso.js dejo
+    la marca sg-entrada-pendiente (justo despues de iniciar sesion). La marca se consume al instante:
+    recargar o abrir otra pestana no repite la entrada. Si algo fallara, a los 4 s se quita sola.
+    js/entrada.js arma y anima la pantalla; estilos en theme.css "ENTRADA TRAS INICIAR SESION".
+-->
+<th:block th:fragment="entrada(nombre)">
+    <script>
+    (function () {
+        try {
+            var h = document.documentElement;
+            if (sessionStorage.getItem('sg-entrada-pendiente') !== '1') return;
+            sessionStorage.removeItem('sg-entrada-pendiente');
+            if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            if (/(^|\s)fotosensible(\s|$)/.test(h.getAttribute('data-a11y') || '')) return;
+            h.classList.add('sg-entrada');
+            setTimeout(function () { h.classList.remove('sg-entrada', 'sg-entrada-lista'); }, 4000);
+        } catch (e) { /* sin sessionStorage: sin entrada */ }
+    })();
+    </script>
+    <script th:src="@{/js/entrada.js}" th:attr="data-nombre=${nombre},data-logo=@{/img/logo-icono-sm.png}" defer></script>
+</th:block>
+</body>
+</html>

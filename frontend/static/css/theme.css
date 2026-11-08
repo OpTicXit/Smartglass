@@ -18,18 +18,18 @@
    1. TOKENS
 ========================================================= */
 :root {
-  /* Manual de marca (oct. 2026), tema oscuro. Nov. 2026: estilo plano con referencia Platzi, grafito casi negro #101417
+  /* Manual de marca (oct. 2026), tema oscuro. Nov. 2026: estilo plano con referencia Platzi, grafito #1B2026 (aclarado otra vez en nov. 2026; antes #101417 y #1D2531)
      (antes #1D2531),
      textos Hielo #EAF6FF, acento Cian Vidrio #00C2FF, secundario Azul Electrico #0072FF y
      Verde ODS #00E5A0 para lo sostenible. Regla 60-30-10: fondos, marca, acentos. */
-  --bg-primary: #101417;
-  --bg-secondary: #171C20;
-  --bg-tertiary: #20272C;
+  --bg-primary: #1B2026;
+  --bg-secondary: #232930;
+  --bg-tertiary: #2D343C;
 
   /* Textos (Hielo y sus grises azulados; todos >= 4,5:1 sobre las tres superficies) */
   --text-main: #E7EEF2;
   --text-muted: #A3B0BA;
-  --text-subtle: #8796A1;
+  --text-subtle: #97A5B0;
   --text-on-accent: #06131A;
 
   /* Acento - Cian Vidrio (el bisel de la G). En oscuro el boton es cian con texto Grafito (9:1);
@@ -99,18 +99,18 @@
   color-scheme: dark;
 
   /* Superficies que cambian entre modo oscuro y claro */
-  --nav-bg: rgba(16, 20, 23, 0.92);
-  --card-bg: #171C20;
-  --card-bg-soft: rgba(23, 28, 32, 0.7);
-  --card-solid: #171C20;
-  --input-bg: #20272C;
-  --placeholder: #8796A1;
+  --nav-bg: rgba(27, 32, 38, 0.92);
+  --card-bg: #232930;
+  --card-bg-soft: rgba(35, 41, 48, 0.7);
+  --card-solid: #232930;
+  --input-bg: #2D343C;
+  --placeholder: #97A5B0;
   /* Fondo liso grafito azulado con dos luces de marca (Azul Electrico y Cian Vidrio), sin cuadricula */
   /* Fondo plano (estilo nov. 2026, referencia Platzi): sin luces de fondo */
   --bg-ambient: none;
   --ambiente-a: 0%; --ambiente-b: 0%; --ambiente-c: 0%;
   --surface-hover: rgba(255, 255, 255, 0.035);
-  --scroll-hover: #2C353C;
+  --scroll-hover: #3A434C;
   --overlay: rgba(14, 19, 27, 0.6);
 
   --color-background: var(--bg-primary);
@@ -1145,8 +1145,8 @@ html.sg-theme-transition *, html.sg-theme-transition *::before, html.sg-theme-tr
 /* ---------- Escenario de vidrio (lo dibuja glass-preview.js) ---------- */
 :root {
   --stage-spot: rgba(0, 114, 255, 0.14);
-  --stage-top: #1A2025;
-  --stage-bottom: #14191D;
+  --stage-top: #262D34;
+  --stage-bottom: #1F252B;
   --stage-floor: rgba(0, 0, 0, 0.3);
   --glass-face-a: rgba(190, 228, 255, 0.34);
   --glass-face-b: rgba(0, 114, 255, 0.12);
@@ -1776,15 +1776,55 @@ html.sg-vt .navbar[data-nav] { view-transition-name: none; }
 ::view-transition-group(barra) { animation-duration: 0.25s; }
 @keyframes sgVtSalir { to { opacity: 0; } }
 @keyframes sgVtEntrar { from { opacity: 0; transform: translateY(10px); } }
+/* =========================================================
+   ENTRADA TRAS INICIAR SESION (nov. 2026, referencia "Dashboard V22")
+   Justo despues de iniciar sesion (acceso.js deja la marca sg-entrada-pendiente), la primera pagina
+   se tapa con una pantalla Azul Profundo: el isotipo se arma, aparece el nombre y un circulo que crece
+   desde la esquina superior izquierda revela la pagina. La usan el admin y los usuarios (js/entrada.js).
+   html.sg-entrada la pone un script en linea del menu para tapar desde el primer cuadro; mientras dura,
+   las animaciones de la pagina esperan y arrancan al revelarse. Sin movimiento reducido ni fotosensible.
+========================================================= */
+@property --sg-hueco { syntax: '<length>'; inherits: false; initial-value: 0px; }
+html.sg-entrada body::after {
+  content: ""; position: fixed; inset: 0; z-index: 5000;
+  background: radial-gradient(60% 60% at 50% 45%, #14335C, #0B2447 55%, #071629);
+}
+html.sg-entrada.sg-entrada-lista body::after { display: none; }
+html.sg-entrada main, html.sg-entrada main * { animation-play-state: paused !important; }
+.sg-entrada-capa {
+  position: fixed; inset: 0; z-index: 5001;
+  display: grid; place-items: center; align-content: center; gap: 18px;
+  background: radial-gradient(60% 60% at 50% 45%, #14335C, #0B2447 55%, #071629);
+  color: #E9F3FB;
+  -webkit-mask-image: radial-gradient(circle at 0 0, transparent var(--sg-hueco), #000 calc(var(--sg-hueco) + 2px));
+          mask-image: radial-gradient(circle at 0 0, transparent var(--sg-hueco), #000 calc(var(--sg-hueco) + 2px));
+}
+.sg-entrada-logo { position: relative; width: 64px; height: 74px; }
+.sg-entrada-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 14px rgba(125, 211, 252, 0.45)); }
+.sg-entrada-logo img:first-child { clip-path: polygon(0 0, 100% 0, 0 100%); }
+.sg-entrada-logo img:last-child { clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+.sg-entrada-nombre { margin: 0; font-family: var(--font-display); font-size: 1rem; font-weight: 600; letter-spacing: 0.02em; color: rgba(233, 243, 251, 0.85); }
+@media (prefers-reduced-motion: reduce) { html.sg-entrada body::after, .sg-entrada-capa { display: none; } }
+html[data-a11y~="fotosensible"].sg-entrada body::after, html[data-a11y~="fotosensible"] .sg-entrada-capa { display: none !important; }
+
 /* Entrada al configurador (nov. 2026): el circulo lo anima el <head> de vidrio-personalizado-form.html;
    aqui se apagan las animaciones por defecto para que solo se vea el circulo, y los bloques entran
    en cascada (solo hacia atras: al terminar no dejan transformaciones puestas) */
-html.sg-config-circulo::view-transition-old(root), html.sg-config-circulo::view-transition-new(root) { animation: none; }
-html.sg-config-entra .sg-config-bloque {
-  animation: sgCfgEntra 0.55s var(--ease-out) backwards;
-  animation-delay: calc(var(--cfg-i, 0) * 80ms + 280ms);
+/* Calibracion (nov. 2026): borde difuso en vez de circulo nitido, la pagina anterior se aleja un poco
+   y los bloques empiezan a entrar mientras el circulo se abre (no se revela una pagina vacia). */
+@property --sg-cfg-r { syntax: '<length>'; inherits: false; initial-value: 0px; }
+html.sg-config-circulo::view-transition-new(root) {
+  animation: none;
+  -webkit-mask-image: radial-gradient(circle at var(--sg-cfg-x, 50%) var(--sg-cfg-y, 50%), #000 calc(var(--sg-cfg-r) - 160px), transparent var(--sg-cfg-r));
+          mask-image: radial-gradient(circle at var(--sg-cfg-x, 50%) var(--sg-cfg-y, 50%), #000 calc(var(--sg-cfg-r) - 160px), transparent var(--sg-cfg-r));
 }
-@keyframes sgCfgEntra { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } }
+html.sg-config-circulo::view-transition-old(root) { animation: sgCfgAlejar 0.76s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+@keyframes sgCfgAlejar { to { transform: scale(0.97); opacity: 0.55; filter: blur(2px); } }
+html.sg-config-entra .sg-config-bloque {
+  animation: sgCfgEntra 0.62s cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
+  animation-delay: calc(var(--cfg-i, 0) * 55ms + 120ms);
+}
+@keyframes sgCfgEntra { from { opacity: 0; transform: translateY(12px); filter: blur(3px); } }
 html[data-a11y~="fotosensible"] .sg-config-bloque { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { html.sg-config-entra .sg-config-bloque { animation: none; } }
 html[data-a11y~="fotosensible"]::view-transition-group(*),
