@@ -240,6 +240,7 @@
     });
   }
   function tildar(el, si) { if (el && el.checked !== si) { el.checked = si; evento(el, 'change'); } }
+  function mostrarPaso(el) { if (el && window.SGAsistente) window.SGAsistente.mostrar(el); }
 
   /* ---------- Guion: cada paso senala una sola cosa ---------- */
   var DETALLE = '/detalle/', COTIZAR = '/vidrio-personalizado/cotizar';
@@ -253,9 +254,10 @@
       } },
     { id: 'comparar', pagina: '/catalogo', foco: function () { var c = $('.chk-comparar'); return [c ? c.closest('label') || c : null]; } },
     { id: 'ficha', pagina: DETALLE, foco: function () { return [$('.info-producto a[href="#resenas"]'), $('.precio'), $('.stock-linea')]; } },
-    { id: 'medidas', pagina: COTIZAR, cifras: true, foco: function () { return [$('#escena')]; },
+    // El configurador es un asistente por pasos: SGAsistente.mostrar abre el paso donde vive cada elemento
+    { id: 'medidas', pagina: COTIZAR, cifras: true, foco: function () { mostrarPaso($('#ancho')); return [$('#escena')]; },
       demo: function () { return deslizar($('#ancho'), 160).then(function () { return deslizar($('#alto'), 90); }); } },
-    { id: 'huella', pagina: COTIZAR, cifras: true, foco: function () { var e = $('#opcionEco'); return [e ? e.closest('label') : null]; },
+    { id: 'huella', pagina: COTIZAR, cifras: true, foco: function () { var e = $('#opcionEco'); mostrarPaso(e); return [e ? e.closest('label') : null]; },
       demo: function () {
         var eco = $('#opcionEco');
         tildar(eco, false);
@@ -265,7 +267,7 @@
       foco: function () { return [$('#sgc-3d')]; },
       antes: function () { window.SGCorte.abrir($('[data-sg-corte]'), { forma: 'Hexagonal', ancho: 160, alto: 90 }); },
       alSalir: function () { window.SGCorte.cerrar(); } },
-    { id: 'enviar', pagina: COTIZAR, foco: function () { return [$('#btnForjar')]; } },
+    { id: 'enviar', pagina: COTIZAR, foco: function () { mostrarPaso($('#btnForjar')); return [$('#btnForjar')]; } },
     { id: 'ajustes', pagina: COTIZAR, foco: function () {
         // En el celular estos controles viven dentro del menu: se senala el boton que lo abre
         var a = [$('.navbar [data-tour="ajustes"]'), $('.navbar [data-a11y-control]')];

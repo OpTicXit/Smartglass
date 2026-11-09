@@ -47,19 +47,32 @@ class InformeTecnicoTest {
     @Test
     void todasLasClavesDelInformeEstanEnLosDosIdiomas() throws IOException {
         String vista = Files.readString(Path.of("../frontend/templates/admin/informe-tecnico.html"), StandardCharsets.UTF_8)
+                + Files.readString(Path.of("../frontend/templates/admin/fragments/informe.html"), StandardCharsets.UTF_8)
                 + Files.readString(Path.of("../frontend/templates/admin/dashboard.html"), StandardCharsets.UTF_8);
         Properties es = cargar("messages.properties");
         Properties en = cargar("messages_en.properties");
 
-        Set<String> faltan = new TreeSet<>();
+        Set<String> claves = new TreeSet<>();
         Matcher m = Pattern.compile("#\\{(admin\\.informe\\.[a-zA-Z0-9_.]+)\\}").matcher(vista);
         int usadas = 0;
-        while (m.find()) {
-            usadas++;
-            if (!es.containsKey(m.group(1))) faltan.add("es: " + m.group(1));
-            if (!en.containsKey(m.group(1))) faltan.add("en: " + m.group(1));
+        while (m.find()) { usadas++; claves.add(m.group(1)); }
+        // Claves armadas en el fragmento: origen('k') -> o_k y o_k_d; queVeo('k') -> qv.k.muestra/origen/leer
+        Matcher origen = Pattern.compile("informe :: origen\\('([a-z]+)'\\)").matcher(vista);
+        while (origen.find()) { claves.add("admin.informe.o_" + origen.group(1)); claves.add("admin.informe.o_" + origen.group(1) + "_d"); }
+        Matcher queVeo = Pattern.compile("informe :: queVeo\\('([a-z0-9_]+)'\\)").matcher(vista);
+        int bloques = 0;
+        while (queVeo.find()) {
+            bloques++;
+            for (String parte : new String[] { "muestra", "origen", "leer" }) claves.add("admin.informe.qv." + queVeo.group(1) + "." + parte);
+        }
+
+        Set<String> faltan = new TreeSet<>();
+        for (String c : claves) {
+            if (!es.containsKey(c)) faltan.add("es: " + c);
+            if (!en.containsKey(c)) faltan.add("en: " + c);
         }
         assertTrue(usadas > 40, "no se encontraron las claves de la vista");
+        assertTrue(bloques >= 13, "cada bloque del informe debe explicar que muestra: " + bloques);
         assertTrue(faltan.isEmpty(), "Claves sin traducir: " + faltan);
     }
 

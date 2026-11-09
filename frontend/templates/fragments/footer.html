@@ -4,16 +4,28 @@
 
 <!--
     Pie de pagina publico. Uso: <footer th:replace="~{fragments/footer :: footer}"></footer>
-    Estilos en theme.css (".site-footer").
+    Estilos en theme.css (".site-footer"). Nov. 2026: mas informacion en menos espacio (marca con insignias y
+    accesos, cuatro columnas, franja de ODS y nota del CO2). Sin datos de contacto inventados: lo que no
+    cabe aqui vive en /acerca (estado del proyecto, equipo y preguntas frecuentes).
 -->
 <footer th:fragment="footer" class="site-footer">
     <div class="container site-footer-inner">
-        <div>
+        <div class="footer-marca">
             <a th:href="@{/home}" class="footer-brand">
                 <img th:src="@{/img/logo-icono-sm.png}" alt="">
                 <span th:text="#{footer.smartglass}">SmartGlass</span>
             </a>
             <p class="footer-claim" th:text="#{footer.vidrio_a_medida_para_arquitectura}">Vidrio a medida para arquitectura e interiores, con la huella de carbono de cada pieza a la vista.</p>
+            <ul class="footer-insignias" th:attr="aria-label=#{footer.insignias}">
+                <li><i class="ph ph-flask" aria-hidden="true"></i> <span th:text="#{footer.ins_piloto}">Fase piloto</span></li>
+                <li><i class="ph ph-leaf" aria-hidden="true"></i> <span th:text="#{footer.ins_co2}">CO₂ estimado por pieza</span></li>
+                <li><i class="ph ph-translate" aria-hidden="true"></i> <span th:text="#{footer.ins_idiomas}">Español e inglés</span></li>
+                <li><i class="ph ph-person-simple-circle" aria-hidden="true"></i> <span th:text="#{footer.ins_accesible}">Modos de accesibilidad</span></li>
+            </ul>
+            <div class="footer-acciones">
+                <a th:href="@{/vidrio-personalizado/cotizar}" class="btn btn-primary btn-sm"><i class="ph ph-pencil-ruler" aria-hidden="true"></i> <span th:text="#{footer.disenar_una_pieza}">Diseñar una pieza</span></a>
+                <a th:href="@{/home(tour=1)}" class="btn btn-secondary btn-sm"><i class="ph ph-compass" aria-hidden="true"></i> <span th:text="#{footer.ver_recorrido}">Ver el recorrido guiado</span></a>
+            </div>
         </div>
 
         <nav aria-labelledby="footer-tienda">
@@ -21,6 +33,7 @@
             <ul>
                 <li><a th:href="@{/catalogo}" th:text="#{footer.catalogo}">Catálogo</a></li>
                 <li><a th:href="@{/destacados}" th:text="#{footer.destacados}">Destacados</a></li>
+                <li><a th:href="@{/comparar}" th:text="#{footer.comparar}">Comparar productos</a></li>
                 <li><a th:href="@{/carrito}" th:text="#{footer.carrito}">Carrito</a></li>
             </ul>
         </nav>
@@ -31,6 +44,7 @@
                 <li><a th:href="@{/vidrio-personalizado/cotizar}" th:text="#{footer.disenar_una_pieza}">Diseñar una pieza</a></li>
                 <li><a th:href="@{/vidrio-personalizado/mis-cotizaciones}" th:text="#{footer.mis_cotizaciones}">Mis cotizaciones</a></li>
                 <li><a th:href="@{/checkout/mis-pedidos}" th:text="#{footer.mis_pedidos}">Mis pedidos</a></li>
+                <li><a th:href="@{/acerca#como-calculamos}" th:text="#{footer.como_calculamos}">Cómo calculamos el CO₂</a></li>
             </ul>
         </nav>
 
@@ -39,14 +53,33 @@
             <ul>
                 <li><a th:href="@{/acerca}" th:text="#{footer.acerca_de}">Acerca de</a></li>
                 <li><a th:href="@{/planes}" th:text="#{footer.planes}">Planes para empresas</a></li>
+                <li><a th:href="@{/acerca#estado}" th:text="#{footer.estado}">Estado del proyecto</a></li>
+                <li><a th:href="@{/acerca#equipo}" th:text="#{footer.equipo}">Equipo</a></li>
+            </ul>
+        </nav>
+
+        <nav aria-labelledby="footer-ayuda">
+            <h2 id="footer-ayuda" th:text="#{footer.ayuda}">Ayuda</h2>
+            <ul>
                 <li><a th:href="@{/guia}" th:text="#{footer.guia}">Guía de compra</a></li>
+                <li><a th:href="@{/acerca#preguntas}" th:text="#{footer.preguntas}">Preguntas frecuentes</a></li>
                 <li><a th:href="@{/usuario}" th:text="#{footer.mi_cuenta}">Mi cuenta</a></li>
+                <li><a th:href="@{/recuperar}" th:text="#{footer.recuperar}">Recuperar contraseña</a></li>
             </ul>
         </nav>
     </div>
 
+    <div class="container footer-ods">
+        <span class="footer-ods-t" th:text="#{footer.ods_t}">Alineado con los ODS</span>
+        <a th:href="@{/acerca#ods}" class="footer-ods-chip"><b>9</b> <span th:text="#{footer.ods9}">Industria e innovación</span></a>
+        <a th:href="@{/acerca#ods}" class="footer-ods-chip"><b>11</b> <span th:text="#{footer.ods11}">Ciudades sostenibles</span></a>
+        <a th:href="@{/acerca#ods}" class="footer-ods-chip"><b>12</b> <span th:text="#{footer.ods12}">Producción responsable</span></a>
+        <a th:href="@{/acerca#ods}" class="footer-ods-chip"><b>13</b> <span th:text="#{footer.ods13}">Acción por el clima</span></a>
+    </div>
+
     <div class="container site-footer-bottom">
         <span th:text="#{footer.2026_smartglass_s_a_s}">&copy; 2026 SmartGlass S.A.S. Todos los derechos reservados.</span>
+        <span class="footer-nota" th:text="#{footer.nota_co2}">El CO₂ que mostramos es una estimación con factores promedio, no una medición ni una certificación.</span>
         <span th:text="#{footer.cartagena_colombia}">Cartagena, Colombia</span>
     </div>
 </footer>

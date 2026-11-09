@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+    Piezas del informe tecnico (nov. 2026). Cada bloque dice de donde salen sus datos y explica que muestra.
+    - origen(k): etiqueta de origen junto al titulo. k = plataforma | estimado | sintetico | modelo | externo.
+      Lleva icono y texto (no depende del color). Textos: admin.informe.o_<k> y admin.informe.o_<k>_d.
+    - queVeo(k): "¿Que estoy viendo?" plegable con tres respuestas: que muestra, de donde sale y como leerlo.
+      Textos: admin.informe.qv.<k>.muestra / .origen / .leer. InformeTecnicoTest comprueba que existan.
+-->
+
+<span th:fragment="origen(k)" class="origen" th:classappend="'origen--' + ${k}"
+      th:title="${#messages.msg('admin.informe.o_' + k + '_d')}"><i class="ph" aria-hidden="true"
+      th:classappend="${k == 'plataforma'} ? 'ph-storefront' : (${k == 'estimado'} ? 'ph-calculator' : (${k == 'sintetico'} ? 'ph-flask' : (${k == 'modelo'} ? 'ph-tree-structure' : 'ph-globe-hemisphere-west')))"></i><span th:text="${#messages.msg('admin.informe.o_' + k)}">Origen</span></span>
+
+<details th:fragment="queVeo(k)" class="que-veo" th:attr="data-qv=${k}">
+    <summary><i class="ph ph-question" aria-hidden="true"></i><span th:text="#{admin.informe.qv}">¿Qué estoy viendo?</span></summary>
+    <dl>
+        <div><dt th:text="#{admin.informe.qv_muestra}">Qué muestra</dt><dd th:text="${#messages.msg('admin.informe.qv.' + k + '.muestra')}"></dd></div>
+        <div><dt th:text="#{admin.informe.qv_origen}">De dónde sale</dt><dd th:text="${#messages.msg('admin.informe.qv.' + k + '.origen')}"></dd></div>
+        <div><dt th:text="#{admin.informe.qv_leer}">Cómo leerlo</dt><dd><span th:text="${#messages.msg('admin.informe.qv.' + k + '.leer')}"></span><span data-qv-extra></span></dd></div>
+    </dl>
+</details>
+
+</body>
+</html>

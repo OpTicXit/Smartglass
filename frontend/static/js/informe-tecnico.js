@@ -32,12 +32,13 @@
         if (padre) padre.appendChild(n);
         return n;
     }
+    /* La tabla de datos es "details.g-tabla"; el otro details de la figura es el "¿Que estoy viendo?" */
     function lienzo(fig, ancho, alto) {
         var viejo = fig.querySelector('svg');
         if (viejo) viejo.remove();
-        var s = nodo('svg', { viewBox: '0 0 ' + ancho + ' ' + alto, role: 'img', 'aria-label': fig.querySelector('figcaption').textContent });
-        var detalles = fig.querySelector('details');
-        fig.insertBefore(s, detalles);
+        var titulo = fig.querySelector('figcaption [data-titulo]') || fig.querySelector('figcaption');
+        var s = nodo('svg', { viewBox: '0 0 ' + ancho + ' ' + alto, role: 'img', 'aria-label': titulo.textContent });
+        fig.insertBefore(s, fig.querySelector('details.g-tabla'));
         return s;
     }
     function escalaBonita(max) {
@@ -68,6 +69,7 @@
     /* Vista en tabla de cada grafica: nunca dependen solo del dibujo */
     function tabla(fig, cabeceras, filas) {
         var d = document.createElement('details');
+        d.className = 'g-tabla';
         var s = document.createElement('summary'); s.textContent = sgT('inf_ver_tabla'); d.appendChild(s);
         var w = document.createElement('div'); w.className = 'table-wrap';
         var t = document.createElement('table'); t.className = 'table-admin';
@@ -83,7 +85,7 @@
             var li = document.createElement('li'), i = document.createElement('i');
             i.className = it[0]; li.appendChild(i); li.appendChild(document.createTextNode(it[1])); u.appendChild(li);
         });
-        fig.insertBefore(u, fig.querySelector('svg') || fig.querySelector('details'));
+        fig.insertBefore(u, fig.querySelector('svg') || fig.querySelector('details.g-tabla'));
     }
 
     /* Barras horizontales, una o dos series. Ancho real del contenedor: el texto no se escala */
@@ -145,16 +147,23 @@
         };
     }
 
-    function grafRealPredTipo(fig, d) {
-        var nombres = d.claves.map(nombreTipo);
-        tabla(fig, [sgT('inf_tipo'), sgT('inf_real'), sgT('inf_predicho')],
-            nombres.map(function (n, i) { return [n, NUM.format(d.real[i]), NUM.format(d.pred[i])]; }));
+    /* T7: los tipos con pocas piezas en el dataset llevan su n en la etiqueta: ahi la brecha es falta de ejemplos */
+    var POCAS_PIEZAS = 150;
+    function grafRealPredTipo(fig, d, tipos) {
+        var cuantas = {};
+        tipos.claves.forEach(function (k, i) { cuantas[k] = tipos.valores[i]; });
+        var nombres = d.claves.map(function (k) {
+            var n = cuantas[k];
+            return nombreTipo(k) + (n != null && n < POCAS_PIEZAS ? ' (n=' + ENTERO.format(n) + ')' : '');
+        });
+        tabla(fig, [sgT('inf_tipo'), sgT('inf_real'), sgT('inf_predicho'), sgT('inf_n')],
+            d.claves.map(function (k, i) { return [nombreTipo(k), NUM.format(d.real[i]), NUM.format(d.pred[i]), cuantas[k] != null ? ENTERO.format(cuantas[k]) : '—']; }));
         return function () {
             barras(fig, nombres, [
                 { clase: 'g-b', nombre: sgT('inf_real'), valores: d.real },
                 { clase: 'g-a', nombre: sgT('inf_predicho'), valores: d.pred }
-            ], { detalle: function (v) { return NUM.format(v) + ' kg'; } });
-            if (!fig.querySelector('.grafica-leyenda')) leyenda(fig, [['b', sgT('inf_real')], ['a', sgT('inf_predicho')]]);
+            ], { izquierda: 150, detalle: function (v) { return NUM.format(v) + ' kg'; } });
+            if (!fig.querySelector('.grafica-leyenda')) leyenda(fig, [['b', sgT('inf_real')], ['a', sgT('inf_predicho')], ['n', sgT('inf_n_nota')]]);
         };
     }
 
@@ -184,7 +193,7 @@
                     }, s);
                     conTip(c, nombres[i] + ' × ' + nombres[j], sgT('inf_correlacion') + ': ' + NUM.format(v));
                     if (lado >= 34) {
-                        nodo('text', { x: izq + j * lado + lado / 2, y: i * lado + lado / 2, 'class': 'g-celda-texto ' + (pct >= 60 ? 'fuerte' : 'suave') }, s, NUM.format(Math.round(v * 100) / 100 || 0));
+                        nodo('text', { x: izq + j * lado + lado / 2, y: i * lado + lado / 2, 'class': 'g-celda-texto ' + (pct >= 60 ? 'fuerte' + (v >= 0 ? ' polo-b' : '') : 'suave') }, s, NUM.format(Math.round(v * 100) / 100 || 0));
                     }
                 });
                 nodo('text', { x: izq - 8, y: i * lado + lado / 2, 'text-anchor': 'end', 'dominant-baseline': 'central' }, s, nombres[i]);
@@ -292,8 +301,12 @@
             grafRealPred(figuras.real_pred, m.real_pred),
             grafErrores(figuras.errores, m.errores),
             grafImportancia(figuras.importancia, m.importancia),
-            grafRealPredTipo(figuras.real_pred_tipo, m.real_pred_tipo)
+            grafRealPredTipo(figuras.real_pred_tipo, m.real_pred_tipo, m.tipos)
         ];
+        /* "¿Que estoy viendo?" del globo: Colombia como escala local, con el dato del mismo JSON */
+        var col = datos.paises.filas.filter(function (f) { return f.iso === 'COL'; })[0];
+        var extra = document.querySelector('[data-qv="paises"] [data-qv-extra]');
+        if (col && extra) extra.textContent = sgT('inf_qv_colombia', '', NUM.format(col.co2_mt), NUM.format(col.pct));
         var redibujar = function () { dibujos.forEach(function (d) { d(); }); };
         redibujar();
         var espera, anchoPrevio = innerWidth;
@@ -309,7 +322,7 @@
     var vivoMetricas = document.getElementById('vivo-metricas'), vivoHora = '';
 
     function grafVivo(dias) {
-        var abierta = vivoFig.querySelector('details');
+        var abierta = vivoFig.querySelector('details.g-tabla');
         var estabaAbierta = abierta && abierta.open;
         var ancho = Math.max(280, vivoFig.clientWidth - 36), alto = 190, m = { a: 8, b: 26, i: 44, d: 6 };
         var max = Math.max.apply(null, dias.map(function (d) { return d.co2Kg; }));
@@ -338,7 +351,7 @@
         tabla(vivoFig, [sgT('inf_vivo_fecha'), sgT('inf_kg'), sgT('inf_vivo_cotizaciones')], dias.map(function (d) {
             return [d.fecha, NUM.format(d.co2Kg), d.cotizaciones];
         }));
-        vivoFig.querySelector('details').open = !!estabaAbierta;
+        vivoFig.querySelector('details.g-tabla').open = !!estabaAbierta;
     }
 
     function pintarVivo(a) {
@@ -349,9 +362,13 @@
         [[ENTERO.format(a.cotizaciones), sgT('inf_vivo_cotizaciones')], [ENTERO.format(a.pendientes), sgT('inf_vivo_pendientes')],
          [ENTERO.format(a.pedidos), sgT('inf_vivo_pedidos')], [NUM.format(a.co2Kg) + ' kg', sgT('inf_vivo_co2')],
          [ENTERO.format(a.cotizacionesSemana), sgT('inf_vivo_semana')], [NUM.format(a.co2KgSemana) + ' kg', sgT('inf_vivo_co2_semana')],
-         [ENTERO.format(a.pedidosSemana), sgT('inf_vivo_pedidos') + ' · 7 d'], [a.pctReciclado + ' %', sgT('inf_vivo_reciclado')]].forEach(function (x) {
+         [ENTERO.format(a.pedidosSemana), sgT('inf_vivo_pedidos') + ' · 7 d'],
+         /* F3: un porcentaje sin base parece una cifra de toda la industria */
+         [a.pctReciclado + ' %', sgT('inf_vivo_reciclado'), sgT('inf_vivo_base', '', ENTERO.format(a.cotizaciones))]].forEach(function (x) {
             var d = document.createElement('div'), b = document.createElement('b'), t = document.createElement('small');
-            b.textContent = x[0]; t.textContent = x[1]; d.appendChild(b); d.appendChild(t); vivoMetricas.appendChild(d);
+            b.textContent = x[0]; t.textContent = x[1]; d.appendChild(b); d.appendChild(t);
+            if (x[2]) { var base = document.createElement('small'); base.className = 'base'; base.textContent = x[2]; d.appendChild(base); }
+            vivoMetricas.appendChild(d);
         });
         grafVivo(a.dias);
         vivoFig.sgDias = a.dias;
@@ -383,7 +400,7 @@
         var fig = bloque.querySelector('[data-proy-grafica]');
         var h = p.horizontes.filter(function (x) { return x.clave === clave; })[0];
         if (!fig || !h) return;
-        var abierta = fig.querySelector('details'), estabaAbierta = abierta && abierta.open;
+        var abierta = fig.querySelector('details.g-tabla'), estabaAbierta = abierta && abierta.open;
         var tam = h.dias <= 31 ? 1 : (h.dias <= 366 ? 7 : 30);
         var hoy = p.fin ? new Date(p.fin + 'T12:00:00') : new Date();
         var historia = p.historia.slice(-Math.max(h.dias, 30));
@@ -438,7 +455,7 @@
         tabla(fig, [sgT('inf_vivo_fecha'), sgT('inf_proy_futuro'), sgT('inf_proy_rango')], proximos.map(function (b) {
             return [FECHA.format(b.desde) + (tam > 1 ? ' – ' + FECHA.format(b.hasta) : ''), NUM.format(b.v), NUM.format(b.lo) + ' – ' + NUM.format(b.hi)];
         }));
-        fig.querySelector('details').open = !!estabaAbierta;
+        fig.querySelector('details.g-tabla').open = !!estabaAbierta;
     }
 
     function pintarProyeccion(bloque, p) {

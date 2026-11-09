@@ -829,13 +829,13 @@
         var html =
             '<div id="sgc-modal" class="sgc-modal" role="dialog" aria-modal="true" aria-labelledby="sgc-titulo">' +
             '<div class="sgc-modal-inner">' +
+            /* Nov. 2026: la cabecera cuenta los tres pasos; las herramientas van en una barra sobre el lienzo */
             '<header class="sgc-modal-head"><div><span class="sgc-kicker">' + esc(T('kicker', 'Corte personalizado')) + '</span><h2 id="sgc-titulo">' + esc(T('titulo', 'Dibuja tu pieza')) + '</h2></div>' +
+            '<ol class="sgc-guia"><li><b>1</b>' + esc(T('guia1', 'Elige una forma')) + '</li><li><b>2</b>' + esc(T('guia2', 'Ajusta, dibuja o pinta')) + '</li><li><b>3</b>' + esc(T('guia3', 'Confirma tu corte')) + '</li></ol>' +
             '<button type="button" id="sgc-cerrar" class="sgc-x" aria-label="' + esc(T('cerrar', 'Cerrar')) + '"><i class="ph ph-x" aria-hidden="true"></i></button></header>' +
             '<div id="sgc-banner" class="sgc-banner" role="status"></div>' +
             '<div class="sgc-body">' +
             '<aside class="sgc-tools">' +
-            '<p class="sgc-tools-t">' + esc(T('herramienta', 'Herramienta')) + '</p><div class="sgc-modos">' + botonesModo + '</div>' +
-            '<p id="sgc-modo-ayuda" class="sgc-hint sgc-modo-ayuda" aria-live="polite"></p>' +
             '<div id="sgc-pintura" class="sgc-pintura" hidden>' +
             '<div id="sgc-colores"><div class="sgc-colores">' + botonesColor + '<input type="color" id="sgc-color" value="' + COLORES[0] + '" aria-label="' + esc(T('otro_color', 'Otro color')) + '"></div></div>' +
             '<label class="sgc-n" id="sgc-grosor-box"><span>' + esc(T('grosor', 'Grosor:')) + ' <b id="sgc-grosor-val">6</b> cm</span><input type="range" id="sgc-grosor" min="1" max="40" step="1" value="6"></label>' +
@@ -846,24 +846,27 @@
             '<div class="sgc-n-escala" aria-hidden="true"><span>' + esc(T('lados_min', 'Facetado')) + '</span><span>' + esc(T('lados_max', 'Redondo')) + '</span></div>' +
             '<p id="sgc-n-ayuda" class="sgc-hint">' + esc(T('lados_ayuda', 'El círculo se corta como muchos tramos rectos muy cortos. Con 8 parece un octágono y con 64 se ve redondo. Menos tramos también dan algo menos de área: con 8 es cerca de un 10 % menos que con 64.')) + '</p></div>' +
             '<div class="sgc-formas">' + botones + '</div>' +
-            '<p class="sgc-tools-t">' + esc(T('edicion', 'Edición')) + '</p>' +
-            '<div class="sgc-row"><button type="button" id="sgc-undo" class="sgc-btn" title="' + esc(T('deshacer_t', 'Deshacer (Ctrl+Z)')) + '"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i> ' + esc(T('deshacer', 'Deshacer')) + '</button>' +
-            '<button type="button" id="sgc-redo" class="sgc-btn" title="' + esc(T('rehacer_t', 'Rehacer (Ctrl+Y)')) + '"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i> ' + esc(T('rehacer', 'Rehacer')) + '</button></div>' +
-            '<div class="sgc-row"><button type="button" id="sgc-eliminar" class="sgc-btn sgc-btn-warn">' + esc(T('quitar', 'Quitar punto')) + '</button><button type="button" id="sgc-reset" class="sgc-btn sgc-btn-ghost">' + esc(T('reiniciar', 'Reiniciar')) + '</button></div>' +
             '<p class="sgc-tools-t">' + esc(T('transformar', 'Transformar')) + '</p>' +
-            '<div class="sgc-grid-btn"><button type="button" id="sgc-rotar" class="sgc-btn"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i> ' + esc(T('rotar', 'Girar 90°')) + '</button>' +
-            '<button type="button" id="sgc-centrar" class="sgc-btn"><i class="ph ph-crosshair-simple" aria-hidden="true"></i> ' + esc(T('centrar', 'Centrar')) + '</button>' +
-            '<button type="button" id="sgc-espejo-h" class="sgc-btn"><i class="ph ph-flip-horizontal" aria-hidden="true"></i> ' + esc(T('espejo_h', 'Reflejar')) + ' ↔</button>' +
-            '<button type="button" id="sgc-espejo-v" class="sgc-btn"><i class="ph ph-flip-vertical" aria-hidden="true"></i> ' + esc(T('espejo_v', 'Reflejar')) + ' ↕</button></div>' +
+            /* botones de solo icono: el nombre va en aria-label y title */
+            '<div class="sgc-grid-btn">' + [['sgc-rotar', 'ph-arrow-clockwise', T('rotar', 'Girar 90°')], ['sgc-centrar', 'ph-crosshair-simple', T('centrar', 'Centrar')],
+                ['sgc-espejo-h', 'ph-flip-horizontal', T('espejo_h', 'Reflejar') + ' ↔'], ['sgc-espejo-v', 'ph-flip-vertical', T('espejo_v', 'Reflejar') + ' ↕']].map(function (b) {
+                return '<button type="button" id="' + b[0] + '" class="sgc-btn" title="' + esc(b[2]) + '" aria-label="' + esc(b[2]) + '"><i class="ph ' + b[1] + '" aria-hidden="true"></i></button>';
+            }).join('') + '</div>' +
+            '<div class="sgc-row"><button type="button" id="sgc-eliminar" class="sgc-btn sgc-btn-warn">' + esc(T('quitar', 'Quitar punto')) + '</button><button type="button" id="sgc-reset" class="sgc-btn sgc-btn-ghost">' + esc(T('reiniciar', 'Reiniciar')) + '</button></div>' +
             '<label class="sgc-campo sgc-snap"><span>' + esc(T('rejilla', 'Imán de la rejilla')) + '</span><select id="sgc-snap">' +
             '<option value="1">1 cm</option><option value="5">5 cm</option><option value="10">10 cm</option></select></label>' +
-            '<p class="sgc-hint">' + esc(T('ayuda', 'Toca o haz clic en el lienzo para añadir un punto (se inserta en la línea más cercana). Arrastra un punto para moverlo y el fondo para desplazar la vista; doble clic sobre un punto lo elimina. Con un punto elegido, las flechas lo mueven (Mayús: 10 cm). Mínimo {0}, máximo {1}.', MIN_PUNTOS, MAX_PUNTOS)) + '</p>' +
+            '<details class="sgc-ayuda"><summary>' + esc(T('como_se_usa', 'Cómo se usa')) + '</summary><p class="sgc-hint">' + esc(T('ayuda', 'Toca o haz clic en el lienzo para añadir un punto (se inserta en la línea más cercana). Arrastra un punto para moverlo y el fondo para desplazar la vista; doble clic sobre un punto lo elimina. Con un punto elegido, las flechas lo mueven (Mayús: 10 cm). Mínimo {0}, máximo {1}.', MIN_PUNTOS, MAX_PUNTOS)) + '</p></details>' +
             '<button type="button" id="sgc-r1" class="sgc-btn sgc-btn-eco">✦ ' + esc(T('balanceada', 'Versión balanceada (respeta tu forma)')) + '</button><ul id="sgc-r1-cambios" class="sgc-r1-cambios"></ul></aside>' +
-            '<main class="sgc-canvas-wrap"><svg id="sgc-lienzo" viewBox="0 0 ' + LIENZO_W + ' ' + LIENZO_H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="' + esc(T('lienzo_aria', 'Lienzo de dibujo del corte')) + '"></svg>' +
+            '<main class="sgc-canvas-wrap">' +
+            '<div class="sgc-barra" role="toolbar" aria-label="' + esc(T('herramienta', 'Herramienta')) + '">' + botonesModo + '<span class="sgc-barra-sep" aria-hidden="true"></span>' +
+            '<button type="button" id="sgc-undo" class="sgc-btn" title="' + esc(T('deshacer_t', 'Deshacer (Ctrl+Z)')) + '"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i><span>' + esc(T('deshacer', 'Deshacer')) + '</span></button>' +
+            '<button type="button" id="sgc-redo" class="sgc-btn" title="' + esc(T('rehacer_t', 'Rehacer (Ctrl+Y)')) + '"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i><span>' + esc(T('rehacer', 'Rehacer')) + '</span></button></div>' +
+            '<p id="sgc-modo-ayuda" class="sgc-hint sgc-modo-ayuda" aria-live="polite"></p>' +
+            '<div class="sgc-lienzo-caja"><svg id="sgc-lienzo" viewBox="0 0 ' + LIENZO_W + ' ' + LIENZO_H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="' + esc(T('lienzo_aria', 'Lienzo de dibujo del corte')) + '"></svg>' +
             '<div class="sgc-zoom"><button type="button" id="sgc-zout" class="sgc-btn sgc-btn-mini" aria-label="' + esc(T('alejar', 'Alejar')) + '"><i class="ph ph-minus" aria-hidden="true"></i></button>' +
             '<span id="sgc-zval" aria-live="polite">100 %</span>' +
             '<button type="button" id="sgc-zin" class="sgc-btn sgc-btn-mini" aria-label="' + esc(T('acercar', 'Acercar')) + '"><i class="ph ph-plus" aria-hidden="true"></i></button>' +
-            '<button type="button" id="sgc-zfit" class="sgc-btn sgc-btn-mini"><i class="ph ph-corners-out" aria-hidden="true"></i> ' + esc(T('encajar', 'Encajar')) + '</button></div></main>' +
+            '<button type="button" id="sgc-zfit" class="sgc-btn sgc-btn-mini"><i class="ph ph-corners-out" aria-hidden="true"></i><span>' + esc(T('encajar', 'Encajar')) + '</span></button></div></div></main>' +
             '<aside class="sgc-metrics"><p class="sgc-tools-t">' + esc(T('titulo_3d', 'Así va quedando')) + '</p>' +
             '<div id="sgc-3d" class="sgc-3d"><canvas tabindex="0" role="img" aria-label="' + esc(T('aria_3d', 'Vista 3D de la pieza. Arrastra o usa las flechas para girarla.')) + '"></canvas>' +
             '<p class="sgc-3d-aviso" hidden>' + esc(T('sin_3d', 'Este navegador no pudo mostrar la vista 3D. El corte funciona igual.')) + '</p>' +
@@ -902,13 +905,20 @@
             '.sgc-x:hover{color:var(--text-main);border-color:var(--border-hover)}' +
             '.sgc-banner{display:none;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 20px;background:var(--color-warning-dim);border-bottom:1px solid var(--color-warning);font-size:.88rem}' +
             '.sgc-banner-acc{display:flex;gap:8px;flex-wrap:wrap}' +
-            '.sgc-body{flex:1;display:grid;grid-template-columns:252px minmax(0,1fr) 300px;min-height:0;overflow:hidden}' +
-            '.sgc-modos{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}' +
-            '.sgc-modo-btn{display:flex;align-items:center;gap:6px;min-height:40px;padding:6px 8px;text-align:left;border:1px solid var(--border-color);border-radius:10px;background:var(--bg-tertiary);color:var(--text-main);font:inherit;font-size:max(12px,.76rem);font-weight:700;line-height:1.15;cursor:pointer}' +
-            '.sgc-modo-btn i{font-size:18px;color:var(--color-accent);flex:none}.sgc-modo-btn:hover{border-color:var(--color-accent)}' +
-            '.sgc-modo-btn[aria-pressed="true"]{border-color:var(--color-accent);background:var(--color-accent-dim);box-shadow:0 0 0 2px var(--color-accent-dim)}' +
+            '.sgc-body{flex:1;display:grid;grid-template-columns:276px minmax(0,1fr) 300px;min-height:0;overflow:hidden}' +
+            /* Cabecera con los tres pasos */
+            '.sgc-guia{display:flex;gap:6px;margin:0 auto 0 24px;padding:0;list-style:none;font-size:max(12px,.78rem);font-weight:700;color:var(--text-muted)}' +
+            '.sgc-guia li{display:flex;align-items:center;gap:6px;padding:5px 10px 5px 5px;border:1px solid var(--border-color);border-radius:999px;background:var(--bg-tertiary)}' +
+            '.sgc-guia b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--color-accent-dim);color:var(--color-accent-text);font-size:11px}' +
+            /* Barra de herramientas sobre el lienzo */
+            '.sgc-barra{align-self:center;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:3px;margin:0 0 6px;padding:4px;border:1px solid var(--border-color);border-radius:14px;background:var(--bg-secondary);box-shadow:0 8px 24px -16px rgba(0,0,0,.5)}' +
+            '.sgc-modo-btn,.sgc-barra .sgc-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 11px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--text-main);font:inherit;font-size:max(12px,.8rem);font-weight:700;line-height:1.1;cursor:pointer}' +
+            '.sgc-modo-btn i,.sgc-barra .sgc-btn i{font-size:18px;color:var(--color-accent);flex:none}.sgc-modo-btn:hover,.sgc-barra .sgc-btn:hover:not(:disabled){background:var(--bg-tertiary)}' +
+            '.sgc-modo-btn[aria-pressed="true"]{border-color:var(--color-accent);background:var(--color-accent-dim)}' +
             '.sgc-modo-btn:focus-visible,.sgc-color:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}' +
-            '.sgc-modo-ayuda{margin:0 0 12px}.sgc-modo-ayuda:empty{display:none}' +
+            '.sgc-barra-sep{width:1px;align-self:stretch;margin:4px 3px;background:var(--border-color)}' +
+            '.sgc-modo-ayuda{align-self:center;max-width:62ch;margin:0 0 6px;text-align:center}.sgc-modo-ayuda:empty{display:none}' +
+            '.sgc-ayuda{margin:4px 0 10px;font-size:max(12px,.8rem)}.sgc-ayuda summary{cursor:pointer;font-weight:700;color:var(--color-accent-text);min-height:32px;display:flex;align-items:center}.sgc-ayuda .sgc-hint{margin:4px 0 0}' +
             '.sgc-pintura{margin-bottom:14px;padding:10px;border:1px solid var(--border-color);border-radius:10px}.sgc-pintura[hidden]{display:none}' +
             '.sgc-colores{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}' +
             '.sgc-color{height:30px;border:1px solid var(--border-strong);border-radius:8px;cursor:pointer}.sgc-color[aria-pressed="true"]{outline:2px solid var(--text-main);outline-offset:1px}' +
@@ -925,15 +935,16 @@
             '.sgc-metrics{border-right:0;border-left:1px solid var(--border-color)}' +
             '.sgc-tools-t{margin:0 0 8px;font-size:max(12px,.7rem);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}' +
             '.sgc-sep{margin-top:18px}' +
-            '.sgc-formas{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}' +
-            '.sgc-forma-btn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:58px;padding:7px 8px;text-align:left;border:1px solid var(--border-color);border-radius:10px;background:var(--bg-tertiary);color:var(--text-main);font:inherit;font-size:max(12px,.76rem);font-weight:600;line-height:1.2;cursor:pointer}' +
-            '.sgc-forma-btn svg{width:26px;height:20px;fill:var(--color-accent-dim);stroke:var(--color-accent);stroke-width:1.4;stroke-linejoin:round}' +
+            '.sgc-formas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:12px}.sgc-forma-btn{min-width:0}.sgc-forma-btn span{min-width:0;hyphens:auto}' +
+            '.sgc-btn-eco{white-space:normal;text-align:left;line-height:1.3}' +
+            '.sgc-forma-btn{display:flex;align-items:center;gap:8px;min-height:44px;padding:6px 8px;text-align:left;border:1px solid var(--border-color);border-radius:10px;background:var(--bg-tertiary);color:var(--text-main);font:inherit;font-size:max(12px,.76rem);font-weight:600;line-height:1.2;cursor:pointer}' +
+            '.sgc-forma-btn svg{flex:none;width:20px;height:16px;fill:var(--color-accent-dim);stroke:var(--color-accent);stroke-width:1.4;stroke-linejoin:round}' +
             '.sgc-forma-btn i{font-size:20px;color:var(--color-accent)}' +
             '.sgc-forma-btn:hover{border-color:var(--color-accent)}' +
             '.sgc-forma-btn[aria-pressed="true"]{border-color:var(--color-accent);box-shadow:0 0 0 2px var(--color-accent-dim)}' +
             '.sgc-n{display:block;margin:0 0 14px;font-size:max(12px,.78rem);color:var(--text-muted)}.sgc-n input{width:100%}' +
             '.sgc-row{display:flex;gap:6px;margin-bottom:8px}.sgc-row .sgc-btn{flex:1}' +
-            '.sgc-grid-btn{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}' +
+            '.sgc-grid-btn{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}.sgc-grid-btn .sgc-btn{min-height:40px;padding:6px}.sgc-grid-btn .sgc-btn i{font-size:18px}' +
             '.sgc-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:7px 10px;border:1px solid var(--border-color);border-radius:10px;background:var(--bg-tertiary);color:var(--text-main);font:inherit;font-size:max(12px,.8rem);font-weight:700;cursor:pointer}' +
             '.sgc-btn:hover:not(:disabled){border-color:var(--border-hover)}' +
             '.sgc-btn:disabled{opacity:.4;cursor:not-allowed}' +
@@ -951,7 +962,8 @@
             '.sgc-punto-t{margin:-2px 0 8px;font-size:max(12px,.78rem);color:var(--text-muted)}' +
             '.sgc-hint{font-size:max(12px,.76rem);color:var(--text-muted);line-height:1.5;margin:10px 0}' +
             '.sgc-r1-cambios{display:none;margin:8px 0 0;padding:8px 8px 8px 22px;font-size:max(12px,.78rem);color:var(--text-muted);line-height:1.5;border:1px dashed var(--border-color);border-radius:8px}' +
-            '.sgc-canvas-wrap{position:relative;display:flex;align-items:center;justify-content:center;background:var(--bg-primary);min-height:0;min-width:0;padding:10px;overflow:hidden}' +
+            '.sgc-canvas-wrap{position:relative;display:flex;flex-direction:column;align-items:stretch;background:var(--bg-primary);min-height:0;min-width:0;padding:10px;overflow:hidden}' +
+            '.sgc-lienzo-caja{position:relative;flex:1;min-height:0;display:flex}' +
             '#sgc-lienzo{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}' +
             '.sgc-fondo{fill:var(--bg-secondary)}' +
             '.sgc-grid{stroke:var(--border-color);stroke-width:1;opacity:.45;vector-effect:non-scaling-stroke}' +
@@ -983,13 +995,23 @@
             '.sgc-msg{min-height:1.1em;margin-top:4px;font-size:.84rem}.sgc-msg-mal{color:var(--color-error);font-weight:700}' +
             '.sgc-bloquear-scroll{overflow:hidden}' +
             '@media (pointer:coarse){.sgc-btn,.sgc-campo input,.sgc-campo select{min-height:44px}.sgc-btn-mini{min-height:44px;min-width:44px}.sgc-forma-btn{min-height:62px}}' +
-            '@media (max-width:1180px){.sgc-body{grid-template-columns:228px minmax(0,1fr) 256px}.sgc-3d{height:190px}}' +
+            '@media (max-width:1180px){.sgc-body{grid-template-columns:228px minmax(0,1fr) 256px}.sgc-3d{height:190px}.sgc-guia{display:none}' +
+            /* columna mas angosta: el icono va encima del nombre para no partir palabras */
+            '.sgc-forma-btn{flex-direction:column;align-items:flex-start;gap:3px}}' +
+            /* poco ancho para el lienzo: deshacer y rehacer quedan solo con icono (el nombre sigue para lectores) */
+            '@media (max-width:1340px){.sgc-barra .sgc-btn span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}' +
             '@media (max-width:980px){.sgc-modal{padding:0}.sgc-modal-inner{height:100vh;height:100dvh;border-radius:0;border:0}' +
             '.sgc-body{position:relative;display:flex;flex-direction:column;overflow:auto}' +
             /* En celular el 3D flota sobre el lienzo: asi se ve como va quedando mientras se dibuja */
-            '.sgc-3d{position:absolute;top:8px;left:8px;z-index:2;width:136px;height:136px}.sgc-3d-giro{right:4px;bottom:4px;min-height:30px!important;min-width:0!important;padding:2px 6px;font-size:11px}' +
+            /* abajo a la izquierda del lienzo: arriba esta la barra de herramientas y a la derecha el zoom */
+            '.sgc-guia{display:none}' +
+            '.sgc-barra{flex-wrap:nowrap;max-width:100%;overflow-x:auto}.sgc-barra .sgc-modo-btn span,.sgc-barra .sgc-btn span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}' +
+            '.sgc-modo-btn,.sgc-barra .sgc-btn{min-width:44px;min-height:44px;justify-content:center;padding:6px}' +
+            /* el zoom queda compacto para no chocar con la vista 3D (abajo a la izquierda) */
+            '#sgc-zfit span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.sgc-zoom{right:6px;bottom:6px}' +
+            '.sgc-3d{position:absolute;top:calc(min(100vw,58dvh) + 52px - 150px);left:10px;z-index:2;width:136px;height:136px}.sgc-3d-giro{right:4px;bottom:4px;min-height:30px!important;min-width:0!important;padding:2px 6px;font-size:11px}' +
             '.sgc-metrics>.sgc-tools-t:first-child,.sgc-3d-nota{display:none}.sgc-metrics>.sgc-sep{margin-top:0}' +
-            '.sgc-canvas-wrap{order:-1;flex:none;height:min(100vw,58vh);height:min(100vw,58dvh);padding:6px}' +
+            '.sgc-canvas-wrap{order:-1;flex:none;height:calc(min(100vw,58vh) + 52px);height:calc(min(100vw,58dvh) + 52px);padding:6px}' +
             '.sgc-tools,.sgc-metrics{overflow:visible;border:0;border-top:1px solid var(--border-color)}' +
             '.sgc-formas{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}.sgc-grid-btn{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}' +
             '.sgc-modal-foot{flex-wrap:wrap;padding:10px 14px}.sgc-foot-hint{display:none}.sgc-foot-actions{width:100%}.sgc-foot-actions .sgc-btn{flex:1}}' +

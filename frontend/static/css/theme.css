@@ -966,30 +966,64 @@ body:has(> .auth) { padding-bottom: 0; }
 .kv li > :first-child, .kv dt { color: var(--text-muted); }
 .kv li > :last-child, .kv dd { margin: 0; color: var(--text-main); font-weight: 600; text-align: right; }
 
-/* ---------- Footer ---------- */
+/* ---------- Footer ----------
+   Nov. 2026: mas informacion en menos espacio. Marca con insignias y accesos, cuatro columnas de enlaces,
+   franja de ODS y una barra final con la nota del CO2. Sin datos de contacto inventados. */
 .site-footer {
-  margin-top: clamp(56px, 8vw, 96px); border-top: 1px solid var(--border-color);
-  background: linear-gradient(180deg, transparent, var(--card-bg-soft));
-  color: var(--text-muted); font-size: 0.9rem;
+  margin-top: clamp(48px, 6vw, 80px); border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-muted); font-size: 0.88rem;
 }
 .site-footer-inner {
-  display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 32px;
-  padding-block: 48px 32px;
+  display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr)); gap: 24px 28px;
+  padding-block: 36px 24px;
 }
 .site-footer .footer-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text-main); font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
 .site-footer .footer-brand img { height: 30px; width: auto; }
-.site-footer .footer-claim { max-width: 34ch; margin: 12px 0 0; }
-.site-footer h2 { margin: 0 0 12px; font-family: var(--font-primary); font-size: 0.85rem; font-weight: 650; letter-spacing: 0; color: var(--text-main); }
-.site-footer ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-.site-footer a { color: var(--text-muted); }
-.site-footer a:hover { color: var(--text-main); }
-.site-footer-bottom {
-  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px;
-  padding-block: 18px 24px; border-top: 1px solid var(--border-color); font-size: 0.82rem; color: var(--text-subtle);
+.site-footer .footer-claim { max-width: 38ch; margin: 10px 0 14px; line-height: 1.5; }
+.footer-insignias { display: flex !important; flex-wrap: wrap; gap: 6px !important; margin: 0 0 14px !important; }
+.footer-insignias li {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
+  background: var(--bg-tertiary); color: var(--text-main); font-size: 0.76rem; font-weight: 600;
 }
-/* T1 responsive: a 4 columnas no cabia en tablet (768px); 2 columnas hasta 900px y 1 en telefonos estrechos */
-@media (max-width: 900px) { .site-footer-inner { grid-template-columns: 1fr 1fr; } .site-footer-inner > :first-child { grid-column: 1 / -1; } }
-@media (max-width: 400px) { .site-footer-inner { grid-template-columns: 1fr; } }
+.footer-insignias i { color: var(--color-accent-text); font-size: 0.95rem; }
+.footer-acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.site-footer .footer-acciones .btn-primary { color: var(--text-on-accent); }
+.site-footer .footer-acciones .btn-secondary { color: var(--text-main); }
+.site-footer h2 { margin: 2px 0 10px; font-family: var(--font-primary); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-main); }
+.site-footer ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+.site-footer a { color: var(--text-muted); text-decoration: none; }
+.site-footer nav a:hover { color: var(--color-accent-text); }
+.footer-ods {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
+  padding-block: 14px; border-top: 1px solid var(--border-color);
+}
+.footer-ods-t { margin-right: 6px; color: var(--text-subtle); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.site-footer .footer-ods-chip {
+  display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; border-radius: 999px;
+  border: 1px solid var(--border-color); color: var(--text-main); font-size: 0.8rem;
+}
+.footer-ods-chip b {
+  display: grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 999px;
+  background: var(--color-success-dim); color: var(--color-success); font-size: 0.78rem;
+}
+.site-footer .footer-ods-chip:hover { border-color: var(--color-success); }
+.site-footer-bottom {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 24px;
+  padding-block: 14px 18px; border-top: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-subtle);
+}
+.footer-nota { flex: 1 1 320px; text-align: center; }
+/* Tablet: marca arriba y cuatro columnas debajo; telefono: dos columnas */
+@media (max-width: 1080px) { .site-footer-inner { grid-template-columns: repeat(4, minmax(0, 1fr)); } .site-footer-inner > .footer-marca { grid-column: 1 / -1; } }
+@media (max-width: 640px) {
+  .site-footer-inner { grid-template-columns: 1fr 1fr; gap: 20px; padding-block: 28px 18px; }
+  .footer-nota { text-align: left; }
+  /* los enlaces ya miden 44 px de alto en pantallas tactiles: sin espacio extra entre filas */
+  .site-footer ul { gap: 0; }
+  .footer-ods { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .footer-ods-t { grid-column: 1 / -1; }
+  .site-footer .footer-ods-chip { min-width: 0; padding-right: 10px; border-radius: 14px; font-size: 0.76rem; line-height: 1.25; }
+}
 
 /* Footer heredado (vistas que aun no usan el fragmento) */
 .footer-main {

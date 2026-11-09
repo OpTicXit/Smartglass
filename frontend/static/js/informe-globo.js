@@ -135,7 +135,7 @@ async function arrancar() {
 
     // Tierra como puntos repartidos con espiral de Fibonacci: densidad pareja, sin amontonarse en los polos
     const esTierra = mascaraTierra(topojson.feature(topo, topo.objects.land));
-    const base = new THREE.Color(0x38B6E8), caliente = new THREE.Color(0xFF7A2F);
+    const base = new THREE.Color(0x38B6E8), caliente = new THREE.Color(0xF5B041);
     const puntos = [], pos = [], col = [];
     const N = 70000, oro = Math.PI * (3 - Math.sqrt(5));
     for (let i = 0; i < N; i++) {
@@ -185,7 +185,7 @@ async function arrancar() {
         const brillo = new THREE.Sprite(new THREE.SpriteMaterial({ map: brilloTex, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, opacity: 0 }));
         brillo.position.copy(info.centro).multiplyScalar(1.015);
         globo.add(brillo);
-        const anillo = new THREE.Mesh(new THREE.RingGeometry(0.92, 1, 48), new THREE.MeshBasicMaterial({ color: 0xFF7A2F, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));
+        const anillo = new THREE.Mesh(new THREE.RingGeometry(0.92, 1, 48), new THREE.MeshBasicMaterial({ color: 0xF5B041, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));
         anillo.position.copy(info.centro).multiplyScalar(1.006);
         anillo.lookAt(info.centro.clone().multiplyScalar(2));
         globo.add(anillo);

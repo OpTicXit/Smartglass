@@ -78,8 +78,8 @@
             <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-currency-circle-dollar"></i></span>
             <span class="adm-chip" th:if="${fin.variacionMes != null}"
                   th:classappend="${fin.variacionMes >= 0} ? 'adm-chip--sube' : 'adm-chip--baja'"
-                  th:text="(${fin.variacionMes >= 0} ? '+' : '') + ${#numbers.formatDecimal(fin.variacionMes, 1, 'POINT', 1, 'COMMA')} + ' %'"
-                  th:title="#{admin.res.vs_mes}">+0 %</span>
+                  th:text="${#strings.replace(#temporals.format(fin.mesComparado, 'MMM'), '.', '')} + ' · ' + (${fin.variacionMes >= 0} ? '+' : '') + ${#numbers.formatDecimal(fin.variacionMes, 1, 'POINT', 1, 'COMMA')} + ' %'"
+                  th:title="#{admin.res.vs_mes_cerrado(${#temporals.format(fin.mesComparado, 'MMMM')})}">oct · +0 %</span>
             <strong class="adm-kpi-v">$<span th:attr="data-contar=${fin.ingresos}" th:text="${#numbers.formatDecimal(fin.ingresos, 1, 'POINT', 0, 'COMMA')}">0</span></strong>
             <span class="adm-kpi-t" th:text="#{admin.res.kpi_ingresos}">Ingresos</span>
             <small class="adm-kpi-s" th:text="#{admin.res.kpi_ingresos_s(${#numbers.formatDecimal(fin.ingresosMes, 1, 'POINT', 0, 'COMMA')})}">este mes</small>

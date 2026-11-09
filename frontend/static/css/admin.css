@@ -531,7 +531,7 @@ T3: clases que reemplazan estilos en linea del panel
     --adm-pastel-cielo: #DDF0FB;
     --adm-pastel-cian: #D9F6F4;
     --adm-pastel-durazno: #FDE6D6;
-    --adm-barra: #F4A26B;                         /* acento calido de las graficas */
+    --adm-barra: #4F9FE0;                         /* ingresos = dato de la plataforma: azul (nov. 2026, antes durazno) */
     --adm-barra-2: #0B2447;
     --adm-raya: #7CC4E8;
 }
@@ -562,7 +562,7 @@ T3: clases que reemplazan estilos en linea del panel
     --adm-pastel-cielo: rgba(125, 196, 232, 0.16);
     --adm-pastel-cian: rgba(45, 212, 191, 0.14);
     --adm-pastel-durazno: rgba(244, 162, 107, 0.16);
-    --adm-barra: #F4A26B;
+    --adm-barra: #6CB8F0;
     --adm-barra-2: #DDF0FB;
     --adm-raya: #7CC4E8;
 }
@@ -928,6 +928,10 @@ html[data-a11y~="fotosensible"] :is(.adm-entra, .adm-entra *) { animation: none 
     background: color-mix(in srgb, var(--text-main) 5%, transparent); border: 1px solid var(--adm-card-borde); }
 .adm-mini strong { font-size: 0.92rem; color: var(--text-main); overflow-wrap: anywhere; }
 .adm-mini small { color: var(--text-muted); font-size: 0.72rem; line-height: 1.25; }
+.adm-mini small:has(.adm-punto) { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+/* Como pagan: los dos metodos lado a lado; la compensacion (sostenibilidad, no pago) va aparte, debajo */
+.adm-card--dona[data-adm-dona="metodos"] .adm-mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.adm-card--dona[data-adm-dona="metodos"] .adm-mini:nth-child(3) { grid-column: 1 / -1; }
 
 .adm-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
 .adm-kpi {

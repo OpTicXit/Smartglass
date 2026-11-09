@@ -33,9 +33,12 @@ public class FinanzasService {
     /** Ingresos de un mes; clave "2026-11". */
     public record Mes(String clave, double ingresos, int pedidos) {}
 
-    /** variacionMes: % frente al mes anterior, null si el mes anterior no tuvo ingresos. */
-    public record Resumen(double ingresos, double ingresosMes, Double variacionMes, double ticketPromedio,
-                          long pedidos, long porAtender, double porCobrar, double entregado,
+    /**
+     * variacionMes: % del ultimo mes cerrado (mesComparado, primer dia) frente al mes anterior a ese; null si
+     * ese mes anterior no tuvo ingresos. El mes en curso no entra: a dia 9 siempre pareceria una caida.
+     */
+    public record Resumen(double ingresos, double ingresosMes, Double variacionMes, LocalDate mesComparado,
+                          double ticketPromedio, long pedidos, long porAtender, double porCobrar, double entregado,
                           double compensacion, int pctCompensados, List<Mes> meses,
                           Map<String, Double> porMetodo, Map<String, Long> porEstado, List<Pedido> recientes) {}
 
@@ -57,8 +60,9 @@ public class FinanzasService {
         }
         List<Mes> meses = new ArrayList<>();
         porMes.forEach((k, v) -> meses.add(new Mes(k, redondear(v[0]), (int) v[1])));
-        double esteMes = meses.get(MESES - 1).ingresos(), anterior = meses.get(MESES - 2).ingresos();
-        Double variacion = anterior > 0 ? Math.round((esteMes - anterior) / anterior * 1000) / 10.0 : null;
+        double esteMes = meses.get(MESES - 1).ingresos();
+        double cerrado = meses.get(MESES - 2).ingresos(), previo = meses.get(MESES - 3).ingresos();
+        Double variacion = previo > 0 ? Math.round((cerrado - previo) / previo * 1000) / 10.0 : null;
 
         Map<String, Double> porMetodo = new LinkedHashMap<>();
         porMetodo.put("TARJETA_CREDITO", 0.0);
@@ -76,7 +80,7 @@ public class FinanzasService {
                 .sorted(Comparator.comparing(Pedido::getFechaPedido, Comparator.nullsLast(Comparator.reverseOrder())))
                 .limit(RECIENTES).toList();
 
-        return new Resumen(redondear(ingresos), esteMes, variacion,
+        return new Resumen(redondear(ingresos), esteMes, variacion, actual.minusMonths(1).atDay(1),
                 validos.isEmpty() ? 0 : redondear(ingresos / validos.size()),
                 todos.size(), porEstado.get("PENDIENTE") + porEstado.get("PROCESANDO"),
                 redondear(porCobrar), redondear(sumar(validos, "ENTREGADO")),

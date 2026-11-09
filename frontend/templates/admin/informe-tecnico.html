@@ -87,7 +87,11 @@
         'inf_t_cortafuego': /*[[#{admin.informe.t.cortafuego}]]*/ 'Cortafuego',
         'inf_t_fotovoltaico': /*[[#{admin.informe.t.fotovoltaico}]]*/ 'Fotovoltaico',
         'inf_t_inteligente': /*[[#{admin.informe.t.inteligente}]]*/ 'Inteligente',
-        'inf_t_reciclado': /*[[#{admin.informe.t.reciclado}]]*/ 'Reciclado'
+        'inf_t_reciclado': /*[[#{admin.informe.t.reciclado}]]*/ 'Reciclado',
+        inf_qv_colombia: /*[[#{admin.informe.qv_colombia}]]*/ ' Colombia emitió {0} Mt ese año, el {1} % del mundo.',
+        inf_n_nota: /*[[#{admin.informe.n_nota}]]*/ '(n=…) = pocas piezas de ese tipo en el dataset: ahí el modelo aprende menos',
+        inf_n: /*[[#{admin.informe.n}]]*/ 'Piezas en el dataset',
+        inf_vivo_base: /*[[#{admin.informe.vivo_base}]]*/ 'de {0} cotizaciones'
     });
     </script>
 </head>
@@ -105,10 +109,12 @@
 
         <div class="globo-hud globo-hud--titulo">
             <h1 id="informe-titulo" th:text="#{admin.informe.titulo}">Informe técnico completo</h1>
-            <p th:text="#{admin.informe.globo_subtitulo}">Emisiones de CO₂ por país. Arrastra para mover el globo.</p>
+            <!-- T1: la fuente del globo va junto al titulo, no una pantalla mas abajo -->
+            <p><th:block th:replace="~{admin/fragments/informe :: origen('externo')}"></th:block>
+               <span th:text="#{admin.informe.globo_subtitulo}">CO₂ fósil total de cada país (Our World in Data). No es el CO₂ del vidrio ni de SmartGlass.</span></p>
         </div>
         <div class="globo-hud globo-hud--zonas" aria-hidden="true">
-            <strong th:text="#{admin.informe.zonas_activas}">Zonas activas</strong>
+            <strong th:text="#{admin.informe.zonas_activas}">Países resaltados</strong>
             <ol id="globo-zonas"></ol>
         </div>
 
@@ -131,49 +137,88 @@
     </section>
 
     <div class="container informe-cuerpo">
+        <!-- Como leer el informe: origenes y colores antes de la primera grafica (nov. 2026) -->
+        <details class="informe-leer" open>
+            <summary><i class="ph ph-book-open-text" aria-hidden="true"></i><span th:text="#{admin.informe.leer_t}">Cómo leer este informe</span></summary>
+            <p th:text="#{admin.informe.leer_intro}">Cada bloque dice de dónde salen sus datos con una etiqueta junto al título. El CO₂ de SmartGlass siempre se estima con factores de emisión; no se mide.</p>
+            <div class="informe-leer-cols">
+                <ul class="informe-leer-lista">
+                    <li><th:block th:replace="~{admin/fragments/informe :: origen('plataforma')}"></th:block><span th:text="#{admin.informe.o_plataforma_d}"></span></li>
+                    <li><th:block th:replace="~{admin/fragments/informe :: origen('estimado')}"></th:block><span th:text="#{admin.informe.o_estimado_d}"></span></li>
+                    <li><th:block th:replace="~{admin/fragments/informe :: origen('sintetico')}"></th:block><span th:text="#{admin.informe.o_sintetico_d}"></span></li>
+                    <li><th:block th:replace="~{admin/fragments/informe :: origen('modelo')}"></th:block><span th:text="#{admin.informe.o_modelo_d}"></span></li>
+                    <li><th:block th:replace="~{admin/fragments/informe :: origen('externo')}"></th:block><span th:text="#{admin.informe.o_externo_d}"></span></li>
+                </ul>
+                <ul class="informe-leer-lista informe-leer-colores">
+                    <li><i class="muestra muestra--a" aria-hidden="true"></i><span th:text="#{admin.informe.c_azul}">Azul: los datos de la plataforma y lo que predice el modelo.</span></li>
+                    <li><i class="muestra muestra--b" aria-hidden="true"></i><span th:text="#{admin.informe.c_ambar}">Ámbar: el valor con el que se compara y la proyección.</span></li>
+                    <li><i class="muestra muestra--linea" aria-hidden="true"></i><span th:text="#{admin.informe.c_linea}">Línea discontinua y banda: la proyección y su rango probable.</span></li>
+                    <li><i class="ph ph-info" aria-hidden="true"></i><span th:text="#{admin.informe.c_alerta}">Ningún color de las gráficas es una alerta.</span></li>
+                </ul>
+            </div>
+        </details>
+
         <p class="informe-nota">
             <span th:text="#{admin.informe.fuente_paises}">Fuente: Our World in Data, con datos del Global Carbon Budget. Es el CO₂ fósil total de cada país, no las emisiones del vidrio ni de SmartGlass.</span>
             <span id="informe-anio"></span>
         </p>
 
         <figure class="grafica" data-grafica="paises">
-            <figcaption th:text="#{admin.informe.g_paises}">Países con más emisiones de CO₂</figcaption>
+            <figcaption><span data-titulo th:text="#{admin.informe.g_paises}">Países con más emisiones de CO₂</span><th:block th:replace="~{admin/fragments/informe :: origen('externo')}"></th:block></figcaption>
+            <th:block th:replace="~{admin/fragments/informe :: queVeo('paises')}"></th:block>
         </figure>
 
-        <h2 class="admin-subtitle informe-titulo2" id="actividad" th:text="#{admin.informe.vivo_titulo}">Actividad de la plataforma</h2>
+        <div class="informe-cab" id="actividad">
+            <h2 class="admin-subtitle informe-titulo2" th:text="#{admin.informe.vivo_titulo}">Actividad de la plataforma</h2>
+            <p class="origenes"><th:block th:replace="~{admin/fragments/informe :: origen('plataforma')}"></th:block><th:block th:replace="~{admin/fragments/informe :: origen('estimado')}"></th:block></p>
+        </div>
         <p class="informe-intro" th:text="#{admin.informe.vivo_intro}">Se actualiza sola con las cotizaciones y pedidos guardados en SmartGlass.</p>
+        <th:block th:replace="~{admin/fragments/informe :: queVeo('vivo')}"></th:block>
         <p class="informe-vivo" id="vivo-estado" role="status"></p>
         <div class="informe-metricas" id="vivo-metricas"></div>
-        <figure class="grafica" data-vivo-grafica><figcaption th:text="#{admin.informe.g_vivo}">CO₂ estimado cotizado por día, últimos 30 días</figcaption></figure>
+        <figure class="grafica" data-vivo-grafica><figcaption><span data-titulo th:text="#{admin.informe.g_vivo}">CO₂ estimado cotizado por día, últimos 30 días</span></figcaption></figure>
 
         <section class="proy" data-proyeccion-bloque="plataforma" aria-labelledby="proy-plataforma-t">
             <div class="proy-cab">
-                <h3 class="informe-titulo3" id="proy-plataforma-t" th:text="#{admin.informe.proy_titulo}">Proyección del CO₂ estimado</h3>
+                <div class="informe-cab">
+                    <h3 class="informe-titulo3" id="proy-plataforma-t" th:text="#{admin.informe.proy_titulo_plataforma}">Proyección con la actividad de la plataforma</h3>
+                    <p class="origenes"><th:block th:replace="~{admin/fragments/informe :: origen('plataforma')}"></th:block><th:block th:replace="~{admin/fragments/informe :: origen('estimado')}"></th:block></p>
+                </div>
                 <div class="adm-tabs" role="group" data-proy-horizontes hidden th:aria-label="#{admin.informe.proy_horizonte}" aria-label="Horizonte"></div>
             </div>
             <p class="proy-resumen" data-proy-resumen aria-live="polite"></p>
-            <figure class="grafica" data-proy-grafica hidden><figcaption th:text="#{admin.informe.proy_g_plataforma}">CO₂ estimado por periodo: lo cotizado y lo proyectado</figcaption></figure>
+            <th:block th:replace="~{admin/fragments/informe :: queVeo('proy_plataforma')}"></th:block>
+            <figure class="grafica" data-proy-grafica hidden><figcaption><span data-titulo th:text="#{admin.informe.proy_g_plataforma}">CO₂ estimado por periodo: lo cotizado y lo proyectado</span></figcaption></figure>
         </section>
 
-        <h2 class="admin-subtitle informe-titulo2" id="simulacion" th:text="#{admin.informe.sim_titulo}">Simulación</h2>
+        <div class="informe-cab" id="simulacion">
+            <h2 class="admin-subtitle informe-titulo2" th:text="#{admin.informe.sim_titulo}">Simulación</h2>
+            <p class="origenes"><th:block th:replace="~{admin/fragments/informe :: origen('sintetico')}"></th:block></p>
+        </div>
         <p class="informe-intro" th:text="#{admin.informe.sim_intro}">Historia de 5 años generada a partir del dataset sintético de 10.000 piezas. Muestra cómo se proyecta el CO₂ estimado; no son emisiones medidas.</p>
         <section class="proy" data-proyeccion-bloque="simulacion" aria-labelledby="proy-simulacion-t">
             <div class="proy-cab">
-                <h3 class="informe-titulo3" id="proy-simulacion-t" th:text="#{admin.informe.proy_titulo}">Proyección del CO₂ estimado</h3>
+                <h3 class="informe-titulo3" id="proy-simulacion-t" th:text="#{admin.informe.proy_titulo_simulacion}">Proyección sobre la historia simulada</h3>
                 <div class="adm-tabs" role="group" data-proy-horizontes hidden th:aria-label="#{admin.informe.proy_horizonte}" aria-label="Horizonte"></div>
             </div>
             <p class="proy-resumen" data-proy-resumen aria-live="polite"></p>
-            <figure class="grafica" data-proy-grafica hidden><figcaption th:text="#{admin.informe.proy_g_simulacion}">CO₂ estimado por periodo en la historia sintética y su proyección</figcaption></figure>
+            <th:block th:replace="~{admin/fragments/informe :: queVeo('proy_simulacion')}"></th:block>
+            <figure class="grafica" data-proy-grafica hidden><figcaption><span data-titulo th:text="#{admin.informe.proy_g_simulacion}">CO₂ estimado por periodo en la historia sintética y su proyección</span></figcaption></figure>
             <p class="informe-meta" data-proy-validacion></p>
         </section>
 
-        <h2 class="admin-subtitle informe-titulo2" id="modelo" th:text="#{admin.informe.modelo_titulo}">Modelo de predicción de CO₂</h2>
+        <div class="informe-cab" id="modelo">
+            <h2 class="admin-subtitle informe-titulo2" th:text="#{admin.informe.modelo_titulo}">Modelo de predicción de CO₂</h2>
+            <p class="origenes"><th:block th:replace="~{admin/fragments/informe :: origen('modelo')}"></th:block><th:block th:replace="~{admin/fragments/informe :: origen('sintetico')}"></th:block></p>
+        </div>
         <p class="informe-intro" th:text="#{admin.informe.modelo_intro}">Random Forest entrenado con datos sintéticos, creados a partir de factores de emisión publicados. Estima el CO₂ de una pieza; no mide emisiones reales ni se usa todavía en el cotizador.</p>
         <p class="informe-meta" id="informe-meta"></p>
 
         <div class="informe-metricas" id="informe-metricas"></div>
+        <th:block th:replace="~{admin/fragments/informe :: queVeo('metricas')}"></th:block>
 
         <h3 class="informe-titulo3" th:text="#{admin.informe.comparacion}">Comparación con modelos de referencia</h3>
+        <th:block th:replace="~{admin/fragments/informe :: queVeo('referencia')}"></th:block>
         <div class="table-wrap informe-tabla">
             <table class="table-admin">
                 <thead><tr>
@@ -187,13 +232,36 @@
         </div>
 
         <div class="informe-graficas">
-            <figure class="grafica" data-grafica="tipos"><figcaption th:text="#{admin.informe.g_tipos}">Distribución de tipos de vidrio</figcaption></figure>
-            <figure class="grafica" data-grafica="co2_tipo"><figcaption th:text="#{admin.informe.g_co2_tipo}">Huella promedio por tipo de vidrio</figcaption></figure>
-            <figure class="grafica" data-grafica="correlacion"><figcaption th:text="#{admin.informe.g_correlacion}">Correlación entre variables numéricas</figcaption></figure>
-            <figure class="grafica" data-grafica="real_pred"><figcaption th:text="#{admin.informe.g_real_pred}">Valores reales frente a predichos</figcaption></figure>
-            <figure class="grafica" data-grafica="errores"><figcaption th:text="#{admin.informe.g_errores}">Distribución de errores</figcaption></figure>
-            <figure class="grafica" data-grafica="importancia"><figcaption th:text="#{admin.informe.g_importancia}">Variables más importantes</figcaption></figure>
-            <figure class="grafica" data-grafica="real_pred_tipo"><figcaption th:text="#{admin.informe.g_real_pred_tipo}">CO₂ real y predicho por tipo de vidrio</figcaption></figure>
+            <figure class="grafica" data-grafica="tipos">
+                <figcaption><span data-titulo th:text="#{admin.informe.g_tipos}">Distribución de tipos de vidrio</span><th:block th:replace="~{admin/fragments/informe :: origen('sintetico')}"></th:block></figcaption>
+                <th:block th:replace="~{admin/fragments/informe :: queVeo('tipos')}"></th:block>
+            </figure>
+            <figure class="grafica" data-grafica="co2_tipo">
+                <figcaption><span data-titulo th:text="#{admin.informe.g_co2_tipo}">Huella promedio por tipo de vidrio</span><th:block th:replace="~{admin/fragments/informe :: origen('sintetico')}"></th:block></figcaption>
+                <th:block th:replace="~{admin/fragments/informe :: queVeo('co2_tipo')}"></th:block>
+            </figure>
+            <figure class="grafica" data-grafica="correlacion">
+                <figcaption><span data-titulo th:text="#{admin.informe.g_correlacion}">Correlación entre variables numéricas</span><th:block th:replace="~{admin/fragments/informe :: origen('sintetico')}"></th:block></figcaption>
+                <!-- T8: la masa se ve en la matriz, pero el modelo no la usa -->
+                <p class="grafica-nota"><i class="ph ph-info" aria-hidden="true"></i><span th:text="#{admin.informe.g_correlacion_nota}">Masa (kg) aparece solo como referencia: el modelo no la usa.</span></p>
+                <th:block th:replace="~{admin/fragments/informe :: queVeo('correlacion')}"></th:block>
+            </figure>
+            <figure class="grafica" data-grafica="real_pred">
+                <figcaption><span data-titulo th:text="#{admin.informe.g_real_pred}">CO₂ calculado frente a predicho</span><th:block th:replace="~{admin/fragments/informe :: origen('sintetico')}"></th:block><th:block th:replace="~{admin/fragments/informe :: origen('modelo')}"></th:block></figcaption>
+                <th:block th:replace="~{admin/fragments/informe :: queVeo('real_pred')}"></th:block>
+            </figure>
+            <figure class="grafica" data-grafica="errores">
+                <figcaption><span data-titulo th:text="#{admin.informe.g_errores}">Distribución de errores</span><th:block th:replace="~{admin/fragments/informe :: origen('modelo')}"></th:block></figcaption>
+                <th:block th:replace="~{admin/fragments/informe :: queVeo('errores')}"></th:block>
+            </figure>
+            <figure class="grafica" data-grafica="importancia">
+                <figcaption><span data-titulo th:text="#{admin.informe.g_importancia}">Variables más importantes</span><th:block th:replace="~{admin/fragments/informe :: origen('modelo')}"></th:block></figcaption>
+                <th:block th:replace="~{admin/fragments/informe :: queVeo('importancia')}"></th:block>
+            </figure>
+            <figure class="grafica" data-grafica="real_pred_tipo">
+                <figcaption><span data-titulo th:text="#{admin.informe.g_real_pred_tipo}">CO₂ calculado y predicho por tipo de vidrio</span><th:block th:replace="~{admin/fragments/informe :: origen('sintetico')}"></th:block><th:block th:replace="~{admin/fragments/informe :: origen('modelo')}"></th:block></figcaption>
+                <th:block th:replace="~{admin/fragments/informe :: queVeo('real_pred_tipo')}"></th:block>
+            </figure>
         </div>
     </div>
     <div class="grafica-tip" id="grafica-tip" hidden></div>

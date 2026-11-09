@@ -35,8 +35,8 @@
         });
         document.addEventListener('DOMContentLoaded', function () {
             var i = 0;
-            // Sin el formulario entero: solo sus capitulos, para no sumar dos fundidos uno dentro del otro
-            document.querySelectorAll('.atelier-hero, .atelier-grid > :not(.atelier-form), .atelier-form > .capitulo').forEach(function (b) {
+            // Sin el formulario entero: solo el paso visible y su navegacion, para no sumar dos fundidos
+            document.querySelectorAll('.atelier-hero, .pasos, .atelier-grid > :not(.atelier-form), .atelier-form > .paso:not([hidden]), .paso-nav').forEach(function (b) {
                 b.classList.add('sg-config-bloque');
                 b.style.setProperty('--cfg-i', Math.min(i++, 8));
             });
@@ -94,19 +94,105 @@
         .ahorro[hidden] { display: none; }
         .nota { margin: 10px 0 0; color: var(--text-muted); font-size: 0.78rem; line-height: 1.5; }
 
-        /* ---------- Capitulos del formulario ---------- */
-        .capitulo {
-            margin-bottom: 18px; padding: 26px 28px; border: 1px solid var(--border-color); border-radius: 22px;
+        /* ---------- Asistente por pasos: barra superior ---------- */
+        .pasos { margin: 0 0 18px; }
+        .pasos[hidden] { display: none; }
+        .pasos ol {
+            display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; margin: 0; padding: 5px; list-style: none;
+            border: 1px solid var(--border-color); border-radius: 16px; background: var(--card-bg); box-shadow: var(--shadow-main);
+        }
+        .pasos button {
+            display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 7px 12px;
+            border: 0; border-radius: 12px; background: transparent; color: var(--text-muted);
+            font: inherit; font-size: 0.88rem; font-weight: 700; line-height: 1.2; text-align: left; cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .pasos button:hover { background: var(--bg-tertiary); color: var(--text-main); }
+        .pasos button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        .pasos b {
+            display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%;
+            border: 1.5px solid var(--border-hover); font-size: 0.8rem; font-variant-numeric: tabular-nums;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        .pasos .hecho { color: var(--text-main); }
+        .pasos .hecho b { border-color: var(--color-success); background: var(--color-success-dim); color: var(--color-success); }
+        .pasos [aria-current="step"] { background: var(--color-accent-dim); color: var(--text-main); }
+        .pasos [aria-current="step"] b { border-color: var(--color-accent-solid); background: var(--color-accent-solid); color: var(--on-accent-solid); }
+
+        /* ---------- Cada paso ---------- */
+        .paso {
+            margin-bottom: 18px; padding: 24px 26px; border: 1px solid var(--border-color); border-radius: 22px;
             background: var(--card-bg); backdrop-filter: blur(12px); box-shadow: var(--shadow-main);
         }
-        .cap-head { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
-        .cap-num {
-            display: grid; place-items: center; flex: none; width: 46px; height: 46px; border-radius: 14px;
-            background: var(--color-accent-dim); color: var(--color-accent-text);
-            font-family: var(--font-display); font-size: 1.15rem; font-weight: 700;
+        .paso[hidden] { display: none; }
+        .paso-cab { margin-bottom: 20px; }
+        .paso-cab small { color: var(--color-accent-text); font-size: max(12px, 0.74rem); font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+        .paso-cab h2 { margin: 4px 0; font-size: 1.4rem; letter-spacing: -0.02em; }
+        .paso-cab h2:focus { outline: none; }   /* recibe el foco al cambiar de paso (lectores de pantalla) */
+        .paso-cab p { margin: 0; color: var(--text-muted); font-size: 0.92rem; line-height: 1.5; }
+        .medidas-grupo { margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px dashed var(--border-color); }
+        .asistente .paso { margin-bottom: 12px; }
+        .asistente .paso.entra { animation: pasoEntra 0.34s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .asistente .paso.entra.atras { animation-name: pasoVuelve; }
+        @keyframes pasoEntra { from { opacity: 0; transform: translateX(18px); } }
+        @keyframes pasoVuelve { from { opacity: 0; transform: translateX(-18px); } }
+
+        /* Anterior / Siguiente: abajo del paso; en escritorio queda fija al pie de la columna */
+        .paso-nav { display: flex; align-items: center; gap: 12px; padding: 12px 0 4px; }
+        .paso-nav[hidden], .paso-nav [hidden] { display: none; }
+        .paso-nav .btn { min-height: 44px; }
+        .paso-nav #pasoSiguiente { margin-left: auto; }
+        .paso-nav #pasoAnterior[disabled] { visibility: hidden; }
+        .paso-nav-cuenta { color: var(--text-muted); font-size: 0.82rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+        /* Resumen del ultimo paso */
+        .resumen { margin: 18px 0 6px; }
+        .resumen[hidden] { display: none; }
+        .resumen h3 { margin: 0 0 8px; font-size: 1rem; letter-spacing: -0.01em; }
+        .resumen dl { margin: 0; border: 1px solid var(--border-color); border-radius: 16px; background: var(--bg-secondary); }
+        .resumen dl > div { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr) auto; align-items: center; gap: 12px; padding: 10px 14px; }
+        .resumen dl > div + div { border-top: 1px solid var(--border-color); }
+        .resumen dt { color: var(--text-muted); font-size: 0.82rem; font-weight: 700; }
+        .resumen dd { margin: 0; color: var(--text-main); font-size: 0.9rem; font-weight: 600; line-height: 1.35; }
+        .res-cambiar {
+            min-height: 32px; padding: 4px 10px; border: 1px solid transparent; border-radius: 10px; background: transparent;
+            color: var(--color-accent-text); font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer;
         }
-        .cap-head h2 { margin: 0 0 2px; font-size: 1.25rem; letter-spacing: -0.02em; }
-        .cap-head p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+        .res-cambiar:hover { border-color: var(--border-hover); background: var(--color-accent-dim); }
+        .res-cambiar:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+        /* Precio y CO2 en la misma caja */
+        .precio-fila { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+        .precio-co2 { text-align: right; }
+        /* F24: el CO2 absoluto no lleva color de juicio (el semaforo es la intensidad) */
+        .precio-co2 strong { display: block; margin-top: 2px; color: var(--text-main); font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+
+        /* Celular: barra fija con la pieza, el precio y el CO2 */
+        .barra-movil { display: none; }
+        @media (max-width: 1023px) {
+            .barra-movil {
+                position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 900;
+                display: flex; align-items: center; gap: 14px; padding: 8px 14px 8px 8px;
+                border: 1px solid var(--border-hover); border-radius: 18px;
+                background: color-mix(in srgb, var(--bg-secondary) 92%, transparent); backdrop-filter: blur(14px);
+                box-shadow: var(--shadow-main);
+                opacity: 0; transform: translateY(16px); pointer-events: none;
+                transition: opacity 0.25s ease, transform 0.25s ease;
+            }
+            .barra-movil.es-visible { opacity: 1; transform: none; }
+            .atelier { padding-bottom: 96px; }
+            /* mientras se ve la barra, los botones flotantes (tema, accesibilidad) suben para no taparla */
+            html:has(.barra-movil.es-visible) .sg-theme-switch, html:has(.barra-movil.es-visible) .a11y-flotante { bottom: 88px; }
+        }
+        .barra-pieza { flex: none; width: 52px; height: 44px; border-radius: 10px; overflow: hidden; }
+        .barra-pieza > div, .barra-pieza svg { width: 100%; height: 100%; }
+        .barra-dato span { display: block; color: var(--text-muted); font-size: max(11px, 0.68rem); font-weight: 700; }
+        .barra-dato strong { display: block; color: var(--text-main); font-size: 1rem; font-variant-numeric: tabular-nums; }
+        .barra-nivel { flex: none; width: 12px; height: 12px; margin-left: auto; border-radius: 50%; background: var(--nivel, var(--color-success)); box-shadow: 0 0 0 4px var(--nivel-dim, transparent); }
+        html.sg-guia-activa .barra-movil { display: none; }
+        @media (prefers-reduced-motion: reduce) { .barra-movil { transition: none; } .asistente .paso.entra { animation: none; } }
+        html[data-a11y~="fotosensible"] .barra-movil { transition: none; }
+        html[data-a11y~="fotosensible"] .asistente .paso.entra { animation: none; }
 
         .campo { margin-bottom: 20px; }
         .campo:last-child { margin-bottom: 0; }
@@ -268,26 +354,33 @@
         .termo-ver:hover { filter: brightness(1.12); }
         .termo-ver[hidden] { display: none; }
 
-        /* ---------- Aviso de impacto + configuracion recomendada ---------- */
-        .alerta-impacto {
-            position: relative; z-index: 2; display: flex; gap: 16px;
-            margin-bottom: 18px; padding: 18px 20px; border: 1px solid var(--nivel); border-radius: 18px;
+        /* ---------- Aviso breve de impacto alto (la recomendacion va en su ventana) ---------- */
+        .aviso-impacto {
+            display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; column-gap: 14px; row-gap: 10px;
+            margin-bottom: 12px; padding: 12px 12px 14px 14px;
+            border: 1px solid var(--nivel); border-radius: 16px;
             background: linear-gradient(var(--nivel-dim), var(--nivel-dim)), var(--bg-secondary);
-            box-shadow: 0 14px 34px -14px var(--nivel);
-            animation: alertaEntra 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation: alertaEntra 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        .alerta-impacto[hidden] { display: none; }
-        @keyframes alertaEntra { from { opacity: 0; transform: translateY(-10px) scale(0.98); } to { opacity: 1; transform: none; } }
+        .aviso-impacto[hidden] { display: none; }
+        @keyframes alertaEntra { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+        .aviso-impacto .alerta-icono { width: 38px; height: 38px; border-radius: 12px; font-size: 1.2rem; }
+        .aviso-impacto-txt { min-width: 0; }
+        .aviso-impacto-txt strong { display: block; color: var(--text-main); font-size: 0.95rem; }
+        .aviso-impacto-txt p { margin: 2px 0 0; color: var(--text-muted); font-size: 0.84rem; line-height: 1.45; }
+        .aviso-impacto .btn-alerta { grid-column: 2; grid-row: 2; justify-self: start; min-height: 40px; }
+        .aviso-impacto .btn-alerta[hidden] { display: none; }
+        .aviso-impacto .aviso-x { grid-column: 3; grid-row: 1; }
+        .aviso-x {
+            display: grid; place-items: center; flex: none; width: 36px; height: 36px; padding: 0;
+            border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--text-muted); font-size: 1.1rem; cursor: pointer;
+        }
+        .aviso-x:hover { border-color: var(--border-color); color: var(--text-main); }
+        .aviso-x:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
         .alerta-icono {
             flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px;
             background: var(--nivel); color: var(--on-nivel, var(--on-error)); font-size: 1.4rem;
         }
-        .nivel-alto .alerta-icono { animation: alertaPulso 1.6s ease-in-out infinite; }
-        @keyframes alertaPulso { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--nivel) 60%, transparent); } 50% { box-shadow: 0 0 0 12px transparent; } }
-        .alerta-cuerpo { min-width: 0; }
-        .alerta-cuerpo strong { display: block; color: var(--text-main); font-size: 1.05rem; letter-spacing: -0.01em; }
-        .alerta-cuerpo p { margin: 6px 0 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; }
-        .alerta-cuerpo p b { color: var(--text-main); }
         .alerta-cambios { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
         .alerta-cambios li { display: flex; gap: 8px; color: var(--text-main); font-size: 0.88rem; line-height: 1.4; }
         .alerta-cambios li::before { content: "\2713"; flex: none; color: var(--color-success); font-weight: 700; }
@@ -303,22 +396,56 @@
         .btn-alerta:hover { transform: translateY(-1px); filter: brightness(1.1); }
         .btn-alerta-sec { border: 1px solid var(--border-color); background: transparent; color: var(--text-main); }
         .btn-alerta-sec:hover { border-color: var(--border-hover); background: var(--color-accent-dim); }
-        .alerta-impacto button:focus-visible, .termo-ver:focus-visible, .dlg-impacto button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        .aviso-impacto button:focus-visible, .termo-ver:focus-visible, .dlg-reco button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+        .termo-ver { display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        .aviso-balance { margin-bottom: 18px; padding: 14px 18px; border: 1px solid var(--color-success); border-radius: 14px; background: var(--color-success-dim); color: var(--text-main); font-size: 0.92rem; line-height: 1.5; }
+        .aviso-balance { margin-bottom: 12px; padding: 14px 18px; border: 1px solid var(--color-success); border-radius: 14px; background: var(--color-success-dim); color: var(--text-main); font-size: 0.92rem; line-height: 1.5; }
         .aviso-balance[hidden] { display: none; }
 
-        /* Ventana de confirmacion al enviar una configuracion de alto impacto */
-        .dlg-impacto {
-            width: min(520px, 92vw); padding: 28px; border: 1px solid var(--color-error); border-radius: 22px;
-            background: var(--bg-secondary); color: var(--text-main); box-shadow: var(--shadow-main), 0 0 60px -20px var(--color-error);
+        /* ---------- Ventana de la configuracion recomendada (centrada) ---------- */
+        .dlg-reco {
+            width: min(680px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 24px 26px 26px; overflow: auto;
+            border: 1px solid var(--nivel); border-radius: 24px;
+            background: var(--bg-secondary); color: var(--text-main);
+            box-shadow: var(--shadow-main), 0 30px 80px -30px var(--nivel);
         }
-        .dlg-impacto::backdrop { background: var(--backdrop); backdrop-filter: blur(6px); }
-        .dlg-impacto h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-size: 1.25rem; letter-spacing: -0.02em; }
-        .dlg-impacto p { margin: 0 0 10px; color: var(--text-muted); line-height: 1.55; }
-        .dlg-impacto .alerta-cambios { margin: 12px 0 18px; }
-        .dlg-impacto .alerta-acciones { margin-top: 6px; }
-        @media (prefers-reduced-motion: reduce) { .nivel-alto .alerta-icono, .alerta-impacto { animation: none; } }
+        .dlg-reco[open] { animation: recoEntra 0.32s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .dlg-reco::backdrop { background: var(--backdrop); backdrop-filter: blur(6px); }
+        @keyframes recoEntra { from { opacity: 0; transform: translateY(14px) scale(0.98); } }
+        .reco-cab { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+        .reco-cab h3 { flex: 1; margin: 0; font-size: 1.25rem; letter-spacing: -0.02em; line-height: 1.25; }
+        .reco-texto { margin: 0 0 16px; color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; }
+        .reco-texto b { color: var(--text-main); }
+        .reco-comparar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: stretch; gap: 10px; }
+        .reco-comparar[hidden] { display: none; }
+        .reco-lado { margin: 0; padding: 12px; border: 1px solid var(--border-color); border-radius: 18px; background: var(--card-bg); }
+        .reco-lado.es-reco { border-color: var(--color-success); background: linear-gradient(var(--color-success-dim), var(--color-success-dim)), var(--card-bg); }
+        .reco-lado figcaption { margin-bottom: 8px; color: var(--text-muted); font-size: max(12px, 0.74rem); font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+        .reco-lado.es-reco figcaption { color: var(--color-success); }
+        .reco-pieza { height: 130px; border-radius: 12px; overflow: hidden; }
+        .reco-pieza > div, .reco-pieza svg { width: 100%; height: 100%; }
+        .reco-lado dl { margin: 10px 0 0; display: grid; gap: 6px; }
+        .reco-lado dl > div { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+        .reco-lado dt { color: var(--text-muted); font-size: 0.8rem; font-weight: 700; }
+        .reco-lado dd { margin: 0; color: var(--text-main); font-size: 0.9rem; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+        .reco-lado dd[class^="nivel-"] { color: var(--nivel); }
+        .reco-lado dd small { display: inline-block; white-space: nowrap; margin-left: 4px; padding: 1px 6px; border-radius: 99px; background: var(--color-success-dim); color: var(--color-success); font-size: max(11px, 0.7rem); }
+        .reco-lado dd small.sube { background: var(--color-warning-dim); color: var(--color-warning); }
+        .reco-flecha { display: grid; place-items: center; color: var(--color-success); font-size: 1.3rem; }
+        .dlg-reco .alerta-cambios { margin: 16px 0 0; }
+        .dlg-reco .alerta-acciones { margin-top: 18px; }
+        .dlg-reco .btn-alerta, .dlg-reco .btn-alerta-sec { min-height: 44px; }
+        @media (max-width: 560px) {
+            .dlg-reco { padding: 18px 16px 20px; border-radius: 20px; }
+            .reco-comparar { grid-template-columns: 1fr 1fr; }
+            .reco-flecha { display: none; }
+            .reco-pieza { height: 96px; }
+            .reco-lado dl > div { flex-direction: column; align-items: flex-start; gap: 0; }
+            .reco-lado dd { text-align: left; }
+            .dlg-reco .alerta-acciones > button { flex: 1 1 100%; }
+        }
+        @media (prefers-reduced-motion: reduce) { .aviso-impacto, .dlg-reco[open] { animation: none; } }
+        html[data-a11y~="fotosensible"] .aviso-impacto, html[data-a11y~="fotosensible"] .dlg-reco[open] { animation: none; }
 
         /* ---------- Escritorio: dos columnas con scroll independiente ---------- */
         @media (min-width: 1024px) {
@@ -343,16 +470,42 @@
             .atelier-stage .sg-ampliado #escenario .sg-glass { max-height: none; }
             /* la mascara de desvanecido recortaria la vista ampliada (position: fixed) */
             body.sg-sin-scroll .atelier-stage { -webkit-mask-image: none; mask-image: none; overflow: visible; }
+            /* Con el asistente la columna del formulario no se desvanece: su pie es la navegacion fija */
+            .atelier-form.asistente { -webkit-mask-image: none; mask-image: none; padding-bottom: 0; }
+            .asistente .paso-nav {
+                /* a la derecha queda libre la esquina del interruptor de tema (flotante) */
+                position: sticky; bottom: 0; z-index: 3; margin: 0 -10px 0 -4px; padding: 12px 76px 14px 4px;
+                background: linear-gradient(to bottom, transparent, var(--bg-primary) 14px);
+            }
             .atelier-stage::-webkit-scrollbar, .atelier-form::-webkit-scrollbar { width: 8px; }
             .atelier-stage::-webkit-scrollbar-track, .atelier-form::-webkit-scrollbar-track { background: transparent; }
             .atelier-stage::-webkit-scrollbar-thumb, .atelier-form::-webkit-scrollbar-thumb { border-radius: 99px; background: var(--border-hover); }
         }
         @media (max-width: 1023px) {
-            .atelier-grid { grid-template-columns: 1fr; gap: 22px; }
+            .atelier-grid { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+            /* la barra de pasos acompana mientras se baja: solo numeros y el nombre del paso actual */
+            .pasos { position: sticky; top: var(--nav-h, 68px); z-index: 800; margin: 0 -6px 16px; padding: 6px; border-radius: 18px; background: var(--nav-bg); backdrop-filter: blur(14px); }
+            .pasos ol { display: flex; box-shadow: none; }
+            .pasos li { flex: none; }
+            .pasos li:has([aria-current="step"]) { flex: 1; min-width: 0; }
+            .pasos button { justify-content: center; padding: 7px 8px; }
+            .pasos button span { display: none; }
+            .pasos [aria-current="step"] { justify-content: flex-start; }
+            .pasos [aria-current="step"] span { display: inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .atelier-form { scroll-margin-top: calc(var(--nav-h, 68px) + 76px); }
         }
         @media (max-width: 560px) {
             .fila-2 { grid-template-columns: 1fr; }
-            .capitulo { padding: 20px 18px; }
+            .paso { padding: 20px 18px; }
+            .aviso-impacto .btn-alerta { grid-column: 1 / -1; justify-self: stretch; }
+            /* en el celular la barra de pasos ya dice donde va: sin contador y "Siguiente" ocupa el ancho */
+            .paso-nav-cuenta, .paso-nav #pasoAnterior[disabled] { display: none; }
+            .paso-nav #pasoSiguiente { flex: 1; min-width: 0; justify-content: center; }
+            .paso-nav #pasoSiguiente span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .precio-fila { flex-wrap: wrap; }
+            .resumen dl > div { grid-template-columns: minmax(0, 1fr) auto; }
+            .resumen dd { grid-column: 1; grid-row: 2; }
+            .resumen .res-cambiar { grid-column: 2; grid-row: 1 / span 2; }
             .medida-campo { grid-template-columns: 96px 1fr; gap: 12px; }
             .medidas { grid-template-columns: 1fr 1fr; }
         }
@@ -374,12 +527,23 @@
 <main class="atelier">
 
     <header class="atelier-hero">
-                <h1 th:text="#{cotizar.disena_tu_obra}">Diseña tu obra</h1>
+        <h1 th:text="#{cotizar.disena_tu_obra}">Diseña tu obra</h1>
         <p th:text="#{cotizar.cada_decision_transforma_la_pieza}">
             Cada decisión transforma la pieza que ves. Cuando la sientas tuya,
             la llevamos a fábrica y te mostramos su huella, su resistencia y su precio.
         </p>
     </header>
+
+    <!-- Asistente por pasos (nov. 2026). La barra la muestra el script; sin JS los cinco pasos se ven seguidos. -->
+    <nav class="pasos" id="pasos" hidden th:attr="aria-label=#{cotizar.pasos_aria}">
+        <ol>
+            <li><button type="button" data-ir-paso="0"><b>1</b><span th:text="#{cotizar.paso1_t}">Uso y vidrio</span></button></li>
+            <li><button type="button" data-ir-paso="1"><b>2</b><span th:text="#{cotizar.paso2_t}">Medidas y forma</span></button></li>
+            <li><button type="button" data-ir-paso="2"><b>3</b><span th:text="#{cotizar.paso3_t}">Acabados</span></button></li>
+            <li><button type="button" data-ir-paso="3"><b>4</b><span th:text="#{cotizar.paso4_t}">Huella</span></button></li>
+            <li><button type="button" data-ir-paso="4"><b>5</b><span th:text="#{cotizar.paso5_t}">Entrega y resumen</span></button></li>
+        </ol>
+    </nav>
 
     <div class="atelier-grid">
 
@@ -405,13 +569,6 @@
                 <div class="medida"><span th:text="#{cotizar.co2e_de_la_pieza}">CO₂e de la pieza</span><strong id="co2Text" class="co2 co2-value" th:text="#{cotizar.9_8_kg}">9.8 kg</strong></div>
             </div>
 
-            <!-- U4: de donde sale el CO2 (mismas etapas que AnalisisService; lo llena actualizar()) -->
-            <details class="etapas-co2" id="co2Etapas">
-                <summary th:text="#{huella.etapas_t}">De dónde sale el CO₂</summary>
-                <ul id="co2EtapasLista"></ul>
-                <a th:href="@{/acerca#como-calculamos}" th:text="#{huella.ver_metodologia}">Cómo lo calculamos</a>
-            </details>
-
             <div class="termometro nivel-favorable" id="termometro">
                 <div class="termo-cab">
                     <span th:text="#{cotizar.proceso_intensidad_ambiental}">Proceso · intensidad ambiental</span>
@@ -423,8 +580,15 @@
                     <span style="left:40%">12</span><span style="left:66.67%">20</span>
                 </div>
                 <p id="termoFrase" th:text="#{cotizar.perfil_ambiental_favorable}">Perfil ambiental favorable</p>
-                <button type="button" class="termo-ver" id="termoVer" hidden th:text="#{cotizar.ver_configuracion_recomendada}">Ver configuración recomendada</button>
+                <button type="button" class="termo-ver" id="termoVer" hidden aria-haspopup="dialog"><i class="ph ph-leaf" aria-hidden="true"></i> <span th:text="#{cotizar.ver_configuracion_recomendada}">Ver configuración recomendada</span></button>
             </div>
+
+            <!-- U4: de donde sale el CO2 (mismas etapas que AnalisisService; lo llena actualizar()) -->
+            <details class="etapas-co2" id="co2Etapas">
+                <summary th:text="#{huella.etapas_t}">De dónde sale el CO₂</summary>
+                <ul id="co2EtapasLista"></ul>
+                <a th:href="@{/acerca#como-calculamos}" th:text="#{huella.ver_metodologia}">Cómo lo calculamos</a>
+            </details>
 
             <!-- T3: sello Compromiso verde (no cambia CO2 ni precio; separado del semaforo F24) -->
             <div class="sello" id="sello" data-nivel="" th:if="${@plan.activa('COMPROMISOS_VERDES')}">
@@ -437,9 +601,18 @@
                 <small th:text="#{sello.nota}">Reconoce tus decisiones; no cambia el cálculo de CO₂ ni el precio.</small>
             </div>
 
+            <!-- Precio y CO2 juntos: la caja queda fija abajo de la columna en escritorio -->
             <div class="precio-caja">
-                <span th:text="#{cotizar.estimacion_actual}">Estimación actual</span>
-                <div class="precio-grande" id="priceText">$175.959</div>
+                <div class="precio-fila">
+                    <div>
+                        <span th:text="#{cotizar.estimacion_actual}">Estimación actual</span>
+                        <div class="precio-grande" id="priceText">$175.959</div>
+                    </div>
+                    <div class="precio-co2" id="precioCo2">
+                        <span th:text="#{cotizar.co2e_de_la_pieza}">CO₂e de la pieza</span>
+                        <strong id="co2Mini">9.8 kg</strong>
+                    </div>
+                </div>
                 <div class="ahorro" id="ahorroText" hidden></div>
                 <p class="nota" th:text="#{cotizar.calculos_parametricos_el_precio_final}">
                     Cálculos paramétricos. El precio final puede variar según la
@@ -448,7 +621,7 @@
             </div>
         </aside>
 
-        <!-- ================= FORMULARIO ================= -->
+        <!-- ================= FORMULARIO (cinco pasos) ================= -->
         <form th:action="@{/vidrio-personalizado/cotizar}" method="post" id="formCotizacion" class="atelier-form">
 
             <!-- T1 (D4): un visitante supero el limite de obras por minuto (F41) -->
@@ -461,29 +634,25 @@
                 Partimos de tu obra anterior y aplicamos la configuración recomendada para reducir su impacto ambiental.
                 Ajusta lo que quieras antes de generar la cotización.
             </div>
+            <p class="aviso-balance" id="recoAplicada" role="status" hidden th:text="#{cotizar.reco_aplicada}">Aplicamos la configuración recomendada. Puedes seguir ajustando tu pieza.</p>
 
-            <section class="alerta-impacto nivel-alto" id="alertaImpacto" role="alert" hidden>
-                <div class="alerta-icono" aria-hidden="true"><i class="ph-fill ph-warning"></i></div>
-                <div class="alerta-cuerpo">
-                    <strong id="alertaTitulo" th:text="#{cotizar.configuracion_de_alto_impacto}">Configuración de alto impacto</strong>
-                    <p id="alertaTexto"></p>
-                    <ul class="alerta-cambios" id="alertaCambios"></ul>
-                    <p class="alerta-resultado" id="alertaResultado"></p>
-                    <div class="alerta-acciones">
-                        <button type="button" class="btn-alerta" id="alertaAplicar" th:text="#{cotizar.aplicar_configuracion_recomendada}">Aplicar configuración recomendada</button>
-                        <button type="button" class="btn-alerta-sec" id="alertaCerrar" th:text="#{cotizar.mantener_mi_diseno}">Mantener mi diseño</button>
-                    </div>
+            <!-- Aviso breve cuando la pieza es de impacto alto; la recomendacion se abre en su ventana -->
+            <div class="aviso-impacto nivel-alto" id="avisoImpacto" role="status" hidden>
+                <span class="alerta-icono" aria-hidden="true"><i class="ph-fill ph-warning"></i></span>
+                <div class="aviso-impacto-txt">
+                    <strong th:text="#{cotizar.configuracion_de_alto_impacto}">Configuración de alto impacto</strong>
+                    <p id="avisoTexto" th:text="#{cotizar.aviso_alto}">Hay una configuración que reduce la huella de tu pieza.</p>
                 </div>
-            </section>
+                <button type="button" class="btn-alerta" id="avisoVer" aria-haspopup="dialog" th:text="#{cotizar.ver_configuracion_recomendada}">Ver configuración recomendada</button>
+                <button type="button" class="aviso-x" id="avisoCerrar" th:attr="aria-label=#{cotizar.reco_cerrar}"><i class="ph ph-x" aria-hidden="true"></i></button>
+            </div>
 
-            <!-- I · EL LIENZO -->
-            <section class="capitulo">
-                <header class="cap-head">
-                    <span class="cap-num">I</span>
-                    <div>
-                        <h2 th:text="#{cotizar.el_lienzo}">El lienzo</h2>
-                        <p th:text="#{cotizar.para_que_sera_tu_pieza}">Para qué será tu pieza y de qué vidrio parte.</p>
-                    </div>
+            <!-- 1 · USO Y VIDRIO -->
+            <section class="paso" data-paso="0" aria-labelledby="paso1t">
+                <header class="paso-cab">
+                    <small th:text="#{cotizar.paso_de(1,5)}">Paso 1 de 5</small>
+                    <h2 id="paso1t" th:text="#{cotizar.paso1_t}">Uso y vidrio</h2>
+                    <p th:text="#{cotizar.para_que_sera_tu_pieza}">Para qué será tu pieza y de qué vidrio parte.</p>
                 </header>
 
                 <div class="campo">
@@ -521,67 +690,43 @@
                 </div>
             </section>
 
-            <!-- II · LAS PROPORCIONES -->
-            <section class="capitulo">
-                <header class="cap-head">
-                    <span class="cap-num" th:text="#{cotizar.ii}">II</span>
-                    <div>
-                        <h2 th:text="#{cotizar.las_proporciones}">Las proporciones</h2>
-                        <p th:text="#{cotizar.mueve_los_deslizadores_o_escribe}">Mueve los deslizadores o escribe la medida exacta.</p>
-                    </div>
+            <!-- 2 · MEDIDAS Y FORMA -->
+            <section class="paso" data-paso="1" aria-labelledby="paso2t">
+                <header class="paso-cab">
+                    <small th:text="#{cotizar.paso_de(2,5)}">Paso 2 de 5</small>
+                    <h2 id="paso2t" th:text="#{cotizar.paso2_t}">Medidas y forma</h2>
+                    <p th:text="#{cotizar.paso2_d}">Mueve los deslizadores o escribe la medida exacta, y elige el contorno.</p>
                 </header>
 
-                <div class="medida-campo">
-                    <label for="ancho" th:text="#{cotizar.ancho}">Ancho</label>
-                    <div class="num-unidad">
-                        <input type="number" name="ancho" id="ancho" value="105" min="10" max="1000" required inputmode="numeric">
-                        <span th:text="#{cotizar.cm}">CM</span>
+                <div class="medidas-grupo">
+                    <div class="medida-campo">
+                        <label for="ancho" th:text="#{cotizar.ancho}">Ancho</label>
+                        <div class="num-unidad">
+                            <input type="number" name="ancho" id="ancho" value="105" min="10" max="1000" required inputmode="numeric">
+                            <span th:text="#{cotizar.cm}">CM</span>
+                        </div>
+                        <input type="range" id="anchoRango" aria-label="Ancho en centímetros" th:aria-label="#{cotizar.ancho_en_centimetros}">
                     </div>
-                    <input type="range" id="anchoRango" aria-label="Ancho en centímetros" th:aria-label="#{cotizar.ancho_en_centimetros}">
-                </div>
 
-                <div class="medida-campo">
-                    <label for="alto" th:text="#{cotizar.alto}">Alto</label>
-                    <div class="num-unidad">
-                        <input type="number" name="alto" id="alto" value="105" min="10" max="1000" required inputmode="numeric">
-                        <span th:text="#{cotizar.cm}">CM</span>
+                    <div class="medida-campo">
+                        <label for="alto" th:text="#{cotizar.alto}">Alto</label>
+                        <div class="num-unidad">
+                            <input type="number" name="alto" id="alto" value="105" min="10" max="1000" required inputmode="numeric">
+                            <span th:text="#{cotizar.cm}">CM</span>
+                        </div>
+                        <input type="range" id="altoRango" aria-label="Alto en centímetros" th:aria-label="#{cotizar.alto_en_centimetros}">
                     </div>
-                    <input type="range" id="altoRango" aria-label="Alto en centímetros" th:aria-label="#{cotizar.alto_en_centimetros}">
-                </div>
 
-                <div class="medida-campo">
-                    <label for="espesor" th:text="#{cotizar.espesor}">Espesor</label>
-                    <div class="num-unidad">
-                        <input type="number" name="espesor" id="espesor" value="7" min="4" max="40" required inputmode="numeric">
-                        <span th:text="#{cotizar.mm}">MM</span>
+                    <div class="medida-campo">
+                        <label for="espesor" th:text="#{cotizar.espesor}">Espesor</label>
+                        <div class="num-unidad">
+                            <input type="number" name="espesor" id="espesor" value="7" min="4" max="40" required inputmode="numeric">
+                            <span th:text="#{cotizar.mm}">MM</span>
+                        </div>
+                        <input type="range" id="espesorRango" aria-label="Espesor en milímetros" th:aria-label="#{cotizar.espesor_en_milimetros}">
                     </div>
-                    <input type="range" id="espesorRango" aria-label="Espesor en milímetros" th:aria-label="#{cotizar.espesor_en_milimetros}">
-                </div>
-                <p class="hint" th:text="#{cotizar.limites_medidas}">Medidas permitidas: ancho y alto de 10 a 1.000 cm, espesor de 4 a 40 mm.</p>
-                <p class="hint" th:text="#{cotizar.referencias_muebles_68_mm_ventanas}">Referencias: muebles 6–8 mm · ventanas 6–10 mm · duchas 8–10 mm · barandas y pisos 12–25 mm.</p>
-            </section>
-
-            <!-- III · EL CARACTER -->
-            <section class="capitulo">
-                <header class="cap-head">
-                    <span class="cap-num" th:text="#{cotizar.iii}">III</span>
-                    <div>
-                        <h2 th:text="#{cotizar.el_caracter}">El carácter</h2>
-                        <p th:text="#{cotizar.acabado_forma_y_detalles_que}">Acabado, forma y detalles que le dan identidad.</p>
-                    </div>
-                </header>
-
-                <div class="campo">
-                    <span class="campo-titulo" id="lblTrat" th:text="#{cotizar.tratamiento_superficial}">Tratamiento superficial</span>
-                    <select name="tratamiento" id="tratamiento" aria-labelledby="lblTrat">
-                        <option value="Ninguno" th:text="#{cotizar.incoloro_extra_claro}">Incoloro / Extra claro</option>
-                        <option value="TintadoGris" th:text="#{cotizar.tintado_en_masa_gris_humo}">Tintado en masa (Gris humo)</option>
-                        <option value="TintadoBronce" th:text="#{cotizar.tintado_en_masa_bronce}">Tintado en masa (Bronce)</option>
-                        <option value="ControlSolar" th:text="#{cotizar.control_solar_low_e}">Control solar (Low-E)</option>
-                        <option value="Esmerilado" th:text="#{cotizar.esmerilado_sandblasting}">Esmerilado (Sandblasting)</option>
-                        <option value="Serigrafiado" th:text="#{cotizar.serigrafiado_patron_a_medida}">Serigrafiado (Patrón a medida)</option>
-                        <option value="Antireflejo" th:text="#{cotizar.antirreflejo_vitrinas_y_museos}">Antirreflejo (Vitrinas y museos)</option>
-                    </select>
+                    <p class="hint" th:text="#{cotizar.limites_medidas}">Medidas permitidas: ancho y alto de 10 a 1.000 cm, espesor de 4 a 40 mm.</p>
+                    <p class="hint" th:text="#{cotizar.referencias_muebles_68_mm_ventanas}">Referencias: muebles 6–8 mm · ventanas 6–10 mm · duchas 8–10 mm · barandas y pisos 12–25 mm.</p>
                 </div>
 
                 <div class="campo">
@@ -616,6 +761,28 @@
                         </figure>
                     </div>
                 </div>
+            </section>
+
+            <!-- 3 · ACABADOS -->
+            <section class="paso" data-paso="2" aria-labelledby="paso3t">
+                <header class="paso-cab">
+                    <small th:text="#{cotizar.paso_de(3,5)}">Paso 3 de 5</small>
+                    <h2 id="paso3t" th:text="#{cotizar.paso3_t}">Acabados</h2>
+                    <p th:text="#{cotizar.paso3_d}">El tratamiento, los bordes y las perforaciones que le dan identidad.</p>
+                </header>
+
+                <div class="campo">
+                    <span class="campo-titulo" id="lblTrat" th:text="#{cotizar.tratamiento_superficial}">Tratamiento superficial</span>
+                    <select name="tratamiento" id="tratamiento" aria-labelledby="lblTrat">
+                        <option value="Ninguno" th:text="#{cotizar.incoloro_extra_claro}">Incoloro / Extra claro</option>
+                        <option value="TintadoGris" th:text="#{cotizar.tintado_en_masa_gris_humo}">Tintado en masa (Gris humo)</option>
+                        <option value="TintadoBronce" th:text="#{cotizar.tintado_en_masa_bronce}">Tintado en masa (Bronce)</option>
+                        <option value="ControlSolar" th:text="#{cotizar.control_solar_low_e}">Control solar (Low-E)</option>
+                        <option value="Esmerilado" th:text="#{cotizar.esmerilado_sandblasting}">Esmerilado (Sandblasting)</option>
+                        <option value="Serigrafiado" th:text="#{cotizar.serigrafiado_patron_a_medida}">Serigrafiado (Patrón a medida)</option>
+                        <option value="Antireflejo" th:text="#{cotizar.antirreflejo_vitrinas_y_museos}">Antirreflejo (Vitrinas y museos)</option>
+                    </select>
+                </div>
 
                 <div class="fila-2">
                     <div class="campo">
@@ -641,14 +808,12 @@
                 </div>
             </section>
 
-            <!-- IV · TU HUELLA -->
-            <section class="capitulo">
-                <header class="cap-head">
-                    <span class="cap-num" th:text="#{cotizar.iv}">IV</span>
-                    <div>
-                        <h2 th:text="#{cotizar.tu_huella}">Tu huella</h2>
-                        <p th:text="#{cotizar.una_obra_que_tambien_cuida}">Una obra que también cuida el planeta.</p>
-                    </div>
+            <!-- 4 · HUELLA -->
+            <section class="paso" data-paso="3" aria-labelledby="paso4t">
+                <header class="paso-cab">
+                    <small th:text="#{cotizar.paso_de(4,5)}">Paso 4 de 5</small>
+                    <h2 id="paso4t" th:text="#{cotizar.paso4_t}">Huella</h2>
+                    <p th:text="#{cotizar.una_obra_que_tambien_cuida}">Una obra que también cuida el planeta.</p>
                 </header>
 
                 <div class="eco-grupo">
@@ -704,14 +869,12 @@
                 </th:block>
             </section>
 
-            <!-- V · EL TIEMPO -->
-            <section class="capitulo">
-                <header class="cap-head">
-                    <span class="cap-num">V</span>
-                    <div>
-                        <h2 th:text="#{cotizar.el_tiempo}">El tiempo</h2>
-                        <p th:text="#{cotizar.la_necesitas_con_prioridad}">¿La necesitas con prioridad?</p>
-                    </div>
+            <!-- 5 · ENTREGA Y RESUMEN -->
+            <section class="paso" data-paso="4" aria-labelledby="paso5t">
+                <header class="paso-cab">
+                    <small th:text="#{cotizar.paso_de(5,5)}">Paso 5 de 5</small>
+                    <h2 id="paso5t" th:text="#{cotizar.paso5_t}">Entrega y resumen</h2>
+                    <p th:text="#{cotizar.paso5_d}">Elige cuándo la necesitas y revisa tu pieza antes de enviarla.</p>
                 </header>
 
                 <label class="urgente sg-rainbow">
@@ -719,25 +882,92 @@
                     <span><span th:text="#{cotizar.entrega_urgente_prioritaria}">Entrega urgente / prioritaria</span><small th:text="#{cotizar.suma_un_20_al_precio}">Suma un 20 % al precio.</small></span>
                     <span class="chip-premium" th:text="#{cotizar.premium}">Premium</span>
                 </label>
+
+                <!-- Resumen: lo llena el script con el texto de cada opcion elegida -->
+                <div class="resumen" id="resumen" hidden>
+                    <h3 th:text="#{cotizar.resumen_t}">Tu pieza</h3>
+                    <dl>
+                        <div><dt th:text="#{cotizar.uso_principal}">Uso principal</dt><dd data-res="usoPrincipal"></dd>
+                            <button type="button" class="res-cambiar" data-ir-paso="0" th:attr="aria-label=|#{cotizar.paso_cambiar}: #{cotizar.uso_principal}|" th:text="#{cotizar.paso_cambiar}">Cambiar</button></div>
+                        <div><dt th:text="#{cotizar.tipo_de_vidrio_base}">Tipo de vidrio base</dt><dd data-res="tipoVidrio"></dd>
+                            <button type="button" class="res-cambiar" data-ir-paso="0" th:attr="aria-label=|#{cotizar.paso_cambiar}: #{cotizar.tipo_de_vidrio_base}|" th:text="#{cotizar.paso_cambiar}">Cambiar</button></div>
+                        <div><dt th:text="#{cotizar.res_medidas}">Medidas</dt><dd data-res="medidas"></dd>
+                            <button type="button" class="res-cambiar" data-ir-paso="1" th:attr="aria-label=|#{cotizar.paso_cambiar}: #{cotizar.res_medidas}|" th:text="#{cotizar.paso_cambiar}">Cambiar</button></div>
+                        <div><dt th:text="#{cotizar.geometria_de_corte}">Geometría de corte</dt><dd data-res="forma"></dd>
+                            <button type="button" class="res-cambiar" data-ir-paso="1" th:attr="aria-label=|#{cotizar.paso_cambiar}: #{cotizar.geometria_de_corte}|" th:text="#{cotizar.paso_cambiar}">Cambiar</button></div>
+                        <div><dt th:text="#{cotizar.tratamiento_superficial}">Tratamiento superficial</dt><dd data-res="tratamiento"></dd>
+                            <button type="button" class="res-cambiar" data-ir-paso="2" th:attr="aria-label=|#{cotizar.paso_cambiar}: #{cotizar.tratamiento_superficial}|" th:text="#{cotizar.paso_cambiar}">Cambiar</button></div>
+                        <div><dt th:text="#{cotizar.acabado_de_bordes}">Acabado de bordes</dt><dd data-res="acabadoBordes"></dd>
+                            <button type="button" class="res-cambiar" data-ir-paso="2" th:attr="aria-label=|#{cotizar.paso_cambiar}: #{cotizar.acabado_de_bordes}|" th:text="#{cotizar.paso_cambiar}">Cambiar</button></div>
+                        <div><dt th:text="#{cotizar.perforaciones}">Perforaciones</dt><dd data-res="perforaciones"></dd>
+                            <button type="button" class="res-cambiar" data-ir-paso="2" th:attr="aria-label=|#{cotizar.paso_cambiar}: #{cotizar.perforaciones}|" th:text="#{cotizar.paso_cambiar}">Cambiar</button></div>
+                        <div><dt th:text="#{cotizar.res_eco}">Opciones sostenibles</dt><dd data-res="eco" th:attr="data-plantilla=#{cotizar.res_eco_n}"></dd>
+                            <button type="button" class="res-cambiar" data-ir-paso="3" th:attr="aria-label=|#{cotizar.paso_cambiar}: #{cotizar.res_eco}|" th:text="#{cotizar.paso_cambiar}">Cambiar</button></div>
+                    </dl>
+                </div>
+
+                <button type="submit" class="btn-forjar" id="btnForjar">
+                    <strong th:text="#{cotizar.dar_vida_a_mi_obra}">Dar vida a mi obra</strong>
+                    <span th:text="#{cotizar.generaremos_el_analisis_industrial_y}">Generaremos el análisis industrial y de CO₂</span>
+                </button>
             </section>
 
-            <button type="submit" class="btn-forjar" id="btnForjar">
-                <strong th:text="#{cotizar.dar_vida_a_mi_obra}">Dar vida a mi obra</strong>
-                <span th:text="#{cotizar.generaremos_el_analisis_industrial_y}">Generaremos el análisis industrial y de CO₂</span>
-            </button>
+            <!-- Anterior / Siguiente (fijos abajo de la columna en escritorio) -->
+            <div class="paso-nav" id="pasoNav" hidden>
+                <button type="button" class="btn btn-secondary" id="pasoAnterior"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="#{cotizar.paso_anterior}">Anterior</span></button>
+                <span class="paso-nav-cuenta" id="pasoCuenta" aria-hidden="true">1 / 5</span>
+                <button type="button" class="btn btn-primary" id="pasoSiguiente" th:attr="data-plantilla=#{cotizar.paso_siguiente_a}"><span th:text="#{cotizar.paso_siguiente}">Siguiente</span> <i class="ph ph-arrow-right" aria-hidden="true"></i></button>
+            </div>
         </form>
     </div>
 </main>
 
-<!-- Confirmacion al enviar una configuracion de alto impacto -->
-<dialog class="dlg-impacto nivel-alto" id="dlgImpacto" aria-labelledby="dlgTitulo">
-    <h3 id="dlgTitulo"><i class="ph-fill ph-warning" aria-hidden="true"></i> <span th:text="#{cotizar.antes_de_continuar}">Antes de continuar</span></h3>
-    <p id="dlgTexto"></p>
-    <ul class="alerta-cambios" id="dlgCambios"></ul>
-    <p class="alerta-resultado" id="dlgResultado"></p>
+<!-- Celular: la pieza, el precio y el CO2 siguen a la vista mientras se baja por el formulario.
+     Repite datos del escenario, por eso aria-hidden. -->
+<div class="barra-movil" id="barraMovil" aria-hidden="true">
+    <div class="barra-pieza sg-stage"><div id="barraPieza"></div></div>
+    <div class="barra-dato"><span th:text="#{cotizar.estimacion_actual}">Estimación actual</span><strong id="barraPrecio">$0</strong></div>
+    <div class="barra-dato"><span th:text="#{cotizar.co2e_de_la_pieza}">CO₂e de la pieza</span><strong id="barraCo2">0 kg</strong></div>
+    <i class="barra-nivel" aria-hidden="true"></i>
+</div>
+
+<!-- Configuracion recomendada en su propia ventana: tu diseno frente al recomendado, y tu decides.
+     Tambien sirve de confirmacion al enviar una pieza de impacto alto (modo "envio"). -->
+<dialog class="dlg-reco nivel-alto" id="dlgReco" aria-labelledby="recoTitulo" aria-describedby="recoTexto">
+    <header class="reco-cab">
+        <span class="alerta-icono" aria-hidden="true"><i class="ph-fill ph-leaf"></i></span>
+        <h3 id="recoTitulo" th:attr="data-envio=#{cotizar.antes_de_continuar}">Configuración recomendada</h3>
+        <button type="button" class="aviso-x" id="recoX" th:attr="aria-label=#{cotizar.reco_cerrar}"><i class="ph ph-x" aria-hidden="true"></i></button>
+    </header>
+    <p class="reco-texto" id="recoTexto"></p>
+    <div class="reco-comparar" id="recoComparar">
+        <figure class="reco-lado">
+            <figcaption th:text="#{cotizar.reco_tu}">Tu diseño</figcaption>
+            <div class="reco-pieza sg-stage"><div id="recoPiezaAntes"></div></div>
+            <dl>
+                <div><dt th:text="#{cotizar.reco_intensidad}">Intensidad</dt><dd id="recoIntAntes"></dd></div>
+                <div><dt th:text="#{cotizar.co2e_de_la_pieza}">CO₂e de la pieza</dt><dd id="recoCo2Antes"></dd></div>
+                <div><dt th:text="#{cotizar.reco_precio}">Precio estimado</dt><dd id="recoPrecioAntes"></dd></div>
+            </dl>
+        </figure>
+        <span class="reco-flecha" aria-hidden="true"><i class="ph ph-arrow-right"></i></span>
+        <figure class="reco-lado es-reco">
+            <figcaption th:text="#{cotizar.reco_reco}">Recomendado</figcaption>
+            <div class="reco-pieza sg-stage"><div id="recoPiezaDespues"></div></div>
+            <dl>
+                <div><dt th:text="#{cotizar.reco_intensidad}">Intensidad</dt><dd id="recoIntDespues"></dd></div>
+                <div><dt th:text="#{cotizar.co2e_de_la_pieza}">CO₂e de la pieza</dt><dd id="recoCo2Despues"></dd></div>
+                <div><dt th:text="#{cotizar.reco_precio}">Precio estimado</dt><dd id="recoPrecioDespues"></dd></div>
+            </dl>
+        </figure>
+    </div>
+    <ul class="alerta-cambios" id="recoCambios"></ul>
+    <p class="alerta-resultado" id="recoResultado"></p>
     <div class="alerta-acciones">
-        <button type="button" class="btn-alerta" id="dlgAplicar" th:text="#{cotizar.aplicar_y_revisar}">Aplicar y revisar</button>
-        <button type="button" class="btn-alerta-sec" id="dlgContinuar" th:text="#{cotizar.continuar_con_mi_diseno}">Continuar con mi diseño</button>
+        <button type="button" class="btn-alerta" id="recoAplicar"
+                th:attr="data-ver=#{cotizar.aplicar_configuracion_recomendada},data-envio=#{cotizar.aplicar_y_revisar}">Aplicar configuración recomendada</button>
+        <button type="button" class="btn-alerta-sec" id="recoMantener"
+                th:attr="data-ver=#{cotizar.mantener_mi_diseno},data-envio=#{cotizar.continuar_con_mi_diseno}">Mantener mi diseño</button>
     </div>
 </dialog>
 
@@ -860,7 +1090,7 @@
     }
 
     /* ---------- Aviso de impacto ---------- */
-    var descartada = false, manual = false, nivelPrevio = '', confirmado = false;
+    var descartada = false, nivelPrevio = '', confirmado = false;
     var form = $('formCotizacion');
 
     /* plantilla traducida con {0}: ese hueco va en negrita (todo por textContent) */
@@ -893,28 +1123,66 @@
         el.append(conNegrita(sgT('cot_resultado', 'Resultado: {0} (−{1} %)', '{0}', pct), b.textContent));
         if (!reco.logra) el.append(' ' + sgT('cot_sigue_alto', '· sigue siendo alto: con este tipo de vidrio y el espesor que pide el uso, la huella no baja más.'));
     }
+    /* Impacto alto: un aviso breve sobre el paso; la recomendacion completa se abre en su ventana */
+    var textoAviso = $('avisoTexto').textContent;
     function gestionarAviso(imp, reco) {
-        var panel = $('alertaImpacto'), ver = $('termoVer');
         var hay = reco.cambios.length > 0;
-        ver.hidden = !(imp.nivel !== 'favorable' && hay);
-        var cambioNivel = imp.nivel !== nivelPrevio;
-        if (cambioNivel) { descartada = false; manual = false; }
+        $('termoVer').hidden = !(imp.nivel !== 'favorable' && hay);
+        if (imp.nivel !== nivelPrevio) descartada = false;
         nivelPrevio = imp.nivel;
-
-        var mostrar = imp.nivel !== 'favorable' && ((imp.nivel === 'alto' && !descartada) || manual);
-        panel.hidden = !mostrar;
-        if (!mostrar) return;
-
-        panel.className = 'alerta-impacto nivel-' + imp.nivel;
-        $('alertaTitulo').textContent = imp.nivel === 'alto' ? sgT('cot_alerta_alto', 'Configuración de alto impacto ambiental') : sgT('cot_alerta_moderado', 'Tu perfil es aceptable, pero puede mejorar');
-        $('alertaTexto').replaceChildren(resumen(imp, reco));
-        listar($('alertaCambios'), reco.cambios);
-        resultado($('alertaResultado'), reco);
-        $('alertaAplicar').hidden = !hay;
-
-        /* La alerta vive arriba de la columna derecha: al aparecer se lleva esa columna al inicio (solo ella) */
-        if (cambioNivel && imp.nivel === 'alto' && form.scrollTop > 40) form.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        $('avisoImpacto').hidden = !(imp.nivel === 'alto' && !descartada);
+        $('avisoVer').hidden = !hay;
+        $('avisoTexto').textContent = hay ? textoAviso : sgT('cot_reco_nada', 'No hay ajustes automáticos que respeten lo que elegiste; considera reducir el espesor o elegir otro tipo de vidrio.');
     }
+
+    /* ---------- Ventana: tu diseno frente al recomendado ---------- */
+    var dlgReco = $('dlgReco'), modoReco = 'ver';
+    function variacion(v, base) {
+        if (!(base > 0)) return null;
+        var d = Math.round((v / base - 1) * 100);
+        return d === 0 ? null : { texto: (d > 0 ? '+' : '−') + Math.abs(d) + ' %', sube: d > 0 };
+    }
+    function dato(dd, texto, dif) {
+        dd.textContent = texto;
+        if (!dif) return;
+        var s = document.createElement('small');
+        s.textContent = dif.texto;
+        if (dif.sube) s.className = 'sube';
+        dd.append(s);
+    }
+    function lado(suf, c, r, precio, base) {
+        G.render($('recoPieza' + suf), Object.assign(paraVista(c), { mini: true }));
+        var di = $('recoInt' + suf);
+        di.className = 'nivel-' + G.impacto(r.intensidad).nivel;
+        dato(di, G.fmtNum(r.intensidad, 1) + ' kg CO₂e/m²', base && variacion(r.intensidad, base.r.intensidad));
+        dato($('recoCo2' + suf), G.fmtNum(r.co2, 1) + ' kg', base && variacion(r.co2, base.r.co2));
+        dato($('recoPrecio' + suf), '$' + G.fmtNum(precio, 0), base && variacion(precio, base.precio));
+    }
+    function abrirReco(modo) {
+        modoReco = modo;
+        var c = leer(), cc = paraCalculo(c), r = G.calcular(cc), imp = G.impacto(r.intensidad);
+        var reco = G.recomendar(cc, imp.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable), hay = reco.cambios.length > 0;
+        dlgReco.className = 'dlg-reco nivel-' + imp.nivel;
+        $('recoTitulo').textContent = modo === 'envio' ? $('recoTitulo').getAttribute('data-envio')
+            : imp.nivel === 'alto' ? sgT('cot_alerta_alto', 'Configuración de alto impacto ambiental') : sgT('cot_alerta_moderado', 'Tu perfil es aceptable, pero puede mejorar');
+        $('recoTexto').replaceChildren(resumen(imp, reco));
+        listar($('recoCambios'), reco.cambios);
+        resultado($('recoResultado'), reco);
+        $('recoComparar').hidden = !hay;
+        $('recoAplicar').hidden = !hay;
+        $('recoAplicar').textContent = $('recoAplicar').getAttribute('data-' + modo);
+        $('recoMantener').textContent = $('recoMantener').getAttribute('data-' + modo);
+        if (hay) {
+            /* solo cambian estos cuatro campos; el corte, las medidas reales y el resto quedan como estan */
+            var c2 = Object.assign({}, c, { eco: reco.cfg.eco, renov: reco.cfg.renov, espesor: reco.cfg.espesor, tipo: reco.cfg.tipo });
+            var p1 = precioDe(c);
+            lado('Antes', c, r, p1, null);
+            lado('Despues', c2, G.calcular(paraCalculo(c2)), precioDe(c2), { r: r, precio: p1 });
+        }
+        if (typeof dlgReco.showModal === 'function') dlgReco.showModal(); else dlgReco.setAttribute('open', '');
+        (hay ? $('recoAplicar') : $('recoMantener')).focus();
+    }
+    function cerrarReco() { if (dlgReco.open) dlgReco.close(); }
 
     /* ---------- Actualizacion en vivo ---------- */
     var raf = null;
@@ -932,6 +1200,7 @@
         contar($('areaText'), r.area, function (v) { return G.fmtNum(v, 2) + ' m\u00b2'; });
         contar($('pesoText'), r.peso, function (v) { return G.fmtNum(v, 1) + ' kg'; });
         contar($('co2Text'), r.co2, function (v) { return G.fmtNum(v, 1) + ' kg'; });
+        contar($('co2Mini'), r.co2, function (v) { return G.fmtNum(v, 1) + ' kg'; });
         pintarEtapas(r);
         contar($('priceText'), precio, function (v) { return '$' + G.fmtNum(Math.round(v), 0); }, 600);
 
@@ -948,10 +1217,36 @@
         $('termoFrase').textContent = imp.frase;
         $('termoPunto').style.left = Math.min(imp.valor / 30, 1) * 100 + '%';
         pintarCompromisos(r);
+        pintarMovil(c, r, imp, precio);
+        pintarResumen(c);
 
         var objetivo = imp.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable;
         gestionarAviso(imp, G.recomendar(cc, objetivo));
         actualizarFades();
+    }
+    /* ---------- Celular: la barra fija repite pieza, precio y CO2 ---------- */
+    var movil = matchMedia('(max-width: 1023px)');
+    function pintarMovil(c, r, imp, precio) {
+        if (!movil.matches) return;
+        $('barraMovil').className = 'barra-movil nivel-' + imp.nivel + ($('barraMovil').classList.contains('es-visible') ? ' es-visible' : '');
+        G.render($('barraPieza'), Object.assign(paraVista(c), { mini: true }));
+        $('barraPrecio').textContent = '$' + G.fmtNum(precio, 0);
+        $('barraCo2').textContent = G.fmtNum(r.co2, 1) + ' kg';
+    }
+    /* ---------- Resumen del ultimo paso: el texto de cada opcion elegida ---------- */
+    function textoDe(id) { var s = $(id); return s.selectedIndex >= 0 ? s.options[s.selectedIndex].text : ''; }
+    function pintarResumen(c) {
+        var res = $('resumen');
+        if (!res) return;
+        res.querySelectorAll('[data-res]').forEach(function (dd) {
+            var k = dd.getAttribute('data-res');
+            if (k === 'medidas') dd.textContent = G.fmtNum(c.ancho, 0) + ' × ' + G.fmtNum(c.alto, 0) + ' cm · ' + G.fmtNum(c.espesor, 0) + ' mm';
+            else if (k === 'eco') {
+                var cajas = form.querySelectorAll('.paso[data-paso="3"] input[type="checkbox"]');
+                var n = [].filter.call(cajas, function (x) { return x.checked; }).length;
+                dd.textContent = (dd.getAttribute('data-plantilla') || '{0}/{1}').replace('{0}', n).replace('{1}', cajas.length);
+            } else dd.textContent = textoDe(k);
+        });
     }
     /* ---------- U4: desglose por etapas (barra proporcional a lo que aporta cada una) ---------- */
     function pintarEtapas(r) {
@@ -994,16 +1289,30 @@
         raf = requestAnimationFrame(function () { raf = null; actualizar(); });
     }
 
-    $('termoVer').addEventListener('click', function () {
-        manual = true; descartada = false; actualizar(true);
-        form.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-    });
-    $('alertaAplicar').addEventListener('click', function () {
+    $('termoVer').addEventListener('click', function () { abrirReco('ver'); });
+    $('avisoVer').addEventListener('click', function () { abrirReco('ver'); });
+    $('avisoCerrar').addEventListener('click', function () { descartada = true; $('avisoImpacto').hidden = true; });
+    var avisoOk = 0;
+    $('recoAplicar').addEventListener('click', function () {
         var imp = G.impacto(G.calcular(paraCalculo(leer())).intensidad);
-        manual = false;
         aplicarConfig(G.recomendar(paraCalculo(leer()), imp.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable).cfg);
+        cerrarReco();
+        $('recoAplicada').hidden = false;
+        clearTimeout(avisoOk);
+        avisoOk = setTimeout(function () { $('recoAplicada').hidden = true; }, 7000);
     });
-    $('alertaCerrar').addEventListener('click', function () { descartada = true; manual = false; $('alertaImpacto').hidden = true; });
+    $('recoMantener').addEventListener('click', function () {
+        cerrarReco();
+        if (modoReco === 'envio') { confirmado = true; form.requestSubmit(); return; }
+        descartada = true; $('avisoImpacto').hidden = true;
+    });
+    $('recoX').addEventListener('click', cerrarReco);
+    /* clic en el fondo oscuro: cierra sin decidir */
+    dlgReco.addEventListener('click', function (e) {
+        if (e.target !== dlgReco) return;
+        var b = dlgReco.getBoundingClientRect();   /* el relleno del dialogo tambien es "el dialogo" */
+        if (e.clientX < b.left || e.clientX > b.right || e.clientY < b.top || e.clientY > b.bottom) cerrarReco();
+    });
 
     /* ---------- Deslizadores sincronizados con los campos numericos ---------- */
     function ligar(idNum, idRango, min, max) {
@@ -1119,6 +1428,86 @@
     });
     modoCorte();
 
+    /* ---------- Asistente por pasos ----------
+       Un paso a la vez; la pieza, el precio y el CO2 siguen a la vista. Los pasos ocultos se envian igual
+       (hidden no deshabilita los campos). Hacia adelante se valida el paso actual antes de avanzar. */
+    var pasos = [].slice.call(form.querySelectorAll('.paso')), barraPasos = $('pasos');
+    var botonesPaso = [].slice.call(barraPasos.querySelectorAll('[data-ir-paso]'));
+    var nombres = botonesPaso.map(function (b) { return b.querySelector('span').textContent; });
+    var pasoActual = 0, btnAnt = $('pasoAnterior'), btnSig = $('pasoSiguiente');
+    var plantillaSig = btnSig.getAttribute('data-plantilla') || '{0}';
+    function quieto() { return matchMedia('(prefers-reduced-motion: reduce)').matches || /fotosensible/.test(document.documentElement.getAttribute('data-a11y') || ''); }
+    function primerInvalido(hasta) {
+        for (var k = pasoActual; k < hasta; k++) { var x = pasos[k].querySelector(':invalid'); if (x) return { paso: k, campo: x }; }
+        return null;
+    }
+    function llevarAlPaso() {
+        if (getComputedStyle(form).overflowY === 'auto') { form.scrollTop = 0; return; }   /* escritorio: la columna */
+        var y = form.getBoundingClientRect().top - (parseFloat(getComputedStyle(form).scrollMarginTop) || 0);
+        if (Math.abs(y) > 8) window.scrollBy({ top: y, behavior: quieto() ? 'auto' : 'smooth' });
+    }
+    function irPaso(i, opciones) {
+        opciones = opciones || {};
+        i = Math.max(0, Math.min(pasos.length - 1, i));
+        if (i > pasoActual && !opciones.libre) {
+            var malo = primerInvalido(i);
+            if (malo) { i = malo.paso; opciones.foco = malo.campo; }
+        }
+        var atras = i < pasoActual, cambia = i !== pasoActual;
+        pasoActual = i;
+        pasos.forEach(function (p, k) {
+            p.hidden = k !== i;
+            p.classList.remove('entra', 'atras');
+            if (k === i && cambia && !quieto()) { void p.offsetWidth; p.classList.add('entra'); if (atras) p.classList.add('atras'); }
+        });
+        botonesPaso.forEach(function (b, k) {
+            b.classList.toggle('hecho', k < i);
+            if (k === i) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+        });
+        btnAnt.disabled = i === 0;
+        btnSig.hidden = i === pasos.length - 1;
+        if (i < pasos.length - 1) btnSig.querySelector('span').textContent = plantillaSig.replace('{0}', nombres[i + 1]);
+        $('pasoCuenta').textContent = (i + 1) + ' / ' + pasos.length;
+        if (cambia && !opciones.sinScroll) llevarAlPaso();
+        if (opciones.foco) { opciones.foco.focus({ preventScroll: false }); if (opciones.foco.reportValidity) opciones.foco.reportValidity(); }
+        else if (cambia && !opciones.sinFoco) pasos[i].querySelector('h2').focus({ preventScroll: true });
+        if (cambia) { altura(); actualizarFades(); }
+    }
+    pasos.forEach(function (p) { p.querySelector('h2').tabIndex = -1; });
+    document.querySelectorAll('[data-ir-paso]').forEach(function (b) {
+        b.addEventListener('click', function () { irPaso(parseInt(b.getAttribute('data-ir-paso'), 10)); });
+    });
+    btnAnt.addEventListener('click', function () { irPaso(pasoActual - 1); });
+    btnSig.addEventListener('click', function () { irPaso(pasoActual + 1); });
+    /* Al enviar, un campo invalido en un paso oculto: se muestra ese paso para que el navegador lo senale */
+    form.addEventListener('invalid', function (e) {
+        var p = e.target.closest('.paso');
+        if (p && p.hidden) irPaso(pasos.indexOf(p), { libre: true, sinFoco: true });
+    }, true);
+    /* La guia del recorrido y otros scripts pueden pedir que se vea el paso de un elemento */
+    window.SGAsistente = {
+        mostrar: function (el) { var p = el && el.closest ? el.closest('.paso') : null; if (p && p.hidden) irPaso(pasos.indexOf(p), { libre: true, sinFoco: true }); }
+    };
+    form.classList.add('asistente');
+    barraPasos.hidden = false;
+    $('pasoNav').hidden = false;
+    $('resumen').hidden = false;
+    irPaso(0, { sinScroll: true, sinFoco: true });
+
+    /* Celular: la barra aparece cuando el escenario ya no se ve y el formulario si */
+    if ('IntersectionObserver' in window) {
+        var enVista = { escenario: true, form: false }, escenarioCol = document.querySelector('.atelier-stage');
+        var vigiaMovil = new IntersectionObserver(function (es) {
+            es.forEach(function (e) { enVista[e.target === form ? 'form' : 'escenario'] = e.isIntersecting; });
+            var ver = movil.matches && !enVista.escenario && enVista.form;
+            var antes = $('barraMovil').classList.contains('es-visible');
+            $('barraMovil').classList.toggle('es-visible', ver);
+            if (ver && !antes) actualizar(true);
+        }, { rootMargin: '-150px 0px 0px 0px' });   /* lo que queda bajo el menu y la barra de pasos no cuenta como visible */
+        vigiaMovil.observe(escenarioCol);
+        vigiaMovil.observe(form);
+    }
+
     /* ---------- Columnas con scroll independiente (solo escritorio) ---------- */
     var columnas = [document.querySelector('.atelier-stage'), form];
     function altura() {
@@ -1154,28 +1543,16 @@
     }
 
     /* ---------- Envio: confirmacion si es de alto impacto + pantalla de espera ---------- */
-    var forja = $('forja'), timer = null, dlg = $('dlgImpacto');
+    var forja = $('forja'), timer = null;
     var mensajes = [sgT('cot_forja_1', 'Calculando la huella de carbono…'), sgT('cot_forja_2', 'Analizando la resistencia estructural…'), sgT('cot_forja_3', 'Puliendo los últimos detalles…')];
 
-    function cerrarDialogo() { if (dlg.open) dlg.close(); }
-    $('dlgAplicar').addEventListener('click', function () {
-        var imp = G.impacto(G.calcular(paraCalculo(leer())).intensidad);
-        aplicarConfig(G.recomendar(paraCalculo(leer()), imp.nivel === 'alto' ? G.umbral.moderado : G.umbral.favorable).cfg);
-        cerrarDialogo();
-    });
-    $('dlgContinuar').addEventListener('click', function () { confirmado = true; cerrarDialogo(); form.requestSubmit(); });
-
     form.addEventListener('submit', function (ev) {
-        if ($('forma').value === 'Personalizada' && !hayCorte()) { ev.preventDefault(); SC.abrir(); return; }
+        if ($('forma').value === 'Personalizada' && !hayCorte()) { ev.preventDefault(); irPaso(1, { libre: true }); SC.abrir(); return; }
         var c = leer(), imp = G.impacto(G.calcular(paraCalculo(c)).intensidad);
-        if (imp.nivel === 'alto' && !confirmado && typeof dlg.showModal === 'function') {
+        /* impacto alto: la misma ventana de la recomendacion, en modo "antes de continuar" */
+        if (imp.nivel === 'alto' && !confirmado && typeof dlgReco.showModal === 'function') {
             ev.preventDefault();
-            var reco = G.recomendar(paraCalculo(c), G.umbral.moderado);
-            $('dlgTexto').replaceChildren(resumen(imp, reco));
-            listar($('dlgCambios'), reco.cambios);
-            resultado($('dlgResultado'), reco);
-            $('dlgAplicar').hidden = !reco.cambios.length;
-            dlg.showModal();
+            abrirReco('envio');
             return;
         }
         confirmado = false;

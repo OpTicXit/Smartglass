@@ -1,12 +1,15 @@
 /* =========================================================
    Recorrido de una pieza (inicio) como linea de produccion de vidrio. Version sin costo
-   de "scroll world": la pantalla queda fija y, al bajar, la pieza del configurador (SGGlass)
-   viaja de izquierda a derecha por 5 estaciones (materia, temple, forma, energia y huella).
+   de "scroll world". Nov. 2026: ya no depende del scroll de la pagina. La seccion tiene alto normal
+   y, cuando se ve en pantalla, la pieza del configurador (SGGlass) avanza sola de izquierda a derecha
+   por 5 estaciones (materia, temple, forma, energia y huella), con pausa y saltos por estacion.
    La luz del taller cambia de tono en cada estacion con fundidos lentos, sin destellos.
    El texto entra de lado; nada sube ni baja. Con movimiento reducido o el modo fotosensible
    la pieza no gira y los cambios no se animan.
 ========================================================= */
-.linea { --p: 0; overflow-x: clip; width: min(100% - 2 * var(--gutter), var(--content-max)); margin: clamp(64px, 10vw, 140px) auto; }
+/* --p (0 a 1) = estacion actual; registrado para que el carro, la barra y el giro avancen con suavidad */
+@property --p { syntax: '<number>'; inherits: true; initial-value: 0; }
+.linea { --p: 0; transition: --p 0.9s cubic-bezier(0.4, 0, 0.2, 1); overflow-x: clip; width: min(100% - 2 * var(--gutter), var(--content-max)); margin: clamp(64px, 10vw, 140px) auto; }
 .linea-titulo { max-width: 880px; }
 .linea-titulo h2 {
   margin: 0 0 14px; font-family: var(--font-display); font-weight: 800;
@@ -16,13 +19,20 @@
 .linea-titulo p { margin: 0; max-width: 52ch; color: var(--text-muted); font-size: clamp(1rem, 0.95rem + 0.3vw, 1.2rem); }
 .linea-sello { display: inline-block; margin-bottom: 18px; padding: 6px 14px; border-radius: 999px; background: var(--bg-tertiary); color: var(--text-muted); font-size: 0.8rem; font-weight: 600; }
 
-/* Pista de scroll: 100vh + 70vh por cada estacion despues de la primera */
-.linea-pista { position: relative; height: calc(100vh + 4 * 70vh); }
+/* Alto normal: la seccion no retiene el scroll de la pagina */
+.linea-pista { position: relative; }
 .linea-pin {
-  position: sticky; top: 0; height: 100vh; height: 100dvh;
+  position: relative;
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: clamp(24px, 5vw, 80px);
-  padding-top: 56px;
+  padding-top: clamp(20px, 3vw, 36px);
 }
+/* Pausa / reanudar (WCAG 2.2.2) y barra de tiempo hasta la siguiente estacion */
+.linea-mando .linea-pausa { width: auto; padding: 0 16px 0 12px; gap: 8px; display: inline-flex; align-items: center; font: 600 0.86rem/1 var(--font-primary); }
+.linea-mando .linea-pausa i { font-size: 1.05rem; }
+.linea-tiempo { flex: 1 1 auto; max-width: 160px; height: 4px; border-radius: 999px; background: var(--bg-tertiary); overflow: hidden; }
+.linea-tiempo span { display: block; height: 100%; width: 100%; border-radius: inherit; background: var(--color-accent); transform-origin: left; transform: scaleX(0); }
+.linea.corriendo .linea-tiempo span { animation: lineaTiempo var(--rec-ms, 4200ms) linear forwards; }
+@keyframes lineaTiempo { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 /* ---------- Texto: una estacion a la vez, entra de lado ---------- */
 .linea-lado { display: grid; gap: 18px; }
@@ -121,7 +131,7 @@
 
 /* ---------- Telefono: taller arriba, texto abajo ---------- */
 @media (max-width: 860px) {
-  .linea-pin { grid-template-columns: 1fr; align-content: center; gap: 16px; padding-top: 64px; }
+  .linea-pin { grid-template-columns: 1fr; align-content: center; gap: 16px; padding-top: 16px; }
   .linea-taller { grid-row: 1; width: 100%; aspect-ratio: auto; height: min(40vh, 40svh, 360px); }
   .linea-lado { grid-row: 2; }
   .linea-capitulo { padding: 20px; }
@@ -136,10 +146,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .linea { transition: none; }
   .linea-pieza { transform: none; will-change: auto; }
   .linea-pieza > div, .linea-capitulo, .linea-estacion i, .linea-luz { transition: none; }
 }
 html[data-a11y~="fotosensible"] .linea-pieza { transform: none !important; }
+html[data-a11y~="fotosensible"] .linea { transition: none !important; }
 html[data-a11y~="fotosensible"] :is(.linea-pieza > div, .linea-capitulo, .linea-estacion i) { transition: none !important; }
 @media print {
   .linea-pista { height: auto; }

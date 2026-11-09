@@ -103,7 +103,7 @@
 
                 <form class="auth-form" th:action="@{/login}" method="POST">
                     <div class="form-group">
-                        <label for="username" th:text="#{login.usuario_o_correo}">Usuario o correo</label>
+                        <label for="username" th:text="#{login.usuario_o_correo}">Usuario</label>
                         <div class="input-icono">
                             <i class="ph ph-user" aria-hidden="true"></i>
                             <input type="text" id="username" name="username" required autocomplete="username" autocapitalize="none" spellcheck="false" th:autofocus="${vista != 'registro'}">

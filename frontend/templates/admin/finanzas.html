@@ -31,8 +31,8 @@
             <span class="adm-kpi-ico" aria-hidden="true"><i class="ph ph-currency-circle-dollar"></i></span>
             <span class="adm-chip" th:if="${fin.variacionMes != null}"
                   th:classappend="${fin.variacionMes >= 0} ? 'adm-chip--sube' : 'adm-chip--baja'"
-                  th:text="(${fin.variacionMes >= 0} ? '+' : '') + ${#numbers.formatDecimal(fin.variacionMes, 1, 'POINT', 1, 'COMMA')} + ' %'"
-                  th:title="#{admin.res.vs_mes}">+0 %</span>
+                  th:text="${#strings.replace(#temporals.format(fin.mesComparado, 'MMM'), '.', '')} + ' · ' + (${fin.variacionMes >= 0} ? '+' : '') + ${#numbers.formatDecimal(fin.variacionMes, 1, 'POINT', 1, 'COMMA')} + ' %'"
+                  th:title="#{admin.res.vs_mes_cerrado(${#temporals.format(fin.mesComparado, 'MMMM')})}">oct · +0 %</span>
             <strong class="adm-kpi-v">$<span th:attr="data-contar=${fin.ingresos}" th:text="${#numbers.formatDecimal(fin.ingresos, 1, 'POINT', 0, 'COMMA')}">0</span></strong>
             <span class="adm-kpi-t" th:text="#{admin.res.kpi_ingresos}">Ingresos</span>
             <small class="adm-kpi-s" th:text="#{admin.res.kpi_ingresos_s(${#numbers.formatDecimal(fin.ingresosMes, 1, 'POINT', 0, 'COMMA')})}">este mes</small>
@@ -93,8 +93,9 @@
                 </p>
             </div>
             <div class="adm-mini-grid">
-                <p class="adm-mini"><strong th:text="'$' + ${#numbers.formatDecimal(tarjeta, 1, 'POINT', 0, 'COMMA')}">$0</strong><small th:text="#{checkout.tarjeta_de_credito_o_debito}">Tarjeta</small></p>
-                <p class="adm-mini"><strong th:text="'$' + ${#numbers.formatDecimal(pse, 1, 'POINT', 0, 'COMMA')}">$0</strong><small th:text="#{checkout.pse_o_transferencia}">PSE</small></p>
+                <!-- F1: leyenda de la dona; los colores son los mismos de SG_ADM.metodos (abajo) -->
+                <p class="adm-mini"><strong th:text="'$' + ${#numbers.formatDecimal(tarjeta, 1, 'POINT', 0, 'COMMA')}">$0</strong><small><i class="adm-punto" style="background:#38BDF8" aria-hidden="true"></i><span th:text="#{checkout.tarjeta_de_credito_o_debito}">Tarjeta</span></small></p>
+                <p class="adm-mini"><strong th:text="'$' + ${#numbers.formatDecimal(pse, 1, 'POINT', 0, 'COMMA')}">$0</strong><small><i class="adm-punto" style="background:#94A3B8" aria-hidden="true"></i><span th:text="#{checkout.pse_o_transferencia}">PSE</span></small></p>
                 <p class="adm-mini"><strong th:text="${fin.pctCompensados} + ' %'">0 %</strong><small th:text="#{admin.fin.compensaron}">compensaron su CO₂</small></p>
             </div>
         </section>
@@ -159,9 +160,10 @@
     <script th:inline="javascript">
         window.SG_ADM = {
             meses: /*[[${fin.meses}]]*/ [],
+            /* el verde queda para sostenibilidad: PSE va en gris neutro */
             metodos: [
                 { valor: /*[[${fin.porMetodo['TARJETA_CREDITO']}]]*/ 0, color: '#38BDF8' },
-                { valor: /*[[${fin.porMetodo['PSE']}]]*/ 0, color: '#34D399' }
+                { valor: /*[[${fin.porMetodo['PSE']}]]*/ 0, color: '#94A3B8' }
             ]
         };
     </script>

@@ -85,7 +85,8 @@
       scrollSuaveEnAnclas,
       inicializarComparador,
       inicializarLuzDeCursorEnCards,
-      pausarAnimacionesFuera
+      pausarAnimacionesFuera,
+      inclinarVidrioDelInicio
     ].forEach(function (fn) {
       try { fn(); } catch (e) { if (window.console) console.error('[SmartGlass] ' + fn.name, e); }
     });
@@ -467,6 +468,35 @@
       entries.forEach(function (en) { en.target.classList.toggle('sg-fuera', !en.isIntersecting); });
     }, { rootMargin: '80px 0px' });
     piezas.forEach(function (el) { obs.observe(el); });
+    // Con la pestana oculta tambien se pausa todo (sin gasto de bateria ni fotogramas al volver)
+    document.addEventListener('visibilitychange', function () {
+      document.documentElement.classList.toggle('sg-fuera', document.hidden);
+    });
+  }
+
+  /* --- Paneles de vidrio del inicio: siguen levemente al puntero (paralaje y reflejo).
+     Solo con raton/trackpad y sin movimiento reducido ni fotosensible. Escribe --px/--py
+     (-1..1) en .hero-visual; index.html los usa en transform, nada se repinta. --- */
+  function inclinarVidrioDelInicio() {
+    var visual = document.querySelector('.hero-visual');
+    var zona = visual && visual.closest('.hero');
+    if (!zona || !puntero) return;
+    var x = 0, y = 0, pendiente = false;
+    function pintar() {
+      pendiente = false;
+      visual.style.setProperty('--px', x.toFixed(3));
+      visual.style.setProperty('--py', y.toFixed(3));
+    }
+    function pedir() { if (!pendiente) { pendiente = true; requestAnimationFrame(pintar); } }
+    zona.addEventListener('pointermove', function (e) {
+      if (menosMovimiento()) { x = 0; y = 0; pedir(); return; }
+      var r = visual.getBoundingClientRect();
+      x = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width / 2 + 200)));
+      y = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height / 2 + 120)));
+      visual.classList.add('sg-vidrio-vivo');
+      pedir();
+    });
+    zona.addEventListener('pointerleave', function () { x = 0; y = 0; visual.classList.remove('sg-vidrio-vivo'); pedir(); });
   }
 
   /* --- T4: cifras que cuentan desde 0 al entrar en pantalla ---

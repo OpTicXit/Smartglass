@@ -9,10 +9,35 @@ El proyecto combina desarrollo backend, persistencia híbrida y minería de dato
 
 **¿Quieres practicar con el código?** Ve a [Practica con tu propia copia](#-practica-con-tu-propia-copia).
 
+<p align="center">
+  <img src="docs/img/inicio-claro.jpg" alt="Inicio de SmartGlass en tema claro: tres paneles de vidrio con una montaña y fichas de Sostenible, Resistente y Alta claridad" width="900">
+</p>
+
+---
+
+## 📸 Capturas
+
+Capturas reales de la aplicación corriendo en local con datos de demostración (`DEMO_DATOS=true`).
+
+| | |
+|---|---|
+| ![Inicio en tema oscuro](docs/img/inicio-oscuro.jpg) | ![Configurador por pasos](docs/img/configurador.jpg) |
+| **Inicio (tema oscuro).** Los paneles de vidrio flotan, reflejan la luz y siguen al puntero; sin animaciones en movimiento reducido o en el modo fotosensible. | **Configurador en 5 pasos.** Precio, peso y CO₂ estimado se actualizan con cada decisión. |
+| ![Ventana de la configuración recomendada](docs/img/recomendacion.jpg) | ![Editor de corte](docs/img/editor-corte.jpg) |
+| **Configuración recomendada.** Si la pieza queda con intensidad alta, compara tu diseño con una alternativa de menor huella antes de aplicarla. | **Editor de corte.** Formas base, contorno libre y puntos ajustables, con vista 3D y cifras del corte en vivo. |
+| ![Resumen del panel de administración](docs/img/admin-resumen.jpg) | ![Globo del informe técnico](docs/img/informe-globo.jpg) |
+| **Panel de administración.** Ventas por mes, cotizaciones por estado y la variación frente al último mes cerrado. | **Informe técnico.** Globo 3D con el CO₂ fósil por país como contexto externo, no el del vidrio. |
+
+<p align="center">
+  <img src="docs/img/informe-modelo.jpg" alt="Gráfica del CO₂ calculado y predicho por tipo de vidrio, con etiquetas de origen y la explicación ¿Qué estoy viendo?" width="900"><br>
+  <em>Cada bloque del informe dice de dónde salen sus datos (Plataforma, Estimado, Sintético, Modelo o Contexto externo) y explica qué muestra y cómo leerlo.</em>
+</p>
+
 ---
 
 ## 📑 Tabla de contenidos
 
+- [Capturas](#-capturas)
 - [Equipo de desarrollo](#-equipo-de-desarrollo)
 - [Objetivos del proyecto](#-objetivos-del-proyecto)
 - [Funcionalidades principales](#-funcionalidades-principales)
@@ -71,7 +96,8 @@ Desarrollar y evaluar una plataforma web para la venta de vidrio a medida que in
 - Pedidos con factura y seguimiento. Los detalles conservan el precio de la compra mediante campos de tipo *snapshot*.
 
 ### 📐 Diseño a medida
-- Configurador con precio, peso, resistencia y CO₂ que se actualizan al instante.
+- Configurador en 5 pasos (uso y vidrio, medidas y forma, acabados, huella, entrega y resumen) con precio, peso, resistencia y CO₂ que se actualizan al instante. Desde el inicio se puede empezar la pieza y seguirla en el configurador.
+- Si la pieza queda con intensidad de CO₂ alta, un aviso ofrece la configuración recomendada en una ventana que compara antes y después; el cliente decide si la aplica.
 - Editor de corte: formas base, contorno dibujado a mano y puntos ajustables. El área real del contorno entra en el precio y la huella.
 - Pintar y rellenar un diseño de color, que llega al taller como referencia y no cambia el precio.
 - Vista 3D en vivo de la pieza, que se puede girar y acercar.
@@ -90,13 +116,15 @@ Desarrollar y evaluar una plataforma web para la venta de vidrio a medida que in
 ### 🧭 Experiencia de uso
 - Guía de compra y recorrido guiado automático, con opción de pausarlo o repetirlo.
 - Español de Colombia, español de España e inglés.
-- Tema claro y oscuro, colores para daltonismo y un modo sin animaciones ni destellos.
+- Tema claro y oscuro, colores para daltonismo y un modo fotosensible sin animaciones ni destellos. También respeta la preferencia de movimiento reducido del sistema.
+- Las animaciones decorativas se pausan cuando salen de la pantalla o la pestaña queda oculta.
 
 ### 🧰 Panel de administración
-- Panel de vidrio con menú lateral, buscador de secciones (Ctrl+K), resumen con ventas por mes, cotizaciones por estado y cifras clave, y una página de Finanzas (ingresos, por cobrar, métodos de pago y exportación a CSV).
+- Panel de vidrio con menú lateral, buscador de secciones (Ctrl+K), resumen con ventas por mes, cotizaciones por estado y cifras clave, y una página de Finanzas (ingresos, por cobrar, métodos de pago y exportación a CSV). La variación de ingresos compara el último mes cerrado con el anterior, para que el mes en curso no parezca una caída.
 - Gestión de productos, pedidos, cotizaciones, usuarios y reseñas.
 - Planes Básico y Avanzado que activan o limitan funciones de la plataforma. Aún no tienen precio: se definirán con los resultados del piloto.
 - Informe técnico con un globo 3D interactivo, las gráficas del modelo y la proyección del CO₂ estimado a 1 semana, 1 mes, 5 meses, 1 año o 5 años (nunca más lejos que el historial disponible). El globo muestra el CO₂ fósil total por país en 2024 como contexto, no el del vidrio.
+- Cada bloque del informe lleva una etiqueta con el origen de sus datos (Plataforma, Estimado, Sintético, Modelo o Contexto externo) y un apartado «¿Qué estoy viendo?» con qué muestra, de dónde sale y cómo leerlo. Azul es la plataforma o la predicción y ámbar la comparación o la proyección; ningún color se usa como alerta.
 
 ### 📊 Minería de datos
 - Generación reproducible de datos sintéticos basados en factores de emisión documentados.
@@ -218,6 +246,7 @@ Smartglass/
 │   ├── metricas_modelo.csv         # Resultados de evaluación
 │   └── exportar_informe.py         # JSON del informe técnico del panel admin
 │
+├── docs/img/                       # Capturas de este README
 ├── scripts/                        # Utilidades, como las ilustraciones de las figuras
 ├── video promocional/              # Video del proyecto
 └── documentos/                     # Informe, propuesta del modelo, marca y pendón
@@ -545,7 +574,7 @@ Resultados en los 2.000 registros de prueba:
 
 El R² de validación cruzada es de 0,9615 ± 0,0036. En entrenamiento, el modelo obtiene R² 0,9947 y MAE de 4,86 kg: hay algo de sobreajuste, aunque la validación cruzada es estable.
 
-**Consideración metodológica:** el R² de 0,9613 no significa que acierte el 96 % de las veces: explica esa parte de la variación dentro de datos sintéticos. El modelo también falla más en los tipos con pocos registros; por ejemplo, fotovoltaico promedia 314 kg reales y 215 predichos. La precisión con piezas reales se medirá en la fase piloto.
+**Consideración metodológica:** el R² de 0,9613 no significa que acierte el 96 % de las veces: explica esa parte de la variación dentro de datos sintéticos. El modelo también falla más en los tipos con pocos registros; por ejemplo, fotovoltaico promedia 314 kg calculados en el dataset y 215 predichos. La precisión con piezas reales se medirá en la fase piloto.
 
 ### Flujo de trabajo analítico
 
