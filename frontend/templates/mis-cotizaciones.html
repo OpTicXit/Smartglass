@@ -194,7 +194,7 @@
 
 <th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>
-<script>
+<script th:attr="nonce=${cspNonce}">
 (function () {
     /* F45: vertices del corte personalizado ("x,y;x,y;..."); sin ellos se dibuja la forma fija */
     function puntosDe(d) {

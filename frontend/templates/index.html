@@ -531,10 +531,10 @@
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
-<script th:inline="javascript">window.SG_TXT.index_vista_previa = /*[[#{index2.vista_previa}]]*/ 'Vista previa de una pieza de vidrio {0}';</script>
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">window.SG_TXT.index_vista_previa = /*[[#{index2.vista_previa}]]*/ 'Vista previa de una pieza de vidrio {0}';</script>
 <script th:src="@{/js/glass-preview.js}"></script>
 <script th:src="@{/js/recorrido.js}" defer></script>
-<script>
+<script th:attr="nonce=${cspNonce}">
 /* Muestra del configurador (libertad de personalizacion): vidrio, forma y medidas redibujan la pieza y su
    CO2 al instante; "Seguir con esta pieza" la lleva al configurador con los mismos datos en la URL. */
 (function () {

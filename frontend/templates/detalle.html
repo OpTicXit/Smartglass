@@ -265,7 +265,7 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script>
+<script th:attr="nonce=${cspNonce}">
 /* T2: galeria del detalle (solo existe si hay vistas extra) */
 (function () {
     var principal = document.querySelector('[data-galeria-principal]');

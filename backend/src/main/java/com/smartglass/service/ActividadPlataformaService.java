@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  * Actividad en vivo del informe tecnico (/admin/informe-tecnico/vivo): suma lo guardado en la plataforma.
- * Sin cache, a diferencia de EstadisticasPlataformaService, porque el panel la consulta cada 30 s.
+ * Cache de 15 s: el panel la consulta cada 30 s por pestana y asi varias pestanas no repiten el calculo.
  * El CO2 es el del cotizador (AnalisisService), no el del modelo predictivo.
  */
 @Service
@@ -37,8 +37,21 @@ public class ActividadPlataformaService {
     public record Actividad(LocalDateTime generado, int cotizaciones, int pendientes, int pedidos, int pedidosSemana,
                             double co2Kg, int cotizacionesSemana, double co2KgSemana, int pctReciclado, List<Dia> dias) {}
 
+    /* Cada pestana abierta del informe pide esto cada 30 s y el calculo lee todas las cotizaciones y pedidos:
+       se reutiliza el resultado unos segundos. shortcut: lee todo con findAll; con miles de registros,
+       pasar los totales a una agregacion de Mongo y la grafica a un rango de fechas. */
+    private static final long VIGENCIA_MS = 15_000;
+    private volatile Actividad ultima;
+    private volatile long ultimaMs;
+
     public Actividad actividad() {
-        return calcular(LocalDateTime.now());
+        long ahora = System.currentTimeMillis();
+        Actividad a = ultima;
+        if (a != null && ahora - ultimaMs < VIGENCIA_MS) return a;
+        a = calcular(LocalDateTime.now());
+        ultima = a;
+        ultimaMs = ahora;
+        return a;
     }
 
     Actividad calcular(LocalDateTime ahora) {

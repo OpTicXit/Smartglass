@@ -223,7 +223,7 @@
     <noscript><p class="rv-empty" th:text="#{admin.resenas.activa_javascript_para_ver_las}">Activa JavaScript para ver las reseñas.</p></noscript>
 </main>
 
-<script th:inline="javascript">
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
 /* U1: textos del panel de resenas en el idioma activo (los {0} se rellenan en RV()) */
 window.RV_TXT = {
     sin_producto: /*[[#{adminjs.rv.sin_producto}]]*/ 'Sin producto asociado',
@@ -268,7 +268,7 @@ window.RV_TXT = {
     col_fecha: /*[[#{adminjs.rv.col_fecha}]]*/ 'Fecha'
 };
 </script>
-<script>
+<script th:attr="nonce=${cspNonce}">
 (function () {
     var POR_PAGINA = 10;
     var CLAVE_SEL = 'sg-resenas-sel';

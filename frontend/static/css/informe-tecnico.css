@@ -210,8 +210,8 @@
 .informe-indice {
     position: sticky; top: 86px; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
     margin: 0 0 22px; padding: 6px 6px 6px 10px; border: 1px solid var(--border-color); border-radius: 999px;
-    background: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
-    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: var(--shadow-card, 0 10px 24px -18px rgba(0, 0, 0, 0.4));
+    background: var(--bg-secondary);
+    box-shadow: var(--shadow-card, 0 10px 24px -18px rgba(0, 0, 0, 0.4));
 }
 .informe-indice ul { display: flex; flex-wrap: wrap; gap: 2px; margin: 0; padding: 0; list-style: none; }
 .informe-indice a {

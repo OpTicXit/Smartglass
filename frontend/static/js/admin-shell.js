@@ -188,6 +188,9 @@
     main.querySelectorAll('[data-adm-barras]').forEach(function (caja) { barras(caja, datos[caja.getAttribute('data-adm-barras')] || []); });
     main.querySelectorAll('[data-adm-dona]').forEach(function (caja) { dona(caja, datos[caja.getAttribute('data-adm-dona')] || []); });
 
+    /* ---------- Listas largas (Cotizaciones, Usuarios): paginas ---------- */
+    main.querySelectorAll('[data-paginar]').forEach(paginar);
+
     /* ---------- Finanzas: filtros y CSV ---------- */
     filtros(main);
     var csv = main.querySelector('[data-adm-csv]');
@@ -302,6 +305,44 @@
         if (vacio) vacio.hidden = visibles > 0;
       });
     });
+  }
+
+  /* Pagina los hijos de <div data-paginar="12">. Respeta los filtros de cada vista (que usan hidden):
+     solo reparte en paginas lo que el filtro deja ver, y vuelve a la primera cuando el filtro cambia. */
+  function paginar(lista) {
+    var tam = parseInt(lista.getAttribute('data-paginar'), 10) || 12, pagina = 0;
+    var items = Array.prototype.slice.call(lista.children);
+    var t = function (k, r) { return window.sgT ? sgT.apply(null, [k, r].concat([].slice.call(arguments, 2))) : r; };
+    var nav = document.createElement('nav');
+    nav.className = 'adm-paginas';
+    nav.setAttribute('aria-label', t('adm_paginas', 'Páginas'));
+    var rango = document.createElement('span');
+    rango.setAttribute('aria-live', 'polite');
+    var ant = document.createElement('button'), sig = document.createElement('button');
+    [ant, sig].forEach(function (b) { b.type = 'button'; b.className = 'adm-btn'; });
+    ant.textContent = t('adm_anterior', 'Anterior');
+    sig.textContent = t('adm_siguiente', 'Siguiente');
+    var botones = document.createElement('div');
+    botones.appendChild(ant); botones.appendChild(sig);
+    nav.appendChild(rango); nav.appendChild(botones);
+    lista.parentNode.insertBefore(nav, lista.nextSibling);
+    function pintar() {
+      var vis = items.filter(function (i) { return !i.hidden; });
+      var paginas = Math.max(1, Math.ceil(vis.length / tam));
+      pagina = Math.min(pagina, paginas - 1);
+      items.forEach(function (i) { i.classList.remove('adm-pag-fuera'); });
+      vis.forEach(function (i, k) { i.classList.toggle('adm-pag-fuera', Math.floor(k / tam) !== pagina); });
+      nav.hidden = vis.length <= tam;
+      var desde = pagina * tam + 1;
+      rango.textContent = t('adm_pag_rango', '{0}–{1} de {2}', desde, Math.min(vis.length, desde + tam - 1), vis.length);
+      ant.disabled = pagina === 0;
+      sig.disabled = pagina >= paginas - 1;
+    }
+    ant.addEventListener('click', function () { pagina--; pintar(); lista.scrollIntoView({ block: 'start' }); });
+    sig.addEventListener('click', function () { pagina++; pintar(); lista.scrollIntoView({ block: 'start' }); });
+    // El filtro de la vista cambia "hidden": se vuelve a la primera pagina
+    items.forEach(function (i) { new MutationObserver(function () { pagina = 0; pintar(); }).observe(i, { attributes: true, attributeFilter: ['hidden'] }); });
+    pintar();
   }
 
   /* CSV de las filas visibles; se genera en el navegador (no sale nada del equipo) */

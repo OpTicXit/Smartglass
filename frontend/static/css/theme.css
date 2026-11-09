@@ -368,6 +368,13 @@ html { scrollbar-color: var(--bg-tertiary) var(--bg-primary); }
 .nav-dropdown a[aria-current="page"] { background: var(--color-accent-dim); color: var(--color-accent-text); }
 .nav-dropdown a.is-danger { color: var(--color-error); }
 .nav-dropdown a.is-danger:hover { background: var(--color-error-dim); }
+/* Cerrar sesion va por POST (con token CSRF): el boton se ve igual que un enlace del menu */
+.nav-salir { margin: 0; }
+.nav-salir button {
+  display: flex; width: 100%; padding: 10px 12px; border: 0; border-radius: var(--r-sm); background: none;
+  font: inherit; font-size: 0.9rem; font-weight: 600; text-align: left; cursor: pointer; color: var(--color-error);
+}
+.nav-salir button:hover, .nav-salir button:focus-visible { background: var(--color-error-dim); }
 .nav-dropdown a.is-admin { color: var(--color-violet); }
 .nav-dropdown .nav-sep { height: 1px; margin: 6px 4px; background: var(--border-color); }
 .nav-dropdown .nav-head { padding: 8px 12px 4px; color: var(--text-muted); font-size: 0.75rem; font-weight: 700; }
@@ -1956,3 +1963,53 @@ html.sg-guia-vt::view-transition-new(root) { animation: sgGuiaEntrar 0.3s ease b
   .sg-guia-invita { animation: none; }
 }
 @media print { .sg-guia, .sg-guia-invita, .sg-guia-foco { display: none !important; } }
+
+/* =========================================================
+   FONDO DE VIDRIO (nov. 2026): laminas translucidas con canto de luz, refraccion cian y grano,
+   en una sola capa fija detras de todo (html::before, z-index -1). No entra en ningun componente.
+   - Deriva lenta (80 s ida y vuelta): solo transform, en su propia capa; nada se repinta.
+   - Intensidad: --vidrio-fondo (0 a 1). El panel usa menos para no restar a tablas y tarjetas.
+   - Movimiento reducido y fotosensible: la misma imagen, quieta. Al imprimir no aparece.
+========================================================= */
+:root {
+  --vidrio-fondo: 1;
+  --vf-lamina: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  --vf-borde: color-mix(in srgb, #FFFFFF 13%, transparent);
+  --vf-luz: color-mix(in srgb, var(--color-cyan) 9%, transparent);
+  --vf-luz-2: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  --vf-grano: 0.05;
+}
+:root[data-theme="light"] {
+  --vf-lamina: color-mix(in srgb, var(--color-accent) 4.5%, transparent);
+  --vf-borde: color-mix(in srgb, var(--color-accent) 13%, transparent);
+  --vf-luz: color-mix(in srgb, var(--color-cyan) 8%, transparent);
+  --vf-luz-2: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  --vf-grano: 0.035;
+}
+html::before {
+  content: ""; position: fixed; z-index: -1; pointer-events: none;
+  left: 50%; top: 50%; width: 150vmax; height: 150vmax; margin: -75vmax 0 0 -75vmax;
+  opacity: var(--vidrio-fondo);
+  background:
+    linear-gradient(118deg, transparent 0 31%, var(--vf-borde) 31% calc(31% + 1px), var(--vf-lamina) calc(31% + 1px) 38%, var(--vf-borde) 38% calc(38% + 1px), transparent calc(38% + 1px)),
+    linear-gradient(118deg, transparent 0 54%, var(--vf-borde) 54% calc(54% + 1px), var(--vf-lamina) calc(54% + 1px) 58%, transparent 58%),
+    linear-gradient(62deg, transparent 0 64%, var(--vf-borde) 64% calc(64% + 1px), var(--vf-lamina) calc(64% + 1px) 72%, var(--vf-borde) 72% calc(72% + 1px), transparent calc(72% + 1px)),
+    linear-gradient(62deg, transparent 0 41%, var(--vf-lamina) 41% 44%, var(--vf-borde) 44% calc(44% + 1px), transparent calc(44% + 1px)),
+    radial-gradient(30vmax 18vmax at 38% 42%, var(--vf-luz), transparent 70%),
+    radial-gradient(26vmax 16vmax at 64% 60%, var(--vf-luz-2), transparent 70%);
+  animation: vidrioDeriva 80s ease-in-out infinite alternate;
+  will-change: transform;
+}
+/* Grano fino (ruido SVG), quieto */
+html::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: var(--vf-grano);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.6 0 0 0 0 0.7 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+@keyframes vidrioDeriva {
+  from { transform: translate3d(-3vmax, -2vmax, 0) rotate(-2deg); }
+  to   { transform: translate3d(3vmax, 2vmax, 0) rotate(2deg); }
+}
+@media (prefers-reduced-motion: reduce) { html::before { animation: none; } }
+html[data-a11y~="fotosensible"]::before { animation: none !important; }
+html.sg-fuera::before { animation-play-state: paused; }
+@media print { html::before, html::after { display: none !important; } }

@@ -167,7 +167,7 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script>
+<script th:attr="nonce=${cspNonce}">
 /* Cantidades: al cambiarlas con los botones se guarda solo (con un pequeño
    retardo para agrupar varios clics); si se escribe a mano aparece "Actualizar". */
 (function () {

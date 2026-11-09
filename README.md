@@ -28,6 +28,11 @@ Capturas reales de la aplicación corriendo en local con datos de demostración 
 | ![Resumen del panel de administración](docs/img/admin-resumen.jpg) | ![Globo del informe técnico](docs/img/informe-globo.jpg) |
 | **Panel de administración.** Ventas por mes, cotizaciones por estado y la variación frente al último mes cerrado. | **Informe técnico.** Globo 3D con el CO₂ fósil por país como contexto externo, no el del vidrio. |
 
+| | |
+|---|---|
+| ![Submenú fijo del informe técnico y gráfica diaria a 90 días](docs/img/informe-submenu.jpg) | ![Pedidos con la barra para guardar los cambios](docs/img/pedidos.jpg) |
+| **Submenú del informe.** Salta entre apartados, exporta a CSV o PDF y cambia la gráfica diaria a 7, 30 o 90 días. | **Pedidos.** Los cambios de estado se guardan juntos desde una barra; la tabla se ordena por columna y se pagina. |
+
 <p align="center">
   <img src="docs/img/informe-modelo.jpg" alt="Gráfica del CO₂ calculado y predicho por tipo de vidrio, con etiquetas de origen y la explicación ¿Qué estoy viendo?" width="900"><br>
   <em>Cada bloque del informe dice de dónde salen sus datos (Plataforma, Estimado, Sintético, Modelo o Contexto externo) y explica qué muestra y cómo leerlo.</em>
@@ -93,15 +98,18 @@ Desarrollar y evaluar una plataforma web para la venta de vidrio a medida que in
 - Catálogo de 42 productos: 20 de vidrio plano, 7 esculturas y 15 figuras decorativas, con filtros por categoría y búsqueda.
 - Las figuras usan ilustraciones rotuladas como tales; los precios y las reseñas son de demostración.
 - Comparador de hasta tres productos, ofertas, control de existencias y carrito que no exige cuenta.
-- Pedidos con factura y seguimiento. Los detalles conservan el precio de la compra mediante campos de tipo *snapshot*.
+- Pedidos con factura y seguimiento; en Mis pedidos se ven los compromisos verdes elegidos (huella compensada, empaque reutilizable, entrega consolidada, retoma del vidrio). Los detalles conservan el precio de la compra mediante campos de tipo *snapshot*.
 
 ### 📐 Diseño a medida
 - Configurador en 5 pasos (uso y vidrio, medidas y forma, acabados, huella, entrega y resumen) con precio, peso, resistencia y CO₂ que se actualizan al instante. Desde el inicio se puede empezar la pieza y seguirla en el configurador.
 - Si la pieza queda con intensidad de CO₂ alta, un aviso ofrece la configuración recomendada en una ventana que compara antes y después; el cliente decide si la aplica.
 - Editor de corte: formas base, contorno dibujado a mano y puntos ajustables. El área real del contorno entra en el precio y la huella.
+- «Refinar trazado» limpia un dibujo a mano: une puntos sobrantes, quita el temblor y endereza los lados casi rectos; con «Simetría» copia en espejo la mitad izquierda. Se revierte con Deshacer y no cambia el cálculo.
 - Pintar y rellenar un diseño de color, que llega al taller como referencia y no cambia el precio.
 - Vista 3D en vivo de la pieza, que se puede girar y acercar.
 - Cotización que el taller aprueba o rechaza antes de que la pieza pase al carrito.
+- Lo secundario va en plegables «Más opciones» y un cuestionario opcional cuenta el uso previsto (exposición, viento o golpes, ruido, certificación). No cambia precio ni CO₂; el taller lo ve en el detalle de la obra.
+- Un descargo aclara que el precio y el CO₂ son estimaciones referenciales sujetas a la validación del taller.
 
 ### 🌱 Gestión ambiental
 - Huella de CO₂ por etapas (fusión, templado, laminado, capa activa y transporte), calculada con fórmulas deterministas (`AnalisisService`), no con el modelo predictivo.
@@ -111,17 +119,19 @@ Desarrollar y evaluar una plataforma web para la venta de vidrio a medida que in
 ### 🔐 Seguridad y cuentas
 - Usuarios, roles y autenticación con JSON Web Tokens (JWT) y Google OAuth2.
 - Spring Security con denegación por defecto, protección CSRF y límites de solicitudes.
-- Recuperación y cambio de contraseña con un código enviado por correo, si se configura un remitente.
+- Política de seguridad de contenido (CSP) con un *nonce* por petición: solo corren los scripts propios; un script inyectado no se ejecuta. Cerrar sesión va por POST con token CSRF.
+- Recuperación y cambio de contraseña con un código enviado por correo, si se configura un remitente. En Railway, que bloquea SMTP, el correo sale por la API HTTPS de Brevo (`BREVO_API_KEY`; ver [DESPLIEGUE.md](DESPLIEGUE.md)).
 
 ### 🧭 Experiencia de uso
 - Guía de compra y recorrido guiado automático, con opción de pausarlo o repetirlo.
 - Español de Colombia, español de España e inglés.
+- Fondo de láminas de vidrio translúcidas en todas las páginas (más tenue en el panel), quieto en el modo fotosensible y con movimiento reducido.
 - Tema claro y oscuro, colores para daltonismo y un modo fotosensible sin animaciones ni destellos. También respeta la preferencia de movimiento reducido del sistema.
 - Las animaciones decorativas se pausan cuando salen de la pantalla o la pestaña queda oculta.
 
 ### 🧰 Panel de administración
 - Panel de vidrio con menú lateral, buscador de secciones (Ctrl+K), resumen con ventas por mes, cotizaciones por estado y cifras clave, y una página de Finanzas (ingresos, por cobrar, métodos de pago y exportación a CSV). La variación de ingresos compara el último mes cerrado con el anterior, para que el mes en curso no parezca una caída.
-- Gestión de productos, pedidos, cotizaciones, usuarios y reseñas. En Pedidos, los cambios de estado se guardan todos juntos desde una sola barra, y la tabla se ordena por columna y se pagina.
+- Gestión de productos, pedidos, cotizaciones, usuarios y reseñas. En Pedidos, los cambios de estado se guardan todos juntos desde una sola barra, y la tabla se ordena por columna y se pagina. Cotizaciones y Usuarios tienen búsqueda y páginas de 12; Reseñas, búsqueda y páginas por producto.
 - Planes Básico y Avanzado que activan o limitan funciones de la plataforma. Aún no tienen precio: se definirán con los resultados del piloto.
 - Informe técnico con un globo 3D interactivo, las gráficas del modelo y la proyección del CO₂ estimado a 1 semana, 1 mes, 5 meses, 1 año o 5 años (nunca más lejos que el historial disponible). El globo muestra el CO₂ fósil total por país en 2024 como contexto, no el del vidrio.
 - Cada bloque del informe lleva una etiqueta con el origen de sus datos (Plataforma, Estimado, Sintético, Modelo o Contexto externo) y un apartado «¿Qué estoy viendo?» con qué muestra, de dónde sale y cómo leerlo. Azul es la plataforma o la predicción y ámbar la comparación o la proyección; ningún color se usa como alerta.
@@ -319,6 +329,7 @@ Después abre `.env` y ajusta estas variables:
 | `DEMO_DATOS` | No | Con `true`, carga clientes, cotizaciones y pedidos de ejemplo una sola vez, en una instalación nueva |
 | `DEMO_PASSWORD` | No | Contraseña de los clientes de ejemplo; sin ella nadie puede entrar con esas cuentas |
 | `MAIL_USERNAME`, `MAIL_PASSWORD` | No | Remitente de los códigos de recuperación; sin ellos, el inicio de sesión no ofrece esa opción |
+| `BREVO_API_KEY` | No | Envía esos códigos por la API HTTPS de Brevo en vez de SMTP (para Railway); con ella, `MAIL_PASSWORD` no hace falta |
 
 Las variables de despliegue de la plantilla van comentadas con `#`; déjalas así en local, porque una línea vacía como `MYSQL_URL=` impide arrancar. Sin una variable obligatoria, la aplicación tampoco arranca.
 

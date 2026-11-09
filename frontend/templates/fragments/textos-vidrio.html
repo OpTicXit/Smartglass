@@ -9,7 +9,7 @@
     Archivo generado junto con las claves T2 de messages*.properties (misma lista).
 -->
 <th:block th:fragment="textos">
-<script th:inline="javascript">
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
 window.SG_TXT = window.SG_TXT || {};
 (function (t) {
     t['gv_tipo_Crudo'] = /*[[#{vidrio.tipo.Crudo}]]*/ 'Crudo';
@@ -134,6 +134,16 @@ t['sgc_guia1'] = /*[[#{vidjs.sgc_guia1}]]*/ 'Elige una forma';
 t['sgc_guia2'] = /*[[#{vidjs.sgc_guia2}]]*/ 'Ajusta, dibuja o pinta';
 t['sgc_guia3'] = /*[[#{vidjs.sgc_guia3}]]*/ 'Confirma tu corte';
 t['sgc_como_se_usa'] = /*[[#{vidjs.sgc_como_se_usa}]]*/ 'Cómo se usa';
+t['sgc_refinar'] = /*[[#{vidjs.sgc_refinar}]]*/ 'Refinar trazado';
+t['sgc_refinar_t'] = /*[[#{vidjs.sgc_refinar_t}]]*/ 'Limpia el trazado: une puntos sobrantes, quita el temblor y endereza los lados casi rectos';
+t['sgc_simetria'] = /*[[#{vidjs.sgc_simetria}]]*/ 'Simetría';
+t['sgc_simetria_t'] = /*[[#{vidjs.sgc_simetria_t}]]*/ 'Al refinar, copia en espejo la mitad izquierda';
+t['sgc_refinar_igual'] = /*[[#{vidjs.sgc_refinar_igual}]]*/ 'El trazado ya estaba limpio: no hubo cambios.';
+t['sgc_refinar_invalido'] = /*[[#{vidjs.sgc_refinar_invalido}]]*/ 'El refinado dejaba un corte no válido ({0}); se mantuvo tu trazado.';
+t['sgc_refinar_hecho'] = /*[[#{vidjs.sgc_refinar_hecho}]]*/ 'Refinado: {0} → {1} puntos · área {2} → {3} m². Deshacer lo revierte.';
+t['sgc_refinar_sin_simetria'] = /*[[#{vidjs.sgc_refinar_sin_simetria}]]*/ 'La simetría no se aplicó: la forma no cruza el eje vertical en dos puntos.';
+t['sgc_refinar_ayuda'] = /*[[#{vidjs.sgc_refinar_ayuda}]]*/ 'une los puntos a menos de 1 cm y los que quedan casi en línea, quita el temblor de los tramos rectos sin tocar las esquinas y deja exactos los lados a menos de 4° de horizontal, vertical o diagonal. Con «Simetría» activa, además copia en espejo la mitad izquierda. Solo actúa al pulsarlo y se revierte con Deshacer.';
+t['sgc_descargo'] = /*[[#{vidjs.sgc_descargo}]]*/ 'El dibujo es una referencia geométrica; el taller valida el corte final.';
     t['sgc_rotar'] = /*[[#{vidjs.sgc_rotar}]]*/ 'Girar 90°';
     t['sgc_centrar'] = /*[[#{vidjs.sgc_centrar}]]*/ 'Centrar';
     t['sgc_espejo_h'] = /*[[#{vidjs.sgc_espejo_h}]]*/ 'Reflejar';

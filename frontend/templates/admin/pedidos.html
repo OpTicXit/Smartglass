@@ -153,7 +153,7 @@
 <div class="ped-toast" id="sg-toast" role="status" aria-live="polite"></div>
 
 <script th:src="@{/js/main.js}"></script>
-<script>
+<script th:attr="nonce=${cspNonce}">
 /* Guardado en lote: elegir un estado solo lo marca como pendiente; la barra de abajo
    envia TODOS los pendientes en un solo envio. Orden por columna y paginas en el navegador
    (las filas ocultas siguen en el formulario, asi que sus cambios tambien se guardan). */

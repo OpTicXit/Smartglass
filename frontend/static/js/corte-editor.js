@@ -566,7 +566,7 @@
         dis('sgc-eliminar', estado.puntos.length <= MIN_PUNTOS);
         dis('sgc-undo', !estado.undo.length);
         dis('sgc-redo', !estado.redo.length);
-        ['sgc-rotar', 'sgc-espejo-h', 'sgc-espejo-v', 'sgc-centrar', 'sgc-aplicar-medidas'].forEach(function (id) { dis(id, pocos); });
+        ['sgc-rotar', 'sgc-espejo-h', 'sgc-espejo-v', 'sgc-centrar', 'sgc-aplicar-medidas', 'sgc-refinar'].forEach(function (id) { dis(id, pocos); });
         Array.prototype.forEach.call(document.querySelectorAll('.sgc-forma-btn'), function (b) {
             b.setAttribute('aria-pressed', String(b.getAttribute('data-forma') === estado.formaBase));
         });
@@ -674,6 +674,114 @@
         }
         autosave();
     }
+    /* ------------------------------------------------------------------ refinar trazado (nov. 2026)
+       Un trazo a mano nunca sale perfecto. "Refinar trazado" lo limpia en el navegador, solo cuando se pulsa:
+       1) simplificar: une puntos a menos de 1 cm y quita los que estan casi en linea (menos de 0,75 cm);
+       2) suavizar: acerca a la recta de sus vecinos los puntos de tramos casi rectos (temblor), sin tocar esquinas;
+       3) enderezar: los lados a menos de 4 grados de 0, 45, 90 o 135 quedan exactos;
+       4) simetria (opcional): copia en espejo la mitad izquierda sobre el eje vertical de la pieza.
+       Es un paso de deshacer; si el resultado no es valido (puntos, cruces, area) se revierte y se avisa.
+       No cambia el calculo: el area la siguen sacando los puntos con la formula de siempre. */
+    var TOL_UNIR = 1, TOL_LINEA = 0.75, TOL_ANGULO = 4;
+    function simplificarPoligono(pts) {
+        var r = pts.slice(), cambio = true;
+        while (cambio && r.length > MIN_PUNTOS) {
+            cambio = false;
+            for (var i = 0; i < r.length && r.length > MIN_PUNTOS; i++) {
+                var a = r[(i - 1 + r.length) % r.length], p = r[i], b = r[(i + 1) % r.length];
+                if (Math.hypot(p.x - b.x, p.y - b.y) < TOL_UNIR || distSeg(p, a, b) < TOL_LINEA) { r.splice(i, 1); cambio = true; i--; }
+            }
+        }
+        return r;
+    }
+    function angulo(a, p, b) {   // angulo interior en p, en grados (180 = recto)
+        var u = Math.atan2(a.y - p.y, a.x - p.x), v = Math.atan2(b.y - p.y, b.x - p.x);
+        var d = Math.abs(u - v) * 180 / Math.PI;
+        return d > 180 ? 360 - d : d;
+    }
+    function suavizar(pts) {
+        var r = pts;
+        for (var pasada = 0; pasada < 2; pasada++) {
+            r = r.map(function (p, i) {
+                var a = r[(i - 1 + r.length) % r.length], b = r[(i + 1) % r.length];
+                if (angulo(a, p, b) < 155) return p;   // esquina: se respeta
+                return { x: p.x * 0.75 + (a.x + b.x) / 8, y: p.y * 0.75 + (a.y + b.y) / 8 };
+            });
+        }
+        return r;
+    }
+    function enderezar(pts) {
+        var r = cloneP(pts), n = r.length, fijo = r.map(function () { return false; });
+        function dir(i) { var a = r[i], b = r[(i + 1) % n]; var g = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI; return ((g % 180) + 180) % 180; }
+        function cerca(g, objetivo) { var d = Math.abs(g - objetivo); return Math.min(d, 180 - d) <= TOL_ANGULO; }
+        for (var i = 0; i < n; i++) {                              // horizontales y verticales
+            var a = r[i], b = r[(i + 1) % n], g = dir(i);
+            if (cerca(g, 0)) { var y = (a.y + b.y) / 2; a.y = y; b.y = y; fijo[i] = fijo[(i + 1) % n] = true; }
+            else if (cerca(g, 90)) { var x = (a.x + b.x) / 2; a.x = x; b.x = x; fijo[i] = fijo[(i + 1) % n] = true; }
+        }
+        for (var j = 0; j < n; j++) {                              // diagonales, si no rompen lo anterior
+            var c = r[j], d = r[(j + 1) % n], h = dir(j);
+            if (fijo[j] || fijo[(j + 1) % n]) continue;
+            var obj = cerca(h, 45) ? 45 : (cerca(h, 135) ? 135 : null);
+            if (obj === null) continue;
+            var mx = (c.x + d.x) / 2, my = (c.y + d.y) / 2, l = Math.hypot(d.x - c.x, d.y - c.y) / 2;
+            var ux = Math.cos(obj * Math.PI / 180), uy = Math.sin(obj * Math.PI / 180);
+            if ((d.x - c.x) * ux + (d.y - c.y) * uy < 0) { ux = -ux; uy = -uy; }
+            c.x = mx - ux * l; c.y = my - uy * l; d.x = mx + ux * l; d.y = my + uy * l;
+            fijo[j] = fijo[(j + 1) % n] = true;
+        }
+        return r;
+    }
+    /* Espejo de la mitad izquierda: solo si el contorno cruza el eje vertical exactamente dos veces */
+    function simetrizar(pts) {
+        var bb = bbox(pts), cx = bb.minX + bb.w / 2, n = pts.length, cortes = [];
+        for (var i = 0; i < n; i++) {
+            var a = pts[i], b = pts[(i + 1) % n];
+            if ((a.x - cx) * (b.x - cx) < 0) cortes.push({ i: i, y: a.y + (b.y - a.y) * (cx - a.x) / (b.x - a.x) });
+            else if (a.x === cx && b.x !== cx) cortes.push({ i: i, y: a.y });
+        }
+        if (cortes.length !== 2) return null;
+        function cadena(desde, hasta) {
+            var out = [], k = (desde + 1) % n, guarda = 0;
+            while (k !== (hasta + 1) % n && guarda++ < n) { out.push(pts[k]); k = (k + 1) % n; }
+            return out.filter(function (p) { return p.x < cx; });
+        }
+        var izquierda = cadena(cortes[0].i, cortes[1].i), ini = cortes[0], fin = cortes[1];
+        if (!izquierda.length) { izquierda = cadena(cortes[1].i, cortes[0].i); ini = cortes[1]; fin = cortes[0]; }
+        if (!izquierda.length) return null;
+        var espejo = izquierda.slice().reverse().map(function (p) { return { x: 2 * cx - p.x, y: p.y }; });
+        return [{ x: cx, y: ini.y }].concat(izquierda, [{ x: cx, y: fin.y }], espejo);
+    }
+    function refinarTrazado() {
+        if (estado.puntos.length < MIN_PUNTOS) return;
+        var antes = cloneP(estado.puntos), aAntes = areaPoligono(antes), aviso = $('sgc-refinado');
+        var r = suavizar(simplificarPoligono(antes));
+        r = simplificarPoligono(enderezar(simplificarPoligono(r)));
+        var sinSimetria = false;
+        if (estado.simetria) { var sim = simetrizar(r); if (sim) r = simplificarPoligono(sim); else sinSimetria = true; }
+        r = sinRepetidos(snapAll(dentroDelLienzo(r), 1));
+        if (r.length > 1 && r[0].x === r[r.length - 1].x && r[0].y === r[r.length - 1].y) r.pop();
+        var igual = r.length === antes.length && r.every(function (p, i) { return p.x === antes[i].x && p.y === antes[i].y; });
+        if (igual) { if (aviso) aviso.textContent = T('refinar_igual', 'El trazado ya estaba limpio: no hubo cambios.'); return; }
+        pushUndo();
+        estado.puntos = r;
+        var v = validez();
+        if (!v.ok) {
+            restaurarPaso(estado.undo.pop());
+            if (aviso) aviso.textContent = T('refinar_invalido', 'El refinado dejaba un corte no válido ({0}); se mantuvo tu trazado.', v.msg);
+            return;
+        }
+        estado.sel = -1; estado.formaBase = 'Libre';
+        pintarLienzo(); autosave();
+        var m2 = function (a) { return G.fmtNum(a / 10000, 2); };
+        if (aviso) aviso.textContent = T('refinar_hecho', 'Refinado: {0} → {1} puntos · área {2} → {3} m². Deshacer lo revierte.', antes.length, r.length, m2(aAntes), m2(areaPoligono(r)))
+            + (sinSimetria ? ' ' + T('refinar_sin_simetria', 'La simetría no se aplicó: la forma no cruza el eje vertical en dos puntos.') : '');
+    }
+    function alternarSimetria() {
+        estado.simetria = !estado.simetria;
+        var b = $('sgc-simetria'); if (b) b.setAttribute('aria-pressed', String(estado.simetria));
+    }
+
     function rotar90() { transformar(function (p, c) { return { x: c.x - (p.y - c.y), y: c.y + (p.x - c.x) }; }); }
     function espejoH() { transformar(function (p, c) { return { x: 2 * c.x - p.x, y: p.y }; }); }
     function espejoV() { transformar(function (p, c) { return { x: p.x, y: 2 * c.y - p.y }; }); }
@@ -855,13 +963,19 @@
             '<div class="sgc-row"><button type="button" id="sgc-eliminar" class="sgc-btn sgc-btn-warn">' + esc(T('quitar', 'Quitar punto')) + '</button><button type="button" id="sgc-reset" class="sgc-btn sgc-btn-ghost">' + esc(T('reiniciar', 'Reiniciar')) + '</button></div>' +
             '<label class="sgc-campo sgc-snap"><span>' + esc(T('rejilla', 'Imán de la rejilla')) + '</span><select id="sgc-snap">' +
             '<option value="1">1 cm</option><option value="5">5 cm</option><option value="10">10 cm</option></select></label>' +
-            '<details class="sgc-ayuda"><summary>' + esc(T('como_se_usa', 'Cómo se usa')) + '</summary><p class="sgc-hint">' + esc(T('ayuda', 'Toca o haz clic en el lienzo para añadir un punto (se inserta en la línea más cercana). Arrastra un punto para moverlo y el fondo para desplazar la vista; doble clic sobre un punto lo elimina. Con un punto elegido, las flechas lo mueven (Mayús: 10 cm). Mínimo {0}, máximo {1}.', MIN_PUNTOS, MAX_PUNTOS)) + '</p></details>' +
+            '<details class="sgc-ayuda"><summary>' + esc(T('como_se_usa', 'Cómo se usa')) + '</summary><p class="sgc-hint">' + esc(T('ayuda', 'Toca o haz clic en el lienzo para añadir un punto (se inserta en la línea más cercana). Arrastra un punto para moverlo y el fondo para desplazar la vista; doble clic sobre un punto lo elimina. Con un punto elegido, las flechas lo mueven (Mayús: 10 cm). Mínimo {0}, máximo {1}.', MIN_PUNTOS, MAX_PUNTOS)) + '</p>' +
+            '<p class="sgc-hint"><strong>' + esc(T('refinar', 'Refinar trazado')) + ':</strong> ' + esc(T('refinar_ayuda', 'une los puntos a menos de 1 cm y los que quedan casi en línea, quita el temblor de los tramos rectos sin tocar las esquinas y deja exactos los lados a menos de 4° de horizontal, vertical o diagonal. Con «Simetría» activa, además copia en espejo la mitad izquierda. Solo actúa al pulsarlo y se revierte con Deshacer.')) + '</p></details>' +
+            '<p class="sgc-hint sgc-descargo"><i class="ph ph-info" aria-hidden="true"></i> ' + esc(T('descargo', 'El dibujo es una referencia geométrica; el taller valida el corte final.')) + '</p>' +
             '<button type="button" id="sgc-r1" class="sgc-btn sgc-btn-eco">✦ ' + esc(T('balanceada', 'Versión balanceada (respeta tu forma)')) + '</button><ul id="sgc-r1-cambios" class="sgc-r1-cambios"></ul></aside>' +
             '<main class="sgc-canvas-wrap">' +
             '<div class="sgc-barra" role="toolbar" aria-label="' + esc(T('herramienta', 'Herramienta')) + '">' + botonesModo + '<span class="sgc-barra-sep" aria-hidden="true"></span>' +
             '<button type="button" id="sgc-undo" class="sgc-btn" title="' + esc(T('deshacer_t', 'Deshacer (Ctrl+Z)')) + '"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i><span>' + esc(T('deshacer', 'Deshacer')) + '</span></button>' +
-            '<button type="button" id="sgc-redo" class="sgc-btn" title="' + esc(T('rehacer_t', 'Rehacer (Ctrl+Y)')) + '"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i><span>' + esc(T('rehacer', 'Rehacer')) + '</span></button></div>' +
+            '<button type="button" id="sgc-redo" class="sgc-btn" title="' + esc(T('rehacer_t', 'Rehacer (Ctrl+Y)')) + '"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i><span>' + esc(T('rehacer', 'Rehacer')) + '</span></button>' +
+            '<span class="sgc-barra-sep" aria-hidden="true"></span>' +
+            '<button type="button" id="sgc-refinar" class="sgc-btn" title="' + esc(T('refinar_t', 'Limpia el trazado: une puntos sobrantes, quita el temblor y endereza los lados casi rectos')) + '"><i class="ph ph-sparkle" aria-hidden="true"></i><span>' + esc(T('refinar', 'Refinar trazado')) + '</span></button>' +
+            '<button type="button" id="sgc-simetria" class="sgc-btn sgc-toggle" aria-pressed="false" title="' + esc(T('simetria_t', 'Al refinar, copia en espejo la mitad izquierda')) + '"><i class="ph ph-flip-horizontal" aria-hidden="true"></i><span>' + esc(T('simetria', 'Simetría')) + '</span></button></div>' +
             '<p id="sgc-modo-ayuda" class="sgc-hint sgc-modo-ayuda" aria-live="polite"></p>' +
+            '<p id="sgc-refinado" class="sgc-hint sgc-refinado" aria-live="polite"></p>' +
             '<div class="sgc-lienzo-caja"><svg id="sgc-lienzo" viewBox="0 0 ' + LIENZO_W + ' ' + LIENZO_H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="' + esc(T('lienzo_aria', 'Lienzo de dibujo del corte')) + '"></svg>' +
             '<div class="sgc-zoom"><button type="button" id="sgc-zout" class="sgc-btn sgc-btn-mini" aria-label="' + esc(T('alejar', 'Alejar')) + '"><i class="ph ph-minus" aria-hidden="true"></i></button>' +
             '<span id="sgc-zval" aria-live="polite">100 %</span>' +
@@ -917,6 +1031,7 @@
             '.sgc-modo-btn[aria-pressed="true"]{border-color:var(--color-accent);background:var(--color-accent-dim)}' +
             '.sgc-modo-btn:focus-visible,.sgc-color:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}' +
             '.sgc-barra-sep{width:1px;align-self:stretch;margin:4px 3px;background:var(--border-color)}' +
+            '.sgc-barra .sgc-toggle[aria-pressed="true"]{background:var(--color-accent-dim);border-color:var(--border-hover)}.sgc-refinado{min-height:1.2em;margin:0 0 4px;text-align:center}.sgc-refinado:empty{display:none}.sgc-descargo{display:flex;gap:6px;align-items:flex-start;margin:6px 0 10px;color:var(--text-muted)}' +
             '.sgc-modo-ayuda{align-self:center;max-width:62ch;margin:0 0 6px;text-align:center}.sgc-modo-ayuda:empty{display:none}' +
             '.sgc-ayuda{margin:4px 0 10px;font-size:max(12px,.8rem)}.sgc-ayuda summary{cursor:pointer;font-weight:700;color:var(--color-accent-text);min-height:32px;display:flex;align-items:center}.sgc-ayuda .sgc-hint{margin:4px 0 0}' +
             '.sgc-pintura{margin-bottom:14px;padding:10px;border:1px solid var(--border-color);border-radius:10px}.sgc-pintura[hidden]{display:none}' +
@@ -1026,6 +1141,9 @@
         $('sgc-confirmar').onclick = confirmar;
         $('sgc-undo').onclick = undo;
         $('sgc-redo').onclick = redo;
+        $('sgc-refinar').onclick = refinarTrazado;
+        $('sgc-simetria').onclick = alternarSimetria;
+        $('sgc-simetria').setAttribute('aria-pressed', String(!!estado.simetria));
         $('sgc-eliminar').onclick = eliminarSeleccion;
         $('sgc-reset').onclick = function () { if (estado.puntos.length || estado.diseno) pushUndo(); estado.puntos = []; estado.diseno = null; estado.formaBase = 'Libre'; estado.sel = -1; encajar(); refrescarDiseno(); };
         Array.prototype.forEach.call(document.querySelectorAll('.sgc-modo-btn'), function (b) { b.onclick = function () { cambiarModo(b.getAttribute('data-modo')); }; });

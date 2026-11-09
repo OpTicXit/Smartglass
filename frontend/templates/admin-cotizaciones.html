@@ -149,7 +149,7 @@
     </label>
 
     <div class="cot-lista">
-        <div class="cot-grid">
+        <div class="cot-grid" data-paginar="12">
             <article class="cot-card" th:each="f : ${filas}" th:attr="aria-labelledby='cot-t-' + ${f.id},data-id=${f.id},data-tipo=${f.tipo},data-ancho=${f.ancho},data-alto=${f.alto},data-espesor=${f.espesor},data-forma=${f.forma},data-reciclado=${f.reciclado},data-puntos=${f.puntos},data-cliente=${f.cliente}">
                 <div class="cot-card-cab">
                     <span class="badge"
@@ -214,7 +214,7 @@
 
 <th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>
-<script>
+<script th:attr="nonce=${cspNonce}">
 (function () {
     /* Filtro activo: se anuncia a lectores de pantalla */
     /* F45: vertices del corte personalizado ("x,y;x,y;..."); sin ellos se dibuja la forma fija */

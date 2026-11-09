@@ -290,7 +290,7 @@
     </div>
 </main>
 
-<script>
+<script th:attr="nonce=${cspNonce}">
 /* El total mostrado incluye la compensacion si se marca (el servidor la cobra igual: PedidoService) */
 (function () {
     var chk = document.getElementById('compensarPedido'), tot = document.getElementById('totalPagar'), linea = document.getElementById('lineaCompensacion');

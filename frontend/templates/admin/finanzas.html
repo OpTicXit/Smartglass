@@ -157,7 +157,7 @@
         </div>
     </section>
 
-    <script th:inline="javascript">
+    <script th:inline="javascript" th:attr="nonce=${cspNonce}">
         window.SG_ADM = {
             meses: /*[[${fin.meses}]]*/ [],
             /* el verde queda para sostenibilidad: PSE va en gris neutro */

@@ -20,7 +20,7 @@
     <script th:src="@{/js/a11y-init.js}"></script>
     <!-- T0 i18n: idioma activo y textos de main.js (mismos messages*.properties que las vistas).
          Los {0} se rellenan en JS. Regla D2: aqui no hay numeros del contrato. -->
-    <script th:inline="javascript">
+    <script th:inline="javascript" th:attr="nonce=${cspNonce}">
     window.SG_LANG = /*[[${#locale.toLanguageTag()}]]*/ 'es-CO';
     window.SG_TXT = {
         saltar: /*[[#{js.saltar}]]*/ 'Saltar al contenido',
@@ -94,6 +94,10 @@
         nivel_moderado: /*[[#{js.nivel_moderado}]]*/ 'moderado',
         nivel_alto: /*[[#{js.nivel_alto}]]*/ 'alto',
         adm_guardar: /*[[#{js.adm_guardar}]]*/ 'Guardar',
+        adm_paginas: /*[[#{js.adm_paginas}]]*/ 'Páginas',
+        adm_anterior: /*[[#{js.adm_anterior}]]*/ 'Anterior',
+        adm_siguiente: /*[[#{js.adm_siguiente}]]*/ 'Siguiente',
+        adm_pag_rango: /*[[#{js.adm_pag_rango}]]*/ '{0}–{1} de {2}',
         adm_guardar_n: /*[[#{js.adm_guardar_n}]]*/ 'Guardar ({0})',
         adm_sin_cambios: /*[[#{js.adm_sin_cambios}]]*/ 'No hay cambios por guardar.',
         adm_agregar_catalogo: /*[[#{js.adm_agregar_catalogo}]]*/ 'Agregar al catálogo',

@@ -37,6 +37,8 @@ En los dos casos MongoDB va en **MongoDB Atlas** (el plan M0 gratuito alcanza pa
 | `UPLOADS_DIR` | Sí | `/data/uploads` (el `Dockerfile` ya la pone; el volumen se monta en `/data`) |
 | `PORT` | No | Lo asigna la plataforma |
 | `DB_POOL` | No | Conexiones a MySQL (por defecto 5) |
+| `MAIL_USERNAME` | No | Remitente de los códigos para recuperar la contraseña; sin él, el login no ofrece la opción |
+| `BREVO_API_KEY` | No | En Railway: envía esos correos por la API HTTPS de Brevo, porque el plan Hobby bloquea SMTP (ver abajo) |
 
 ## Railway, paso a paso
 
@@ -99,9 +101,19 @@ Los clientes usan correos `@example.com` (dominio reservado) y no tienen contras
 
 Si arrancas con bases vacías, la app crea las tablas, los índices, el catálogo inicial y, con `ADMIN_PASSWORD`, el usuario `admin`.
 
+### Recuperar la contraseña en Railway (Brevo)
+
+Railway bloquea SMTP en los planes Free, Trial y Hobby, así que Gmail no sirve allí. Brevo envía por HTTPS:
+
+1. Crea una cuenta gratuita en Brevo (300 correos al día).
+2. **Senders, domains & dedicated IPs → Senders → Add a sender** con el correo remitente (por ejemplo, el Gmail de recuperación) y confírmalo desde el correo que te llega.
+3. **SMTP & API → API keys → Generate a new API key**.
+4. En Railway: `MAIL_USERNAME` = ese remitente y `BREVO_API_KEY` = la clave. `MAIL_PASSWORD` puede quedar vacía.
+5. Prueba **¿Olvidaste tu contraseña?** con una cuenta que tenga un correo tuyo. Si no llega, el registro de Railway dice «Brevo respondio 401» (clave mala) o «400» (remitente sin verificar).
+
 ## Comprobaciones después de desplegar
 
-1. `https://<dominio>/salud` responde `ok`.
+1. `https://<dominio>/salud` responde `ok`. Su cabecera `X-Ip-Vista` debe ser tu IP pública, no una interna (`10.…`, `100.64…`, `fd…`): así el límite de solicitudes cuenta a cada visitante por separado.
 2. Inicio, catálogo y configurador cargan con estilos (las URL de CSS y JS llevan un hash).
 3. Login con usuario y contraseña, y login con Google (vuelve a `https://<dominio>/…`).
 4. Cotizar una obra, aprobarla desde el admin, añadirla al carrito y pagar.

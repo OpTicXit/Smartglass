@@ -174,7 +174,7 @@
                     </li>
                     <li class="nav-sep" role="separator"></li>
                     <li>
-                        <a class="is-danger" th:href="@{/logout}" th:text="#{adminnav.cerrar_sesion}">Cerrar sesión</a>
+                        <form class="nav-salir" th:action="@{/logout}" method="post"><button type="submit" class="is-danger" th:text="#{adminnav.cerrar_sesion}">Cerrar sesión</button></form>
                     </li>
                 </ul>
             </div>

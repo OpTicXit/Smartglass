@@ -162,7 +162,7 @@
                 <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}"
                      th:src="@{/img/{img}(img=${p.imagen})}"
                      th:alt="${@contenido.nombre(p)}" loading="lazy"
-                     onerror="this.remove()">
+                     data-quitar-si-falla>
                 <span class="prod-tipo" th:text="${p.tipo}"></span>
             </div>
             <div class="prod-body">
@@ -374,7 +374,7 @@
 </dialog>
 
 <script th:src="@{/js/main.js}"></script>
-<script>
+<script th:attr="nonce=${cspNonce}">
 (function () {
     /* ---------- T2: modal de stock y oferta ---------- */
     var dlg = document.getElementById('dlg-comercio');
@@ -397,7 +397,7 @@
     dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
 })();
 </script>
-<script>
+<script th:attr="nonce=${cspNonce}">
 (function () {
     /* ---------- Buscador + filtros por tipo ---------- */
     var cards = Array.prototype.slice.call(document.querySelectorAll('.prod-card'));

@@ -9,7 +9,7 @@
     js/entrada.js arma y anima la pantalla; estilos en theme.css "ENTRADA TRAS INICIAR SESION".
 -->
 <th:block th:fragment="entrada(nombre)">
-    <script>
+    <script th:attr="nonce=${cspNonce}">
     (function () {
         try {
             var h = document.documentElement;

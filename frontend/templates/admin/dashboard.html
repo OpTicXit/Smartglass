@@ -179,7 +179,7 @@
         </section>
     </div>
 
-    <script th:inline="javascript">
+    <script th:inline="javascript" th:attr="nonce=${cspNonce}">
         window.SG_ADM = {
             meses: /*[[${fin.meses}]]*/ [],
             cotizaciones: [

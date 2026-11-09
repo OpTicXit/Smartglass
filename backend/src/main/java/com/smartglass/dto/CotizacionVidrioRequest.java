@@ -40,6 +40,12 @@ public class CotizacionVidrioRequest {
     private List<PuntoCorte> puntosPersonalizados;
     // Diseno pintado en el editor (PNG en data URL). No entra en precio ni CO2; lo valida VidrioSostenibleService.
     private String disenoPng;
+    // Cuestionario opcional de uso (nov. 2026): no entra en precio ni CO2; VidrioSostenibleService lo normaliza
+    private String usoExposicion;
+    private String usoImpacto;
+    private String usoAcustico;
+    private String usoCertificacion;
+    private String usoComentario;
 
     public CotizacionVidrioRequest() {
     }
@@ -121,4 +127,15 @@ public class CotizacionVidrioRequest {
 
     public String getDisenoPng() { return disenoPng; }
     public void setDisenoPng(String disenoPng) { this.disenoPng = disenoPng; }
+
+    public String getUsoExposicion() { return usoExposicion; }
+    public void setUsoExposicion(String usoExposicion) { this.usoExposicion = usoExposicion; }
+    public String getUsoImpacto() { return usoImpacto; }
+    public void setUsoImpacto(String usoImpacto) { this.usoImpacto = usoImpacto; }
+    public String getUsoAcustico() { return usoAcustico; }
+    public void setUsoAcustico(String usoAcustico) { this.usoAcustico = usoAcustico; }
+    public String getUsoCertificacion() { return usoCertificacion; }
+    public void setUsoCertificacion(String usoCertificacion) { this.usoCertificacion = usoCertificacion; }
+    public String getUsoComentario() { return usoComentario; }
+    public void setUsoComentario(String usoComentario) { this.usoComentario = usoComentario; }
 }

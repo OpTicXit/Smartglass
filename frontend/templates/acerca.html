@@ -410,7 +410,7 @@
 
 <th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>
-<script>
+<script th:attr="nonce=${cspNonce}">
 /* Vitrina del hero: tres piezas reales del motor (decorativas) */
 (function () {
     if (!window.SGGlass) return;

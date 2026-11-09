@@ -7,7 +7,7 @@
     <!-- Entrada al configurador (nov. 2026): si se llego desde un boton de "Diseñar", un circulo crece
          desde ese punto (main.js lo guarda) y los bloques entran en cascada. Va en <head> porque
          pagereveal ocurre antes del primer cuadro. Sin movimiento reducido ni modo fotosensible. -->
-    <script>
+    <script th:attr="nonce=${cspNonce}">
     (function () {
         var d = null, h = document.documentElement;
         try { d = JSON.parse(sessionStorage.getItem('sg-config-desde') || 'null'); sessionStorage.removeItem('sg-config-desde'); } catch (e) { /* sin almacenamiento */ }
@@ -201,6 +201,20 @@
         }
         .hint { margin: 6px 0 0; color: var(--text-muted); font-size: 0.8rem; line-height: 1.5; }
         .fila-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        /* Plegables "Más opciones" (nov. 2026): lo secundario cerrado por defecto; se recuerda por sesion */
+        .mas-opciones { margin: 6px 0 16px; border: 1px solid var(--border-color); border-radius: 14px; background: var(--card-bg-soft, transparent); }
+        .mas-opciones > summary { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px; cursor: pointer; list-style: none; color: var(--text-main); font-size: 0.9rem; font-weight: 650; }
+        .mas-opciones > summary::-webkit-details-marker { display: none; }
+        .mas-opciones > summary::after { content: "+"; margin-left: auto; color: var(--text-muted); font-weight: 500; font-size: 1.1rem; }
+        .mas-opciones[open] > summary::after { content: "\2212"; }
+        .mas-opciones > summary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 12px; }
+        .mas-opciones > :not(summary) { margin-left: 14px; margin-right: 14px; max-width: calc(100% - 28px); box-sizing: border-box; }
+        .mas-opciones > :last-child { margin-bottom: 14px; }
+        .mas-opciones .hint { margin-top: 4px; }
+        .cuestionario textarea { width: 100%; min-height: 76px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--input-bg, var(--bg-secondary)); color: var(--text-main); font: inherit; resize: vertical; }
+        .descargo { display: flex; gap: 8px; align-items: flex-start; margin: 14px 0; padding: 12px 14px; border-radius: 12px; background: var(--card-bg-soft, transparent); border: 1px dashed var(--border-color); color: var(--text-muted); font-size: 0.84rem; line-height: 1.5; }
+        .descargo i { color: var(--color-accent-text, var(--color-accent)); margin-top: 2px; }
+        .descargo strong { color: var(--text-main); }
 
         /* Selector visual: se alimenta del <select> original, que sigue enviando el valor */
         select.is-picked { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
@@ -725,8 +739,11 @@
                         </div>
                         <input type="range" id="espesorRango" aria-label="Espesor en milímetros" th:aria-label="#{cotizar.espesor_en_milimetros}">
                     </div>
-                    <p class="hint" th:text="#{cotizar.limites_medidas}">Medidas permitidas: ancho y alto de 10 a 1.000 cm, espesor de 4 a 40 mm.</p>
-                    <p class="hint" th:text="#{cotizar.referencias_muebles_68_mm_ventanas}">Referencias: muebles 6–8 mm · ventanas 6–10 mm · duchas 8–10 mm · barandas y pisos 12–25 mm.</p>
+                    <details class="mas-opciones" data-plegable="medidas">
+                        <summary th:text="#{cotizar.mas_medidas}">Medidas permitidas y espesores de referencia</summary>
+                        <p class="hint" th:text="#{cotizar.limites_medidas}">Medidas permitidas: ancho y alto de 10 a 1.000 cm, espesor de 4 a 40 mm.</p>
+                        <p class="hint" th:text="#{cotizar.referencias_muebles_68_mm_ventanas}">Referencias: muebles 6–8 mm · ventanas 6–10 mm · duchas 8–10 mm · barandas y pisos 12–25 mm.</p>
+                    </details>
                 </div>
 
                 <div class="campo">
@@ -747,7 +764,10 @@
                         <option value="Irregular" th:text="#{cotizar.corte_irregular_requiere_plano_cad}">Corte irregular (Requiere plano CAD)</option>
                         <option value="Personalizada" th:if="${@plan.activa('CORTE_PERSONALIZADO')}" th:text="#{cotizar.corte_personalizado_dibuja_tu_pieza}">Corte personalizado (Dibuja tu pieza)</option>
                     </select>
-                    <p class="hint" th:text="#{cotizar.forma_nota}">Toda forma se cotiza por el rectángulo que la contiene, porque así se corta de la lámina. El corte personalizado se cobra por su área real.</p>
+                    <details class="mas-opciones" data-plegable="forma">
+                        <summary th:text="#{cotizar.mas_forma}">Cómo se cotiza cada forma</summary>
+                        <p class="hint" th:text="#{cotizar.forma_nota}">Toda forma se cotiza por el rectángulo que la contiene, porque así se corta de la lámina. El corte personalizado se cobra por su área real.</p>
+                    </details>
                     <!-- F45: vertices del corte ("x,y;x,y;..."); Spring los enlaza con CotizacionVidrioRequest.setPuntosTexto -->
                     <input type="hidden" name="puntosTexto" id="puntosTexto" value="">
                     <!-- Diseno pintado en el editor (PNG): referencia para el taller, no cambia precio ni CO2 -->
@@ -784,6 +804,8 @@
                     </select>
                 </div>
 
+                <details class="mas-opciones" data-plegable="acabados">
+                <summary th:text="#{cotizar.mas_acabados}">Más opciones: bordes y perforaciones</summary>
                 <div class="fila-2">
                     <div class="campo">
                         <label for="acabadoBordes" th:text="#{cotizar.acabado_de_bordes}">Acabado de bordes</label>
@@ -806,6 +828,7 @@
                         <p class="hint" th:text="#{cotizar.necesarias_para_bisagras_chapas_conectores}">Necesarias para bisagras, chapas, conectores o pasamanos.</p>
                     </div>
                 </div>
+                </details>
             </section>
 
             <!-- 4 · HUELLA -->
@@ -838,6 +861,8 @@
 
                 <!-- T3: compromisos sin costo (no entran en AnalisisService ni en el precio). T5: plan Avanzado -->
                 <th:block th:if="${@plan.activa('COMPROMISOS_VERDES')}">
+                <details class="mas-opciones" data-plegable="compromisos">
+                <summary th:text="#{cotizar.mas_compromisos}">Más opciones: compromisos sin costo</summary>
                 <div class="eco-grupo sep">
                     <h3 th:text="#{eco.grupo_compromisos}">Compromisos sin costo</h3>
                     <p th:text="#{eco.grupo_compromisos_sub}">No cambian el precio: reducen residuos y viajes, y suman a tu sello Compromiso verde.</p>
@@ -866,6 +891,7 @@
                     <span><strong th:text="#{eco.retazos_t}">Cortar de sobrantes de lámina</strong><small th:text="#{eco.retazos_d}">Si en planta hay un retazo compatible, tu pieza sale de ahí. Misma calidad y precio.</small></span>
                     <span class="chip-gratis" th:text="#{eco.gratis}">Sin costo</span>
                 </label>
+                </details>
                 </th:block>
             </section>
 
@@ -882,6 +908,57 @@
                     <span><span th:text="#{cotizar.entrega_urgente_prioritaria}">Entrega urgente / prioritaria</span><small th:text="#{cotizar.suma_un_20_al_precio}">Suma un 20 % al precio.</small></span>
                     <span class="chip-premium" th:text="#{cotizar.premium}">Premium</span>
                 </label>
+
+                <!-- Cuestionario opcional de uso (nov. 2026): no cambia precio ni CO2; se guarda con la cotizacion -->
+                <details class="mas-opciones cuestionario" data-plegable="cuestionario">
+                    <summary th:text="#{cotizar.cu_t}">Cuéntanos cómo se usará (opcional)</summary>
+                    <p class="hint" th:text="#{cotizar.cu_nota}">Ayuda al taller a revisar la pieza. No cambia el precio ni el CO₂ y puedes dejarlo en blanco.</p>
+                    <div class="fila-2">
+                        <div class="campo">
+                            <label for="usoExposicion" th:text="#{cotizar.cu_exposicion}">¿Dónde va la pieza?</label>
+                            <select name="usoExposicion" id="usoExposicion">
+                                <option value="" th:text="#{cotizar.cu_sin}">Sin responder</option>
+                                <option value="INTERIOR" th:text="#{cotizar.cu_exp_INTERIOR}">Interior</option>
+                                <option value="EXTERIOR" th:text="#{cotizar.cu_exp_EXTERIOR}">Exterior</option>
+                                <option value="FACHADA" th:text="#{cotizar.cu_exp_FACHADA}">Fachada</option>
+                            </select>
+                        </div>
+                        <div class="campo">
+                            <label for="usoImpacto" th:text="#{cotizar.cu_impacto}">¿Recibirá golpes o viento fuerte?</label>
+                            <select name="usoImpacto" id="usoImpacto">
+                                <option value="" th:text="#{cotizar.cu_sin}">Sin responder</option>
+                                <option value="NO" th:text="#{cotizar.cu_imp_NO}">No</option>
+                                <option value="IMPACTO" th:text="#{cotizar.cu_imp_IMPACTO}">Golpes o impactos</option>
+                                <option value="VIENTO" th:text="#{cotizar.cu_imp_VIENTO}">Viento fuerte</option>
+                                <option value="AMBOS" th:text="#{cotizar.cu_imp_AMBOS}">Ambos</option>
+                            </select>
+                        </div>
+                        <div class="campo">
+                            <label for="usoAcustico" th:text="#{cotizar.cu_acustico}">¿Necesita aislar el ruido?</label>
+                            <select name="usoAcustico" id="usoAcustico">
+                                <option value="" th:text="#{cotizar.cu_sin}">Sin responder</option>
+                                <option value="NO" th:text="#{cotizar.cu_ac_NO}">No</option>
+                                <option value="DESEABLE" th:text="#{cotizar.cu_ac_DESEABLE}">Sería bueno</option>
+                                <option value="IMPORTANTE" th:text="#{cotizar.cu_ac_IMPORTANTE}">Es importante</option>
+                            </select>
+                        </div>
+                        <div class="campo">
+                            <label for="usoCertificacion" th:text="#{cotizar.cu_certificacion}">¿El proyecto busca una certificación ambiental?</label>
+                            <select name="usoCertificacion" id="usoCertificacion">
+                                <option value="" th:text="#{cotizar.cu_sin}">Sin responder</option>
+                                <option value="NINGUNA" th:text="#{cotizar.cu_cert_NINGUNA}">Ninguna</option>
+                                <option value="LEED">LEED</option>
+                                <option value="EDGE">EDGE</option>
+                                <option value="OTRA" th:text="#{cotizar.cu_cert_OTRA}">Otra</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="campo">
+                        <label for="usoComentario" th:text="#{cotizar.cu_comentario}">Comentario</label>
+                        <textarea name="usoComentario" id="usoComentario" rows="3" maxlength="300" aria-describedby="usoComentarioAyuda"></textarea>
+                        <p class="hint" id="usoComentarioAyuda" th:text="#{cotizar.cu_comentario_ayuda}">Hasta 300 caracteres. No escribas datos personales (nombre, teléfono o dirección).</p>
+                    </div>
+                </details>
 
                 <!-- Resumen: lo llena el script con el texto de cada opcion elegida -->
                 <div class="resumen" id="resumen" hidden>
@@ -905,6 +982,9 @@
                             <button type="button" class="res-cambiar" data-ir-paso="3" th:attr="aria-label=|#{cotizar.paso_cambiar}: #{cotizar.res_eco}|" th:text="#{cotizar.paso_cambiar}">Cambiar</button></div>
                     </dl>
                 </div>
+
+                <p class="descargo"><i class="ph ph-info" aria-hidden="true"></i>
+                    <span><span th:text="#{cotizar.descargo_1}">Esta cotización es una</span> <strong th:text="#{cotizar.descargo_est}">estimación</strong> <span th:text="#{cotizar.descargo_2}">calculada con factores publicados de la industria; no es una medición de un horno específico. El precio y el diseño son referenciales y quedan sujetos a la validación técnica del taller (espesor, corte y herrajes). SmartGlass es un proyecto académico en fase piloto.</span></span></p>
 
                 <button type="submit" class="btn-forjar" id="btnForjar">
                     <strong th:text="#{cotizar.dar_vida_a_mi_obra}">Dar vida a mi obra</strong>
@@ -984,11 +1064,11 @@
 <script th:src="@{/js/glass-preview.js}"></script>
 <script th:src="@{/js/corte-editor.js}" th:if="${@plan.activa('CORTE_PERSONALIZADO')}"></script>
 <script th:src="@{/js/corte-3d.js}" th:attr="data-three=@{/vendor/three/three.module.min.js}" data-three="" th:if="${@plan.activa('CORTE_PERSONALIZADO')}"></script>
-<script th:inline="javascript">
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
     /* T3: pesos y cortes del sello Compromiso verde (fuente unica: CompromisoVerde.java) */
     window.SG_COMPROMISO = /*[[${compromisoVerde}]]*/ { pesos: { usarVidrioReciclado: 20, energiaRenovable: 20, compensarCarbono: 15, retomaVidrio: 15, empaqueReutilizable: 10, entregaConsolidada: 10, usarRetazos: 10 }, oro: 85, plata: 60, bronce: 35 };
 </script>
-<script>
+<script th:attr="nonce=${cspNonce}">
 (function () {
     function $(id) { return document.getElementById(id); }
     function evento(el) { el.dispatchEvent(new Event('input', { bubbles: true })); }
@@ -1469,7 +1549,7 @@
         if (i < pasos.length - 1) btnSig.querySelector('span').textContent = plantillaSig.replace('{0}', nombres[i + 1]);
         $('pasoCuenta').textContent = (i + 1) + ' / ' + pasos.length;
         if (cambia && !opciones.sinScroll) llevarAlPaso();
-        if (opciones.foco) { opciones.foco.focus({ preventScroll: false }); if (opciones.foco.reportValidity) opciones.foco.reportValidity(); }
+        if (opciones.foco) { var plegado = opciones.foco.closest('details'); if (plegado) plegado.open = true; opciones.foco.focus({ preventScroll: false }); if (opciones.foco.reportValidity) opciones.foco.reportValidity(); }
         else if (cambia && !opciones.sinFoco) pasos[i].querySelector('h2').focus({ preventScroll: true });
         if (cambia) { altura(); actualizarFades(); }
     }
@@ -1481,6 +1561,7 @@
     btnSig.addEventListener('click', function () { irPaso(pasoActual + 1); });
     /* Al enviar, un campo invalido en un paso oculto: se muestra ese paso para que el navegador lo senale */
     form.addEventListener('invalid', function (e) {
+        var plegado = e.target.closest('details'); if (plegado) plegado.open = true;
         var p = e.target.closest('.paso');
         if (p && p.hidden) irPaso(pasos.indexOf(p), { libre: true, sinFoco: true });
     }, true);
@@ -1489,6 +1570,19 @@
         mostrar: function (el) { var p = el && el.closest ? el.closest('.paso') : null; if (p && p.hidden) irPaso(pasos.indexOf(p), { libre: true, sinFoco: true }); }
     };
     form.classList.add('asistente');
+    /* Plegables "Más opciones": cerrados por defecto; el que la persona abre queda abierto en esta sesion */
+    (function () {
+        var CLAVE = 'sg-cfg-plegables', abiertos = {};
+        try { abiertos = JSON.parse(sessionStorage.getItem(CLAVE) || '{}') || {}; } catch (e) { abiertos = {}; }
+        form.querySelectorAll('details[data-plegable]').forEach(function (d) {
+            if (abiertos[d.dataset.plegable]) d.open = true;
+            d.addEventListener('toggle', function () {
+                abiertos[d.dataset.plegable] = d.open;
+                try { sessionStorage.setItem(CLAVE, JSON.stringify(abiertos)); } catch (e) { /* sin almacenamiento */ }
+                altura();
+            });
+        });
+    })();
     barraPasos.hidden = false;
     $('pasoNav').hidden = false;
     $('resumen').hidden = false;

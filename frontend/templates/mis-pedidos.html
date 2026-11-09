@@ -36,6 +36,12 @@
         .producto-info span { color: var(--text-muted); font-size: 0.84rem; }
         .producto-subtotal { font-weight: 600; font-variant-numeric: tabular-nums; }
 
+        /* Compromisos verdes elegidos en el checkout */
+        .pedido-compromisos { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 22px; border-top: 1px solid var(--border-color); }
+        .pedido-compromisos ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+        .pedido-compromisos > span { color: var(--text-muted); font-size: 0.82rem; font-weight: 600; margin-right: 4px; }
+        .pedido-compromisos li { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--color-success-dim, var(--color-accent-dim)); color: var(--text-main); font-size: 0.82rem; font-weight: 600; }
+        .pedido-compromisos i { color: var(--color-success, var(--color-accent)); }
         .pedido-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 22px; border-top: 1px solid var(--border-color); background: var(--surface-hover); }
         .total-label { display: block; color: var(--text-muted); font-size: 0.82rem; }
         .total-badge { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -143,6 +149,16 @@
                     <div class="producto-subtotal" th:text="${detalle.subtotalFormateado}">$0</div>
                 </li>
             </ul>
+
+            <div class="pedido-compromisos" th:if="${pedido.conCompromisos or pedido.compensacionCarbono}">
+                <span th:text="#{mispedidos.compromisos}">Compromisos verdes</span>
+                <ul>
+                <li th:if="${pedido.compensacionCarbono}"><i class="ph ph-leaf" aria-hidden="true"></i><span th:text="#{mispedidos.compensado}">Huella compensada</span></li>
+                <li th:if="${pedido.empaqueReutilizable}"><i class="ph ph-package" aria-hidden="true"></i><span th:text="#{eco.empaque_t}">Empaque reutilizable</span></li>
+                <li th:if="${pedido.entregaConsolidada}"><i class="ph ph-truck" aria-hidden="true"></i><span th:text="#{eco.consolidada_t}">Entrega consolidada</span></li>
+                <li th:if="${pedido.retomaVidrio}"><i class="ph ph-recycle" aria-hidden="true"></i><span th:text="#{eco.retoma_t}">Retoma del vidrio</span></li>
+                </ul>
+            </div>
 
             <footer class="pedido-footer">
                 <div>

@@ -85,7 +85,7 @@
     </div>
 
     <!-- Tarjetas -->
-    <div class="user-grid" id="user-grid" th:unless="${#lists.isEmpty(usuarios)}">
+    <div class="user-grid" id="user-grid" data-paginar="12" th:unless="${#lists.isEmpty(usuarios)}">
         <article class="user-card" th:each="u : ${usuarios}"
                  th:attr="data-rol=${u.tipoUsuario == 'ROLE_ADMIN'} ? 'admin' : 'usuario'">
             <div class="user-top">
@@ -121,7 +121,7 @@
 </main>
 
 <script th:src="@{/js/main.js}"></script>
-<script>
+<script th:attr="nonce=${cspNonce}">
 (function () {
     var cards = Array.prototype.slice.call(document.querySelectorAll('.user-card'));
     if (!cards.length) return;

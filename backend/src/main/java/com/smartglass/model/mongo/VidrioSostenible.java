@@ -85,6 +85,12 @@ public class VidrioSostenible {
     private Double areaPoligonal;   // m2, calculada por AnalisisService y guardada para no recalcular en cada vista
     // Diseno pintado sobre la pieza (PNG en data URL validado). Referencia para el taller: no cambia precio ni CO2
     private String disenoPng;
+    // Uso previsto que el cliente conto en el cuestionario opcional (codigos fijos + comentario). Null si lo omitio.
+    private String usoExposicion;
+    private String usoImpacto;
+    private String usoAcustico;
+    private String usoCertificacion;
+    private String usoComentario;
 
     public VidrioSostenible() {
         this.fechaCreacion = LocalDateTime.now();
@@ -246,4 +252,19 @@ public class VidrioSostenible {
     public void setDisenoPng(String disenoPng) { this.disenoPng = disenoPng; }
     public Double getAreaPoligonal() { return areaPoligonal; }
     public void setAreaPoligonal(Double areaPoligonal) { this.areaPoligonal = areaPoligonal; }
+
+    public String getUsoExposicion() { return usoExposicion; }
+    public void setUsoExposicion(String usoExposicion) { this.usoExposicion = usoExposicion; }
+    public String getUsoImpacto() { return usoImpacto; }
+    public void setUsoImpacto(String usoImpacto) { this.usoImpacto = usoImpacto; }
+    public String getUsoAcustico() { return usoAcustico; }
+    public void setUsoAcustico(String usoAcustico) { this.usoAcustico = usoAcustico; }
+    public String getUsoCertificacion() { return usoCertificacion; }
+    public void setUsoCertificacion(String usoCertificacion) { this.usoCertificacion = usoCertificacion; }
+    public String getUsoComentario() { return usoComentario; }
+    public void setUsoComentario(String usoComentario) { this.usoComentario = usoComentario; }
+    /** Hay al menos una respuesta del cuestionario de uso. */
+    public boolean isConCuestionario() {
+        return usoExposicion != null || usoImpacto != null || usoAcustico != null || usoCertificacion != null || usoComentario != null;
+    }
 }

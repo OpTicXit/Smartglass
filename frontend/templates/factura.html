@@ -84,7 +84,7 @@
 
 <div class="factura-barra no-print">
     <a th:href="@{/checkout/mis-pedidos}" class="back-link"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="#{factura.mis_pedidos}">Mis pedidos</span></a>
-    <button type="button" class="btn btn-primary" onclick="window.print()">
+    <button type="button" class="btn btn-primary" data-imprimir>
         <i class="ph ph-printer" aria-hidden="true"></i> <span th:text="#{factura.imprimir_o_guardar_pdf}">Imprimir o guardar PDF</span>
     </button>
 </div>

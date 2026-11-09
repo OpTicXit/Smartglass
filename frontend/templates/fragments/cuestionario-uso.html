@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+    Respuestas del cuestionario opcional de uso (nov. 2026), en el detalle de la obra y en la ficha ambiental.
+    Uso: <dl th:replace="~{fragments/cuestionario-uso :: respuestas(${vidrio}, 'ficha')}"></dl>
+    Los codigos vienen normalizados por VidrioSostenibleService (lista cerrada); el comentario se escapa con th:text.
+-->
+<dl th:fragment="respuestas(v, clase)" th:class="${clase} + ' cuestionario-uso'">
+    <div th:if="${v.usoExposicion != null}"><dt th:text="#{cotizar.cu_exposicion}">¿Dónde va la pieza?</dt><dd th:text="${#messages.msg('cotizar.cu_exp_' + v.usoExposicion)}"></dd></div>
+    <div th:if="${v.usoImpacto != null}"><dt th:text="#{cotizar.cu_impacto}">¿Recibirá golpes o viento fuerte?</dt><dd th:text="${#messages.msg('cotizar.cu_imp_' + v.usoImpacto)}"></dd></div>
+    <div th:if="${v.usoAcustico != null}"><dt th:text="#{cotizar.cu_acustico}">¿Necesita aislar el ruido?</dt><dd th:text="${#messages.msg('cotizar.cu_ac_' + v.usoAcustico)}"></dd></div>
+    <div th:if="${v.usoCertificacion != null}"><dt th:text="#{cotizar.cu_certificacion}">¿Certificación ambiental?</dt><dd th:text="${#messages.msg('cotizar.cu_cert_' + v.usoCertificacion)}"></dd></div>
+    <div th:if="${v.usoComentario != null}"><dt th:text="#{cotizar.cu_comentario}">Comentario</dt><dd th:text="${v.usoComentario}"></dd></div>
+</dl>
+</body>
+</html>

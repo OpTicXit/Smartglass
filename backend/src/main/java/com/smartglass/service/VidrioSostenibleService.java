@@ -103,6 +103,12 @@ public class VidrioSostenibleService {
         vidrio.setEmpaqueReutilizable(compromisos && request.isEmpaqueReutilizable());
         vidrio.setEntregaConsolidada(compromisos && request.isEntregaConsolidada() && !request.isUrgente());
         vidrio.setUsarRetazos(compromisos && request.isUsarRetazos());
+        // Cuestionario opcional de uso: solo codigos conocidos y un comentario corto; no toca precio ni CO2
+        vidrio.setUsoExposicion(opcion(request.getUsoExposicion(), EXPOSICION));
+        vidrio.setUsoImpacto(opcion(request.getUsoImpacto(), IMPACTO));
+        vidrio.setUsoAcustico(opcion(request.getUsoAcustico(), ACUSTICO));
+        vidrio.setUsoCertificacion(opcion(request.getUsoCertificacion(), CERTIFICACION));
+        vidrio.setUsoComentario(comentario(request.getUsoComentario()));
         // F45: los vertices deben estar puestos ANTES del analisis (AnalisisService decide si son validos)
         vidrio.setPuntosPersonalizados("Personalizada".equals(vidrio.getForma()) ? request.getPuntosPersonalizados() : null);
 
@@ -207,6 +213,24 @@ public class VidrioSostenibleService {
      * Limites de una cotizacion (cm, mm, %). El formulario ya los pide; esto frena peticiones manipuladas:
      * medidas negativas, NaN o Infinity daban precios y huellas negativos, y los textos no tenian tope.
      */
+    static final java.util.Set<String> EXPOSICION = java.util.Set.of("INTERIOR", "EXTERIOR", "FACHADA");
+    static final java.util.Set<String> IMPACTO = java.util.Set.of("NO", "IMPACTO", "VIENTO", "AMBOS");
+    static final java.util.Set<String> ACUSTICO = java.util.Set.of("NO", "DESEABLE", "IMPORTANTE");
+    static final java.util.Set<String> CERTIFICACION = java.util.Set.of("NINGUNA", "LEED", "EDGE", "OTRA");
+    static final int MAX_COMENTARIO = 300;
+
+    /** Una respuesta cerrada: el codigo si es conocido; vacio o desconocido = sin responder. */
+    static String opcion(String valor, java.util.Set<String> validas) {
+        return valor != null && validas.contains(valor.trim()) ? valor.trim() : null;
+    }
+
+    /** Comentario libre: sin caracteres de control, espacios unidos y tope de 300 (validar ya rechaza uno mas largo). */
+    static String comentario(String texto) {
+        if (texto == null) return null;
+        String limpio = texto.replaceAll("\\p{Cntrl}", " ").replaceAll("\\s+", " ").trim();
+        return limpio.isEmpty() ? null : limpio.substring(0, Math.min(limpio.length(), MAX_COMENTARIO));
+    }
+
     static void validar(CotizacionVidrioRequest r) {
         boolean textosLargos = java.util.stream.Stream.of(r.getTipoVidrio(), r.getForma(), r.getTratamiento(),
                 r.getColor(), r.getUsoPrincipal(), r.getAcabadoBordes()).anyMatch(t -> largo(t) > 120);
@@ -214,7 +238,7 @@ public class VidrioSostenibleService {
                 || r.getPerforaciones() < 0 || r.getPerforaciones() > 100
                 || r.getCantidadCapas() < 1 || r.getCantidadCapas() > 10
                 || r.getPorcentajeReciclado() < 0 || r.getPorcentajeReciclado() > 100
-                || largo(r.getNotasAdicionales()) > 2000 || textosLargos
+                || largo(r.getNotasAdicionales()) > 2000 || textosLargos || largo(r.getUsoComentario()) > MAX_COMENTARIO + 20
                 || (r.getPuntosPersonalizados() != null && r.getPuntosPersonalizados().size() > 200)
                 || !disenoValido(r.getDisenoPng())) {
             throw new IllegalArgumentException("Cotizacion fuera de los limites permitidos");

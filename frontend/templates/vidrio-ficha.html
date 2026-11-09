@@ -71,7 +71,7 @@
       th:attr="data-id=${vidrio.id},data-tipo=${vidrio.tipoVidrio},data-ancho=${vidrio.ancho},data-alto=${vidrio.alto},data-espesor=${vidrio.espesor},data-forma=${vidrio.forma},data-reciclado=${vidrio.usarVidrioReciclado},data-puntos=${vidrio.puntosTexto}">
 
     <div class="ficha-acciones">
-        <button type="button" class="btn btn-primary" onclick="window.print()"><i class="ph ph-printer" aria-hidden="true"></i> <span th:text="#{ficha.imprimir}">Imprimir o guardar en PDF</span></button>
+        <button type="button" class="btn btn-primary" data-imprimir><i class="ph ph-printer" aria-hidden="true"></i> <span th:text="#{ficha.imprimir}">Imprimir o guardar en PDF</span></button>
         <a class="btn btn-secondary" th:href="@{/vidrio-personalizado/cotizacion/{id}(id=${vidrio.id})}"><i class="ph ph-arrow-left" aria-hidden="true"></i> <span th:text="#{ficha.volver}">Volver a la obra</span></a>
     </div>
 
@@ -135,6 +135,11 @@
                 </table>
             </section>
 
+            <section class="ficha-bloque" th:if="${vidrio.conCuestionario}">
+                <h2 th:text="#{ficha.cu_t}">Notas de uso previstas</h2>
+                <dl th:replace="~{fragments/cuestionario-uso :: respuestas(${vidrio}, 'ficha-meta')}"></dl>
+            </section>
+
             <section class="ficha-bloque">
                 <h2 th:text="#{ficha.decisiones}">Decisiones sostenibles</h2>
                 <ul class="ficha-decisiones">
@@ -155,7 +160,7 @@
 
 <th:block th:replace="~{fragments/textos-vidrio :: textos}"></th:block>
 <script th:src="@{/js/glass-preview.js}"></script>
-<script>
+<script th:attr="nonce=${cspNonce}">
 (function () {
     var raiz = document.getElementById('ficha');
     if (!raiz) return;

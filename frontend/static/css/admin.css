@@ -568,10 +568,16 @@ T3: clases que reemplazan estilos en linea del panel
 }
 html[data-a11y~="daltotonico"] { --adm-barra: #3B82F6; --adm-barra-2: #1E40AF; }
 
-body:has(> .adm-shell) {
-    min-height: 100dvh;
+/* El fondo del panel va en el html para que la capa de vidrio (theme.css, html::before) quede encima
+   de el y debajo del contenido; en el panel va mas tenue */
+html:has(> body > .adm-shell) {
+    --vidrio-fondo: 0.5;
     background: var(--adm-fondo);
     background-attachment: fixed;
+}
+body:has(> .adm-shell) {
+    min-height: 100dvh;
+    background: transparent;
 }
 body:has(> .adm-shell)::before { display: none; }
 
@@ -1014,3 +1020,10 @@ html[data-a11y~="fotosensible"] :is(.adm-barra path, .adm-dona-parte) { animatio
 @keyframes admRueda { from { transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .adm-rueda-col { animation: none; } }
 html[data-a11y~="fotosensible"] .adm-rueda-col { animation: none !important; }
+
+/* Paginas de listas largas (admin-shell.js: paginar) */
+.adm-pag-fuera { display: none !important; }
+.adm-paginas { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; color: var(--text-muted); font-size: 0.86rem; }
+.adm-paginas[hidden] { display: none; }
+.adm-paginas div { display: flex; gap: 8px; }
+.adm-paginas .adm-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }

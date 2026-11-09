@@ -29,8 +29,19 @@ public class ProyeccionPlataformaService {
         this.vidrios = vidrios;
     }
 
+    /* Se pide cada 30 s con la actividad en vivo; la proyeccion cambia poco de un minuto a otro */
+    private static final long VIGENCIA_MS = 60_000;
+    private volatile ProyeccionCo2.Proyeccion ultima;
+    private volatile long ultimaMs;
+
     public ProyeccionCo2.Proyeccion proyeccion() {
-        return calcular(LocalDate.now(CatalogoProducto.ZONA));
+        long ahora = System.currentTimeMillis();
+        ProyeccionCo2.Proyeccion p = ultima;
+        if (p != null && ahora - ultimaMs < VIGENCIA_MS) return p;
+        p = calcular(LocalDate.now(CatalogoProducto.ZONA));
+        ultima = p;
+        ultimaMs = ahora;
+        return p;
     }
 
     ProyeccionCo2.Proyeccion calcular(LocalDate hoy) {

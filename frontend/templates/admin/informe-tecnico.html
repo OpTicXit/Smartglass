@@ -7,7 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <link rel="stylesheet" th:href="@{/css/informe-tecnico.css}">
     <!-- Textos de informe-tecnico.js e informe-globo.js -->
-    <script th:inline="javascript">
+    <script th:inline="javascript" th:attr="nonce=${cspNonce}">
     Object.assign(window.SG_TXT, {
         inf_pausar: /*[[#{admin.informe.pausar}]]*/ 'Pausar giro',
         inf_reanudar: /*[[#{admin.informe.reanudar}]]*/ 'Reanudar giro',

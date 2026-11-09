@@ -93,7 +93,7 @@
     <aside th:replace="~{fragments/auth-visual :: panel}"></aside>
 </div>
 
-<script>
+<script th:attr="nonce=${cspNonce}">
 (function () {
     var pass = document.getElementById('password'), conf = document.getElementById('confirmPassword'), hint = document.getElementById('confHint');
     function checklist() {

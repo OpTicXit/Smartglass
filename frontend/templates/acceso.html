@@ -275,7 +275,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
-<script th:inline="javascript">
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
 (function () {
     'use strict';
     var URL_DISPONIBLE = /*[[@{/registro/disponible}]]*/ '/registro/disponible';

@@ -4,6 +4,8 @@ import com.smartglass.security.JwtAuthenticationFilter;
 import com.smartglass.security.LoginRateLimitFilter;
 import com.smartglass.security.RateLimitFilter;
 import com.smartglass.service.CustomOAuth2UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,6 +58,8 @@ import java.util.Set;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private static final Logger LOG_OAUTH = LoggerFactory.getLogger(SecurityConfig.class);
 
     private final CustomSuccessHandler customSuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
@@ -122,10 +126,8 @@ public class SecurityConfig {
                         return a != null && a.startsWith("Bearer ");
                     });
             })
-            // CSP prudente: no limita scripts ni estilos (hay inline e imagenes externas), si plugins, <base> y marcos
+            // La Content-Security-Policy la pone CspNonceFilter (lleva un nonce distinto en cada peticion)
             .headers(headers -> headers
-                .contentSecurityPolicy(csp -> csp.policyDirectives(
-                    "object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"))
                 .referrerPolicy(ref -> ref.policy(ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
             )
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -203,15 +205,15 @@ public class SecurityConfig {
                     .userService(customOAuth2UserService)
                 )
                 .failureHandler((request, response, exception) -> {
-                    System.err.println("=== ERROR INTERNO EN OAUTH2 ===");
-                    System.err.println("Motivo: " + exception.getMessage());
-                    exception.printStackTrace();
+                    // Al log de Spring, sin traza: el motivo basta y no se llena la consola de Railway
+                    LOG_OAUTH.warn("Fallo el inicio de sesion con Google: {}", exception.getMessage());
                     response.sendRedirect("/login?error");
                 })
             )
+            // Cerrar sesion solo por POST con token CSRF: antes un enlace en otra pagina podia cerrarla
             .logout(logout -> logout
                 .logoutRequestMatcher(
-                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/logout")
+                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/logout")
                 )
                 .logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true)
