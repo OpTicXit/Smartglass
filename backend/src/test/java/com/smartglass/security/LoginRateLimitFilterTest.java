@@ -39,6 +39,17 @@ class LoginRateLimitFilterTest {
         assertEquals("203.0.113.7", RateLimitFilter.claveDeIp(desde("203.0.113.7"), false));
     }
 
+    @Test
+    void detrasDelProxyCuentaLaUltimaIpDeXForwardedFor() {
+        MockHttpServletRequest req = desde("162.220.232.10");                     // el proxy de la plataforma
+        req.addHeader("X-Forwarded-For", "1.2.3.4, 203.0.113.9");                 // el visitante escribio 1.2.3.4
+        assertEquals("203.0.113.9", RateLimitFilter.claveDeIp(req, true), "la que agrega el proxy, no la falsificable");
+        assertEquals("162.220.232.10", RateLimitFilter.claveDeIp(req, false), "sin proxy de confianza se ignora el encabezado");
+        MockHttpServletRequest solo = desde("162.220.232.10");
+        solo.addHeader("X-Forwarded-For", "198.51.100.4");
+        assertEquals("198.51.100.4", RateLimitFilter.claveDeIp(solo, true));
+    }
+
     private static MockHttpServletRequest desde(String ip) {
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.setRemoteAddr(ip);

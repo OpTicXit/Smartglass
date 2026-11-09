@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * - NO es un @Component a proposito: Spring Boot registraria el filtro dos veces (una como
  *   filtro de servlet, antes de la autenticacion). Lo crea SecurityConfig y lo coloca
  *   despues de UsernamePasswordAuthenticationFilter, cuando ya hay usuario autenticado.
- * - X-Forwarded-For solo se usa si confiarEnForwardedFor = true (detras de un proxy propio);
- *   si no, cualquiera podria cambiar de "IP" a voluntad o llenar la memoria con claves falsas.
+ * - X-Forwarded-For solo se usa si confiarEnForwardedFor = true (en prod, detras del proxy de Railway o Render),
+ *   y solo su ultima entrada, la que pone el proxy; si no, cualquiera podria cambiar de "IP" a voluntad.
  * - Memoria acotada: purga por inactividad y tope de cubetas.
  */
 public class RateLimitFilter extends OncePerRequestFilter {
@@ -148,13 +148,16 @@ public class RateLimitFilter extends OncePerRequestFilter {
      * IP del cliente para los limites (tambien la usa LoginRateLimitFilter). Las IPv6 se agrupan por /64:
      * una sola red domestica tiene millones de direcciones y, sin agrupar, cada una tendria su propia cubeta.
      */
-    static String claveDeIp(HttpServletRequest req, boolean confiarEnForwardedFor) {
+    public static String claveDeIp(HttpServletRequest req, boolean confiarEnForwardedFor) {
         String ip = req.getRemoteAddr();
         if (confiarEnForwardedFor) {
+            // La ULTIMA entrada la agrega el proxy de la plataforma con la IP que se le conecto; las anteriores
+            // las puede escribir el visitante (antes se tomaba la primera: bastaba un encabezado para cambiar de IP)
             String xf = req.getHeader("X-Forwarded-For");
             if (xf != null && !xf.isBlank()) {
-                String primera = xf.split(",")[0].trim();
-                if (!primera.isEmpty() && primera.length() <= 45) ip = primera;
+                String[] partes = xf.split(",");
+                String ultima = partes[partes.length - 1].trim();
+                if (!ultima.isEmpty() && ultima.length() <= 45) ip = ultima;
             }
         }
         if (ip == null || ip.indexOf(':') < 0) return ip;

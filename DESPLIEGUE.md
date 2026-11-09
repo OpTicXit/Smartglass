@@ -39,6 +39,7 @@ En los dos casos MongoDB va en **MongoDB Atlas** (el plan M0 gratuito alcanza pa
 | `DB_POOL` | No | Conexiones a MySQL (por defecto 5) |
 | `MAIL_USERNAME` | No | Remitente de los códigos para recuperar la contraseña; sin él, el login no ofrece la opción |
 | `BREVO_API_KEY` | No | En Railway: envía esos correos por la API HTTPS de Brevo, porque el plan Hobby bloquea SMTP (ver abajo) |
+| `RATELIMIT_CONFIAR_XFF` | No | `true` por defecto en `prod`: el límite de solicitudes usa la última IP de `X-Forwarded-For` (la que pone el proxy). Ponla en `false` solo si la app queda expuesta sin proxy |
 
 ## Railway, paso a paso
 

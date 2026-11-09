@@ -1,6 +1,8 @@
 package com.smartglass.controller;
 
+import com.smartglass.security.RateLimitFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,11 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SaludController {
 
-    /* X-Ip-Vista: la IP con la que la app ve a quien pregunta (la suya propia, nada ajeno). Sirve para
-       comprobar detras del proxy de Railway que el limite de solicitudes cuenta a cada visitante por separado. */
+    private final boolean confiarForwardedFor;
+
+    public SaludController(@Value("${smartglass.ratelimit.confiar-forwarded-for:false}") boolean confiarForwardedFor) {
+        this.confiarForwardedFor = confiarForwardedFor;
+    }
+
+    /* X-Ip-Vista: la IP con la que el limite de solicitudes cuenta a quien pregunta (la suya propia, nada ajeno).
+       Detras del proxy de Railway debe ser la IP publica del visitante, no la del proxy. */
     @GetMapping("/salud")
     public ResponseEntity<String> salud(HttpServletRequest request) {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
-                .header("X-Ip-Vista", request.getRemoteAddr()).body("ok");
+                .header("X-Ip-Vista", RateLimitFilter.claveDeIp(request, confiarForwardedFor)).body("ok");
     }
 }
