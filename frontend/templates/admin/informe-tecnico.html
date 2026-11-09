@@ -91,7 +91,10 @@
         inf_qv_colombia: /*[[#{admin.informe.qv_colombia}]]*/ ' Colombia emitió {0} Mt ese año, el {1} % del mundo.',
         inf_n_nota: /*[[#{admin.informe.n_nota}]]*/ '(n=…) = pocas piezas de ese tipo en el dataset: ahí el modelo aprende menos',
         inf_n: /*[[#{admin.informe.n}]]*/ 'Piezas en el dataset',
-        inf_vivo_base: /*[[#{admin.informe.vivo_base}]]*/ 'de {0} cotizaciones'
+        inf_vivo_base: /*[[#{admin.informe.vivo_base}]]*/ 'de {0} cotizaciones',
+        inf_vivo_pausa: /*[[#{admin.informe.vivo_pausa}]]*/ 'Actualizado a las {0} · En modo fotosensible no se actualiza solo: usa «Actualizar ahora».',
+        inf_csv_seccion: /*[[#{admin.informe.csv_seccion}]]*/ 'Apartado',
+        inf_csv_archivo: /*[[#{admin.informe.csv_archivo}]]*/ 'smartglass-informe-tecnico'
     });
     </script>
 </head>
@@ -137,8 +140,25 @@
     </section>
 
     <div class="container informe-cuerpo">
+        <!-- Submenu fijo: salta entre apartados y exporta. Marca el apartado visible (informe-tecnico.js) -->
+        <nav class="informe-indice" id="informe-indice" th:aria-label="#{admin.informe.indice}" aria-label="Apartados del informe">
+            <ul>
+                <li><a href="#informe-leer" th:text="#{admin.informe.ind_leer}">Cómo leer</a></li>
+                <li><a href="#paises" th:text="#{admin.informe.ind_paises}">Países</a></li>
+                <li><a href="#actividad" th:text="#{admin.informe.ind_actividad}">Actividad</a></li>
+                <li><a href="#simulacion" th:text="#{admin.informe.ind_simulacion}">Simulación</a></li>
+                <li><a href="#modelo" th:text="#{admin.informe.ind_modelo}">Modelo</a></li>
+            </ul>
+            <div class="informe-exportar">
+                <button type="button" class="adm-btn" id="informe-csv" th:title="#{admin.informe.csv_t}" title="Descarga los datos de todas las gráficas en un archivo CSV">
+                    <i class="ph ph-download-simple" aria-hidden="true"></i><span th:text="#{admin.informe.csv}">CSV</span></button>
+                <button type="button" class="adm-btn" id="informe-pdf" th:title="#{admin.informe.pdf_t}" title="Abre la impresión; elige «Guardar como PDF»">
+                    <i class="ph ph-printer" aria-hidden="true"></i><span th:text="#{admin.informe.pdf}">PDF</span></button>
+            </div>
+        </nav>
+
         <!-- Como leer el informe: origenes y colores antes de la primera grafica (nov. 2026) -->
-        <details class="informe-leer" open>
+        <details class="informe-leer" id="informe-leer" open>
             <summary><i class="ph ph-book-open-text" aria-hidden="true"></i><span th:text="#{admin.informe.leer_t}">Cómo leer este informe</span></summary>
             <p th:text="#{admin.informe.leer_intro}">Cada bloque dice de dónde salen sus datos con una etiqueta junto al título. El CO₂ de SmartGlass siempre se estima con factores de emisión; no se mide.</p>
             <div class="informe-leer-cols">
@@ -163,7 +183,7 @@
             <span id="informe-anio"></span>
         </p>
 
-        <figure class="grafica" data-grafica="paises">
+        <figure class="grafica" data-grafica="paises" id="paises">
             <figcaption><span data-titulo th:text="#{admin.informe.g_paises}">Países con más emisiones de CO₂</span><th:block th:replace="~{admin/fragments/informe :: origen('externo')}"></th:block></figcaption>
             <th:block th:replace="~{admin/fragments/informe :: queVeo('paises')}"></th:block>
         </figure>
@@ -174,9 +194,20 @@
         </div>
         <p class="informe-intro" th:text="#{admin.informe.vivo_intro}">Se actualiza sola con las cotizaciones y pedidos guardados en SmartGlass.</p>
         <th:block th:replace="~{admin/fragments/informe :: queVeo('vivo')}"></th:block>
-        <p class="informe-vivo" id="vivo-estado" role="status"></p>
+        <div class="vivo-barra">
+            <p class="informe-vivo" id="vivo-estado" role="status"></p>
+            <button type="button" class="adm-btn" id="vivo-actualizar"><i class="ph ph-arrow-clockwise" aria-hidden="true"></i><span th:text="#{admin.informe.vivo_actualizar}">Actualizar ahora</span></button>
+        </div>
         <div class="informe-metricas" id="vivo-metricas"></div>
-        <figure class="grafica" data-vivo-grafica><figcaption><span data-titulo th:text="#{admin.informe.g_vivo}">CO₂ estimado cotizado por día, últimos 30 días</span></figcaption></figure>
+        <figure class="grafica" data-vivo-grafica>
+            <figcaption class="vivo-cab"><span data-titulo th:text="#{admin.informe.g_vivo_dia}">CO₂ estimado cotizado por día</span>
+                <span class="adm-tabs" role="group" id="vivo-dias" th:aria-label="#{admin.informe.vivo_periodo}" aria-label="Periodo">
+                    <button type="button" data-dias="7" aria-pressed="false" th:text="#{admin.informe.vivo_7}">7 días</button>
+                    <button type="button" data-dias="30" aria-pressed="true" th:text="#{admin.informe.vivo_30}">30 días</button>
+                    <button type="button" data-dias="90" aria-pressed="false" th:text="#{admin.informe.vivo_90}">90 días</button>
+                </span>
+            </figcaption>
+        </figure>
 
         <section class="proy" data-proyeccion-bloque="plataforma" aria-labelledby="proy-plataforma-t">
             <div class="proy-cab">

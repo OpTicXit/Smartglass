@@ -205,3 +205,40 @@
 .grafica .g-proyeccion { fill: none; stroke: var(--graf-b); stroke-width: 2.4; stroke-dasharray: 7 6; stroke-linecap: round; }
 .grafica .g-banda { fill: var(--graf-b); fill-opacity: 0.16; stroke: none; }
 .grafica .g-hoy { stroke: var(--text-subtle); stroke-width: 1; stroke-dasharray: 2 4; }
+
+/* Submenu fijo del informe (nov. 2026): apartados + exportar. Queda bajo la barra superior del panel */
+.informe-indice {
+    position: sticky; top: 86px; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+    margin: 0 0 22px; padding: 6px 6px 6px 10px; border: 1px solid var(--border-color); border-radius: 999px;
+    background: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: var(--shadow-card, 0 10px 24px -18px rgba(0, 0, 0, 0.4));
+}
+.informe-indice ul { display: flex; flex-wrap: wrap; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.informe-indice a {
+    display: inline-flex; align-items: center; min-height: 34px; padding: 0 12px; border-radius: 999px;
+    color: var(--text-muted); font-size: 0.86rem; font-weight: 600; text-decoration: none;
+}
+.informe-indice a:hover { color: var(--text-main); background: color-mix(in srgb, var(--text-main) 6%, transparent); }
+.informe-indice a[aria-current="true"] { color: var(--color-accent-text, var(--color-accent)); background: var(--color-accent-dim); }
+.informe-indice a:focus-visible, .informe-exportar button:focus-visible, .vivo-barra button:focus-visible, #vivo-dias button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.informe-exportar { display: flex; gap: 6px; }
+.informe-exportar .adm-btn, .vivo-barra .adm-btn { min-height: 34px; padding: 0 14px; }
+#informe-leer, #paises, #actividad, #simulacion, #modelo { scroll-margin-top: 150px; }
+@media (max-width: 720px) {
+    .informe-indice { position: static; border-radius: 18px; }
+    .informe-indice ul { overflow-x: auto; flex-wrap: nowrap; width: 100%; }
+    .informe-indice a { white-space: nowrap; }
+}
+
+/* Actividad: estado + actualizar a mano, y periodo de la grafica diaria */
+.vivo-barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 0 0 16px; }
+.vivo-barra .informe-vivo { margin: 0; }
+.grafica figcaption.vivo-cab #vivo-dias { margin-left: auto; font-weight: 500; }
+
+/* Imprimir / Guardar como PDF: sin controles, con las explicaciones abiertas (informe-tecnico.js) */
+@media print {
+    .informe-indice, .globo-controles, .vivo-barra .adm-btn, #vivo-dias, .proy .adm-tabs, .grafica-tip, .sg-theme-switch { display: none !important; }
+    .globo-escena { height: 520px; break-after: page; }
+    .grafica, .proy, .que-veo, .informe-leer { break-inside: avoid; }
+    .grafica details.g-tabla { display: none; }
+}

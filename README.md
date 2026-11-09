@@ -121,10 +121,11 @@ Desarrollar y evaluar una plataforma web para la venta de vidrio a medida que in
 
 ### 🧰 Panel de administración
 - Panel de vidrio con menú lateral, buscador de secciones (Ctrl+K), resumen con ventas por mes, cotizaciones por estado y cifras clave, y una página de Finanzas (ingresos, por cobrar, métodos de pago y exportación a CSV). La variación de ingresos compara el último mes cerrado con el anterior, para que el mes en curso no parezca una caída.
-- Gestión de productos, pedidos, cotizaciones, usuarios y reseñas.
+- Gestión de productos, pedidos, cotizaciones, usuarios y reseñas. En Pedidos, los cambios de estado se guardan todos juntos desde una sola barra, y la tabla se ordena por columna y se pagina.
 - Planes Básico y Avanzado que activan o limitan funciones de la plataforma. Aún no tienen precio: se definirán con los resultados del piloto.
 - Informe técnico con un globo 3D interactivo, las gráficas del modelo y la proyección del CO₂ estimado a 1 semana, 1 mes, 5 meses, 1 año o 5 años (nunca más lejos que el historial disponible). El globo muestra el CO₂ fósil total por país en 2024 como contexto, no el del vidrio.
 - Cada bloque del informe lleva una etiqueta con el origen de sus datos (Plataforma, Estimado, Sintético, Modelo o Contexto externo) y un apartado «¿Qué estoy viendo?» con qué muestra, de dónde sale y cómo leerlo. Azul es la plataforma o la predicción y ámbar la comparación o la proyección; ningún color se usa como alerta.
+- El informe tiene un submenú fijo para saltar entre apartados y exporta los datos de todas las gráficas a CSV o la página a PDF (con la impresión del navegador). La gráfica diaria de la actividad se puede ver a 7, 30 o 90 días, y la actividad se actualiza cada 30 segundos salvo en el modo fotosensible, donde se actualiza con un botón.
 
 ### 📊 Minería de datos
 - Generación reproducible de datos sintéticos basados en factores de emisión documentados.

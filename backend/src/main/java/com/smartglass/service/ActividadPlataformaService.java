@@ -21,7 +21,7 @@ import java.util.Map;
 @Service
 public class ActividadPlataformaService {
 
-    private static final int DIAS_GRAFICA = 30;
+    private static final int DIAS_GRAFICA = 90;   // la pagina muestra 7, 30 o 90
     private static final int DIAS_SEMANA = 7;
 
     private final VidrioSostenibleRepository vidrioRepository;

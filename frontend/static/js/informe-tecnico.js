@@ -319,9 +319,13 @@
 
     /* Actividad en vivo: consulta la plataforma cada 30 s mientras la pestana esta a la vista */
     var CADA_MS = 30000, vivoFig = document.querySelector('[data-vivo-grafica]'), vivoEstado = document.getElementById('vivo-estado');
-    var vivoMetricas = document.getElementById('vivo-metricas'), vivoHora = '';
+    var vivoMetricas = document.getElementById('vivo-metricas'), vivoHora = '', diasVista = 30;
+    /* WCAG 2.2.2: en modo fotosensible el contenido no cambia solo; se actualiza con el boton */
+    function fotosensible() { return /(^|\s)fotosensible(\s|$)/.test(document.documentElement.getAttribute('data-a11y') || ''); }
 
-    function grafVivo(dias) {
+    function grafVivo(todos) {
+        var dias = todos.slice(-diasVista);
+        var cada = dias.length <= 7 ? 1 : (dias.length <= 31 ? 7 : 14);
         var abierta = vivoFig.querySelector('details.g-tabla');
         var estabaAbierta = abierta && abierta.open;
         var ancho = Math.max(280, vivoFig.clientWidth - 36), alto = 190, m = { a: 8, b: 26, i: 44, d: 6 };
@@ -344,7 +348,7 @@
                     'class': 'g-a', 'pointer-events': 'none'
                 }, s);
             }
-            if ((dias.length - 1 - i) % 7 === 0) nodo('text', { x: x + paso / 2, y: alto - 8, 'text-anchor': 'middle' }, s, fecha);
+            if ((dias.length - 1 - i) % cada === 0) nodo('text', { x: x + paso / 2, y: alto - 8, 'text-anchor': 'middle' }, s, fecha);
             conTip(franja, fecha, NUM.format(d.co2Kg) + ' kg · ' + d.cotizaciones + ' ' + sgT('inf_vivo_cotizaciones').toLowerCase());
         });
         if (abierta) abierta.remove();
@@ -357,7 +361,7 @@
     function pintarVivo(a) {
         vivoHora = new Date().toLocaleTimeString(window.SG_LANG || 'es-CO');
         vivoEstado.classList.remove('con-error');
-        vivoEstado.textContent = sgT('inf_vivo_estado', '', vivoHora);
+        vivoEstado.textContent = fotosensible() ? sgT('inf_vivo_pausa', '', vivoHora) : sgT('inf_vivo_estado', '', vivoHora);
         vivoMetricas.textContent = '';
         [[ENTERO.format(a.cotizaciones), sgT('inf_vivo_cotizaciones')], [ENTERO.format(a.pendientes), sgT('inf_vivo_pendientes')],
          [ENTERO.format(a.pedidos), sgT('inf_vivo_pedidos')], [NUM.format(a.co2Kg) + ' kg', sgT('inf_vivo_co2')],
@@ -529,8 +533,78 @@
         }
     }
     consultarVivo();
-    setInterval(consultarVivo, CADA_MS);
-    document.addEventListener('visibilitychange', consultarVivo);
+    setInterval(function () { if (!fotosensible()) consultarVivo(); }, CADA_MS);
+    document.addEventListener('visibilitychange', function () { if (!fotosensible()) consultarVivo(); });
+    var botonVivo = document.getElementById('vivo-actualizar');
+    if (botonVivo) botonVivo.addEventListener('click', consultarVivo);
+
+    /* Periodo de la grafica diaria: 7, 30 o 90 dias (el servidor manda 90) */
+    var selDias = document.getElementById('vivo-dias');
+    if (selDias) selDias.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-dias]');
+        if (!b) return;
+        diasVista = parseInt(b.dataset.dias, 10);
+        Array.prototype.forEach.call(selDias.children, function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        if (vivoFig.sgDias) grafVivo(vivoFig.sgDias);
+    });
+
+    /* Submenu: marca el apartado que se esta leyendo */
+    var indice = document.getElementById('informe-indice');
+    if (indice && 'IntersectionObserver' in window) {
+        var enlaces = Array.prototype.slice.call(indice.querySelectorAll('a[href^="#"]'));
+        var marcar = new IntersectionObserver(function (entradas) {
+            entradas.forEach(function (en) {
+                if (!en.isIntersecting) return;
+                enlaces.forEach(function (a) {
+                    if (a.getAttribute('href') === '#' + en.target.id) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+                });
+            });
+        }, { rootMargin: '-160px 0px -60% 0px' });
+        enlaces.forEach(function (a) { var t = document.getElementById(a.getAttribute('href').slice(1)); if (t) marcar.observe(t); });
+    }
+
+    /* Exportar: CSV con las tablas de todas las graficas (se arma en el navegador) y PDF con la impresion */
+    function exportarCsv() {
+        var celda = function (t) { t = String(t == null ? '' : t).replace(/\s+/g, ' ').trim(); return /[";\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+        var tituloPrevio = function (el) { while ((el = el.previousElementSibling)) { if (/^H[23]$/.test(el.tagName)) return el.textContent; } return ''; };
+        var lineas = [];
+        main.querySelectorAll('figure.grafica, .informe-tabla, #informe-metricas, #vivo-metricas').forEach(function (bloque) {
+            var titulo = bloque.querySelector('[data-titulo]'), tablaB = bloque.querySelector('table');
+            var nombre = titulo ? titulo.textContent : tituloPrevio(bloque);
+            if (bloque.id === 'informe-metricas') nombre = sgT('inf_csv_seccion') + ': ' + (document.querySelector('#modelo h2') || {}).textContent;
+            if (bloque.id === 'vivo-metricas') nombre = sgT('inf_csv_seccion') + ': ' + (document.querySelector('#actividad h2') || {}).textContent;
+            var filas = [];
+            if (tablaB) {
+                tablaB.querySelectorAll('tr').forEach(function (tr) { filas.push(Array.prototype.map.call(tr.children, function (c) { return celda(c.textContent); }).join(';')); });
+            } else {
+                bloque.querySelectorAll(':scope > div').forEach(function (d) {
+                    var b = d.querySelector('b'), t = d.querySelector('small');
+                    if (b && t) filas.push(celda(t.textContent) + ';' + celda(b.textContent));
+                });
+            }
+            if (!filas.length) return;
+            lineas.push(celda(nombre));
+            lineas = lineas.concat(filas);
+            lineas.push('');
+        });
+        var blob = new Blob(['﻿' + lineas.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = sgT('inf_csv_archivo', 'smartglass-informe-tecnico') + '-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    }
+    var botonCsv = document.getElementById('informe-csv'), botonPdf = document.getElementById('informe-pdf');
+    if (botonCsv) botonCsv.addEventListener('click', exportarCsv);
+    if (botonPdf) botonPdf.addEventListener('click', function () { window.print(); });
+    /* Al imprimir se abren las explicaciones y las tablas; al volver quedan como estaban */
+    var abiertas = [];
+    addEventListener('beforeprint', function () {
+        abiertas = Array.prototype.filter.call(main.querySelectorAll('details'), function (d) { return !d.open; });
+        abiertas.forEach(function (d) { d.open = true; });
+    });
+    addEventListener('afterprint', function () { abiertas.forEach(function (d) { d.open = false; }); abiertas = []; });
     addEventListener('resize', function () {
         if (vivoFig.sgDias) grafVivo(vivoFig.sgDias);
         [bloquePlataforma, bloqueSimulacion].forEach(function (b) { if (b && b.sgProy) grafProyeccion(b, b.sgProy.p, b.sgProy.clave); });

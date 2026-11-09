@@ -40,8 +40,8 @@ class ActividadPlataformaServiceTest {
         when(vidrios.findAll()).thenReturn(List.of(
                 obra(AHORA.minusHours(1), 10, true, "COTIZACION"),
                 obra(AHORA.minusDays(6), 20, false, "APROBADO"),
-                obra(AHORA.minusDays(7), 30, false, "COTIZACION"),   // fuera de los 7 dias, dentro de los 30
-                obra(AHORA.minusDays(40), 40, true, "RECHAZADA"),    // fuera de la grafica, cuenta en el total
+                obra(AHORA.minusDays(7), 30, false, "COTIZACION"),   // fuera de los 7 dias, dentro de la grafica
+                obra(AHORA.minusDays(100), 40, true, "RECHAZADA"),   // fuera de los 90 dias de la grafica, cuenta en el total
                 obra(null, 5, false, "APROBADO")));
         when(pedidos.findAll()).thenReturn(List.of(pedido(AHORA.minusDays(2)), pedido(AHORA.minusDays(20)), pedido(null)));
 
@@ -55,11 +55,11 @@ class ActividadPlataformaServiceTest {
         assertEquals(3, a.pedidos());
         assertEquals(1, a.pedidosSemana());
         assertEquals(40, a.pctReciclado());
-        assertEquals(30, a.dias().size());
-        assertEquals(LocalDate.of(2026, 11, 4), a.dias().get(29).fecha());
-        assertEquals(10.0, a.dias().get(29).co2Kg());
-        assertEquals(30.0, a.dias().get(22).co2Kg());
-        assertEquals(1, a.dias().get(22).cotizaciones());
+        assertEquals(90, a.dias().size());
+        assertEquals(LocalDate.of(2026, 11, 4), a.dias().get(89).fecha());
+        assertEquals(10.0, a.dias().get(89).co2Kg());
+        assertEquals(30.0, a.dias().get(82).co2Kg());
+        assertEquals(1, a.dias().get(82).cotizaciones());
     }
 
     @Test
@@ -73,6 +73,6 @@ class ActividadPlataformaServiceTest {
 
         assertEquals(0, a.pctReciclado());
         assertEquals(0.0, a.co2Kg());
-        assertEquals(30, a.dias().size());
+        assertEquals(90, a.dias().size());
     }
 }

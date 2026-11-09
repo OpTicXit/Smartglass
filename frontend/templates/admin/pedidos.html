@@ -7,7 +7,30 @@
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 
     <style>
-        .hint-guardado { margin: -8px 0 18px; color: var(--text-muted); font-size: 0.88rem; }
+        .hint-guardado { margin: -8px 0 6px; color: var(--text-muted); font-size: 0.88rem; }
+        .leyenda-factura { display: flex; gap: 8px; align-items: baseline; margin: 0 0 18px; color: var(--text-muted); font-size: 0.82rem; }
+        .leyenda-factura code { padding: 1px 6px; border-radius: 6px; background: var(--card-bg-soft); color: var(--text-main); font-size: 0.78rem; }
+
+        /* Orden por columna: el encabezado es un boton; aria-sort dice el orden actual */
+        .th-orden { all: unset; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font: inherit; color: inherit; border-radius: 6px; }
+        .th-orden::after { content: "↕"; opacity: 0.45; font-size: 0.9em; }
+        th[aria-sort="ascending"] .th-orden::after { content: "↑"; opacity: 1; }
+        th[aria-sort="descending"] .th-orden::after { content: "↓"; opacity: 1; }
+        .th-orden:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+        /* Paginacion */
+        .pedidos-paginas { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; color: var(--text-muted); font-size: 0.86rem; }
+        .pedidos-paginas div { display: flex; gap: 8px; }
+
+        /* Una sola barra para guardar todos los cambios; aparece cuando hay alguno */
+        .pedidos-barra {
+            position: sticky; bottom: 16px; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+            margin-top: 16px; padding: 12px 84px 12px 16px; border: 1px solid var(--color-warning); border-radius: var(--r-md, 14px);
+            background: var(--bg-secondary); box-shadow: var(--shadow-main);
+        }
+        .pedidos-barra[hidden] { display: none; }
+        .pedidos-barra p { margin: 0; color: var(--text-main); font-weight: 600; }
+        .pedidos-barra div { display: flex; gap: 10px; }
 
         /* Cambios pendientes: la fila se resalta hasta que se guarda */
         .table-admin tbody tr.is-pendiente td { background-color: var(--color-warning-dim); }
@@ -20,11 +43,9 @@
             color: var(--color-warning);
         }
 
-        /* Guardar sin cambios pendientes / mientras se envia */
-        .estado-form button:disabled { opacity: 0.45; cursor: not-allowed; }
-        .estado-form button:disabled:hover { background: var(--color-accent); }
+        .pedidos-barra button:disabled { opacity: 0.55; cursor: not-allowed; }
 
-        .sg-toast {
+        .ped-toast {
             position: fixed; left: 24px; bottom: 24px; z-index: 3000;
             max-width: min(420px, calc(100vw - 48px));
             padding: 12px 18px; border-radius: 10px;
@@ -34,7 +55,7 @@
             opacity: 0; transform: translateY(12px); pointer-events: none;
             transition: opacity 0.25s ease, transform 0.25s ease;
         }
-        .sg-toast.show { opacity: 1; transform: none; }
+        .ped-toast.show { opacity: 1; transform: none; }
     </style>
 </head>
 <body>
@@ -49,24 +70,28 @@
     <!-- Alerta flash (cuando se cambia el estado de uno o varios pedidos) -->
     <div class="flash" th:if="${mensaje}" th:text="${mensaje}"></div>
 
-    <p class="hint-guardado"><span th:text="#{admin.pedidos.cambia_el_estado_de_uno}">Cambia el estado de uno o varios pedidos y pulsa</span> <strong th:text="#{admin.pedidos.guardar}">Guardar</strong> <span th:text="#{admin.pedidos.en_cualquiera_se_guardan_todos}">en cualquiera: se guardan todos los cambios a la vez.</span></p>
+    <p class="hint-guardado" th:text="#{admin.pedidos.hint_lote}">Cambia el estado de uno o varios pedidos y pulsa «Guardar cambios»: se guardan todos a la vez.</p>
+    <p class="leyenda-factura"><i class="ph ph-info" aria-hidden="true"></i><span><code>SG-AAAA-000000</code> <span th:text="#{admin.pedidos.leyenda_sg}">es el número de factura oficial.</span> <code>TMP-</code> <span th:text="#{admin.pedidos.leyenda_tmp}">es un número provisional que quedó en pedidos anteriores a la numeración oficial.</span></span></p>
 
-    <!-- Un solo formulario para toda la tabla: cualquier boton Guardar envia todos los cambios -->
-    <form id="form-estados" th:action="@{/admin/pedidos/estados}" method="post">
+    <!-- Un solo formulario para toda la tabla: la barra de abajo envia todos los cambios a la vez -->
+    <form id="form-estados" th:action="@{/admin/pedidos/estados}" method="post"
+          th:attr="data-sin-guardar=#{admin.pedidos.sin_guardar},data-n-cambios=#{admin.pedidos.n_cambios},data-mostrando=#{admin.pedidos.mostrando},data-guardar-n=#{admin.pedidos.guardar_cambios_n}"
+          data-sin-guardar="Sin guardar" data-n-cambios="{0} cambios sin guardar" data-mostrando="{0}–{1} de {2}" data-guardar-n="Guardar cambios ({0})">
         <div class="table-wrap">
             <table class="table-admin">
                 <thead>
                     <tr>
-                        <th th:text="#{admin.pedidos.factura}">Factura</th>
-                        <th th:text="#{admin.pedidos.cliente}">Cliente</th>
-                        <th th:text="#{admin.pedidos.fecha}">Fecha</th>
-                        <th th:text="#{admin.pedidos.estado}">Estado</th>
-                        <th th:text="#{admin.pedidos.total}">Total</th>
+                        <th aria-sort="none"><button type="button" class="th-orden" data-orden="factura" th:text="#{admin.pedidos.factura}">Factura</button></th>
+                        <th aria-sort="none"><button type="button" class="th-orden" data-orden="cliente" th:text="#{admin.pedidos.cliente}">Cliente</button></th>
+                        <th aria-sort="none"><button type="button" class="th-orden" data-orden="fecha" th:text="#{admin.pedidos.fecha}">Fecha</button></th>
+                        <th aria-sort="none"><button type="button" class="th-orden" data-orden="estado" th:text="#{admin.pedidos.estado}">Estado</button></th>
+                        <th aria-sort="none"><button type="button" class="th-orden" data-orden="total" th:text="#{admin.pedidos.total}">Total</button></th>
                         <th th:text="#{admin.pedidos.cambiar_estado}">Cambiar estado</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="pedido : ${pedidos}">
+                    <tr th:each="pedido : ${pedidos}" data-fila
+                        th:attr="data-factura=${pedido.numeroFactura},data-cliente=${pedido.usuario != null ? pedido.usuario.nombre : ''},data-fecha=${#temporals.format(pedido.fechaPedido, 'yyyyMMddHHmmss')},data-estado=${pedido.estado},data-total=${pedido.total}">
                         <td class="td-strong"><span th:text="${pedido.numeroFactura}"></span>
                             <!-- T3: compromisos logisticos que planta y despacho deben atender -->
                             <span class="compromisos-ped" th:if="${pedido.conCompromisos}" th:attr="aria-label=#{admin.pedidos.compromisos}">
@@ -96,7 +121,6 @@
                                     <option value="ENTREGADO" th:selected="${pedido.estado == 'ENTREGADO'}" th:text="#{admin.pedidos.entregado}">Entregado</option>
                                     <option value="CANCELADO" th:selected="${pedido.estado == 'CANCELADO'}" th:text="#{admin.pedidos.cancelado}">Cancelado</option>
                                 </select>
-                                <button type="submit" th:text="#{admin.pedidos.guardar}">Guardar</button>
                                 <span class="estado-msg" role="status" aria-live="polite"></span>
                             </div>
                         </td>
@@ -109,22 +133,40 @@
                 </tbody>
             </table>
         </div>
+        <nav class="pedidos-paginas" id="pedidos-paginas" hidden th:aria-label="#{admin.pedidos.paginas}" aria-label="Páginas">
+            <span id="pedidos-rango" aria-live="polite"></span>
+            <div>
+                <button type="button" class="btn btn-secondary btn-sm" id="pedidos-ant" th:text="#{admin.pedidos.anterior}">Anterior</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="pedidos-sig" th:text="#{admin.pedidos.siguiente}">Siguiente</button>
+            </div>
+        </nav>
+        <div class="pedidos-barra" id="pedidos-barra" hidden>
+            <p id="pedidos-n" role="status" aria-live="polite"></p>
+            <div>
+                <button type="button" class="btn btn-secondary" id="pedidos-descartar" th:text="#{admin.pedidos.descartar}">Descartar</button>
+                <button type="submit" class="btn btn-primary" id="pedidos-guardar" th:text="#{admin.pedidos.guardar_cambios}">Guardar cambios</button>
+            </div>
+        </div>
     </form>
 </main>
 
-<div class="sg-toast" id="sg-toast" role="status" aria-live="polite"></div>
+<div class="ped-toast" id="sg-toast" role="status" aria-live="polite"></div>
 
 <script th:src="@{/js/main.js}"></script>
 <script>
-/* Guardado en lote: elegir un estado solo lo marca como pendiente;
-   al pulsar Guardar en cualquier fila viajan TODOS los pendientes en un solo envio. */
+/* Guardado en lote: elegir un estado solo lo marca como pendiente; la barra de abajo
+   envia TODOS los pendientes en un solo envio. Orden por columna y paginas en el navegador
+   (las filas ocultas siguen en el formulario, asi que sus cambios tambien se guardan). */
 (function () {
     var form = document.getElementById('form-estados');
     var celdas = Array.prototype.slice.call(document.querySelectorAll('.estado-form'));
     var toast = document.getElementById('sg-toast');
+    var barra = document.getElementById('pedidos-barra');
+    var guardar = document.getElementById('pedidos-guardar');
     var toastTimer = null;
     var enviando = false;
     if (!form || !celdas.length) return;
+    function fmt(t) { var a = arguments; return String(t).replace(/\{(\d)\}/g, function (m, i) { return a[+i + 1]; }); }
 
     function selectDe(celda) { return celda.querySelector('select'); }
     function hayCambio(celda) {
@@ -146,15 +188,18 @@
             var cambio = hayCambio(celda);
             celda.closest('tr').classList.toggle('is-pendiente', cambio);
             celda.classList.toggle('is-dirty', cambio);
-            celda.querySelector('.estado-msg').textContent = cambio ? 'Sin guardar' : '';
-            var btn = celda.querySelector('button');
-            btn.disabled = enviando || n === 0;
-            btn.textContent = n > 1 ? sgT('adm_guardar_n', 'Guardar ({0})', n) : sgT('adm_guardar', 'Guardar');
+            celda.querySelector('.estado-msg').textContent = cambio ? form.dataset.sinGuardar : '';
         });
+        barra.hidden = n === 0;
+        document.getElementById('pedidos-n').textContent = fmt(form.dataset.nCambios, n);
+        guardar.disabled = enviando || n === 0;
+        guardar.textContent = enviando ? sgT('adm_guardando', 'Guardando…') : fmt(form.dataset.guardarN, n);
     }
 
-    celdas.forEach(function (celda) {
-        selectDe(celda).addEventListener('change', refrescar);
+    celdas.forEach(function (celda) { selectDe(celda).addEventListener('change', refrescar); });
+    document.getElementById('pedidos-descartar').addEventListener('click', function () {
+        celdas.forEach(function (celda) { var s = selectDe(celda); s.value = s.getAttribute('data-previo'); });
+        refrescar();
     });
 
     form.addEventListener('submit', function (event) {
@@ -165,12 +210,8 @@
         }
         enviando = true;
         // Solo viajan los pedidos que cambiaron (un select deshabilitado no se envia)
-        celdas.forEach(function (celda) {
-            if (!hayCambio(celda)) selectDe(celda).disabled = true;
-            var btn = celda.querySelector('button');
-            btn.disabled = true;
-            btn.textContent = sgT('adm_guardando', 'Guardando…');
-        });
+        celdas.forEach(function (celda) { if (!hayCambio(celda)) selectDe(celda).disabled = true; });
+        refrescar();
     });
 
     // Si el usuario vuelve con "Atras", se deja la pagina lista otra vez
@@ -188,6 +229,50 @@
         }
     });
 
+    /* ---------- Orden y paginas ---------- */
+    var cuerpo = form.querySelector('tbody');
+    var filas = Array.prototype.slice.call(cuerpo.querySelectorAll('tr[data-fila]'));
+    var POR_PAGINA = 15, pagina = 0;
+    var ORDEN_ESTADO = { PENDIENTE: 0, PROCESANDO: 1, ENVIADO: 2, ENTREGADO: 3, CANCELADO: 4 };
+    var nav = document.getElementById('pedidos-paginas');
+    var texto = new Intl.Collator(document.documentElement.lang || 'es', { numeric: true, sensitivity: 'base' });
+
+    function valor(tr, clave) {
+        var v = tr.getAttribute('data-' + clave) || '';
+        if (clave === 'total') return parseFloat(v) || 0;
+        if (clave === 'estado') return ORDEN_ESTADO[v] != null ? ORDEN_ESTADO[v] : 9;
+        return v;
+    }
+    function paginar() {
+        var paginas = Math.max(1, Math.ceil(filas.length / POR_PAGINA));
+        pagina = Math.min(pagina, paginas - 1);
+        filas.forEach(function (tr, i) { tr.hidden = Math.floor(i / POR_PAGINA) !== pagina; });
+        nav.hidden = filas.length <= POR_PAGINA;
+        var desde = pagina * POR_PAGINA + 1, hasta = Math.min(filas.length, desde + POR_PAGINA - 1);
+        document.getElementById('pedidos-rango').textContent = fmt(form.dataset.mostrando, desde, hasta, filas.length);
+        document.getElementById('pedidos-ant').disabled = pagina === 0;
+        document.getElementById('pedidos-sig').disabled = pagina >= paginas - 1;
+    }
+    form.querySelectorAll('.th-orden').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var th = btn.closest('th'), clave = btn.getAttribute('data-orden');
+            var dir = th.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+            form.querySelectorAll('th[aria-sort]').forEach(function (o) { o.setAttribute('aria-sort', 'none'); });
+            th.setAttribute('aria-sort', dir);
+            var signo = dir === 'ascending' ? 1 : -1;
+            filas.sort(function (a, b) {
+                var x = valor(a, clave), y = valor(b, clave);
+                return signo * (typeof x === 'number' ? x - y : texto.compare(x, y));
+            });
+            filas.forEach(function (tr) { cuerpo.appendChild(tr); });
+            pagina = 0;
+            paginar();
+        });
+    });
+    document.getElementById('pedidos-ant').addEventListener('click', function () { pagina--; paginar(); });
+    document.getElementById('pedidos-sig').addEventListener('click', function () { pagina++; paginar(); });
+
+    paginar();
     refrescar();
 })();
 </script>
