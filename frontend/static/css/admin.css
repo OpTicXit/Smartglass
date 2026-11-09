@@ -842,6 +842,9 @@ html[data-a11y~="fotosensible"] :is(.adm-entra, .adm-entra *) { animation: none 
     .adm-search input { padding-right: 14px; }
     body:has(> .adm-shell) > main#contenido { padding: 18px 14px; border-radius: 24px; }
     .adm-top .nav-dropdown { position: fixed; top: 128px; left: 10px; right: 10px; min-width: 0; width: auto; }
+    /* Filtros en pastilla (p. ej. los 5 de Finanzas): se desplazan dentro de la tarjeta en vez de ensanchar la pagina */
+    .adm-tabs { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+    .adm-tabs button { flex: none; }
 }
 @media (pointer: coarse) {
     .adm-shell .adm-links .nav-link { min-height: 44px; }

@@ -62,6 +62,8 @@ public class I18nConfig implements WebMvcConfigurer {
     public static Optional<Locale> soportado(String etiqueta) {
         if (etiqueta == null || etiqueta.isBlank()) return Optional.empty();
         Locale pedido = Locale.forLanguageTag(etiqueta.trim().replace('_', '-'));
+        // "?lang=es" a secas es el espanol de la casa (antes se ignoraba y la pagina seguia en ingles)
+        if ("es".equals(pedido.toLanguageTag())) return Optional.of(POR_DEFECTO);
         return SOPORTADOS.stream()
                 .filter(l -> l.toLanguageTag().equalsIgnoreCase(pedido.toLanguageTag()))
                 .findFirst();
