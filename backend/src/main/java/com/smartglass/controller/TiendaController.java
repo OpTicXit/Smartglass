@@ -100,6 +100,7 @@ public class TiendaController {
             return "redirect:/login";
         }
 
+        if (productoService.obtenerPorIdOrNull(id) == null) return "redirect:/catalogo";   // antes quedaba una resena huerfana
         try {
             resenaService.crearOActualizar(id, usuario.getId(), usuario.getNombre(), calificacion, comentario);
             ra.addFlashAttribute("mensaje", textos.t("flash.resena_gracias"));

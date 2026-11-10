@@ -68,8 +68,13 @@ public class StockService {
      * (para liberar() si el pedido falla despues).
      */
     public Map<String, Integer> reservar(List<ItemCarrito> items) {
+        return reservar(agrupar(items));
+    }
+
+    /** Igual, con productoId -> unidades (lo usa PedidoService al reactivar un pedido cancelado). */
+    public Map<String, Integer> reservar(Map<String, Integer> porProducto) {
         Map<String, Integer> reservado = new LinkedHashMap<>();
-        for (Map.Entry<String, Integer> e : agrupar(items).entrySet()) {
+        for (Map.Entry<String, Integer> e : porProducto.entrySet()) {
             CatalogoProducto actual = productoService.obtenerPorIdOrNull(e.getKey());
             if (actual == null || !actual.isStockControlado()) continue;   // obra a medida o sin inventario
             Query query = new Query(Criteria.where("_id").is(e.getKey()).and("stock").gte(e.getValue()));
@@ -95,11 +100,12 @@ public class StockService {
         return messageSource.getMessage(clave, args, LocaleContextHolder.getLocale());
     }
 
-    /** Devuelve unidades reservadas (compensacion de un pedido que no se completo). */
+    /** Devuelve unidades al inventario (un pedido que no se completo o que se cancela). */
     public void liberar(Map<String, Integer> reservado) {
         if (reservado == null) return;
         for (Map.Entry<String, Integer> e : new ArrayList<>(reservado.entrySet())) {
-            mongoTemplate.updateFirst(new Query(Criteria.where("_id").is(e.getKey())),
+            // Solo si el producto lleva inventario: $inc sobre un stock ausente lo crearia de la nada
+            mongoTemplate.updateFirst(new Query(Criteria.where("_id").is(e.getKey()).and("stock").ne(null)),
                     new Update().inc("stock", e.getValue()), CatalogoProducto.class);
         }
     }

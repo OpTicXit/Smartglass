@@ -36,11 +36,14 @@ public class PedidoService {
     private final CarritoService carritoService;
     private final AnalisisService analisisService;
     private final VidrioSostenibleService vidrioSostenibleService;
+    private final StockService stockService;
 
     public PedidoService(PedidoRepository pedidoRepository,
                           CarritoService carritoService,
                           AnalisisService analisisService,
-                          VidrioSostenibleService vidrioSostenibleService) {
+                          VidrioSostenibleService vidrioSostenibleService,
+                          StockService stockService) {
+        this.stockService = stockService;
         this.pedidoRepository = pedidoRepository;
         this.carritoService = carritoService;
         this.analisisService = analisisService;
@@ -83,6 +86,17 @@ public class PedidoService {
         return Math.round(totalCO2 * 100.0) / 100.0;
     }
 
+    /**
+     * true si todo el carrito son obras a medida que ya pagaron su compensacion en la cotizacion
+     * (AnalisisService la suma al precio). En ese caso el checkout no la cobra otra vez.
+     */
+    public boolean carritoYaCompensado(List<ItemCarrito> items) {
+        return !items.isEmpty() && items.stream().allMatch(item -> item.getProducto() != null
+                && item.getProducto().getId() != null
+                && vidrioSostenibleService.obtenerPorId(item.getProducto().getId())
+                        .map(VidrioSostenible::isCompensarCarbono).orElse(false));
+    }
+
     // --- GESTION DE PEDIDOS ---
 
     public Pedido crearPedidoDesdeCarrito(Usuario usuario, String direccion, String metodo, boolean compensar) {
@@ -104,7 +118,8 @@ public class PedidoService {
         pedido.setUsuario(usuario);
         pedido.setDireccionEnvio(direccion);
         pedido.setMetodoPago(metodo);
-        pedido.setCompensacionCarbono(compensar);
+        boolean yaCompensado = carritoYaCompensado(items);
+        pedido.setCompensacionCarbono(compensar || yaCompensado);
         pedido.setEmpaqueReutilizable(empaqueReutilizable);
         pedido.setEntregaConsolidada(entregaConsolidada);
         pedido.setRetomaVidrio(retomaVidrio);
@@ -115,7 +130,7 @@ public class PedidoService {
 
         pedido.setTotal(pedido.getTotal() + calcularCostoEnvio(subtotal));
         // La compensacion que anuncia el checkout ("+$5.000") se cobra en el pedido y queda desglosada
-        if (compensar) {
+        if (compensar && !yaCompensado) {
             pedido.setRecargoCompensacion(RECARGO_COMPENSACION_PEDIDO);
             pedido.setTotal(pedido.getTotal() + RECARGO_COMPENSACION_PEDIDO);
         }
@@ -134,8 +149,10 @@ public class PedidoService {
         List<Pedido> pedidos = pedidoRepository.findAll();
         Map<String, Object> stats = new HashMap<>();
 
-        double ingresos = pedidos.stream().mapToDouble(Pedido::getTotal).sum();
-        double co2 = pedidos.stream().mapToDouble(Pedido::getHuellaCarbono).sum();
+        // Un pedido cancelado no se fabrica ni se cobra: no suma ingresos ni CO2 (igual que FinanzasService)
+        List<Pedido> validos = pedidos.stream().filter(p -> !CANCELADO.equals(p.getEstado())).toList();
+        double ingresos = validos.stream().mapToDouble(Pedido::getTotal).sum();
+        double co2 = validos.stream().mapToDouble(Pedido::getHuellaCarbono).sum();
         long pendientes = pedidos.stream()
                 .filter(p -> "PENDIENTE".equals(p.getEstado()) || "PROCESANDO".equals(p.getEstado()))
                 .count();
@@ -157,30 +174,46 @@ public class PedidoService {
         return pedidoRepository.findByUsuarioIdOrderByFechaPedidoDesc(usuario.getId());
     }
 
-    public void actualizarEstado(Long id, String estado) {
-        pedidoRepository.findById(id).ifPresent(p -> {
-            p.setEstado(estado);
-            pedidoRepository.save(p);
-        });
+    private static final String CANCELADO = "CANCELADO";
+
+    /** Lo que paso al guardar varios estados: cuantos cambiaron y que facturas no se pudieron reactivar. */
+    public record CambioEstados(int actualizados, List<String> sinStock) {}
+
+    @Transactional
+    public CambioEstados actualizarEstado(Long id, String estado) {
+        return actualizarEstados(Map.of(id, estado));
     }
 
     /**
      * Cambia el estado de varios pedidos en una sola transaccion (id -> nuevo estado).
      * Solo toca los pedidos cuyo estado realmente cambia.
-     * Devuelve cuantos pedidos se actualizaron.
+     * El inventario acompana: cancelar devuelve las unidades del pedido y reactivar un cancelado las vuelve
+     * a apartar; si ya no hay suficientes, ese pedido se queda cancelado y su factura sale en sinStock.
      */
     @Transactional
-    public int actualizarEstados(Map<Long, String> cambios) {
+    public CambioEstados actualizarEstados(Map<Long, String> cambios) {
         int actualizados = 0;
+        List<String> sinStock = new java.util.ArrayList<>();
         for (Map.Entry<Long, String> cambio : cambios.entrySet()) {
             Optional<Pedido> encontrado = pedidoRepository.findById(cambio.getKey());
-            if (encontrado.isPresent() && !cambio.getValue().equals(encontrado.get().getEstado())) {
-                Pedido pedido = encontrado.get();
-                pedido.setEstado(cambio.getValue());
-                pedidoRepository.save(pedido);
-                actualizados++;
+            if (encontrado.isEmpty() || cambio.getValue().equals(encontrado.get().getEstado())) continue;
+            Pedido pedido = encontrado.get();
+            Map<String, Integer> unidades = new java.util.LinkedHashMap<>();
+            pedido.getDetalles().forEach(d -> { if (d.getProductoId() != null && d.getCantidad() > 0) unidades.merge(d.getProductoId(), d.getCantidad(), Integer::sum); });
+            if (CANCELADO.equals(pedido.getEstado())) {
+                try {
+                    stockService.reservar(unidades);
+                } catch (StockService.StockInsuficienteException e) {
+                    sinStock.add(pedido.getNumeroFactura());
+                    continue;
+                }
+            } else if (CANCELADO.equals(cambio.getValue())) {
+                stockService.liberar(unidades);
             }
+            pedido.setEstado(cambio.getValue());
+            pedidoRepository.save(pedido);
+            actualizados++;
         }
-        return actualizados;
+        return new CambioEstados(actualizados, sinStock);
     }
 }

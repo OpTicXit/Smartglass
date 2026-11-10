@@ -122,12 +122,24 @@ public class AdminController {
     @PostMapping("/usuarios/{id}/rol")
     public String cambiarRol(@PathVariable Long id, @RequestParam String tipoUsuario, RedirectAttributes ra) {
         if (!Set.of("ROLE_USER", "ROLE_ADMIN").contains(tipoUsuario)) return "redirect:/admin/usuarios/" + id;
+        // Sin esto, quitarle el rol al unico administrador dejaba el panel sin nadie que pudiera entrar
+        boolean eraAdmin = usuarioRepository.findById(id).map(u -> esRolAdmin(u.getTipoUsuario())).orElse(false);
+        if (eraAdmin && "ROLE_USER".equals(tipoUsuario)
+                && usuarioRepository.findAll().stream().filter(u -> esRolAdmin(u.getTipoUsuario())).count() <= 1) {
+            ra.addFlashAttribute("mensaje", textos.t("flash.rol_ultimo_admin"));
+            return "redirect:/admin/usuarios/" + id;
+        }
         usuarioRepository.findById(id).ifPresent(usuario -> {
             usuario.setTipoUsuario(tipoUsuario);
             usuarioRepository.save(usuario);
         });
         ra.addFlashAttribute("mensaje", textos.t("flash.rol_actualizado"));
         return "redirect:/admin/usuarios/" + id;
+    }
+
+    /** Mismos nombres que acepta UserDetailsServiceImpl.normalizarRol para un administrador. */
+    private static boolean esRolAdmin(String tipoUsuario) {
+        return tipoUsuario != null && Set.of("ADMIN", "ADMINISTRADOR", "ROLE_ADMIN").contains(tipoUsuario.trim().toUpperCase());
     }
 
     // --- Pedidos ---
@@ -141,8 +153,8 @@ public class AdminController {
     @PostMapping("/pedidos/{id}/estado")
     public String cambiarEstadoPedido(@PathVariable Long id, @RequestParam String estado, RedirectAttributes ra) {
         if (!ESTADOS_PEDIDO.contains(estado)) return "redirect:/admin/pedidos";
-        pedidoService.actualizarEstado(id, estado);
-        ra.addFlashAttribute("mensaje", textos.t("flash.pedido_estado"));
+        PedidoService.CambioEstados r = pedidoService.actualizarEstado(id, estado);
+        ra.addFlashAttribute("mensaje", mensajeEstados(r));
         return "redirect:/admin/pedidos";
     }
 
@@ -167,12 +179,17 @@ public class AdminController {
             }
         }
 
-        int actualizados = pedidoService.actualizarEstados(cambios);
-        ra.addFlashAttribute("mensaje",
-                actualizados == 0 ? textos.t("flash.pedidos_sin_cambios")
-                : actualizados == 1 ? textos.t("flash.pedido_estado")
-                : textos.t("flash.pedidos_actualizados", String.valueOf(actualizados)));
+        ra.addFlashAttribute("mensaje", mensajeEstados(pedidoService.actualizarEstados(cambios)));
         return "redirect:/admin/pedidos";
+    }
+
+    private String mensajeEstados(PedidoService.CambioEstados r) {
+        int n = r.actualizados();
+        String hecho = n == 0 ? textos.t("flash.pedidos_sin_cambios")
+                : n == 1 ? textos.t("flash.pedido_estado")
+                : textos.t("flash.pedidos_actualizados", String.valueOf(n));
+        return r.sinStock().isEmpty() ? hecho
+                : hecho + " " + textos.t("flash.pedidos_sin_stock", String.join(", ", r.sinStock()));
     }
 
     // --- Catalogo de productos ---

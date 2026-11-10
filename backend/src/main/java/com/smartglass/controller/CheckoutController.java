@@ -30,6 +30,9 @@ public class CheckoutController {
     private final VidrioSostenibleService vidrioSostenibleService;
     private final PlanService plan;
     private final Textos textos;
+    /** Un candado por comprador: dos envios simultaneos del mismo carrito creaban dos pedidos y descontaban doble.
+     *  shortcut: vale para una sola instancia de la app (como la sesion); con varias replicas, un candado en la base. */
+    private final java.util.concurrent.ConcurrentHashMap<Long, Object> candados = new java.util.concurrent.ConcurrentHashMap<>();
 
     public CheckoutController(CarritoService carritoService, PedidoService pedidoService, UsuarioRepository usuarioRepository,
                               VidrioSostenibleService vidrioSostenibleService, PlanService plan, Textos textos) {
@@ -66,6 +69,8 @@ public class CheckoutController {
         model.addAttribute("huellaCarbono", huellaCarbono);
         model.addAttribute("total", subtotal + costoEnvio);
         model.addAttribute("recargoCompensacion", PedidoService.RECARGO_COMPENSACION_PEDIDO);
+        // Obras que ya pagaron su compensacion al cotizar: el checkout no la ofrece (ni la cobra) otra vez
+        model.addAttribute("yaCompensado", pedidoService.carritoYaCompensado(carritoService.getItems()));
         // T3: lo que el cliente ya eligio al cotizar sus obras llega marcado al pagar
         List<VidrioSostenible> obras = obrasDelCarrito();
         model.addAttribute("preEmpaque", obras.stream().anyMatch(VidrioSostenible::isEmpaqueReutilizable));
@@ -96,10 +101,15 @@ public class CheckoutController {
             // T3: una obra urgente no puede esperar a una ruta consolidada
             boolean hayUrgente = obrasDelCarrito().stream().anyMatch(VidrioSostenible::isUrgente);
             boolean compromisos = plan.activa(Funcion.COMPROMISOS_VERDES);   // T5: plan Avanzado
-            Pedido pedido = pedidoService.crearPedidoDesdeCarrito(usuario, direccionCompleta, metodoPago, compensarCarbono,
-                    compromisos && empaqueReutilizable, compromisos && entregaConsolidada && !hayUrgente, compromisos && retomaVidrio);
-            session.setAttribute("ultimoPedidoId", pedido.getId());
-            return "redirect:/checkout/confirmacion/" + pedido.getId();
+            synchronized (candados.computeIfAbsent(usuario.getId(), k -> new Object())) {
+                // El segundo envio del mismo formulario encuentra el carrito ya vacio: va a la confirmacion del primero
+                Object ultimo = session.getAttribute("ultimoPedidoId");
+                if (carritoService.estaVacio() && ultimo != null) return "redirect:/checkout/confirmacion/" + ultimo;
+                Pedido pedido = pedidoService.crearPedidoDesdeCarrito(usuario, direccionCompleta, metodoPago, compensarCarbono,
+                        compromisos && empaqueReutilizable, compromisos && entregaConsolidada && !hayUrgente, compromisos && retomaVidrio);
+                session.setAttribute("ultimoPedidoId", pedido.getId());
+                return "redirect:/checkout/confirmacion/" + pedido.getId();
+            }
         } catch (Exception e) {
             // Solo los errores de negocio (stock, carrito, direccion) muestran su texto; el resto, generico
             boolean negocio = e instanceof IllegalStateException || e instanceof IllegalArgumentException;

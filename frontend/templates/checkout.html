@@ -215,7 +215,12 @@
                     <span class="huella-valor" th:text="${#numbers.formatDecimal(huellaCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e'">0 kg CO₂e</span>
                 </div>
 
-                <label class="compensacion-option sg-rainbow">
+                <p class="compensacion-option" th:if="${yaCompensado}">
+                    <i class="ph ph-leaf" aria-hidden="true"></i>
+                    <span><strong th:text="#{checkout.ya_compensado}">Tu pieza ya incluye la compensación de CO₂</strong>
+                        <small th:text="#{checkout.ya_compensado_d}">La pagaste al cotizarla; no se cobra otra vez.</small></span>
+                </p>
+                <label class="compensacion-option sg-rainbow" th:unless="${yaCompensado}">
                     <input type="checkbox" name="compensarCarbono" value="true" id="compensarPedido">
                     <span>
                         <strong th:text="#{checkout.deseo_compensar_mi_huella_5}">Deseo compensar mi huella (+$5.000)</strong>
