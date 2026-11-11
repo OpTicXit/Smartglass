@@ -514,7 +514,7 @@ T3: clases que reemplazan estilos en linea del panel
     --adm-capsula-hover: rgba(255, 255, 255, 0.09);
     --adm-capsula-activo: #FFFFFF;
     --adm-capsula-activo-txt: #0B2447;
-    --adm-top-bg: rgba(255, 255, 255, 0.66);
+    --adm-top-bg: rgba(255, 255, 255, 0.94);
     --adm-top-borde: rgba(255, 255, 255, 0.9);
     --adm-top-txt: #0D1B26;
     --adm-top-sub: #4C5D6B;
@@ -545,7 +545,7 @@ T3: clases que reemplazan estilos en linea del panel
     --adm-capsula: #0E1822;
     --adm-capsula-activo: #DDF0FB;
     --adm-capsula-activo-txt: #0B2447;
-    --adm-top-bg: rgba(35, 43, 52, 0.82);
+    --adm-top-bg: rgba(35, 43, 52, 0.95);
     --adm-top-borde: rgba(255, 255, 255, 0.08);
     --adm-top-txt: #E7EEF2;
     --adm-top-sub: #A3B0BA;

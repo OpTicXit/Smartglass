@@ -45,6 +45,16 @@
         }
         .prod-code { color: var(--text-label); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; }
         .prod-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 18px 18px; }
+        /* el precio va en su propia fila: asi los dos botones quedan alineados en todas las tarjetas, haya oferta o no */
+        .prod-foot > :first-child { flex: 1 0 100%; }
+        /* "Stock y oferta" ocupa la fila y Eliminar es un boton de icono al lado: caben juntos en cualquier ancho */
+        .prod-foot { flex-wrap: wrap; }
+        .prod-foot .btn-comercio { flex: 1 1 auto; justify-content: center; padding: 8px 10px; white-space: nowrap; border: 1px solid var(--border-color); color: var(--text-main); }
+        .prod-foot > form { flex: none; margin: 0; }
+        .prod-foot .btn-eliminar { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; font-size: 1.1rem; }
+        /* la tarjeta ya dice "Stock: N": la etiqueta queda en una linea, sin repetir la cantidad */
+        .prod-body .badge-com { white-space: nowrap; }
+        .prod-body .badge-com-n { display: none; }
         /* T2 stock y oferta */
         .fieldset-plan { margin: 0; padding: 0; border: 0; min-width: 0; }
         .fieldset-plan:disabled { opacity: 0.55; }
@@ -159,8 +169,8 @@
             <div class="prod-media">
                 <svg class="ph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M9 17l6-10M12 19l4-7"/></svg>
                 <span class="ph-txt" th:text="#{admin.productos.sin_foto}">Sin foto</span>
-                <img th:if="${p.imagen != null and !#strings.isEmpty(p.imagen)}"
-                     th:src="@{/img/{img}(img=${p.imagen})}"
+                <img th:unless="${p.imagenPendiente}"
+                     th:src="@{${p.imagenUrl}}"
                      th:alt="${@contenido.nombre(p)}" loading="lazy"
                      data-quitar-si-falla>
                 <span class="prod-tipo" th:text="${p.tipo}"></span>
@@ -183,7 +193,7 @@
                 <form th:action="@{/admin/productos/{id}/eliminar(id=${p.id})}"
                       method="post"
                       data-confirm-title="¿Eliminar este producto del catálogo?" th:data-confirm-title="#{admin.productos.eliminar_este_producto_del_catalogo}" data-confirm="Dejará de mostrarse en la tienda. Esta acción no se puede deshacer." th:data-confirm="#{admin.productos.dejara_de_mostrarse_en_la}" data-confirm-ok="Eliminar" th:data-confirm-ok="#{admin.productos.eliminar}">
-                    <button type="submit" class="btn-eliminar" th:text="#{admin.productos.eliminar}">Eliminar</button>
+                    <button type="submit" class="btn-eliminar" th:title="#{admin.productos.eliminar}" title="Eliminar"><i class="ph ph-trash" aria-hidden="true"></i><span class="visually-hidden" th:text="#{admin.productos.eliminar}">Eliminar</span></button>
                 </form>
             </div>
         </article>
