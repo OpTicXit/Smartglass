@@ -179,8 +179,8 @@
                 </form>
 
                 <!-- Obra aprobada: su dueño la añade al carrito (nunca una rechazada ni una pendiente) -->
-                <form th:if="${cot.estado == 'APROBADO'}" th:action="@{/vidrio-personalizado/agregar-al-carrito/{id}(id=${cot.id})}" method="post">
-                    <button type="submit" class="btn btn-primary btn-sm"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i> <span th:text="#{mis-cotizaciones.anadir_al_carrito}">Añadir al carrito</span></button>
+                <form th:if="${cot.estado == 'APROBADO'}" th:action="@{/vidrio-personalizado/agregar-al-carrito/{id}(id=${cot.id},pagar=true)}" method="post">
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="ph ph-credit-card" aria-hidden="true"></i> <span th:text="#{obra.pagar_y_fabricar}">Pagar y empezar la fabricación</span></button>
                 </form>
 
                 <form th:if="${cot.estado == 'COTIZACION' or cot.estado == 'RECHAZADA'}" th:action="@{/vidrio-personalizado/eliminar/{id}(id=${cot.id})}" method="post"

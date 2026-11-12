@@ -144,6 +144,7 @@
         <nav class="informe-indice" id="informe-indice" th:aria-label="#{admin.informe.indice}" aria-label="Apartados del informe">
             <ul>
                 <li><a href="#informe-leer" th:text="#{admin.informe.ind_leer}">Cómo leer</a></li>
+                <li><a href="#informe-decisiones" th:text="#{admin.informe.ind_decisiones}">Decisiones</a></li>
                 <li><a href="#paises" th:text="#{admin.informe.ind_paises}">Países</a></li>
                 <li><a href="#actividad" th:text="#{admin.informe.ind_actividad}">Actividad</a></li>
                 <li><a href="#simulacion" th:text="#{admin.informe.ind_simulacion}">Simulación</a></li>
@@ -176,6 +177,46 @@
                     <li><i class="ph ph-info" aria-hidden="true"></i><span th:text="#{admin.informe.c_alerta}">Ningún color de las gráficas es una alerta.</span></li>
                 </ul>
             </div>
+        </details>
+
+        <!-- Decisiones del modelo predictivo, junto a como leer el informe (nov. 2026) -->
+        <details class="informe-leer informe-decisiones" id="informe-decisiones" open>
+            <summary><i class="ph ph-seal-check" aria-hidden="true"></i><span th:text="#{admin.informe.dec_t}">Decisiones al construir el modelo</span></summary>
+            <p th:text="#{admin.informe.dec_intro}">Qué se decidió al crear el modelo predictivo de CO₂ y por qué.</p>
+            <ol class="dec-lista">
+                <li>
+                    <span class="dec-icono" aria-hidden="true"><i class="ph ph-flask"></i></span>
+                    <div><strong th:text="#{admin.informe.dec_datos_t}">Datos sintéticos y reproducibles</strong><p th:text="#{admin.informe.dec_datos_d}">No hay registros de una vidriería real, así que se generaron 10.000 piezas a partir de factores de emisión documentados, con la semilla fija 42: cualquiera obtiene el mismo dataset.</p></div>
+                </li>
+                <li>
+                    <span class="dec-icono" aria-hidden="true"><i class="ph ph-prohibit"></i></span>
+                    <div><strong th:text="#{admin.informe.dec_masa_t}">Sin la masa como variable</strong><p th:text="#{admin.informe.dec_masa_d}">La masa sale de la misma fórmula que el CO₂ (área × espesor × 2,5). Incluirla le daría la respuesta al modelo e inflaría las métricas, así que se deja fuera.</p></div>
+                </li>
+                <li>
+                    <span class="dec-icono" aria-hidden="true"><i class="ph ph-sliders-horizontal"></i></span>
+                    <div><strong th:text="#{admin.informe.dec_variables_t}">Seis variables con One-Hot</strong><p th:text="#{admin.informe.dec_variables_d}">Tipo de vidrio y proceso se codifican con One-Hot; área, espesor, calcín y energía por kilo entran como números.</p></div>
+                </li>
+                <li>
+                    <span class="dec-icono" aria-hidden="true"><i class="ph ph-columns"></i></span>
+                    <div><strong th:text="#{admin.informe.dec_particion_t}">80 % para entrenar, 20 % para probar</strong><p th:text="#{admin.informe.dec_particion_d}">La partición es aleatoria con semilla 42 (8.000 y 2.000 registros), y se suma una validación cruzada de 5 particiones para comprobar que el resultado no depende del corte.</p></div>
+                </li>
+                <li>
+                    <span class="dec-icono" aria-hidden="true"><i class="ph ph-tree-structure"></i></span>
+                    <div><strong th:text="#{admin.informe.dec_algoritmo_t}">Random Forest de 200 árboles</strong><p th:text="#{admin.informe.dec_algoritmo_d}">Se comparó con dos referencias: la media (MAE 99,87 kg) y una regresión lineal (MAE 31,84 kg). Random Forest capta que el tipo de vidrio cambia el efecto del tamaño y baja el error a 13,52 kg.</p></div>
+                </li>
+                <li>
+                    <span class="dec-icono" aria-hidden="true"><i class="ph ph-scales"></i></span>
+                    <div><strong th:text="#{admin.informe.dec_sobreajuste_t}">Algo de sobreajuste aceptado</strong><p th:text="#{admin.informe.dec_sobreajuste_d}">En entrenamiento logra R² 0,9947 y en prueba 0,9613. Se aceptó porque la validación cruzada es estable (0,9615 ± 0,0036).</p></div>
+                </li>
+                <li>
+                    <span class="dec-icono" aria-hidden="true"><i class="ph ph-hourglass-medium"></i></span>
+                    <div><strong th:text="#{admin.informe.dec_uso_t}">Todavía no cotiza</strong><p th:text="#{admin.informe.dec_uso_d}">El cotizador sigue usando fórmulas deterministas: el modelo pide proceso, energía y calcín que el formulario no recoge, y conoce 20 tipos frente a 7. Se validará con datos reales del piloto.</p></div>
+                </li>
+                <li>
+                    <span class="dec-icono" aria-hidden="true"><i class="ph ph-chart-line-up"></i></span>
+                    <div><strong th:text="#{admin.informe.dec_proyeccion_t}">Proyecciones con un modelo aparte</strong><p th:text="#{admin.informe.dec_proyeccion_d}">El CO₂ futuro se proyecta con tendencia y estacionalidad semanal y anual (mínimos cuadrados), no con el Random Forest, y siempre con su rango probable.</p></div>
+                </li>
+            </ol>
         </details>
 
         <p class="informe-nota">

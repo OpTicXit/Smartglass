@@ -43,9 +43,9 @@ class LimitesEntradaTest {
     @Test
     void lasMedidasGigantesSeRechazanYElTopeExactoPasa() {
         assertThrows(IllegalArgumentException.class, () -> VidrioSostenibleService.validar(cotizacion(1e25, 105, 7)));
-        assertThrows(IllegalArgumentException.class, () -> VidrioSostenibleService.validar(cotizacion(1000.5, 105, 7)));
-        assertThrows(IllegalArgumentException.class, () -> VidrioSostenibleService.validar(cotizacion(105, 105, 51)));
-        assertDoesNotThrow(() -> VidrioSostenibleService.validar(cotizacion(1000, 1000, 50)));
+        assertThrows(IllegalArgumentException.class, () -> VidrioSostenibleService.validar(cotizacion(5000.5, 105, 7)));
+        assertThrows(IllegalArgumentException.class, () -> VidrioSostenibleService.validar(cotizacion(105, 105, 71)));
+        assertDoesNotThrow(() -> VidrioSostenibleService.validar(cotizacion(5000, 5000, 70)));
     }
 
     @Test
@@ -56,7 +56,7 @@ class LimitesEntradaTest {
         gigante.setAncho(105);
         gigante.setAlto(105);
         gigante.setEspesor(7);
-        gigante.setPuntosPersonalizados(java.util.List.of(new PuntoCorte(0, 0), new PuntoCorte(5000, 0), new PuntoCorte(5000, 5000)));
+        gigante.setPuntosPersonalizados(java.util.List.of(new PuntoCorte(0, 0), new PuntoCorte(5001, 0), new PuntoCorte(5001, 5001)));
         assertFalse(new AnalisisService().calcularCotizacionVidrio(gigante).isCorteAplicado());
     }
 

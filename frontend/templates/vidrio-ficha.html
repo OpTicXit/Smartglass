@@ -131,7 +131,7 @@
                     <tr th:if="${vidrio.huellaEtapas == null}"><td colspan="2" class="ficha-nota" th:text="#{huella.metodo_anterior}">Método anterior</td></tr>
                     <tr><th th:text="#{ficha.intensidad}">Intensidad del proceso</th><td th:text="${#numbers.formatDecimal(vidrio.intensidadCarbono, 1, 'POINT', 1, 'COMMA')} + ' kg CO₂e/m²'">0</td></tr>
                     <tr><th th:text="#{ficha.nivel}">Nivel del proceso</th><td th:text="${#messages.msgOrNull('cotizacion.nivel.' + vidrio.nivelImpacto)} ?: ${vidrio.nivelImpacto}">Favorable</td></tr>
-                    <tr th:if="${vidrio.resistenciaEstimada != null}"><th th:text="#{obra.indice_de_resistencia}">Índice de resistencia</th><td th:text="${#numbers.formatDecimal(vidrio.resistenciaEstimada, 1, 'POINT', 1, 'COMMA')} + ' MPa'">0 MPa</td></tr>
+                    <tr><th th:text="#{obra.resistencia_flexion}">Resistencia a flexión estimada</th><td th:text="${#numbers.formatDecimal(resistencia.valor(), 1, 'POINT', 1, 'COMMA')} + ' MPa'">0 MPa</td></tr>
                 </table>
             </section>
 

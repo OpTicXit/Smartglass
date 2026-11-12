@@ -85,6 +85,12 @@ public class RecuperacionService {
         return !remitente.isBlank();
     }
 
+    /** Aviso por correo fuera de la recuperacion (cotizacion aprobada). Sin remitente configurado no se envia nada. */
+    public void avisar(String destino, Locale idioma, String asunto, String cuerpo, Object... args) {
+        if (!activa() || destino == null || destino.isBlank()) return;
+        enOtroHilo(() -> enviar(destino, idioma, asunto, cuerpo, args));
+    }
+
     public void solicitar(String email, Locale idioma) {
         if (!activa()) return;
         enOtroHilo(() -> procesar(email, idioma));

@@ -234,7 +234,7 @@ public class VidrioSostenibleService {
     static void validar(CotizacionVidrioRequest r) {
         boolean textosLargos = java.util.stream.Stream.of(r.getTipoVidrio(), r.getForma(), r.getTratamiento(),
                 r.getColor(), r.getUsoPrincipal(), r.getAcabadoBordes()).anyMatch(t -> largo(t) > 120);
-        if (!enRango(r.getAncho(), 1, 1000) || !enRango(r.getAlto(), 1, 1000) || !enRango(r.getEspesor(), 2, 50)
+        if (!enRango(r.getAncho(), 1, 5000) || !enRango(r.getAlto(), 1, 5000) || !enRango(r.getEspesor(), 2, 70)
                 || r.getPerforaciones() < 0 || r.getPerforaciones() > 100
                 || r.getCantidadCapas() < 1 || r.getCantidadCapas() > 10
                 || r.getPorcentajeReciclado() < 0 || r.getPorcentajeReciclado() > 100

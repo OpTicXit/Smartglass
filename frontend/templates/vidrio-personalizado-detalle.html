@@ -124,7 +124,7 @@
         .detalles .tech-card, .estructura.tech-card { padding: 26px; }
         .hint-uso { margin: -4px 0 12px; color: var(--text-muted); font-size: 0.86rem; }
         .tarjeta-titulo { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; color: var(--text-main); font-size: 1.05rem; letter-spacing: -0.01em; }
-        .tarjeta-titulo > span, .tarjeta-titulo > i { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 0.95rem; }
+        .tarjeta-titulo > i { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 0.95rem; }
 
         .ficha { margin: 0; display: grid; gap: 0; }
         .ficha div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
@@ -172,6 +172,15 @@
         .verificado.visible { display: inline-flex; }
         .verificado.referencia { background: var(--bg-tertiary); color: var(--text-muted); }
         .dictamen { margin: 0; padding: 18px 22px; border: 1px solid var(--border-color); border-radius: 16px; background: var(--bg-tertiary); color: var(--text-main); font-size: 1rem; line-height: 1.6; font-style: italic; }
+        .res-desglose { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; max-width: 300px; }
+        .res-desglose li { display: flex; justify-content: space-between; gap: 12px; color: var(--text-muted); font-size: 0.82rem; }
+        .res-desglose b { color: var(--text-main); font-variant-numeric: tabular-nums; }
+        .dictamen ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+        .dictamen li { display: flex; gap: 8px; font-style: normal; font-size: 0.95rem; line-height: 1.5; }
+        .dictamen li .ph { flex: none; margin-top: 3px; color: var(--color-success); }
+        .dictamen li.alerta .ph { color: var(--color-warning, #B45309); }
+        .dictamen-nota { margin: 10px 0 0; color: var(--text-muted); font-size: max(12px, 0.76rem); font-style: normal; }
+        .pago-aviso { margin: 0 0 10px; color: var(--text-main); font-size: 0.92rem; line-height: 1.5; }
         .dictamen small { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: max(12px, 0.7rem); font-style: normal; font-weight: 700; letter-spacing: 0; }
 
 
@@ -226,7 +235,7 @@
 <main class="obra" th:if="${vidrio != null}"
       th:with="admin=${puedeAprobar != null ? puedeAprobar : (esAdmin != null ? esAdmin : false)}"
       id="obra"
-      th:attr="data-id=${vidrio.id},data-tipo=${vidrio.tipoVidrio},data-ancho=${vidrio.ancho},data-alto=${vidrio.alto},data-espesor=${vidrio.espesor},data-forma=${vidrio.forma},data-reciclado=${vidrio.usarVidrioReciclado},data-silice=${vidrio.cantidadSilice},data-sosa=${vidrio.cantidadSosa},data-caliza=${vidrio.cantidadCaliza},data-alumina=${vidrio.cantidadAlumina},data-otros=${vidrio.cantidadOtros},data-calcin=${vidrio.vidrioRecicladoKg},data-peso=${vidrio.pesoEstimado},data-co2=${vidrio.huellaCarbono},data-intensidad=${vidrio.intensidadCarbono},data-nivel=${vidrio.nivelImpacto},data-mpa=${vidrio.resistenciaEstimada},data-area-total=${vidrio.areaTotal},data-puntos=${vidrio.puntosTexto},data-uso=${vidrio.usoPrincipal},data-trat=${vidrio.tratamiento},data-bordes=${vidrio.acabadoBordes},data-perf=${vidrio.perforaciones},data-renovable=${vidrio.energiaRenovable},data-retoma=${vidrio.retomaVidrio},data-empaque=${vidrio.empaqueReutilizable},data-consolidada=${vidrio.entregaConsolidada},data-retazos=${vidrio.usarRetazos}">
+      th:attr="data-id=${vidrio.id},data-tipo=${vidrio.tipoVidrio},data-ancho=${vidrio.ancho},data-alto=${vidrio.alto},data-espesor=${vidrio.espesor},data-forma=${vidrio.forma},data-reciclado=${vidrio.usarVidrioReciclado},data-silice=${vidrio.cantidadSilice},data-sosa=${vidrio.cantidadSosa},data-caliza=${vidrio.cantidadCaliza},data-alumina=${vidrio.cantidadAlumina},data-otros=${vidrio.cantidadOtros},data-calcin=${vidrio.vidrioRecicladoKg},data-peso=${vidrio.pesoEstimado},data-co2=${vidrio.huellaCarbono},data-intensidad=${vidrio.intensidadCarbono},data-nivel=${vidrio.nivelImpacto},data-mpa=${resistencia.valor()},data-area-total=${vidrio.areaTotal},data-puntos=${vidrio.puntosTexto},data-uso=${vidrio.usoPrincipal},data-trat=${vidrio.tratamiento},data-bordes=${vidrio.acabadoBordes},data-perf=${vidrio.perforaciones},data-renovable=${vidrio.energiaRenovable},data-retoma=${vidrio.retomaVidrio},data-empaque=${vidrio.empaqueReutilizable},data-consolidada=${vidrio.entregaConsolidada},data-retazos=${vidrio.usarRetazos}">
 
     <div th:if="${mensaje}" class="alert" th:classappend="${tipoMensaje == 'error'} ? 'alert--error' : 'alert--success'" role="status">
         <i th:class="${tipoMensaje == 'error'} ? 'ph ph-warning-circle' : 'ph ph-check-circle'" aria-hidden="true"></i>
@@ -347,8 +356,9 @@
 
             <!-- F26: el DUEÑO de una obra APROBADA puede añadirla a su carrito (admin no dueño: no) -->
             <form th:if="${esDueno != null and esDueno and #strings.toString(vidrio.estado) == 'APROBADO'}"
-                  th:action="@{/vidrio-personalizado/agregar-al-carrito/{id}(id=${vidrio.id})}" method="post">
-                <button type="submit" class="btn-aprobar"><i class="ph ph-shopping-cart-simple" aria-hidden="true"></i> <span th:text="#{obra.anadir_al_carrito}">Añadir al carrito</span></button>
+                  th:action="@{/vidrio-personalizado/agregar-al-carrito/{id}(id=${vidrio.id},pagar=true)}" method="post">
+                <p class="pago-aviso" th:text="#{obra.aprobada_pagar}">SmartGlass aprobó tu obra. Págala para que empecemos a fabricarla.</p>
+                <button type="submit" class="btn-aprobar"><i class="ph ph-credit-card" aria-hidden="true"></i> <span th:text="#{obra.pagar_y_fabricar}">Pagar y empezar la fabricación</span></button>
             </form>
 
             <a th:href="@{/vidrio-personalizado/cotizar}" class="variante" id="lnkVariante"><i class="ph ph-copy" aria-hidden="true"></i> <span th:text="#{obra.crear_variante}">Crear una variante de esta obra</span></a>
@@ -496,17 +506,28 @@
 
     <!-- ================= ESTRUCTURA ================= -->
     <article class="tech-card estructura">
-        <div class="resistencia">
+        <div class="resistencia" th:with="res=${resistencia}">
             <h3 class="tarjeta-titulo"><i class="ph ph-shield-check" aria-hidden="true"></i><span th:text="#{obra.analisis_estructural}">Análisis estructural</span></h3>
-            <strong id="resistencia-valor" th:text="${vidrio.resistenciaEstimada != null ? #numbers.formatDecimal(vidrio.resistenciaEstimada, 1, 'POINT', 1, 'COMMA') + ' MPa' : 'N/D'}">0.0 MPa</strong>
-            <span th:text="#{obra.indice_de_resistencia}">Índice de resistencia</span>
+            <strong id="resistencia-valor" th:text="${#numbers.formatDecimal(res.valor(), 1, 'POINT', 1, 'COMMA') + ' MPa'}">120,0 MPa</strong>
+            <span th:text="#{obra.resistencia_flexion}">Resistencia a flexión estimada</span>
+            <ul class="res-desglose">
+                <li><span th:text="#{${res.base() > 100 ? 'obra.res_base_templado' : 'obra.res_base_recocido'}}">Vidrio templado (norma)</span><b th:text="${#numbers.formatDecimal(res.base(), 1, 'POINT', 0, 'COMMA') + ' MPa'}">120 MPa</b></li>
+                <li><span th:text="#{obra.res_bordes}">Acabado de bordes</span><b th:text="'× ' + ${#numbers.formatDecimal(res.factorBordes(), 1, 'POINT', 2, 'COMMA')}">× 1,00</b></li>
+                <li><span th:text="#{obra.res_perforaciones(${vidrio.perforaciones})}">Perforaciones (0)</span><b th:text="'× ' + ${#numbers.formatDecimal(res.factorPerforaciones(), 1, 'POINT', 2, 'COMMA')}">× 1,00</b></li>
+            </ul>
             <div class="verificado" id="verificado" th:text="#{obra.contraste_con_servicio_externo}">Contraste con servicio externo</div>
         </div>
 
-        <p class="dictamen">
-            <small th:text="#{obra.proceso_diagnostico_del_diseno_y}">Proceso: diagnóstico del diseño y la fabricación</small>
-            <span id="recomendacion-texto" th:text="${vidrio.recomendacion != null} ? ${@contenido.recomendacion(vidrio.recomendacion)} : #{obra.esperando_analisis}">Esperando análisis...</span>
-        </p>
+        <div class="dictamen">
+            <small th:text="#{obra.dictamen_estructural}">Dictamen estructural</small>
+            <ul id="recomendacion-texto">
+                <li th:each="n : ${dictamen}" th:classappend="${n.alerta()} ? 'alerta'">
+                    <i th:class="${n.alerta()} ? 'ph ph-warning' : 'ph ph-check-circle'" aria-hidden="true"></i>
+                    <span th:text="${#messages.msgWithParams(n.clave(), n.args())}">Sin observaciones.</span>
+                </li>
+            </ul>
+            <p class="dictamen-nota" th:text="#{obra.dictamen_nota}">Estimación de referencia: no reemplaza el cálculo de un ingeniero.</p>
+        </div>
     </article>
 </main>
 
@@ -679,9 +700,6 @@
     })
     .catch(function (err) {
         /* Sin respuesta (timeout, red, HTTP != 200): se avisa y NO se toca resistencia-valor ni recomendacion-texto */
-        var caja = document.getElementById('verificado');
-        caja.textContent = sgT('det_ref_no', 'Referencia externa no disponible');
-        caja.classList.add('referencia', 'visible');
         console.warn('Servicio externo de resistencia:', err && err.message ? err.message : err);
     })
     .then(function () { if (corte) clearTimeout(corte); });

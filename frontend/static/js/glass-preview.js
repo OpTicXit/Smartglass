@@ -183,23 +183,31 @@
     var maxW = mini ? 150 : 292, maxH = mini ? 104 : 208;
     var cx = mini ? 106 : 207, cy = mini ? 78 : 147;
     var conCotas = !mini && o.cotas !== false;
-    var humano = !mini && !!o.referencia, escalaH = 0;
+    var humano = !mini && !!o.referencia, escalaH = 0, escalaPersona = 0, personaX = 0, reserva = 0;
     var ratio = ancho / alto, w, h, x, y;
+    /* Profundidad del canto (espesor real, comprimido): crece con la raiz del espesor, se distingue de 4 a 70 mm */
+    var depth = Math.max(3, Math.min(mini ? 10 : 20, 3 + Math.sqrt(Math.max(esp - 4, 0) / 66) * (mini ? 7 : 17)));
+    /* el canto y sus cotas no deben salirse de la caja: se le descuenta a la pieza */
+    if (!mini) { maxW -= Math.max(0, depth - 8); maxH -= Math.max(0, depth - 8); cy -= Math.max(0, depth - 6) * 0.9; }
     if (humano) {
-      /* Escala humana: pieza y silueta de 170 cm comparten la misma escala, apoyadas en el mismo piso */
-      var anchoTotal = 46 + 24 + ancho, altoTotal = Math.max(alto, 170);
-      escalaH = Math.min(maxW / anchoTotal, maxH / altoTotal);
+      /* Escala humana: pieza y silueta de 170 cm comparten la misma escala, apoyadas en el mismo piso.
+         En piezas de decenas de metros la persona se reduce a pocos px: se le reservan al menos 44 px
+         (silueta + etiqueta "1,70 m") y su alto no baja de 18 px para que siga siendo una referencia legible. */
+      var R = 44, altoTotal = Math.max(alto, 170);
+      escalaH = Math.min(maxW / (70 + ancho), maxH / altoTotal);
+      if (70 * escalaH < R) escalaH = Math.min((maxW - R) / ancho, maxH / altoTotal);
+      reserva = Math.max(70 * escalaH, R);
+      escalaPersona = Math.max(170 * escalaH, 18) / 170;
       w = Math.max(ancho * escalaH, 6); h = Math.max(alto * escalaH, 6);
-      x = cx - anchoTotal * escalaH / 2 + 70 * escalaH;
-      y = cy + altoTotal * escalaH / 2 - h;
+      x = cx - (reserva + w) / 2 + reserva;
+      y = cy + Math.max(h, 170 * escalaPersona) / 2 - h;
+      personaX = x - reserva + reserva * 23 / 70;
     } else {
       if (ratio >= maxW / maxH) { w = maxW; h = maxW / ratio; } else { h = maxH; w = maxH * ratio; }
       w = Math.max(w, 36); h = Math.max(h, 36);
       x = cx - w / 2; y = cy - h / 2;
     }
 
-    /* Profundidad del canto (espesor real, comprimido) */
-    var depth = Math.max(3, Math.min(mini ? 9 : 17, esp * 0.46));
     var pasos = Math.max(3, Math.round(depth));
     var dx = depth, dy = depth * 0.55;
 
@@ -256,10 +264,10 @@
 
     /* Escala humana: silueta de 1,70 m y linea de piso comunes */
     if (humano) {
-      var piso = y + h, pxH = cx - (46 + 24 + ancho) * escalaH / 2 + 23 * escalaH;
-      s += '<path d="M' + f(pxH - 34 * escalaH) + ',' + f(piso) + ' H' + f(x + w + 24 * escalaH) + '" style="stroke:var(--glass-dim)" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"/>' +
-        silueta(pxH, piso, 170 * escalaH) +
-        '<text x="' + f(pxH) + '" y="' + f(piso - 170 * escalaH - 6) + '" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--glass-dim)">' +
+      var piso = y + h, pxH = personaX;
+      s += '<path d="M' + f(pxH - Math.max(34 * escalaH, 14)) + ',' + f(piso) + ' H' + f(x + w + Math.max(24 * escalaH, 10)) + '" style="stroke:var(--glass-dim)" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"/>' +
+        silueta(pxH, piso, 170 * escalaPersona) +
+        '<text x="' + f(pxH) + '" y="' + f(piso - 170 * escalaPersona - 6) + '" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--glass-dim)">' +
         esc(t('gv_persona', '1,70 m')) + '</text>';
     }
 
@@ -344,8 +352,8 @@
       s += '<g style="stroke:var(--glass-dim)" stroke-width="1" fill="none" opacity="0.9">' +
         '<path d="M' + f(x) + ',' + f(yb) + ' H' + f(x + w) + ' M' + f(x) + ',' + f(yb - 5) + ' V' + f(yb + 5) + ' M' + f(x + w) + ',' + f(yb - 5) + ' V' + f(yb + 5) + '"/>' +
         '<path d="M' + f(xr) + ',' + f(y) + ' V' + f(y + h) + ' M' + f(xr - 5) + ',' + f(y) + ' H' + f(xr + 5) + ' M' + f(xr - 5) + ',' + f(y + h) + ' H' + f(xr + 5) + '"/></g>';
-      s += '<text x="' + f(x + w / 2) + '" y="' + f(yb + 17) + '" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--glass-dim)">' + Math.round(ancho) + ' cm</text>';
-      s += '<text transform="translate(' + f(xr + 18) + ' ' + f(y + h / 2) + ') rotate(90)" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--glass-dim)">' + Math.round(alto) + ' cm</text>';
+      s += '<text x="' + f(x + w / 2) + '" y="' + f(yb + 17) + '" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--glass-dim)">' + fmtNum(Math.round(ancho), 0) + ' cm</text>';
+      s += '<text transform="translate(' + f(xr + 18) + ' ' + f(y + h / 2) + ') rotate(90)" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--glass-dim)">' + fmtNum(Math.round(alto), 0) + ' cm</text>';
       var ex = x + w + dx, ey = y + h + dy;   /* esquina inferior derecha del canto */
       s += '<g style="stroke:var(--glass-dim)" stroke-width="1" fill="none" opacity="0.85"><path d="M' + f(ex) + ',' + f(ey) + ' l12,14"/></g>' +
         '<text x="' + f(ex + 15) + '" y="' + f(ey + 26) + '" font-size="11" font-weight="700" style="fill:var(--glass-dim)">' + esp + ' mm</text>';

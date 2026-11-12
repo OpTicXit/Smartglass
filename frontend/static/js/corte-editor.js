@@ -27,7 +27,7 @@
     var LIENZO_W = 420, LIENZO_H = 420;           // cm reales (1 unidad SVG = 1 cm)
     var MIN_PUNTOS = 3, MAX_PUNTOS = 64;
     var MIN_DIM = 10;                             // cm; igual que min="10" de ancho/alto en el formulario
-    var MAX_COORD = 1000;                         // cm; igual que MAX_COORD_CORTE_CM de AnalisisService
+    var MAX_COORD = 5000;                         // cm; igual que MAX_COORD_CORTE_CM de AnalisisService
     var UNDO_MAX = 50;
     var KEY_BORRADOR = 'sg-borrador-corte';
     var KEY_PREVIO = 'sg-borrador-corte-previo';

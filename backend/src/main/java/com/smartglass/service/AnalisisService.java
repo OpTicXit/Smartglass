@@ -86,12 +86,16 @@ public class AnalisisService {
     // --- Energia y costo base ---
     private static final double ENERGIA_POR_KG_KWH = 2.5; // kWh por kg de vidrio fundido
     private static final double PRECIO_BASE_POR_KG = 4500.0; // COP por kg
-    private static final double RESISTENCIA_BASE_MPA = 45.0; // vidrio recocido estandar
+    // --- Resistencia caracteristica a flexion (MPa), valores de norma ---
+    private static final double MPA_RECOCIDO = 45.0;  // vidrio flotado recocido (EN 572-1)
+    private static final double MPA_TEMPLADO = 120.0; // vidrio templado termicamente (EN 12150)
+    private static final double LAMINA_ANCHO_MAX_CM = 321.0; // lamina jumbo de flotado: 321 x 600 cm
+    private static final double LAMINA_LARGO_MAX_CM = 600.0;
 
     // --- F45: limites del corte personalizado ---
     private static final int MIN_PUNTOS_CORTE = 3;
     private static final int MAX_PUNTOS_CORTE = 64;
-    private static final double MAX_COORD_CORTE_CM = 1_000.0; // igual que el tope de ancho/alto: un corte no puede saltarselo
+    private static final double MAX_COORD_CORTE_CM = 5_000.0; // igual que el tope de ancho/alto: un corte no puede saltarselo
 
     /**
      * Calcula la huella de carbono de un item de pedido (productos de
@@ -250,10 +254,8 @@ public class AnalisisService {
         if (datos.isUrgente()) precio *= RECARGO_URGENCIA;
         resultado.setPrecioEstimado(redondear(precio));
 
-        // --- Resistencia estimada (el JS no la calcula; se extiende aqui por tipo) ---
-        // F27: una pieza siempre tiene al menos 1 capa; con 0 la formula restaba 10 MPa (Templado 170 en vez de 180).
-        int capas = Math.max(1, datos.getCantidadCapas());
-        resultado.setResistenciaEstimada(redondear(resistenciaBase(tipoVidrio) + (capas - 1) * 10.0));
+        // --- Resistencia estimada (el JS no la calcula) ---
+        resultado.setResistenciaEstimada(resistencia(datos).valor());
         resultado.setRecomendacion(generarRecomendacion(datos, resultado));
         return resultado;
     }
@@ -344,16 +346,77 @@ public class AnalisisService {
         return 0;
     }
 
-    private double resistenciaBase(String tipoNormalizado) {
-        return switch (tipoNormalizado) {
-            case "templado" -> RESISTENCIA_BASE_MPA * 4.0;
-            case "templadolaminado" -> RESISTENCIA_BASE_MPA * 5.0;
-            case "laminado" -> RESISTENCIA_BASE_MPA * 1.5;
-            case "insulado" -> RESISTENCIA_BASE_MPA * 1.8;
-            case "inteligente" -> RESISTENCIA_BASE_MPA * 1.5;
-            case "fotovoltaico" -> RESISTENCIA_BASE_MPA * 1.6;
-            default -> RESISTENCIA_BASE_MPA; // Crudo
+    /**
+     * Resistencia a flexion estimada = valor de norma del vidrio x bordes x perforaciones.
+     * El material no gana resistencia por espesor ni por capas: un laminado resiste como sus laminas,
+     * un insulado como sus hojas (recocidas) y el fotovoltaico lleva cubierta templada.
+     * Publico: el detalle y la ficha lo recalculan, asi las obras guardadas con la formula anterior se ven igual.
+     */
+    public record Resistencia(double base, double factorBordes, double factorPerforaciones, double valor) {}
+
+    public Resistencia resistencia(VidrioSostenible d) {
+        String tipo = normalizarTipo(d.getTipoVidrio());
+        double base = esTemplado(tipo) ? MPA_TEMPLADO : MPA_RECOCIDO;
+        double bordes = switch (normalizarTipo(d.getAcabadoBordes())) {
+            case "pulidoplano" -> 1.0;
+            case "biselado" -> 0.95;
+            default -> 0.90; // corte limpio: el borde sin pulir guarda microfisuras
         };
+        int n = Math.max(0, d.getPerforaciones());
+        // cada perforacion concentra esfuerzos; el templado lo tolera mejor que el recocido
+        double perf = n == 0 ? 1.0 : Math.max(0.70, 1 - (esTemplado(tipo) ? 0.02 : 0.05) * n);
+        return new Resistencia(base, bordes, redondear(perf), Math.round(base * bordes * perf * 10.0) / 10.0);
+    }
+
+    private static boolean esTemplado(String tipoNormalizado) {
+        return switch (tipoNormalizado) {
+            case "templado", "templadolaminado", "fotovoltaico" -> true;
+            default -> false;
+        };
+    }
+
+    /** Una observacion del dictamen estructural: clave de messages.properties y sus argumentos ya formateados. */
+    public record Nota(String clave, boolean alerta, Object... args) {}
+
+    /** Dictamen estructural de la pieza: espesor para el uso, vidrio de seguridad, perforaciones y tamano. */
+    public List<Nota> dictamenEstructural(VidrioSostenible d) {
+        String tipo = normalizarTipo(d.getTipoVidrio());
+        String uso = normalizarTipo(d.getUsoPrincipal());
+        double esp = d.getEspesor();
+        List<Nota> notas = new java.util.ArrayList<>();
+
+        double[] rango = switch (uso) {
+            case "mobiliario", "muebles" -> new double[]{6, 8};
+            case "ventana" -> new double[]{6, 10};
+            case "ducha" -> new double[]{8, 10};
+            case "baranda", "piso" -> new double[]{12, 25};
+            default -> null;
+        };
+        if (rango != null) {
+            boolean ok = esp >= rango[0] && esp <= rango[1];
+            notas.add(new Nota(ok ? "dict.espesor_ok" : "dict.espesor_fuera", !ok,
+                    num(esp), num(rango[0]), num(rango[1])));
+        }
+        boolean seguridad = switch (uso) { case "ducha", "puerta", "baranda", "piso", "techo", "fachada" -> true; default -> false; };
+        boolean laminado = tipo.contains("laminado");
+        if (seguridad && !esTemplado(tipo) && !laminado) {
+            notas.add(new Nota("dict.requiere_seguridad", true));
+        } else if (switch (uso) { case "baranda", "piso", "techo" -> true; default -> false; } && !laminado) {
+            notas.add(new Nota("dict.recomienda_laminado", true));
+        }
+        if (d.getPerforaciones() > 0 && !esTemplado(tipo)) {
+            notas.add(new Nota("dict.perforaciones_recocido", true, d.getPerforaciones()));
+        }
+        double lado = Math.min(d.getAncho(), d.getAlto()), largo = Math.max(d.getAncho(), d.getAlto());
+        if (lado > LAMINA_ANCHO_MAX_CM || largo > LAMINA_LARGO_MAX_CM) {
+            notas.add(new Nota("dict.excede_lamina", true, num(d.getAncho()), num(d.getAlto())));
+        }
+        if (notas.stream().noneMatch(Nota::alerta)) notas.add(new Nota("dict.sin_observaciones", false));
+        return notas;
+    }
+
+    private static String num(double v) {
+        return v == Math.rint(v) ? String.valueOf((long) v) : String.valueOf(v).replace('.', ',');
     }
 
     /**

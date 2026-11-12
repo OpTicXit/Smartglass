@@ -54,11 +54,14 @@ public class VidrioPersonalizadoWebController {
     private final CarritoService carritoService;
     private final MessageSource messageSource;
     private final PlanService plan;
+    private final com.smartglass.service.AnalisisService analisis;
 
     public VidrioPersonalizadoWebController(VidrioSostenibleService vidrioSostenibleService,
                                             CarritoService carritoService,
-                                            MessageSource messageSource, PlanService plan) {
+                                            MessageSource messageSource, PlanService plan,
+                                            com.smartglass.service.AnalisisService analisis) {
         this.plan = plan;
+        this.analisis = analisis;
         this.vidrioSostenibleService = vidrioSostenibleService;
         this.carritoService = carritoService;
         this.messageSource = messageSource;
@@ -115,6 +118,13 @@ public class VidrioPersonalizadoWebController {
         return mostrarObra(id, model, auth, sesion, "vidrio-ficha");
     }
 
+    /** Resistencia y dictamen se recalculan al mostrar: las obras guardadas con la formula anterior se ven igual que las nuevas. */
+    private void ponerObra(Model model, VidrioSostenible vidrio) {
+        model.addAttribute("vidrio", vidrio);
+        model.addAttribute("resistencia", analisis.resistencia(vidrio));
+        model.addAttribute("dictamen", analisis.dictamenEstructural(vidrio));
+    }
+
     private String mostrarObra(String id, Model model, Authentication auth, HttpSession sesion, String vista) {
         Usuario usuario = usuarioActual(model);
         if (usuario == null) {
@@ -122,7 +132,7 @@ public class VidrioPersonalizadoWebController {
             return vidrioSostenibleService.obtenerPorId(id)
                     .filter(v -> v.getUsuarioId() == null)
                     .map(vidrio -> {
-                        model.addAttribute("vidrio", vidrio);
+                        ponerObra(model, vidrio);
                         model.addAttribute("esDueno", false);
                         model.addAttribute("obraAnonima", true);
                         return vista;
@@ -133,7 +143,7 @@ public class VidrioPersonalizadoWebController {
         return vidrioSostenibleService.obtenerPorId(id)
                 .filter(v -> admin || esDueno(v, usuario))
                 .map(vidrio -> {
-                    model.addAttribute("vidrio", vidrio);
+                    ponerObra(model, vidrio);
                     model.addAttribute("esDueno", esDueno(vidrio, usuario));
                     return vista;
                 })
@@ -213,7 +223,8 @@ public class VidrioPersonalizadoWebController {
 
     /** El dueno anade su obra APROBADA al carrito (una RECHAZADA o ajena no entra). */
     @PostMapping("/agregar-al-carrito/{id}")
-    public String agregarAlCarrito(@PathVariable String id, Model model, RedirectAttributes ra) {
+    public String agregarAlCarrito(@PathVariable String id, @RequestParam(defaultValue = "false") boolean pagar,
+                                   Model model, RedirectAttributes ra) {
         Usuario usuario = usuarioActual(model);
         if (usuario == null) return "redirect:/login";
         return vidrioSostenibleService.obtenerPorId(id)
@@ -221,9 +232,9 @@ public class VidrioPersonalizadoWebController {
                 .filter(vidrio -> VidrioSostenibleService.APROBADO.equals(vidrio.getEstado()))
                 .map(vidrio -> {
                     carritoService.agregarCotizacionAprobada(vidrio);
-                    ra.addFlashAttribute("mensaje", texto("cotflash.al_carrito"));
+                    ra.addFlashAttribute("mensaje", texto(pagar ? "cotflash.a_pagar" : "cotflash.al_carrito"));
                     ra.addFlashAttribute("tipoMensaje", "success");
-                    return "redirect:/carrito";
+                    return pagar ? "redirect:/checkout" : "redirect:/carrito";
                 })
                 .orElseGet(() -> {
                     ra.addFlashAttribute("mensaje", texto("cotflash.no_carrito"));

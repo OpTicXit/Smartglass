@@ -54,10 +54,13 @@ public class NotificacionService {
     private final DetallePedidoRepository detallePedidoRepository;
     private final UsuarioRepository usuarioRepository;
     private final UsuarioSesion usuarioSesion;
+    private final RecuperacionService correo;
 
     public NotificacionService(MongoTemplate mongoTemplate, MessageSource messageSource,
                                ProductoService productoService, DetallePedidoRepository detallePedidoRepository,
-                               UsuarioRepository usuarioRepository, UsuarioSesion usuarioSesion) {
+                               UsuarioRepository usuarioRepository, UsuarioSesion usuarioSesion,
+                               RecuperacionService correo) {
+        this.correo = correo;
         this.mongoTemplate = mongoTemplate;
         this.messageSource = messageSource;
         this.productoService = productoService;
@@ -111,7 +114,24 @@ public class NotificacionService {
         if (v.getUsuarioId() != null) {
             publicar(Notificacion.USUARIO, v.getUsuarioId(), "COTIZACION_ESTADO", "notif.cotizacion_usuario." + e,
                     "/vidrio-personalizado/cotizacion/" + id, ref(id));
+            if (VidrioSostenibleService.APROBADO.equals(e)) avisarPagoPorCorreo(v, id);
         }
+    }
+
+    /** Aprobada: el cliente recibe tambien un correo con el enlace para pagar y empezar la fabricacion. */
+    private void avisarPagoPorCorreo(VidrioSostenible v, String id) {
+        usuarioRepository.findById(v.getUsuarioId()).ifPresent(u -> {
+            String enlace;
+            try {
+                enlace = org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/vidrio-personalizado/cotizacion/" + id).toUriString();
+            } catch (IllegalStateException sinPeticion) {
+                enlace = "/vidrio-personalizado/cotizacion/" + id;
+            }
+            Locale idioma = u.getPreferenciaIdioma() != null ? Locale.forLanguageTag(u.getPreferenciaIdioma()) : Locale.forLanguageTag("es-CO");
+            correo.avisar(u.getEmail(), idioma, "correo.cot_aprobada_asunto", "correo.cot_aprobada_cuerpo",
+                    u.getNombre(), ref(id), enlace);
+        });
     }
 
     /** Pedido confirmado: proceso para el admin y confirmacion para el cliente. */
