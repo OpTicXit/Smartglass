@@ -119,6 +119,13 @@
         .ods-num { font-family: var(--font-display); font-size: 2.4rem; font-weight: 700; line-height: 1; letter-spacing: -0.04em; color: var(--color-accent-text); }
         .ods h3 { margin: 0 0 6px; font-size: 1.02rem; }
         .ods p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+        /* ---------- Marco legal: la etiqueta es el nombre oficial de la norma ---------- */
+        .leyes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; margin: 8px 0 0; padding: 0; list-style: none; }
+        .leyes li { padding: 18px 0; border-bottom: 1px solid var(--border-color); }
+        .ley-tag { display: inline-block; margin-bottom: 8px; padding: 3px 10px; border: 1px solid var(--border-color); border-radius: 999px; color: var(--color-accent-text); font-size: max(12px, 0.75rem); font-weight: 700; font-variant-numeric: tabular-nums; }
+        .leyes h3 { margin: 0 0 6px; font-size: 1.02rem; }
+        .leyes p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+        .leyes-nota { margin: 18px 0 0; color: var(--text-muted); font-size: 0.84rem; line-height: 1.5; }
 
         /* ---------- Cierre ---------- */
         .acerca-cta {
@@ -142,7 +149,7 @@
             .pilares { grid-template-columns: 1fr; }
             .pilares li { padding: 18px 0; }
             .pilares li + li { border-left: 0; border-top: 1px solid var(--border-color); }
-            .ods { grid-template-columns: 1fr; }
+            .ods, .leyes { grid-template-columns: 1fr; }
         }
         @media (max-width: 560px) {
             .cifras-vivo, .eleccion { grid-template-columns: 1fr; }
@@ -353,6 +360,65 @@
                     </div>
                 </li>
             </ul>
+        </div>
+    </section>
+
+    <!-- Nov. 2026: marco legal colombiano con el que se alinea cada funcion (no es una certificacion) -->
+    <section class="bloque" id="marco-legal" data-reveal>
+        <div class="bloque-titulo">
+            <span class="bloque-num" aria-hidden="true"></span>
+            <h2 th:text="#{acerca4.leyes_t}">Marco legal</h2>
+            <p th:text="#{acerca4.leyes_sub}">Las leyes y normas colombianas con las que se alinea el proyecto.</p>
+        </div>
+        <div class="bloque-cuerpo">
+            <ul class="leyes">
+                <li>
+                    <span class="ley-tag" th:text="#{acerca4.l2169_tag}">Ley 2169 de 2021</span>
+                    <h3 th:text="#{acerca4.l2169_t}">Desarrollo bajo en carbono</h3>
+                    <p th:text="#{acerca4.l2169_d}">Fija la meta de carbono neutralidad de Colombia a 2050. SmartGlass estima la huella de CO₂ de cada pieza antes de pedirla y ofrece compensarla.</p>
+                </li>
+                <li>
+                    <span class="ley-tag" th:text="#{acerca4.l1931_tag}">Ley 1931 de 2018</span>
+                    <h3 th:text="#{acerca4.l1931_t}">Gestión del cambio climático</h3>
+                    <p th:text="#{acerca4.l1931_d}">Ordena reducir emisiones en los sectores productivos. Mostramos qué etapa de la fabricación pesa más y qué ajuste la reduce.</p>
+                </li>
+                <li>
+                    <span class="ley-tag" th:text="#{acerca4.l1715_tag}">Ley 1715 de 2014</span>
+                    <h3 th:text="#{acerca4.l1715_t}">Energías renovables</h3>
+                    <p th:text="#{acerca4.l1715_d}">Promueve las fuentes no convencionales de energía. El configurador permite elegir energía renovable y muestra cuánto baja la huella.</p>
+                </li>
+                <li>
+                    <span class="ley-tag" th:text="#{acerca4.r1407_tag}">Resolución 1407 de 2018</span>
+                    <h3 th:text="#{acerca4.r1407_t}">Envases y empaques de vidrio</h3>
+                    <p th:text="#{acerca4.r1407_d}">Responsabilidad extendida del productor para envases y empaques, incluido el vidrio. Apoyamos la retoma de vidrio, el empaque reutilizable y el uso de calcín.</p>
+                </li>
+                <li>
+                    <span class="ley-tag" th:text="#{acerca4.l1480_tag}">Ley 1480 de 2011</span>
+                    <h3 th:text="#{acerca4.l1480_t}">Estatuto del Consumidor</h3>
+                    <p th:text="#{acerca4.l1480_d}">Exige información clara y completa antes de comprar. Cada cotización muestra precio, medidas y huella, y el cliente aprueba antes de pagar.</p>
+                </li>
+                <li>
+                    <span class="ley-tag" th:text="#{acerca4.l527_tag}">Ley 527 de 1999</span>
+                    <h3 th:text="#{acerca4.l527_t}">Comercio electrónico</h3>
+                    <p th:text="#{acerca4.l527_d}">Da validez a los mensajes de datos. Cotizaciones, pedidos y facturas quedan registrados en la cuenta del cliente.</p>
+                </li>
+                <li>
+                    <span class="ley-tag" th:text="#{acerca4.l1581_tag}">Ley 1581 de 2012</span>
+                    <h3 th:text="#{acerca4.l1581_t}">Protección de datos personales</h3>
+                    <p th:text="#{acerca4.l1581_d}">Habeas data y su Decreto 1377 de 2013. Pedimos solo los datos necesarios, las contraseñas se guardan cifradas y cada persona ve solo su información.</p>
+                </li>
+                <li>
+                    <span class="ley-tag" th:text="#{acerca4.l1618_tag}">Ley 1618 de 2013</span>
+                    <h3 th:text="#{acerca4.l1618_t}">Inclusión y accesibilidad</h3>
+                    <p th:text="#{acerca4.l1618_d}">Derechos de las personas con discapacidad, con la Resolución 1519 de 2020 de MinTIC como guía. La plataforma tiene modos para daltonismo, fotosensibilidad y movimiento reducido.</p>
+                </li>
+                <li>
+                    <span class="ley-tag" th:text="#{acerca4.nsr10_tag}">NSR-10, Título K</span>
+                    <h3 th:text="#{acerca4.nsr10_t}">Vidrio en edificaciones</h3>
+                    <p th:text="#{acerca4.nsr10_d}">El Reglamento Colombiano de Construcción Sismo Resistente fija requisitos para el vidrio en edificaciones. Por eso el espesor y el tipo de vidrio dependen del uso de la pieza.</p>
+                </li>
+            </ul>
+            <p class="leyes-nota" th:text="#{acerca4.leyes_nota}">SmartGlass es un proyecto académico en fase piloto.</p>
         </div>
     </section>
 
