@@ -58,6 +58,19 @@
         inf_proy_r_cinco_meses: /*[[#{admin.informe.proy_r_cinco_meses}]]*/ 'los próximos 5 meses',
         inf_proy_r_anio: /*[[#{admin.informe.proy_r_anio}]]*/ 'el próximo año',
         inf_proy_r_cinco_anios: /*[[#{admin.informe.proy_r_cinco_anios}]]*/ 'los próximos 5 años',
+        'inf_arb_q_area_m2': /*[[#{admin.informe.arb_q_area}]]*/ '¿El área supera {0} m²?',
+        'inf_arb_q_espesor_mm': /*[[#{admin.informe.arb_q_espesor}]]*/ '¿El espesor supera {0} mm?',
+        'inf_arb_q_calcin_pct': /*[[#{admin.informe.arb_q_calcin}]]*/ '¿El calcín supera el {0} %?',
+        'inf_arb_q_energia_kwh_kg': /*[[#{admin.informe.arb_q_energia}]]*/ '¿La energía supera {0} kWh/kg?',
+        'inf_arb_q_tipo_vidrio': /*[[#{admin.informe.arb_q_tipo}]]*/ '¿Es vidrio {0}?',
+        'inf_arb_q_proceso': /*[[#{admin.informe.arb_q_proceso}]]*/ '¿El proceso es {0}?',
+        'inf_arb_si': /*[[#{admin.informe.arb_si}]]*/ 'sí',
+        'inf_arb_no': /*[[#{admin.informe.arb_no}]]*/ 'no',
+        'inf_arb_hoja': /*[[#{admin.informe.arb_hoja}]]*/ '{0} kg de CO₂ en promedio',
+        'inf_arb_piezas': /*[[#{admin.informe.arb_piezas}]]*/ '{0} piezas',
+        'inf_arb_resumen': /*[[#{admin.informe.arb_resumen}]]*/ 'Árbol {0} de los {1} del bosque, recortado a sus {2} primeras preguntas.',
+        'inf_arb_ejemplo': /*[[#{admin.informe.arb_ejemplo}]]*/ 'Camino resaltado: {0}.',
+        'inf_arb_hoja_sel': /*[[#{admin.informe.arb_hoja_sel}]]*/ 'Camino de esta caja: {0} piezas con {1} kg de CO₂ en promedio.',
         'inf_v_area_m2': /*[[#{admin.informe.v.area_m2}]]*/ 'Área (m²)',
         'inf_v_espesor_mm': /*[[#{admin.informe.v.espesor_mm}]]*/ 'Espesor (mm)',
         'inf_v_calcin_pct': /*[[#{admin.informe.v.calcin_pct}]]*/ 'Calcín (%)',
@@ -103,7 +116,7 @@
 <nav th:replace="~{admin/fragments/nav :: navbar}"></nav>
 
 <main id="contenido"
-      th:attr="data-datos=@{/admin/informe-tecnico/datos},data-vivo=@{/admin/informe-tecnico/vivo},data-proyeccion=@{/admin/informe-tecnico/proyeccion},data-simulacion=@{/admin/informe-tecnico/proyeccion-simulacion},data-three=@{/vendor/three/three.module.min.js},data-mapa=@{/vendor/mapas/countries-110m.json}"
+      th:attr="data-datos=@{/admin/informe-tecnico/datos},data-vivo=@{/admin/informe-tecnico/vivo},data-proyeccion=@{/admin/informe-tecnico/proyeccion},data-simulacion=@{/admin/informe-tecnico/proyeccion-simulacion},data-arbol=@{/admin/informe-tecnico/arbol},data-three=@{/vendor/three/three.module.min.js},data-mapa=@{/vendor/mapas/countries-110m.json}"
       data-datos="" data-vivo="" data-proyeccion="" data-simulacion="" data-three="" data-mapa="">
 
     <section class="globo-escena" id="globo-escena" tabindex="0" aria-labelledby="informe-titulo">
@@ -217,6 +230,18 @@
                     <div><strong th:text="#{admin.informe.dec_proyeccion_t}">Proyecciones con un modelo aparte</strong><p th:text="#{admin.informe.dec_proyeccion_d}">El CO₂ futuro se proyecta con tendencia y estacionalidad semanal y anual (mínimos cuadrados), no con el Random Forest, y siempre con su rango probable.</p></div>
                 </li>
             </ol>
+
+            <figure class="arbol-modelo" id="arbol-modelo">
+                <figcaption>
+                    <strong th:text="#{admin.informe.arbol_t}">Así decide uno de los árboles del modelo</strong>
+                    <th:block th:replace="~{admin/fragments/informe :: origen('modelo')}"></th:block>
+                    <span class="arbol-resumen" id="arbol-resumen"></span>
+                </figcaption>
+                <div class="arbol-marco" tabindex="0" th:aria-label="#{admin.informe.arbol_t}" aria-label="Árbol de decisión">
+                    <div class="arbol-lienzo" id="arbol-lienzo"></div>
+                </div>
+                <p class="arbol-ejemplo" id="arbol-ejemplo" aria-live="polite"></p>
+            </figure>
         </details>
 
         <p class="informe-nota">

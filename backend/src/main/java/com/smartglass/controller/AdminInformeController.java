@@ -25,6 +25,7 @@ public class AdminInformeController {
 
     private static final Resource DATOS = new ClassPathResource("informe/informe-tecnico.json");
     private static final Resource SIMULACION = new ClassPathResource("informe/proyeccion-simulacion.json");
+    private static final Resource ARBOL = new ClassPathResource("informe/arbol-modelo.json");
 
     private final ActividadPlataformaService actividad;
     private final ProyeccionPlataformaService proyeccion;
@@ -55,6 +56,12 @@ public class AdminInformeController {
     @ResponseBody
     public ProyeccionCo2.Proyeccion proyeccion() {
         return proyeccion.proyeccion();
+    }
+
+    /** Primeras preguntas de un arbol del Random Forest: JSON de "mineria de datos/exportar_arbol.py". */
+    @GetMapping("/admin/informe-tecnico/arbol")
+    public ResponseEntity<Resource> arbol() {
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(ARBOL);
     }
 
     /** "Simulacion": JSON de "mineria de datos/exportar_proyeccion.py" (historia sintetica de 5 anios). */

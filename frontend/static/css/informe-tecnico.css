@@ -131,6 +131,30 @@
 .dec-icono { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--color-accent-dim); color: var(--color-accent-text); font-size: 1.05rem; }
 .dec-lista strong { display: block; margin-bottom: 4px; color: var(--text-main); font-size: 0.92rem; }
 .dec-lista p { margin: 0; color: var(--text-muted); font-size: 0.84rem; line-height: 1.5; }
+/* Arbol del modelo: el CO2 absoluto no lleva color de juicio (barra neutra); el camino usa el acento */
+.arbol-modelo { margin: 18px 0 0; }
+.arbol-modelo figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 10px; }
+.arbol-modelo figcaption strong { color: var(--text-main); font-size: 0.95rem; }
+.arbol-resumen { flex-basis: 100%; color: var(--text-muted); font-size: 0.84rem; line-height: 1.5; }
+.arbol-marco { overflow-x: auto; padding: 18px; border: 1px solid var(--admin-card-border); border-radius: 14px; background: var(--bg-primary); }
+.arbol-marco:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.arbol-lienzo { position: relative; margin: 0 auto; }
+.arbol-lineas { position: absolute; inset: 0; overflow: visible; }
+.arbol-lineas path { fill: none; stroke: var(--border-color); stroke-width: 1.5; transition: stroke 0.2s ease; }
+.arbol-lineas path.en-camino { stroke: var(--color-accent); stroke-width: 2.5; }
+.arbol-lineas text { fill: var(--text-muted); font-size: 11px; font-weight: 700; }
+.arb-nodo, .arb-hoja { position: absolute; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;
+    padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary);
+    color: var(--text-main); font: inherit; font-size: 0.82rem; line-height: 1.3; text-align: left; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+.arb-hoja { cursor: pointer; overflow: hidden; }
+.arb-hoja strong { font-size: 0.84rem; }
+.arb-hoja span { color: var(--text-muted); font-size: 0.78rem; }
+.arb-hoja i { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--text-muted); opacity: 0.45; }
+.arb-nodo.en-camino, .arb-hoja.en-camino { border-color: var(--color-accent); }
+.arb-hoja.elegida { box-shadow: 0 0 0 2px var(--color-accent); }
+.arb-hoja:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.arbol-ejemplo { margin: 10px 0 0; color: var(--text-muted); font-size: 0.84rem; line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) { .arbol-lineas path, .arb-nodo, .arb-hoja { transition: none; } }
 .muestra { display: inline-block; width: 22px; height: 12px; border-radius: 4px; }
 .muestra--a { background: var(--graf-a); }
 .muestra--b { background: var(--graf-b); }

@@ -610,6 +610,84 @@
         [bloquePlataforma, bloqueSimulacion].forEach(function (b) { if (b && b.sgProy) grafProyeccion(b, b.sgProy.p, b.sgProy.clave); });
     });
 
+    /* ---------- Arbol del modelo: primeras preguntas de uno de los 200 arboles (exportar_arbol.py) ---------- */
+    function pintarArbol(d) {
+        var lienzo = document.getElementById('arbol-lienzo');
+        if (!lienzo) return;
+        var COL = 250, ANCHO = 214, FILA = 70, ALTO = 56, hojas = [], todos = [];
+        function preparar(n, nivel, ruta) {
+            n.nivel = nivel; n.ruta = ruta; todos.push(n);
+            if (!n.pregunta) { n.y = hojas.length * FILA; hojas.push(n); return n.y; }
+            var a = preparar(n.si, nivel + 1, ruta.concat(1)), b = preparar(n.no, nivel + 1, ruta.concat(0));
+            n.y = (a + b) / 2;
+            return n.y;
+        }
+        preparar(d.raiz, 0, []);
+        var columnas = Math.max.apply(null, todos.map(function (n) { return n.nivel; })) + 1;
+        var alto = hojas.length * FILA, ancho = (columnas - 1) * COL + ANCHO;
+        var maxCo2 = Math.max.apply(null, hojas.map(function (h) { return h.co2; }));
+        lienzo.style.width = ancho + 'px'; lienzo.style.height = alto + 'px';
+        lienzo.textContent = '';
+        var svg = nodo('svg', { class: 'arbol-lineas', width: ancho, height: alto, 'aria-hidden': 'true' }, lienzo);
+
+        function pregunta(q) {
+            if (q.tipo === 'tipo_vidrio') return sgT('inf_arb_q_tipo_vidrio', '{0}', nombreTipo(q.valor).toLowerCase());
+            if (q.tipo === 'proceso') return sgT('inf_arb_q_proceso', '{0}', window.SG_TXT['inf_v_' + q.valor] || nombreTipo(q.valor).toLowerCase());
+            return sgT('inf_arb_q_' + q.tipo, q.tipo + ' > {0}', NUM.format(q.umbral));
+        }
+        todos.forEach(function (n) {
+            var x = n.nivel * COL, el;
+            if (n.pregunta) {
+                el = document.createElement('div');
+                el.className = 'arb-nodo';
+                el.textContent = pregunta(n.pregunta);
+                [[n.si, 'si'], [n.no, 'no']].forEach(function (par) {
+                    var h = par[0], x1 = x + ANCHO, y1 = n.y + ALTO / 2, x2 = h.nivel * COL, y2 = h.y + ALTO / 2, m = (x1 + x2) / 2;
+                    nodo('path', { d: 'M' + x1 + ',' + y1 + ' C' + m + ',' + y1 + ' ' + m + ',' + y2 + ' ' + x2 + ',' + y2, 'data-ruta': h.ruta.join('') }, svg);
+                    nodo('text', { x: x2 - 8, y: y2 + (par[1] === 'si' ? -8 : 16), 'text-anchor': 'end' }, svg, sgT('inf_arb_' + par[1], par[1]));
+                });
+            } else {
+                el = document.createElement('button');
+                el.type = 'button';
+                el.className = 'arb-hoja';
+                var kg = document.createElement('strong'); kg.textContent = sgT('inf_arb_hoja', '{0} kg', NUM.format(n.co2));
+                var pz = document.createElement('span'); pz.textContent = sgT('inf_arb_piezas', '{0}', ENTERO.format(n.n));
+                var barra = document.createElement('i'); barra.style.width = Math.max(4, n.co2 / maxCo2 * 100) + '%';
+                el.append(kg, pz, barra);
+                el.addEventListener('mouseenter', function () { marcar(n, true); });
+                el.addEventListener('focus', function () { marcar(n, true); });
+                el.addEventListener('click', function () { marcar(n, true); });
+            }
+            el.style.left = x + 'px'; el.style.top = n.y + 'px'; el.style.width = ANCHO + 'px'; el.style.height = ALTO + 'px';
+            el.dataset.ruta = n.ruta.join('');
+            lienzo.appendChild(el);
+        });
+        lienzo.addEventListener('mouseleave', function () { marcar(ejemplo, false); });
+
+        function marcar(hoja, propia) {
+            var ruta = hoja.ruta.join('');
+            lienzo.querySelectorAll('[data-ruta]').forEach(function (e) {
+                var r = e.getAttribute('data-ruta');
+                e.classList.toggle('en-camino', ruta.indexOf(r) === 0);
+                e.classList.toggle('elegida', r === ruta && !e.classList.contains('arb-nodo') && e.tagName !== 'path');
+            });
+            document.getElementById('arbol-ejemplo').textContent = propia
+                ? sgT('inf_arb_hoja_sel', '{0} · {1}', ENTERO.format(hoja.n), NUM.format(hoja.co2)) : textoEjemplo;
+        }
+        var e = d.ejemplo, ejemplo = d.raiz;
+        e.camino.forEach(function (si) { if (ejemplo.pregunta) ejemplo = si ? ejemplo.si : ejemplo.no; });
+        var textoEjemplo = sgT('inf_arb_ejemplo', '{0}', nombreTipo(e.tipo_vidrio).toLowerCase(), NUM.format(e.area_m2), NUM.format(e.espesor_mm),
+            NUM.format(e.calcin_pct), NUM.format(e.energia_kwh_kg), NUM.format(e.co2Arbol), NUM.format(e.co2Bosque), NUM.format(e.co2Calculado));
+        document.getElementById('arbol-resumen').textContent = sgT('inf_arb_resumen', '', d.arbol, d.arboles, d.preguntas, d.profundidad, ENTERO.format(d.hojas));
+        marcar(ejemplo, false);
+    }
+    if (main.dataset.arbol) {
+        fetch(main.dataset.arbol, { headers: { Accept: 'application/json' } })
+            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+            .then(pintarArbol)
+            .catch(function () { var f = document.getElementById('arbol-modelo'); if (f) f.hidden = true; });
+    }
+
     window.sgInformeDatos.then(pintar).catch(function () {
         var nota = document.querySelector('.informe-nota');
         nota.textContent = sgT('inf_error_datos');
